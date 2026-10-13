@@ -98,9 +98,9 @@ def front_trim(d, inset):
     with BuildSketch(Plane.XZ) as s:
         with Locations(((L) / 2, H / 2)):
             Rectangle(L - 2 * inset, H - 2 * inset)
-        vs = s.vertices()
         for vx, vz, key in ((0, H, "r_in_top"), (0, 0, "r_in_bot"), (L, H, "r_out_top"), (L, 0, "r_out_bot")):
-            v = min(vs, key=lambda q: (q.X - vx) ** 2 + (q.Z - vz) ** 2)
+            # re-read vertices after each fillet; sketch-local coords, so local Y is global Z here
+            v = min(s.vertices(), key=lambda q: (q.X - vx) ** 2 + (q.Y - vz) ** 2)
             fillet(v, max(d[key] - inset, 0.5))
     return extrude(s.sketch, amount=200, both=True)
 
