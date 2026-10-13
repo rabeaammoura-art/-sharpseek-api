@@ -1,0 +1,8 @@
+{
+  "autodeskProduct": "Fusion360",
+  "type": "script",
+  "author": "",
+  "description": {"": "Collapsible 3-compartment Mercedes serving tray (parametric)"},
+  "supportedOS": "windows|mac",
+  "editEnabled": true
+}
