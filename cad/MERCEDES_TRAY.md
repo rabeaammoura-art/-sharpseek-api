@@ -28,6 +28,7 @@ The top is carved in the spirit of the wooden original:
 | `mercedes_base.stl` | Base plate with the two foot pockets and the three twist-lock posts |
 | `mercedes_test_coupon.stl` | Ø141 test coupon: same rings, lips, gaps, hinge pin and handle ring; 4 rings |
 | `mercedes_tray.step`, `mercedes_base.step` | Same solids, for a quick non-parametric import |
+| `mercedes_carving.png` | Top view coloured by height: the carved swirls, lines and teeth |
 | `mercedes_diagram.png`, `mercedes_3d.png` | Drawings cut from the real model, including the lever action in side view |
 | `mercedes_animation.mp4` / `.gif` | Opening and closing, rendered from the real model with the real kinematics |
 | `mercedes_verification.md` | Results of every automated check |
@@ -118,7 +119,7 @@ Frame → hinge pins (Ø4) → legs → base. The stress at each pin is far belo
 | **Elephant-foot compensation** | **0.15 mm** | default |
 | Infill | 15 % (only the flange and handle have infill) | 8 %, 3 bottom / 4 top layers |
 | Avoid crossing walls | On | |
-| Estimate (PrusaSlicer, H2D-like profile) | ~8 h 35 min, 318 g | ~3 h 35 min, 156 g |
+| Estimate (PrusaSlicer, H2D-like profile) | ~9 h 10 min, 314 g | ~3 h 50 min, 156 g |
 
 After printing the tray:
 - Hold the flange and work each floor up and down, then swing the handle a few times.
