@@ -23,7 +23,7 @@ import adsk.fusion
 
 P = dict(
     L_proj=325.0, H=140.0, lip_h=13.0, n_ribs=4,
-    crest_frac=0.4, rib_P0=11.0, rib_step=0.0,
+    up_frac=0.15, crest_frac=0.45, down_frac=0.30, rib_P0=11.0, rib_step=0.0,
     D_back=28.0, t=3.0,
     red_w=100.0, mid_w=120.0, A_wrap=50.0, R_end=25.0, R_end_out=20.0,
     r_in_top=12.0, r_in_bot=5.0,
@@ -44,8 +44,7 @@ def derived(p):
     d["Rv"] = p["R_end"] - d["P_max"]
     d["Rvo"] = p["R_end_out"] - d["P_max"]
     d["Rg"] = (p["L_proj"] - d["xs"] - d["Rvo"] - d["P_max"]) / math.sin(d["A"]) + d["Rvo"]
-    d["crest_h"] = p["crest_frac"] * d["pitch"]
-    d["clear_top"] = 2 * d["pitch"] - d["crest_h"]
+    d["clear_top"] = 2 * d["pitch"] - (p["up_frac"] + p["crest_frac"]) * d["pitch"]
     d["box_top"] = p["H"] - p["lip_h"] - 2.0
     return d
 
@@ -86,18 +85,20 @@ def plan_loop(d, off, y_back):
 
 
 def relief_segments(d):
-    """Rib relief section in (n = outward from the valley line, z), closed 2 mm into the core."""
-    H, hc, s45 = d["H"], d["crest_h"], math.sin(math.pi / 4)
-    segs = []
+    """Rib relief section in (n = outward from the valley line, z): flat-faced trapezoid ribs,
+    closed 2 mm into the core."""
+    H, pt = d["H"], d["pitch"]
+    pts = []
     for i in range(d["n_ribs"]):
-        zt = H - d["lip_h"] - i * d["pitch"]
-        zb = zt - d["pitch"]
+        zt = H - d["lip_h"] - i * pt
         Pi = d["rib_P0"] + i * d["rib_step"]
-        segs.append(("A", (0, zt), (Pi * s45, zt - hc + hc * s45), (Pi, zt - hc)))   # crest
-        segs.append(("L", (Pi, zt - hc), (0, zb)))                                   # face -> valley
+        z1 = zt - d["up_frac"] * pt
+        z2 = z1 - d["crest_frac"] * pt
+        z3 = z2 - d["down_frac"] * pt
+        pts += [(0, zt), (Pi, z1), (Pi, z2), (0, z3)]
     top = H - d["lip_h"]
-    segs += [("L", (0, 0), (-2, 0)), ("L", (-2, 0), (-2, top)), ("L", (-2, top), (0, top))]
-    return segs
+    pts += [(0, 0), (-2, 0), (-2, top)]
+    return [("L", a_, b_) for a_, b_ in zip(pts, pts[1:] + pts[:1])]
 
 
 def draw(sk, segs, to_model):

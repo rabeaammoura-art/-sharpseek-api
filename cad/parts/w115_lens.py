@@ -18,7 +18,10 @@ P = dict(
     H=140.0,            # overall height
     lip_h=13.0,         # top seal-lip band (rubber gasket sits on it)
     n_ribs=4,
-    crest_frac=0.4,     # rounded crest = top 40% of each rib; the face below slopes in to the valley
+    # Each rib is a trapezoid, all faces flat, top to bottom (fractions of the rib height):
+    up_frac=0.15,       # upper flank, out from the valley above to the crest
+    crest_frac=0.45,    # flat crest
+    down_frac=0.30,     # lower flank, back in to the valley (the rest is the flat valley floor)
     rib_P0=11.0,        # crest protrusion from the valley line
     rib_step=0.0,       # extra protrusion per rib going down (unconfirmed, so 0)
     D_back=28.0,        # groove line -> back/flange plane (body depth at nose = D_back + rib_P0)
@@ -48,30 +51,33 @@ def derived(p):
     d["Rvo"] = p["R_end_out"] - d["P_max"]                  # outboard return radius at the valley line
     # Wrap radius at the valley line, chosen so the outboard crest lands on L_proj.
     d["Rg"] = (p["L_proj"] - d["xs"] - d["Rvo"] - d["P_max"]) / math.sin(d["A"]) + d["Rvo"]
-    d["crest_h"] = p["crest_frac"] * d["pitch"]
     d["Rv"] = p["R_end"] - d["P_max"]                       # inboard corner radius at the valley line
-    d["clear_top"] = 2 * d["pitch"] - d["crest_h"]        # clear = bottom rib + face of the next, up to its crest
+    # clear = bottom rib + the 3rd rib's lower flank, up to the bottom edge of its flat crest
+    d["clear_top"] = 2 * d["pitch"] - (p["up_frac"] + p["crest_frac"]) * d["pitch"]
     d["box_top"] = p["H"] - p["lip_h"] - 2.0
     return d
+
+
+def rib_points(d):
+    """Rib relief from the top of the ribs down to z = 0, as (n, z) points; n = outward from the valley line."""
+    H, pt = d["H"], d["pitch"]
+    pts = []
+    for i in range(d["n_ribs"]):
+        zt = H - d["lip_h"] - i * pt
+        Pi = d["rib_P0"] + i * d["rib_step"]
+        z1 = zt - d["up_frac"] * pt
+        z2 = z1 - d["crest_frac"] * pt
+        z3 = z2 - d["down_frac"] * pt
+        pts += [(0, zt), (Pi, z1), (Pi, z2), (0, z3)]     # upper flank, flat crest, lower flank
+    pts.append((0, 0))                                     # flat valley floor of the last rib
+    return pts
 
 
 def profile_2d(d):
     """Outer section in (u=Y depth, v=Z height)."""
     H, D = d["H"], d["D_back"]
-    edges = [Line((D, H), (0, H)), Line((0, H), (0, H - d["lip_h"]))]
-    hc = d["crest_h"]
-    s45 = math.sin(math.pi / 4)
-    for i in range(d["n_ribs"]):
-        zt = H - d["lip_h"] - i * d["pitch"]
-        zb = zt - d["pitch"]
-        Pi = d["rib_P0"] + i * d["rib_step"]
-        # crest: from the valley at the top of the rib, round outward and down to full protrusion
-        edges.append(ThreePointArc((0, zt), (-Pi * s45, zt - hc + hc * s45), (-Pi, zt - hc)))
-        # face: slopes back inward going down, into the valley at the bottom of the rib
-        edges.append(Line((-Pi, zt - hc), (0, zb)))
-    edges.append(Line((0, 0), (D, 0)))
-    edges.append(Line((D, 0), (D, H)))
-    return make_face(Wire(edges))
+    pts = [(D, H), (0, H)] + [(-n, z) for n, z in rib_points(d)] + [(D, 0)]
+    return make_face(Polyline(*pts, close=True))
 
 
 def _outboard(d, off, y_back, ang):
@@ -124,18 +130,9 @@ RELIEF_OVERLAP = 2.0  # relief sections reach this far into the core so the unio
 
 
 def relief_outer(d):
-    """Rib relief section in (n = outward from the valley line, z)."""
-    H, hc, s45, e = d["H"], d["crest_h"], math.sin(math.pi / 4), RELIEF_OVERLAP
-    edges = []
-    for i in range(d["n_ribs"]):
-        zt = H - d["lip_h"] - i * d["pitch"]
-        zb = zt - d["pitch"]
-        Pi = d["rib_P0"] + i * d["rib_step"]
-        edges.append(ThreePointArc((0, zt), (Pi * s45, zt - hc + hc * s45), (Pi, zt - hc)))
-        edges.append(Line((Pi, zt - hc), (0, zb)))
-    top = H - d["lip_h"]
-    edges += [Line((0, 0), (-e, 0)), Line((-e, 0), (-e, top)), Line((-e, top), (0, top))]
-    return make_face(Wire(edges))
+    """Rib relief section in (n = outward from the valley line, z), closed slightly into the core."""
+    e, top = RELIEF_OVERLAP, d["H"] - d["lip_h"]
+    return make_face(Polyline(*rib_points(d), (-e, 0), (-e, top), close=True))
 
 
 def relief_inner(d):
