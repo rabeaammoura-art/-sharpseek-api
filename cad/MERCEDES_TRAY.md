@@ -1,20 +1,28 @@
 # Collapsible 3-compartment "Mercedes" serving tray
 
-A round tray that lies almost flat with the handle down. Lift the handle and three
-equal 120° compartments drop open as stepped, rigid bowls. Set it down and it nests flat
-again. It is printed in one piece, collapsed, in PLA or PETG, with no supports and no
-flexible parts. The handle is a second, separate print.
+This works like the classic carved-wood folding fruit basket, made rigid and printable.
 
-**Files:** everything is in `release/mercedes_tray/` and regenerates with `make mercedes`.
+- **Closed:** the tray lies 10 mm flat on its base.
+- **Opening:** flip the handle up. Its two legs swing down onto the base and lift the
+  frame, and three equal 120° compartments drop open as stepped bowls.
+- **Locked open:** just past upright the handle drops into the base pockets and stays
+  there. The floors rest on the base, so the food sits on the table.
+- **Closing:** flip the handle back and everything nests flat again.
+
+The tray, rings and handle are **one print, assembled as printed** (PLA or PETG, no
+supports, no flexible parts). The base is a second print.
+
+**Files:** everything is in `release/mercedes_tray/` and regenerates with `make mercedes`
+(and `make mercedes-animation`).
 
 | File | What it is |
 |---|---|
-| `mercedes_tray.stl` | Tray: flange, dividers and 3 × 13 rings, collapsed, print-in-place (40 separate bodies) |
-| `mercedes_tray_handle.stl` | Arc handle, laid flat |
-| `mercedes_test_coupon.stl` | Ø120 test coupon: same walls, lips, gaps and ring height; 4 rings, no posts |
-| `mercedes_tray.step`, `mercedes_tray_handle.step` | Same solids, for a quick non-parametric import |
-| `mercedes_diagram.png`, `mercedes_3d.png` | Mechanism drawings, cut from the real model |
-| `mercedes_animation.mp4` / `.gif` | Opening and closing, rendered from the real model (`make mercedes-animation`) |
+| `mercedes_tray.stl` | Frame, 3 × 13 rings and handle with hinge pins, collapsed (41 separate bodies, one print) |
+| `mercedes_base.stl` | Base plate with the two foot pockets |
+| `mercedes_test_coupon.stl` | Ø141 test coupon: same rings, lips, gaps, hinge pin and handle ring; 4 rings |
+| `mercedes_tray.step`, `mercedes_base.step` | Same solids, for a quick non-parametric import |
+| `mercedes_diagram.png`, `mercedes_3d.png` | Drawings cut from the real model, including the lever action in side view |
+| `mercedes_animation.mp4` / `.gif` | Opening and closing, rendered from the real model with the real kinematics |
 | `mercedes_verification.md` | Results of every automated check |
 | `../../fusion/MercedesTray/` | Fusion 360 script that builds the parametric model |
 
@@ -22,105 +30,93 @@ flexible parts. The handle is a second, separate print.
 
 | | Value | Why |
 |---|---|---|
-| Tray diameter | **280 mm** | Fits the 300 × 320 safe single-nozzle area with 10 mm margin |
-| Flange | 20 mm wide, 9 mm tall | Carries the hinge posts; stiff ring that everything hangs from |
-| Divider ribs | 4 mm wide, 9 mm tall | Join the three compartments in the Mercedes Y |
+| Overall diameter | **Ø285 mm** tray, Ø290 base | Fits the 300 × 320 safe single-nozzle area |
+| Frame | Flange Ø264, 12 mm wide; dividers 4 mm; 10 mm tall | Rigid Mercedes Y that every ring hangs from |
 | Compartment | 120° sector, R 120 mm, top opening 141 cm² | Three equal compartments |
 | **Rings per compartment** | **13**, floor included, plus the fixed frame | Computed: (sector in-radius 55.7 − 5.2 − floor in-radius ≥ 12) / pitch 3.2 = 12.03 → 12 + floor |
-| Wall | 1.2 mm | 3 lines of a 0.4 nozzle (0.4 mm line width) |
-| Print-in-place gap | **0.40 mm**, horizontal, everywhere | 0.3 mm is reliable for short hinges. These walls run ~460 mm per ring with 39 rings side by side, so 0.4 leaves room for wobble and stringing. Elephant-foot compensation widens the first layer to ~0.67 mm. |
-| Stop lip | 1.6 mm protrusion, 45° chamfer, 0.6 mm land | 1.2 mm radial engagement (lip − gap); 45° prints without support |
-| Ring height | 7 mm | |
-| Travel per step | 4.6 mm (= 7 − 2·0.6 − 1.6 + 0.4) | Chamfers meet face to face |
-| **Collapsed height** | **19.0 mm** at the hinge posts; rings 7 mm, flange 9 mm | |
-| **Extended depth** | **59.8 mm** (13 × 4.6); 68.8 mm overall | Wall slope 55°; about 0.37 L per compartment |
-| Floor | inscribed circle Ø 24 mm, 1.2 mm thick | |
-| Handle | Semicircle R 134, 10 × 6 mm band, Ø6 pins, 0.3 mm pin clearance | Rises 150 mm above the flange when upright |
+| Wall | 1.2 mm | 3 lines of a 0.4 nozzle |
+| Print-in-place gap | **0.40 mm** between rings and at the hinge pin; 0.5 mm between the handle ring and the flange | 0.3 mm is fine for short hinges. Here 39 rings each run ~460 mm side by side, so 0.4 leaves room for wobble and stringing. Elephant-foot compensation opens the first layer to ~0.67 mm. |
+| Stop lip | 1.6 mm, 45° chamfer, 0.6 mm land | 1.2 mm radial engagement; 45° prints without support |
+| Ring height / travel | 7 mm / **4.6 mm per step** | Chamfers meet face to face |
+| **Collapsed height** | **10 mm** (+ 6 mm base) | |
+| **Open depth** | **59.8 mm** (13 × 4.6); frame top 69.8 mm above the base | Wall slope 55°, about 0.37 L per compartment |
+| Handle | Outer ring 10 × 10 mm, spans 180° + 2 × 28.93° legs; arch top 207 mm above the base | |
+| Leg angle | **28.93°** past each hinge | Solved so the frame lifts exactly 13 × 4.6 mm at the stop (59.75 mm): every ring is fully open and the floors rest on the base |
+| Hinge | Ø4 pin, round on top with a 45° V underneath, in a Ø4.8 teardrop hole | Prints in place without support and turns freely |
+| Base pockets | 4 mm deep; 45° entry ramps; vertical stop wall | Sized from the foot's real path between 80° and 100° |
 
 ### How it works
 
 ```
- COLLAPSED (as printed, 19 mm)          EXTENDED (handle lifted, 69 mm)
- frame r1 r2 r3 … r12 floor              frame ▄▄                     ▄▄ frame
- ███▙ ▐▌ ▐▌ ▐▌   ▐▌ ▐▌▁▁▁▁▁▁                   ▝▜▙ r1             r1 ▟▛▘
- all 13 rings side by side,                       ▝▜▙ r2       r2 ▟▛▘
- 0.4 mm gap beside every wall                        ▝▜▙ …   … ▟▛▘
-                                                        ▝▀▀floor▀▀▘
+ CLOSED (10 mm)                            OPEN (handle at 100°, locked)
+                                                         ║ handle
+ handle ring  frame  r1 r2 … floor                       ║
+ ▓▓▓  ███▙ ▐▌ ▐▌ ▐▌ ▐▌▁▁▁▁▁▁        frame ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
+ ════════════ base ═══════════              ▝▜▙ r1          r1 ▟▛▘  ║ leg
+                                               ▝▜▙ …     … ▟▛▘      ║
+                                                  ▝▀floor▀▘         ║
+                                          ══════════ base ══════════╚═ pocket
 ```
 
-- Each ring has an **outward lip at its top** and an **inward lip at its bottom**, both
-  chamfered at 45°.
-- **Collapsed:** the lips sit at different heights with a 0.4 mm gap beside every wall,
-  so each ring can slide vertically.
-- **Lifting:** the frame rises. Each ring falls until its top lip lands on the bottom lip
-  of the next larger ring. The 45° faces centre the rings and stop them.
-- **Setting down:** the floors touch the table and gravity nests everything flat again.
-- See `mercedes_diagram.png` for the top view, section A-A in both states, and a lip
-  zoom drawn from the real model.
+1. **Lever.** The handle is the outer ring, pinned to the flange at two opposite points.
+   Each end continues 28.93° past its pin as a leg. Flipping the handle up swings both
+   legs down onto the base. They act as levers and lift the frame. The side view in
+   `mercedes_diagram.png` shows 0°, 50° and 100°.
+2. **Rings.** As the frame rises, each ring hangs from the next larger one: its top lip
+   lands on the bigger ring's bottom lip, and the 45° faces centre it. The floors stay on
+   the base.
+3. **Lock.** The lift peaks at about 60.8 mm (around 70–76°), then falls slightly while the feet drop into
+   the base pockets. At **100°** the feet hit the vertical pocket wall.
+   - From that point the tray's own weight presses the handle against the stop.
+   - To close it, you have to push the handle back and raise the loaded frame about 1 mm.
+   - The weight alone can't do that, so it stays open on the table.
+4. **Closing.** Flip the handle back: the legs rise and everything nests flat.
+5. **Carrying.** You can also carry it by the handle: the frame hangs from the hinge pins
+   and the rings stay open by gravity.
 
 **Where the compartments meet (dividers and centre).** Every ring is an exact inward
-offset S(d) of its own 120° sector:
+offset of its own 120° sector, so the three compartments never share a moving wall. The
+4 mm dividers belong to the rigid frame.
+- Walls stay parallel, with a 0.4 mm gap along the edges and arcs and more at the corners.
+- When the rings extend they step toward each sector's in-centre, away from the dividers.
 
-> S(d) = points ≥ d from both radial edges and ≤ R − d from the centre
-
-The three compartments never share a moving wall. Each one hangs inside its own opening in
-the rigid frame, and the 4 mm divider ribs are part of that frame. Because all offsets
-start from the same sector, walls stay exactly parallel. The clearance is 0.4 mm along the
-straight edges and the arc, and larger at the apex and corners (0.4 / sin 60° and
-0.4·√2). When the rings extend they step toward each sector's in-centre, away from the
-dividers, so nothing collides at the centre either.
-
-**Why the handle is a separate part.**
-- A print-in-place handle would have to lie on the flange over a ~0.5 mm air gap. That is
-  a 10 mm wide, 420 mm long unsupported bridge, which fuses or sags.
-- The alternative is printing it beside the tray, but the tray already uses 280 of the
-  300 mm.
-- Printed flat on its own, the arch is laid along its strong direction. It snaps on by
-  springing the two ends apart about 6 mm each, which is about 0.2 % strain in PLA. That
-  is elastic, so it counts as assembly, not a flexible part.
-
-**Load path.** Food → floor → lip → … → lip → frame → hinge pins → handle.
-- Each ring wall carries the weight of everything below it. The lip contact is about
-  460 mm long × 1.2 mm engaged.
-- With 1 kg in one compartment, the stress across the wall's layer lines is about
-  0.02 MPa. PLA layer adhesion is over 10 MPa.
-- Static strength is not the limit. Shocks are: don't swing it or drop it.
-- The tray hangs below the hinge axis, so it carries like a basket. An unevenly loaded
-  tray will tilt a little about the hinge axis.
+**Load path.** Food → floor → **base** (directly, because the floors rest on it). The
+rings, lips and frame only carry their own weight plus the food resting on the ring steps.
+Frame → hinge pins (Ø4) → legs → base. The stress at each pin is far below PLA's strength.
 
 ## 2. Print settings (Bambu Studio, H2D, 0.4 mm nozzle)
 
-| Setting | Tray | Handle |
+| Setting | Tray (one print) | Base |
 |---|---|---|
-| Material | PLA (best for print-in-place) or PETG (see food note) | same |
-| Orientation | As exported: collapsed, bottom on the plate | Flat, as exported |
+| Material | PLA (most reliable for print-in-place) or PETG (see food note) | same or any |
+| Orientation | As exported: collapsed, flat | Flat |
 | Supports | **Off** | Off |
-| **Brim** | **No brim** (a brim would weld the ring bottoms together) | No brim |
-| Layer height | 0.20 mm (0.16 mm for smoother lips) | 0.20 mm |
-| Line width | 0.40 mm for all walls; wall loops 3 | default |
-| **Elephant-foot compensation** | **0.15 mm** | 0.1 mm |
-| Infill | 15 % gyroid (only the flange has infill) | 30 % |
-| Avoid crossing walls | On (less stringing into the gaps) | |
-| Bed | Textured PEI, 55 °C (PLA) / 70 °C (PETG) | |
-| Estimate (PrusaSlicer, H2D-like profile) | ~7 h 50 min, 292 g | ~35 min, 18 g |
+| **Brim** | **No brim** (it would weld the bottoms of the rings and the handle together) | Optional |
+| Layer height | 0.20 mm | 0.20–0.28 mm |
+| Line width / walls | 0.40 mm, 3 wall loops | 2 wall loops |
+| **Elephant-foot compensation** | **0.15 mm** | default |
+| Infill | 15 % (only the flange and handle have infill) | 8 %, 3 bottom / 4 top layers |
+| Avoid crossing walls | On | |
+| Estimate (PrusaSlicer, H2D-like profile) | ~8 h 35 min, 318 g | ~3 h 35 min, 156 g |
 
-After printing:
-- Hold the flange and push each floor up and down a few times to free the rings.
-- If a ring's first layer is tacked to its neighbour, run a thin blade around that gap.
+After printing the tray:
+- Hold the flange and work each floor up and down, then swing the handle a few times.
+- If a first layer is tacked, run a thin blade around that gap.
 
-**Print `mercedes_test_coupon.stl` first** (~1 h 40 min, 55 g). If its rings come free
-cleanly, the full tray will too. If they stick, raise `clear` to 0.45 and rebuild.
+**Print `mercedes_test_coupon.stl` first** (~2 h 30 min, 80 g).
+- It has the same rings, the same hinge pin and hole, and the same handle-ring gap. The
+  ring gap is 0.6 there because of its tighter radius.
+- If its rings and handle come free cleanly, the full tray will too.
+- If they stick, raise `clear` (and `pin_clear`) to 0.45 and rebuild.
 
 ## 3. Food contact
 
 - **Material.** Use a filament the maker sells as food-contact compliant (EU 10/2011 or
-  FDA 21 CFR), uncoloured or with a food-safe pigment. Many natural PETG and some PLA
-  grades qualify. Print it with a **stainless or hardened nozzle**, not brass, which can
-  contain lead.
-- **Bacteria.** FDM layer lines and the 0.4 mm gaps trap crumbs and bacteria. Use the
-  tray for **dry snacks and wrapped sweets**, or line the compartments with paper cups.
+  FDA 21 CFR), printed with a **stainless or hardened nozzle**, not brass.
+- **Bacteria.** Layer lines and the 0.4 mm gaps trap crumbs and bacteria. Use it for
+  **dry snacks and wrapped sweets**, or line the compartments with paper cups.
 - **Washing.** Hand wash in lukewarm water. PLA softens at about 55 °C, so no dishwasher.
-- **Coatings.** Do **not** seal it with epoxy, which would glue the rings together.
+- **Coatings.** Do **not** coat it with epoxy, which would glue the rings and hinge solid.
 
 ## 4. Fusion 360 script
 
@@ -129,52 +125,62 @@ cleanly, the full tray will too. If they stick, raise `clear` to 0.45 and rebuil
 3. Click **Run** in a new design.
 
 **What it builds.**
-- Components **Tray** (frame plus 39 rings, collapsed) and **Handle** (folded down), as
-  normal history features: sketches, extrude, loft and combine.
-- Every key dimension becomes a **User Parameter** (mm).
+- Component **Tray (one print, in place)**: frame, handle and 39 rings, collapsed.
+- Component **Base**.
+- Both are normal history features: sketches, extrude, loft and combine. Every key
+  dimension becomes a **User Parameter**.
 
 **Which edits update live (Modify → Change Parameters):**
 - Height parameters update the model directly: `ring_h`, `frame_h`, `lip_flat`, `lip`,
-  `floor_t`, `handle_t`, `hinge_gap`. They drive the construction planes and extrude
-  distances.
-- Plan dimensions and the derived step count need a re-run: `tray_d`, `flange_w`,
-  `divider_half`, `wall`, `clear`, `lip` (plan width) and N. Edit them in a design, then
-  run the script in a new design with the same values. The script reads parameters that
-  already exist. A Fusion timeline cannot add or remove ring bodies from a parameter, so
-  N can't update live.
-- Expect it to take several minutes: about 600 features are created.
+  `floor_t`, `base_t`, `pocket_d`.
+- Plan dimensions, the handle and pocket values, and the ring count N need a re-run in a
+  new design. The script reads parameters that already exist. A Fusion timeline cannot
+  add or remove ring bodies from a parameter, so N can't update live.
+- If you change the leg angle or the ring dimensions, re-solve the pocket with
+  `solve_pocket()` in `parts/_mercedes.py`. `verify_mercedes.py` checks that they match.
 
 ## 5. Verification (from the generated files)
 
-`make mercedes` runs everything below. The results are in `mercedes_verification.md`.
+`make mercedes` runs everything below. The results are in `mercedes_verification.md`
+(every check passes).
 
 - **STL:**
-  - The tray has 40 separate bodies, the handle has 1. All are watertight with
+  - The tray has 41 separate bodies and the base has 1. All are watertight with
     consistent winding.
-  - Both fit the H2D area: 280 × 280 × 19 mm and 278 × 142 × 6 mm.
-- **Clearance (all body pairs, STL meshes, FCL):**
-  - The STL minimum gap is 0.391 mm. The design value is 0.400, and faceting the
-    concentric arcs costs 0.009 mm.
-  - The exact B-rep gap is 0.4000 mm for every neighbour pair.
-- **As sliced** (PrusaSlicer, H2D-like profile, external perimeters along the section
-  line):
-  - Lip layers: 0.39 to 0.41 mm.
-  - First layer: 0.67 mm, because of elephant-foot compensation.
-- **Motion:**
+  - Both fit the H2D area: 285 × 285 × 10 mm and 290 × 290 × 6 mm.
+- **Print-in-place clearance (all body pairs, STL meshes):**
+  - STL minimum 0.391 mm. The design value is 0.400, and faceting the arcs costs 0.009.
+  - The exact B-rep gap is 0.4000 mm for every ring pair and for the handle pin in its
+    hole.
+  - After slicing, external perimeters are 0.39–0.41 mm apart at the lips and 0.67 mm on
+    the first layer.
+- **Rings:**
   - No collisions at 25, 50, 75 and 98 % extension.
-  - At 100 % every lip pair touches with no penetration. The boolean noise is 0.2 µm.
+  - At 100 % every lip pair touches with no penetration.
   - Pulling 0.2 mm further collides, so the rings cannot separate.
-  - The handle sweeps 0 to 180° in 5° steps with at least 0.30 mm to the frame (the pin
-    clearance).
+- **Hinge:** the handle sweeps 0→100° relative to the frame with at least 0.40 mm
+  clearance throughout.
+- **Opening on the base:**
+  - At poses 0, 20, 45, 70, 76, 78, 80, 85, 90, 95 and 100°, the frame lift comes from
+    the actual leg geometry resting on the base surface.
+  - The legs never touch a ring (≥ 9.4 mm).
+  - Nothing sinks into the base.
+  - At the stop the rings are fully open (last lip gap 0.05 mm) and the floors sit on the
+    base.
+- **Lock:**
+  - The lift peaks before the stop.
+  - Turning 2° past the stop drives the leg into the pocket wall.
+  - The pocket in the model equals the foot's swept footprint.
 - **Fusion script = STL:**
   - `fusion/test_fusion_script.py` runs the real script against a stand-in for Fusion's
     `adsk` API.
-  - All 41 bodies match the STL geometry, and the parameters are identical.
-  - A deliberate 0.05 mm change in the script fails this test, so it is a real check.
+  - All 42 bodies match the geometry used for the STLs, and the parameters are identical.
+  - Deliberately changing the pin by 2 % or the pocket by 0.1 mm fails the test, so it is
+    a real check.
 
 **Not verified here (needs your hands):**
-- Running the script in real Fusion 360. Fusion isn't available on Linux; the API calls
-  follow the documented Fusion API but haven't executed in Fusion itself.
-- A physical print.
-- Behaviour under drops or swinging.
-- PETG print-in-place at 0.4 mm. PETG strings more; test the coupon first.
+- Running the script in real Fusion 360. Fusion isn't available on Linux.
+- A physical print, especially the horizontal in-place hinge pin, which the coupon tests.
+- Friction and the real feel of the lock.
+- Drops.
+- PETG at 0.4 mm gaps.

@@ -1,14 +1,14 @@
 """Fusion 360 script: collapsible 3-compartment "Mercedes" serving tray.
 
 Builds the same geometry as cad/parts/_mercedes.py as parametric history features
-(sketch -> extrude / loft -> combine) in two components: "Tray" (frame + 3 x N rings,
-collapsed, print-in-place) and "Handle" (folded down, separate print).
+(sketch -> extrude / loft -> combine) in two components: "Tray" (frame + 3 x N rings +
+handle ring with hinge pins, collapsed, one print-in-place job) and "Base" (separate print).
 
 Parameters: the key dimensions are created as User Parameters (mm).
-  * Heights (ring_h, frame_h, lip_flat, lip, floor_t, handle_t, hinge_gap) drive the
+  * Heights (ring_h, frame_h, lip_flat, lip, floor_t, base_t, pocket_d) drive the
     construction planes and extrude distances directly, so editing them in
     Modify > Change Parameters updates the model live.
-  * Plan dimensions (tray_d, flange_w, divider_half, wall, clear, lip) and the
+  * Plan dimensions (tray_d, flange_w, divider_half, wall, clear, lip, handle and pocket\n    values) and the
     derived step count N are applied when the script runs: edit the parameters,
     then run the script again in a new design and it rebuilds using the values you set.
     (If the active design already has these parameters, the script reads them.)
@@ -21,27 +21,34 @@ import traceback
 import adsk.core
 import adsk.fusion
 
-# name: (default mm, comment) — identical to cad/parts/_mercedes.py Params
+# name: (default, unit, comment) — identical to cad/parts/_mercedes.py Params
 PARAMS = {
-    "tray_d": (280.0, "outer diameter of the flange"),
-    "flange_w": (20.0, "flat outer rim width"),
-    "divider_half": (2.0, "half width of a Mercedes divider rib"),
-    "wall": (1.2, "ring wall thickness"),
-    "clear": (0.4, "print-in-place gap between rings"),
-    "lip": (1.6, "stop-lip protrusion (45 deg chamfer)"),
-    "lip_flat": (0.6, "vertical land of each lip"),
-    "ring_h": (7.0, "telescoping ring height"),
-    "frame_h": (9.0, "flange + divider height"),
-    "floor_t": (1.2, "compartment floor thickness"),
-    "floor_inradius_min": (12.0, "smallest allowed floor inscribed radius"),
-    "handle_r": (134.0, "handle centreline radius"),
-    "handle_w": (10.0, "handle band radial width"),
-    "handle_t": (6.0, "handle band thickness = pin diameter"),
-    "pin_len": (5.5, "hinge pin length"),
-    "pin_clear": (0.3, "pin to hole radial clearance"),
-    "hinge_gap": (0.8, "gap handle to post and to flange"),
-    "post_t": (6.0, "hinge post thickness along the axis"),
-    "post_w": (12.0, "hinge post width"),
+    "tray_d": (264.0, "mm", "diameter of the frame flange"),
+    "flange_w": (12.0, "mm", "flat rim between compartments and handle ring"),
+    "divider_half": (2.0, "mm", "half width of a Mercedes divider rib"),
+    "wall": (1.2, "mm", "ring wall thickness"),
+    "clear": (0.4, "mm", "print-in-place gap between rings"),
+    "lip": (1.6, "mm", "stop-lip protrusion (45 deg chamfer)"),
+    "lip_flat": (0.6, "mm", "vertical land of each lip"),
+    "ring_h": (7.0, "mm", "telescoping ring height"),
+    "frame_h": (10.0, "mm", "flange, divider and handle ring height"),
+    "floor_t": (1.2, "mm", "compartment floor thickness"),
+    "floor_inradius_min": (12.0, "mm", "smallest allowed floor inscribed radius"),
+    "handle_gap": (0.5, "mm", "print-in-place gap handle ring to flange"),
+    "handle_w": (10.0, "mm", "radial width of the handle ring"),
+    "leg_deg": (28.93, "", "leg length past the hinge, degrees"),
+    "leg_gap_deg": (1.5, "", "gap leg end to fixed outer ring, degrees"),
+    "pin_r": (2.0, "mm", "hinge pin radius"),
+    "pin_clear": (0.4, "mm", "pin to hole radial clearance"),
+    "pin_len": (5.0, "mm", "pin length into the flange"),
+    "stop_deg": (100.0, "", "handle angle at the pocket stop, degrees"),
+    "base_d": (290.0, "mm", "base plate diameter"),
+    "base_t": (6.0, "mm", "base plate thickness"),
+    "pocket_d": (4.0, "mm", "foot pocket depth"),
+    "pocket_x0": (117.15, "mm", "foot pocket floor, inner x"),
+    "pocket_x1": (127.18, "mm", "foot pocket floor, outer x"),
+    "pocket_y0": (-17.19, "mm", "foot pocket floor start (45 deg entry ramp before it)"),
+    "pocket_y1": (17.19, "mm", "foot pocket stop wall (vertical)"),
 }
 COMPARTMENT_ANGLES = (30.0, 150.0, 270.0)
 
@@ -61,12 +68,11 @@ class Geo:
         self.sector_inradius = self.r_sector * s / (1 + s)
         room = self.sector_inradius - self.floor_inradius_min - (self.divider_half + self.lip + self.clear + self.wall)
         self.n_rings = int(math.floor(room / self.pitch)) + 1
-        self.hinge_z = self.frame_h + self.hinge_gap + self.handle_t / 2
-        self.pin_r = self.handle_t / 2
+        self.r_flange = self.tray_d / 2
+        self.handle_r0 = self.r_flange + self.handle_gap
+        self.handle_r1 = self.handle_r0 + self.handle_w
+        self.hinge_z = self.frame_h / 2
         self.hole_r = self.pin_r + self.pin_clear
-        post_outer = self.handle_r - self.handle_w / 2 - self.hinge_gap
-        self.post_x = (post_outer - self.post_t, post_outer)
-        self.post_top = self.hinge_z + self.hole_r * math.sqrt(2) + 1.5
 
     def ring_inset(self, k):
         return self.divider_half + self.lip + self.clear + (k - 1) * self.pitch
@@ -181,73 +187,103 @@ class Builder:
         body.name = f"c{int(th)}_r{k:02d}"
         return body
 
-    def teardrop_x(self, g, x0, x1):
-        sk = self.comp.sketches.add(self.xplane((x0 + x1) / 2))
-        x, r, z = (x0 + x1) / 2, g.hole_r, g.hinge_z
-        q = r / math.sqrt(2)
-        p_left, p_right, apex = self.pt(sk, x, -q, z + q), self.pt(sk, x, q, z + q), self.pt(sk, x, 0, z + r * math.sqrt(2))
-        sk.sketchCurves.sketchArcs.addByThreePoints(p_right, self.pt(sk, x, 0, z - r), p_left)
-        sk.sketchCurves.sketchLines.addByTwoPoints(p_left, apex)
-        sk.sketchCurves.sketchLines.addByTwoPoints(apex, p_right)
+    def annulus_sector(self, r0, r1, a0, a1, height_expr):
+        sk = self.comp.sketches.add(self.comp.xYConstructionPlane)
+
+        def pol(r, a):
+            return self.pt(sk, r * math.cos(math.radians(a)), r * math.sin(math.radians(a)), 0)
+
+        am = (a0 + a1) / 2
+        arcs, lines = sk.sketchCurves.sketchArcs, sk.sketchCurves.sketchLines
+        arcs.addByThreePoints(pol(r1, a0), pol(r1, am), pol(r1, a1))
+        lines.addByTwoPoints(pol(r1, a1), pol(r0, a1))
+        arcs.addByThreePoints(pol(r0, a1), pol(r0, am), pol(r0, a0))
+        lines.addByTwoPoints(pol(r0, a0), pol(r1, a0))
+        return self.extrude(sk.profiles.item(0), height_expr)
+
+    def yz_prism(self, profile, x0, x1):
+        """Prism along X (x0..x1) of a closed (y, z) profile of ('line', a, b) / ('arc', a, m, b)."""
+        xm = (x0 + x1) / 2
+        sk = self.comp.sketches.add(self.xplane(xm))
+        for seg in profile:
+            pts = [self.pt(sk, xm, y, z) for y, z in seg[1:]]
+            if seg[0] == "line":
+                sk.sketchCurves.sketchLines.addByTwoPoints(*pts)
+            else:
+                sk.sketchCurves.sketchArcs.addByThreePoints(*pts)
         return self.extrude_sym(sk.profiles.item(0), x1 - x0)
 
-    def cylinder_x(self, g, x0, x1, r, z):
-        sk = self.comp.sketches.add(self.xplane((x0 + x1) / 2))
-        sk.sketchCurves.sketchCircles.addByCenterRadius(self.pt(sk, (x0 + x1) / 2, 0, z), cm(r))
-        return self.extrude_sym(sk.profiles.item(0), x1 - x0)
+    @staticmethod
+    def pin_profile(g):
+        r, z = g.pin_r, g.hinge_z
+        return [("arc", (r, z), (0, z + r), (-r, z)), ("line", (-r, z), (0, z - r)), ("line", (0, z - r), (r, z))]
+
+    @staticmethod
+    def hole_profile(g):
+        r, z = g.hole_r, g.hinge_z
+        q = r / math.sqrt(2)
+        return [("arc", (q, z + q), (0, z - r), (-q, z + q)), ("line", (-q, z + q), (0, z + r * math.sqrt(2))),
+                ("line", (0, z + r * math.sqrt(2)), (q, z + q))]
 
     def frame(self, g):
         sk = self.comp.sketches.add(self.comp.xYConstructionPlane)
-        sk.sketchCurves.sketchCircles.addByCenterRadius(self.pt(sk, 0, 0, 0), cm(g.tray_d / 2))
+        sk.sketchCurves.sketchCircles.addByCenterRadius(self.pt(sk, 0, 0, 0), cm(g.r_flange))
         body = self.extrude(sk.profiles.item(0), "frame_h")
-        xi, xo = g.post_x
-        posts = []
-        for side in (1, -1):
-            skp = self.comp.sketches.add(self.zplane("frame_h"))
-            skp.sketchCurves.sketchLines.addTwoPointRectangle(self.pt(skp, side * xi, -g.post_w / 2, g.frame_h),
-                                                              self.pt(skp, side * xo, g.post_w / 2, g.frame_h))
-            posts.append(self.extrude(skp.profiles.item(0), f"{g.post_top - g.frame_h:.6f} mm"))
-        self.combine(body, posts, cut=False)
+        gap = g.leg_deg + g.leg_gap_deg
+        self.combine(body, [self.annulus_sector(g.r_flange - 1.0, g.handle_r1, 180 + gap, 360 - gap, "frame_h")],
+                     cut=False)
         tools = []
         for th in COMPARTMENT_ANGLES:
             tools += self.lipped_cavity(g, g.divider_half, th, "frame_h")
         for side in (1, -1):
-            x0, x1 = sorted((side * (xi - 1), side * (xo + 1)))
-            tools.append(self.teardrop_x(g, x0, x1))
+            x0, x1 = sorted((side * (g.r_flange - g.pin_len - 1.0), side * (g.r_flange + 0.1)))
+            tools.append(self.yz_prism(self.hole_profile(g), x0, x1))
         self.combine(body, tools, cut=True)
         body.name = "frame"
         return body
 
     def handle(self, g):
-        r0, r1 = g.handle_r - g.handle_w / 2, g.handle_r + g.handle_w / 2
-        z = g.frame_h + g.hinge_gap
-        sk = self.comp.sketches.add(self.zplane("frame_h + hinge_gap"))
-        p = lambda x, y: self.pt(sk, x, y, z)  # noqa: E731
-        arcs, lines = sk.sketchCurves.sketchArcs, sk.sketchCurves.sketchLines
-        arcs.addByThreePoints(p(r1, 0), p(0, r1), p(-r1, 0))
-        lines.addByTwoPoints(p(-r1, 0), p(-r0, 0))
-        arcs.addByThreePoints(p(-r0, 0), p(0, r0), p(r0, 0))
-        lines.addByTwoPoints(p(r0, 0), p(r1, 0))
-        body = self.extrude(sk.profiles.item(0), "handle_t")
-        xi, _ = g.post_x
+        body = self.annulus_sector(g.handle_r0, g.handle_r1, -g.leg_deg, 180 + g.leg_deg, "frame_h")
+        pins = []
+        for side in (1, -1):
+            x0, x1 = sorted((side * (g.r_flange - g.pin_len), side * (g.handle_r0 + 0.5)))
+            pins.append(self.yz_prism(self.pin_profile(g), x0, x1))
+        self.combine(body, pins, cut=False)
+        body.name = "handle"
+        return body
+
+    def rect_profile(self, z_expr, z_mm, x0, y0, x1, y1):
+        sk = self.comp.sketches.add(self.zplane(z_expr))
+        pts = [self.pt(sk, x, y, z_mm) for x, y in ((x0, y0), (x1, y0), (x1, y1), (x0, y1))]
+        for i in range(4):
+            sk.sketchCurves.sketchLines.addByTwoPoints(pts[i], pts[(i + 1) % 4])
+        return sk.profiles.item(0)
+
+    def base(self, g):
+        """Top face at z = 0; pockets: 45° ramps, vertical stop wall at pocket_y1."""
+        sk = self.comp.sketches.add(self.zplane("-base_t"))
+        sk.sketchCurves.sketchCircles.addByCenterRadius(self.pt(sk, 0, 0, -g.base_t), cm(g.base_d / 2))
+        body = self.extrude(sk.profiles.item(0), "base_t")
+        d = g.pocket_d
         tools = []
         for side in (1, -1):
-            tools.append(self.cylinder_x(g, side * r0, side * r1, g.handle_t / 2, g.hinge_z))
-            lo, hi = sorted((side * (xi + 1.0), side * r0))
-            tools.append(self.cylinder_x(g, lo, hi, g.pin_r, g.hinge_z))
-        self.combine(body, tools, cut=False)
-        body.name = "handle"
+            xa, xb = sorted((side * g.pocket_x0, side * g.pocket_x1))
+            bot = self.rect_profile("-pocket_d", -d, xa, g.pocket_y0, xb, g.pocket_y1)
+            top = self.rect_profile(None, 0.0, xa - d, g.pocket_y0 - d, xb + d, g.pocket_y1)
+            tools.append(self.loft(bot, top))
+        self.combine(body, tools, cut=True)
+        body.name = "base"
         return body
 
 
 def read_params(design):
     up = design.userParameters
     values = {}
-    for name, (default, comment) in PARAMS.items():
+    for name, (default, unit, comment) in PARAMS.items():
         p = up.itemByName(name)
         if p is None:
-            p = up.add(name, adsk.core.ValueInput.createByString(f"{default} mm"), "mm", comment)
-        values[name] = p.value * 10.0  # internal cm -> mm
+            p = up.add(name, adsk.core.ValueInput.createByString(f"{default} {unit}".strip()), unit, comment)
+        values[name] = p.value * 10.0 if unit == "mm" else p.value  # lengths: internal cm -> mm
     return values
 
 
@@ -255,16 +291,17 @@ def build(design):
     g = Geo(read_params(design))
     root = design.rootComponent
     tray = root.occurrences.addNewComponent(adsk.core.Matrix3D.create()).component
-    tray.name = "Tray"
+    tray.name = "Tray (one print, in place)"
     tb = Builder(design, tray)
     tb.frame(g)
+    tb.handle(g)
     for th in COMPARTMENT_ANGLES:
         for k in range(1, g.n_rings + 1):
             tb.ring(g, k, th)
             adsk.doEvents()
-    hcomp = root.occurrences.addNewComponent(adsk.core.Matrix3D.create()).component
-    hcomp.name = "Handle"
-    Builder(design, hcomp).handle(g)
+    bcomp = root.occurrences.addNewComponent(adsk.core.Matrix3D.create()).component
+    bcomp.name = "Base"
+    Builder(design, bcomp).base(g)
     return g
 
 

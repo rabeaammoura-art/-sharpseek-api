@@ -1,7 +1,9 @@
 """Animate the Mercedes tray opening and closing (rendered from the real model).
 
-Lift sequence is physical: the frame rises with the handle; ring k leaves the table once the
-frame has risen k * travel (each larger ring's bottom lip catches the next ring's top lip).
+Motion is physical: turning the handle swings its legs down onto the base, which lifts the frame
+by frame_lift(angle); ring k leaves the base once the frame has risen k * travel (each larger
+ring's bottom lip catches the next ring's top lip). Past the peak the feet drop into the base
+pockets and stop at stop_deg.
 Writes out/mercedes_animation.mp4 and out/mercedes_animation.gif. Needs a display:
     xvfb-run -a python animate_mercedes.py
 """
@@ -17,12 +19,13 @@ ROOT = Path(__file__).parent
 sys.path.insert(0, str(ROOT / "parts"))
 from build123d import export_stl  # noqa: E402
 
-from _mercedes import P, handle, tray_bodies  # noqa: E402
+from _mercedes import P, base, frame_lift, handle, tray_bodies  # noqa: E402
 
 OUT = ROOT / "out"
 FPS = 20
 N, TRAVEL = P.n_rings, P.travel
 LIFT = N * TRAVEL
+STOP = P.stop_deg
 
 
 def smooth(t):
@@ -30,18 +33,16 @@ def smooth(t):
 
 
 def timeline():
-    """(handle angle deg, frame lift mm, caption) per frame."""
-    seq = [(0.6, lambda t: (0, 0), "Collapsed: 19 mm flat"),
-           (1.4, lambda t: (90 * smooth(t), 0), "Lift the handle"),
-           (3.4, lambda t: (90, LIFT * smooth(t)), "Rings drop open one by one"),
-           (1.2, lambda t: (90, LIFT), f"Open: 3 compartments, {LIFT:.0f} mm deep"),
-           (3.0, lambda t: (90, LIFT * (1 - smooth(t))), "Set it down: rings nest again"),
-           (1.4, lambda t: (90 * (1 - smooth(t)), 0), "Fold the handle"),
-           (0.6, lambda t: (0, 0), "Collapsed: 19 mm flat")]
+    """(handle angle deg, caption) per frame; the frame lift follows from the angle."""
+    seq = [(0.8, lambda t: 0.0, "Collapsed: 10 mm flat on its base"),
+           (4.0, lambda t: STOP * smooth(t), "Flip the handle up: the legs lift the frame"),
+           (1.4, lambda t: STOP, f"Open and locked: 3 compartments, {LIFT:.0f} mm deep"),
+           (3.4, lambda t: STOP * (1 - smooth(t)), "Flip it back: everything nests flat"),
+           (0.6, lambda t: 0.0, "Collapsed: 10 mm flat on its base")]
     frames = []
     for dur, f, cap in seq:
         n = int(dur * FPS)
-        frames += [(*f(i / max(n - 1, 1)), cap) for i in range(n)]
+        frames += [(f(i / max(n - 1, 1)), cap) for i in range(n)]
     return frames
 
 
@@ -50,6 +51,7 @@ def load_meshes():
     with tempfile.TemporaryDirectory() as tmp:
         shapes = dict(tray_bodies(P, 0.0))
         shapes["handle"] = handle(P, 0)
+        shapes["base"] = base(P)
         for name, s in shapes.items():
             f = f"{tmp}/{name}.stl"
             export_stl(s, f, tolerance=0.03, angular_tolerance=0.15)
@@ -62,6 +64,8 @@ def color(name):
         return "#8a96a3"
     if name == "handle":
         return "#7a4ad9"
+    if name == "base":
+        return "#5a4a3c"
     k = int(name.split("_r")[1])
     if k == N:
         return "#e08a3c"
@@ -77,27 +81,28 @@ def main():
         pl.subplot(0, col)
         pl.set_background("#f4f5f7")
         for name, m in meshes.items():
-            if cut and name == "handle":
-                continue  # keep the section view clear
             mesh = m.clip_closed_surface(normal=(-1, 0, 0), origin=(0, 0, 0)) if cut else m
             if mesh.n_points == 0:
                 continue
             actors[col][name] = pl.add_mesh(mesh, color=color(name), smooth_shading=False,
                                             specular=0.25, ambient=0.18)
-        pl.add_mesh(pv.Plane(center=(0, 0, -0.3), i_size=420, j_size=420), color="#d9dde2", ambient=0.4)
+        pl.add_mesh(pv.Plane(center=(0, 0, -P.base_t - 0.2), i_size=460, j_size=460), color="#d9dde2", ambient=0.4)
         if cut:
             pl.camera_position = [(330, -95, 75), (0, -62, 30), (0, 0, 1)]
             pl.add_text("Section through one compartment", font_size=12, color="#333333")
         else:
-            pl.camera_position = [(330, -430, 330), (0, 0, 40), (0, 0, 1)]
+            pl.camera_position = [(400, -560, 380), (0, 0, 75), (0, 0, 1)]
         for a in actors[col].values():
             if a is actors[col].get("handle"):
                 a.SetOrigin(0, 0, P.hinge_z)
     caption = None
     frames = []
-    for angle, lift, cap in timeline():
+    for angle, cap in timeline():
+        lift = frame_lift(P, angle)
         for col in (0, 1):
             for name, a in actors[col].items():
+                if name == "base":
+                    continue
                 if name == "frame":
                     a.position = (0, 0, lift)
                 elif name == "handle":

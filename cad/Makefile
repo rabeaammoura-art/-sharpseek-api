@@ -22,16 +22,15 @@ clean:
 MERC_PROFILE := config/h2d_pla_0.2mm.ini
 .PHONY: mercedes
 mercedes:         ## build, slice (estimate), verify, render the Mercedes tray
-	$(PY) build.py mercedes_tray mercedes_tray_handle
-	for p in mercedes_tray mercedes_tray_handle; do \
+	$(PY) build.py mercedes_tray mercedes_base mercedes_test_coupon
+	for p in mercedes_tray mercedes_base mercedes_test_coupon; do \
 	  prusa-slicer --export-gcode --load $(MERC_PROFILE) --center 162.5,160 -o out/$$p.gcode out/$$p.stl >/dev/null && \
 	  grep -E '^; (filament used \[g\]|estimated printing time \(normal)' out/$$p.gcode; done
 	$(PY) verify_mercedes.py
 	$(PY) fusion/test_fusion_script.py
 	$(PY) render_mercedes.py
-	$(PY) build.py mercedes_test_coupon
-	mkdir -p release/mercedes_tray && cp out/mercedes_tray.stl out/mercedes_tray_handle.stl \
-	  out/mercedes_test_coupon.stl out/mercedes_tray.step out/mercedes_tray_handle.step \
+	mkdir -p release/mercedes_tray && cp out/mercedes_tray.stl out/mercedes_base.stl \
+	  out/mercedes_test_coupon.stl out/mercedes_tray.step out/mercedes_base.step \
 	  out/mercedes_diagram.png out/mercedes_3d.png out/mercedes_verification.md release/mercedes_tray/
 
 .PHONY: mercedes-animation

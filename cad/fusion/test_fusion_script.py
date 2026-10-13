@@ -15,7 +15,7 @@ HERE = Path(__file__).parent
 sys.path.insert(0, str(HERE.parent / "parts"))
 from build123d import Circle, Edge, Face, Location, Plane, Vector, Wire, extrude, loft  # noqa: E402
 
-from _mercedes import P, handle, tray_bodies  # noqa: E402
+from _mercedes import P, base, handle, tray_bodies  # noqa: E402
 
 # ------------------------------------------------------------------ mock adsk
 core, fusion = types.ModuleType("adsk.core"), types.ModuleType("adsk.fusion")
@@ -221,9 +221,9 @@ class UserParameters:
         return self.items.get(n)
 
     def add(self, name, vi, units, comment):
-        assert units == "mm"
-        PARAM_VALUES[name] = vi.mm
-        self.items[name] = types.SimpleNamespace(value=vi.mm / 10)
+        assert units in ("mm", ""), units
+        PARAM_VALUES[name] = vi.mm  # createByString evaluated the expression in mm / unitless
+        self.items[name] = types.SimpleNamespace(value=vi.mm / 10 if units == "mm" else vi.mm)
         return self.items[name]
 
 
@@ -247,8 +247,9 @@ def main():
     spec.loader.exec_module(mod)
 
     # parameter defaults must equal the STL model's Params
-    for name, (val, _) in mod.PARAMS.items():
-        assert isclose(getattr(P, name), val), f"param {name}: fusion {val} != stl {getattr(P, name)}"
+    for name, (val, _, _) in mod.PARAMS.items():
+        ref = getattr(P, name[:-1])[int(name[-1])] if name[:-1] in ("pocket_x", "pocket_y") else getattr(P, name)
+        assert isclose(ref, val), f"param {name}: fusion {val} != stl {ref}"
     assert tuple(mod.COMPARTMENT_ANGLES) == tuple(P.compartment_angles)
 
     design = Design()
@@ -257,6 +258,7 @@ def main():
     fusion_bodies = {b.name: b.shape for c in design.rootComponent.children for b in c.bodies}
     ref = dict(tray_bodies(P, 0.0))
     ref["handle"] = handle(P, 0)
+    ref["base"] = base(P)
     assert set(fusion_bodies) == set(ref), set(fusion_bodies) ^ set(ref)
 
     worst = 0.0
