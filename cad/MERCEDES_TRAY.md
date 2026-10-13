@@ -10,7 +10,14 @@ This works like the classic carved-wood folding fruit basket, made rigid and pri
 - **Closing:** flip the handle back and everything nests flat again.
 
 The tray, rings and handle are **one print, assembled as printed** (PLA or PETG, no
-supports, no flexible parts). The base is a second print.
+supports, no flexible parts). The base is a second print that **twist-locks** to the three
+floors, so tray and base behave as one piece, like the wooden basket.
+
+The top is carved in the spirit of the wooden original:
+- three **tomoe swirls**, the comma or paisley shape, recessed 0.4 mm with a raised line
+  inside each,
+- engraved border lines,
+- **teeth** around the handle ring and the base edge.
 
 **Files:** everything is in `release/mercedes_tray/` and regenerates with `make mercedes`
 (and `make mercedes-animation`).
@@ -18,7 +25,7 @@ supports, no flexible parts). The base is a second print.
 | File | What it is |
 |---|---|
 | `mercedes_tray.stl` | Frame, 3 × 13 rings and handle with hinge pins, collapsed (41 separate bodies, one print) |
-| `mercedes_base.stl` | Base plate with the two foot pockets |
+| `mercedes_base.stl` | Base plate with the two foot pockets and the three twist-lock posts |
 | `mercedes_test_coupon.stl` | Ø141 test coupon: same rings, lips, gaps, hinge pin and handle ring; 4 rings |
 | `mercedes_tray.step`, `mercedes_base.step` | Same solids, for a quick non-parametric import |
 | `mercedes_diagram.png`, `mercedes_3d.png` | Drawings cut from the real model, including the lever action in side view |
@@ -44,6 +51,8 @@ supports, no flexible parts). The base is a second print.
 | Leg angle | **28.93°** past each hinge | Solved so the frame lifts exactly 13 × 4.6 mm at the stop (59.75 mm): every ring is fully open and the floors rest on the base |
 | Hinge | Ø4 pin, round on top with a 45° V underneath, in a Ø4.8 teardrop hole | Prints in place without support and turns freely |
 | Base pockets | 4 mm deep; 45° entry ramps; vertical stop wall | Sized from the foot's real path between 80° and 100° |
+| Twist lock | 3 posts on the base (neck Ø4.4, head Ø8 with 45° underside, 1 mm vertical play) in keyhole slots in the floors; turn 7° | Floors never move relative to the base, so they're where the two parts can join (the wooden basket uses a screw there) |
+| Decoration | Swirls and lines 0.4 mm deep (2 layers), lines ≥ 1 mm wide; teeth 1.5 mm (handle) / 2 mm (base) | Visible on a 0.4 nozzle. Keeps clear of lips, gaps, hinges, feet and pockets |
 
 ### How it works
 
@@ -71,8 +80,20 @@ supports, no flexible parts). The base is a second print.
    - To close it, you have to push the handle back and raise the loaded frame about 1 mm.
    - The weight alone can't do that, so it stays open on the table.
 4. **Closing.** Flip the handle back: the legs rise and everything nests flat.
-5. **Carrying.** You can also carry it by the handle: the frame hangs from the hinge pins
-   and the rings stay open by gravity.
+5. **Carrying.** You can also carry it by the handle. The frame hangs from the hinge pins,
+   the rings stay open by gravity, and the base hangs from the floors by the twist lock.
+
+**Twist lock.**
+- **To fit:** set the closed tray on the base with the post heads in the round ends of the
+  keyholes, then turn the tray 7° clockwise (seen from above).
+- **To remove** (for washing): turn it back and lift.
+- **Why it can't undo itself while open:** the feet sit in the pockets, so the tray can't
+  turn.
+- **Vertical play:** the heads sit 1 mm above the floors. Around 70° the legs lift the
+  frame about 1 mm more than the rings need, so the floors rise off the base a little.
+  The play absorbs that and the mechanism never binds. This is checked.
+- **Checked:** with the lock closed, lifting the tray 2 mm catches all three heads;
+  turned 7° back, it lifts straight off.
 
 **Where the compartments meet (dividers and centre).** Every ring is an exact inward
 offset of its own 120° sector, so the three compartments never share a moving wall. The
@@ -117,6 +138,10 @@ After printing the tray:
   **dry snacks and wrapped sweets**, or line the compartments with paper cups.
 - **Washing.** Hand wash in lukewarm water. PLA softens at about 55 °C, so no dishwasher.
 - **Coatings.** Do **not** coat it with epoxy, which would glue the rings and hinge solid.
+- **Colour.** The carving reads best in wood-fill PLA, or in any matte filament with light
+  from the side.
+  - Wood PLA strings more, so print the coupon in it first.
+  - On the H2D you can also print the top 0.4 mm of the swirls in a second colour.
 
 ## 4. Fusion 360 script
 
@@ -126,7 +151,11 @@ After printing the tray:
 
 **What it builds.**
 - Component **Tray (one print, in place)**: frame, handle and 39 rings, collapsed.
-- Component **Base**.
+- Component **Base** with the twist-lock posts.
+- Decoration is read from `decor.json` next to the script, written by
+  `parts/_decor.py`. The script draws the same polygons, extrudes them and cuts them, so
+  keep the JSON in the same folder. Set `decor` = 0 for a plain model, which also builds
+  faster.
 - Both are normal history features: sketches, extrude, loft and combine. Every key
   dimension becomes a **User Parameter**.
 
@@ -147,13 +176,24 @@ After printing the tray:
 - **STL:**
   - The tray has 41 separate bodies and the base has 1. All are watertight with
     consistent winding.
-  - Both fit the H2D area: 285 × 285 × 10 mm and 290 × 290 × 6 mm.
+  - Both fit the H2D area: 285 × 285 × 10 mm and 290 × 290 × 10.3 mm (6 mm plate +
+    lock posts).
 - **Print-in-place clearance (all body pairs, STL meshes):**
   - STL minimum 0.391 mm. The design value is 0.400, and faceting the arcs costs 0.009.
   - The exact B-rep gap is 0.4000 mm for every ring pair and for the handle pin in its
     hole.
   - After slicing, external perimeters are 0.39–0.41 mm apart at the lips and 0.67 mm on
     the first layer.
+- **Twist lock:**
+  - Locked, each post has 0.4 mm clearance in its floor.
+  - The floors' 0.98 mm over-lift near 70° still leaves 0.3 mm to the heads, so the
+    lock never binds while opening.
+  - Lifting the tray 2 mm catches all three heads.
+  - Turned 7° back, the tray lifts 0–6 mm without touching a post.
+- **Decoration:** every check here is re-run on the decorated model. The engraving stays
+  inside the compartment openings, so it never reaches the frame lips, and the handle
+  decoration stays 10° away from the feet and 8° from the hinges, so the kinematics are
+  unchanged.
 - **Rings:**
   - No collisions at 25, 50, 75 and 98 % extension.
   - At 100 % every lip pair touches with no penetration.
@@ -174,7 +214,9 @@ After printing the tray:
 - **Fusion script = STL:**
   - `fusion/test_fusion_script.py` runs the real script against a stand-in for Fusion's
     `adsk` API.
-  - All 42 bodies match the geometry used for the STLs, and the parameters are identical.
+  - All 42 bodies match the geometry used for the STLs, decoration and twist lock
+    included, and the parameters are identical.
+  - `decor.json` is checked against a fresh export.
   - Deliberately changing the pin by 2 % or the pocket by 0.1 mm fails the test, so it is
     a real check.
 

@@ -44,6 +44,15 @@ class Params:
     pocket_d: float = 4.0        # depth of the two foot pockets
     pocket_x: tuple = (117.15, 127.18)  # pocket floor x range (+X side, mirrored) = solve_pocket()
     pocket_y: tuple = (-17.19, 17.19)   # pocket floor y range; y[1] is the vertical stop wall
+    # twist lock: 3 mushroom posts on the base, keyhole slots in the 3 floors
+    twist_lock: bool = True
+    lock_deg: float = 7.0        # turn the tray this far (counter-clockwise seen from above) to unlock
+    post_neck_r: float = 2.2
+    post_head_r: float = 4.0
+    post_head_t: float = 1.0     # cylindrical part of the head, above its 45° underside
+    lock_clear: float = 0.4
+    lock_play: float = 1.0       # head underside above the floor: absorbs the ~1 mm over-lift near 70°
+    decor: bool = True           # engraved tomoe swirls, border lines, edge teeth (see _decor.py)
     compartment_angles: tuple = field(default=(30.0, 150.0, 270.0))
     with_handle: bool = True     # False for the small test coupon
 
@@ -99,6 +108,11 @@ class Params:
     @property
     def hole_r(self):
         return self.pin_r + self.pin_clear
+
+    @property
+    def lock_c(self):
+        """Distance of the posts from the centre: the floors' in-circle centres."""
+        return self.sector_inradius / sin(radians(60))
 
     @property
     def lift(self):
@@ -158,7 +172,41 @@ def ring(p: Params, k: int, th: float) -> Part:
         cavity = lipped_cavity(p, a + p.wall, th, h)
     else:  # floor
         cavity = prism(p, a + p.wall, th, p.floor_t, h)
-    return envelope - cavity
+        if p.twist_lock:
+            cavity = cavity + keyhole(p, th)
+    body = envelope - cavity
+    if p.decor:
+        from _decor import rings_tool
+        body = body - rings_tool(p)
+    return body
+
+
+def polar(r, a, z=0.0):
+    return (r * cos(radians(a)), r * sin(radians(a)), z)
+
+
+def keyhole(p: Params, th: float) -> Part:
+    """Through-slot in the floor: round entry for the post head at th - lock_deg/2, then an arc
+    slot (about the tray centre) for the neck up to th + lock_deg/2, where the post sits locked."""
+    c, b, z0, hgt = p.lock_c, p.lock_deg / 2, -1.0, p.floor_t + 2.0
+    w = p.post_neck_r + p.lock_clear
+    tool = Pos(*polar(c, th - b, z0)) * Cylinder(p.post_head_r + p.lock_clear, hgt, align=None)
+    tool = tool + annulus_sector(c - w, c + w, th - b, th + b, z0, hgt)
+    for a in (th - b, th + b):
+        tool = tool + Pos(*polar(c, a, z0)) * Cylinder(w, hgt, align=None)
+    return tool
+
+
+def lock_post(p: Params, th: float) -> Part:
+    """Mushroom post on the base top (z = 0) at the locked position th + lock_deg/2."""
+    x, y, _ = polar(p.lock_c, th + p.lock_deg / 2)
+    z1 = p.floor_t + p.lock_play               # underside of the head above the floor
+    z2 = z1 + (p.post_head_r - p.post_neck_r)  # 45° underside
+    neck = Pos(x, y, -0.5) * Cylinder(p.post_neck_r, z1 + 0.5, align=None)
+    cone = loft([Face(Wire.make_circle(p.post_neck_r).moved(Location((x, y, z1)))),
+                 Face(Wire.make_circle(p.post_head_r).moved(Location((x, y, z2))))], ruled=True)
+    head = Pos(x, y, z2) * Cylinder(p.post_head_r, p.post_head_t, align=None)
+    return neck + cone + head
 
 
 def annulus_sector(r0, r1, a0, a1, z0, h) -> Part:
@@ -206,6 +254,9 @@ def frame(p: Params) -> Part:
         for side in (1, -1):
             x0, x1 = sorted((side * (p.r_flange - p.pin_len - 1.0), side * (p.r_flange + 0.1)))
             body = body - yz_prism(p, hole_profile(p), x0, x1)
+    if p.decor:
+        from _decor import frame_tool
+        body = body - frame_tool(p)
     return body
 
 
@@ -216,6 +267,9 @@ def handle(p: Params, angle: float = 0.0) -> Part:
     for side in (1, -1):
         x0, x1 = sorted((side * (p.r_flange - p.pin_len), side * (p.handle_r0 + 0.5)))
         body = body + yz_prism(p, pin_profile(p), x0, x1)
+    if p.decor:
+        from _decor import handle_tool
+        body = body - handle_tool(p)
     if angle:
         body = body.rotate(Axis((0, 0, p.hinge_z), (1, 0, 0)), angle)
     return body
@@ -299,6 +353,12 @@ def base(p: Params) -> Part:
         bot = Face(Wire.make_polygon([(side * x0, y0, -d), (side * x1, y0, -d),
                                       (side * x1, y1, -d), (side * x0, y1, -d)], close=True))
         body = body - loft([bot, top], ruled=True)
+    if p.twist_lock:
+        for th in p.compartment_angles:
+            body = body + lock_post(p, th)
+    if p.decor:
+        from _decor import base_tool
+        body = body - base_tool(p)
     return body
 
 

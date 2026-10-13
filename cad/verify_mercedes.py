@@ -10,11 +10,12 @@ from pathlib import Path
 
 import numpy as np
 import trimesh
-from build123d import Location, export_stl
+from build123d import Axis, Location, export_stl
 
 ROOT = Path(__file__).parent
 sys.path.insert(0, str(ROOT / "parts"))
-from _mercedes import P, assembly, frame, frame_lift, handle, sector_face, solve_pocket, tray_bodies  # noqa: E402
+from _mercedes import (P, assembly, frame, frame_lift, handle, lock_post, ring, sector_face, solve_pocket,
+                       tray_bodies)  # noqa: E402
 
 OUT = ROOT / "out"
 BED = (300.0, 320.0, 325.0)
@@ -170,7 +171,8 @@ def main():
                 if k != "handle":
                     cm.add_object(k, m)
             worst_h = min(worst_h, cm.min_distance_single(ms["handle"]))
-            pen = max(overlap(asm["base"], asm[k]) for k in ("frame", "handle", f"c{th}_r{P.n_rings:02d}"))
+            pen = max(overlap(asm["base"], asm[k]) for k in ["frame", "handle"] +
+                      [f"c{int(c)}_r{P.n_rings - j:02d}" for c in P.compartment_angles for j in (0, 1)])
             worst_b = max(worst_b, pen)
         check("Opening poses 0..stop: handle/legs never touch any ring", worst_h > 0, f"min gap {worst_h:.2f} mm")
         check("Opening poses 0..stop: nothing sinks into the base (feet and floors only touch it)",
@@ -180,6 +182,27 @@ def main():
         h2 = handle(P, a2).moved(Location((0, 0, frame_lift(P, P.stop_deg))))
         check(f"Stop: turning 2 deg past {P.stop_deg:.0f} drives the leg into the pocket wall",
               overlap(h2, asm["base"]) > 1.0, f"overlap {overlap(h2, asm['base']):.1f} mm^3 -> rotation blocked")
+        # 6. twist lock: base posts in the floor keyholes ----------------
+        n = P.n_rings
+        floors = {c: ring(P, n, c) for c in P.compartment_angles}
+        posts = {c: lock_post(P, c) for c in P.compartment_angles}
+        gap = min(posts[c].distance_to(floors[c]) for c in floors)
+        check("Twist lock, locked: post clear of its floor (tray sits free on the base)", gap >= 0.3 - 1e-6,
+              f"min gap {gap:.3f} mm")
+        over = max(lifts.values()) - P.lift  # frame over-lift lifts the floors this much near 70 deg
+        free_up = min(posts[c].distance_to(floors[c].moved(Location((0, 0, over)))) for c in floors)
+        check("Twist lock: vertical play absorbs the floors' over-lift while opening (no binding)", free_up > 0,
+              f"floors rise up to {over:.2f} mm; still {free_up:.2f} mm from the heads")
+        held = min(overlap(posts[c], floors[c].moved(Location((0, 0, P.lock_play + 1.0)))) for c in floors)
+        check(f"Twist lock, locked: lifting the tray {P.lock_play + 1.0:.0f} mm catches all 3 post heads (base comes along)",
+              held > 0, f"min overlap {held:.2f} mm^3 per post")
+        free = 1e9
+        for dz in (0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0):
+            for c in floors:
+                f = floors[c].rotate(Axis.Z, P.lock_deg).moved(Location((0, 0, dz)))
+                free = min(free, posts[c].distance_to(f))
+        check(f"Twist lock, turned {P.lock_deg:.0f} deg: the tray lifts straight off the base", free > 0,
+              f"min gap while lifting 0..6 mm: {free:.3f} mm")
         check("Heights", True, f"collapsed {P.frame_h:.0f} mm (+{P.base_t:.0f} mm base); open: frame top "
               f"{lifts[P.stop_deg] + P.frame_h:.1f} mm above the base, compartments {P.lift:.1f} mm deep; "
               f"handle top {lifts[P.stop_deg] + P.hinge_z + P.handle_r1:.0f} mm")

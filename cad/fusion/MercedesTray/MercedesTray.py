@@ -2,7 +2,9 @@
 
 Builds the same geometry as cad/parts/_mercedes.py as parametric history features
 (sketch -> extrude / loft -> combine) in two components: "Tray" (frame + 3 x N rings +
-handle ring with hinge pins, collapsed, one print-in-place job) and "Base" (separate print).
+handle ring with hinge pins, collapsed, one print-in-place job) and "Base" (separate print,
+twist-locked to the floors). Decoration (carved swirls, border lines, edge teeth) is read from
+decor.json next to this script, written by cad/parts/_decor.py.
 
 Parameters: the key dimensions are created as User Parameters (mm).
   * Heights (ring_h, frame_h, lip_flat, lip, floor_t, base_t, pocket_d) drive the
@@ -15,7 +17,9 @@ Parameters: the key dimensions are created as User Parameters (mm).
 
 Run: Utilities > Add-Ins > Scripts and Add-Ins > + (My Scripts) > select this folder > Run.
 """
+import json
 import math
+import os
 import traceback
 
 import adsk.core
@@ -49,6 +53,14 @@ PARAMS = {
     "pocket_x1": (127.18, "mm", "foot pocket floor, outer x"),
     "pocket_y0": (-17.19, "mm", "foot pocket floor start (45 deg entry ramp before it)"),
     "pocket_y1": (17.19, "mm", "foot pocket stop wall (vertical)"),
+    "twist_lock": (1, "", "1 = base posts + floor keyholes"),
+    "lock_deg": (7.0, "", "twist to unlock, degrees"),
+    "post_neck_r": (2.2, "mm", "twist-lock post neck radius"),
+    "post_head_r": (4.0, "mm", "twist-lock post head radius"),
+    "post_head_t": (1.0, "mm", "twist-lock head cylinder height"),
+    "lock_clear": (0.4, "mm", "twist-lock clearance"),
+    "lock_play": (1.0, "mm", "twist-lock head height above the floor (vertical play)"),
+    "decor": (1, "", "1 = carved swirls, border lines and edge teeth from decor.json"),
 }
 COMPARTMENT_ANGLES = (30.0, 150.0, 270.0)
 
@@ -73,6 +85,7 @@ class Geo:
         self.handle_r1 = self.handle_r0 + self.handle_w
         self.hinge_z = self.frame_h / 2
         self.hole_r = self.pin_r + self.pin_clear
+        self.lock_c = self.sector_inradius / math.sin(math.radians(60))
 
     def ring_inset(self, k):
         return self.divider_half + self.lip + self.clear + (k - 1) * self.pitch
@@ -147,14 +160,14 @@ class Builder:
         li.isSolid = True
         return self.f.loftFeatures.add(li).bodies.item(0)
 
-    def combine(self, target, tools, cut):
+    def combine(self, target, tools, cut, keep_tools=False):
         coll = adsk.core.ObjectCollection.create()
         for t in tools:
             coll.add(t)
         ci = self.f.combineFeatures.createInput(target, coll)
         ci.operation = (adsk.fusion.FeatureOperations.CutFeatureOperation if cut
                         else adsk.fusion.FeatureOperations.JoinFeatureOperation)
-        ci.isKeepToolBodies = False
+        ci.isKeepToolBodies = keep_tools
         self.f.combineFeatures.add(ci)
         return target
 
@@ -183,15 +196,17 @@ class Builder:
             cavity = self.lipped_cavity(g, a + g.wall, th, "ring_h")
         else:
             cavity = [self.prism(g, a + g.wall, th, ("floor_t", g.floor_t), "ring_h - floor_t")]
+            if g.twist_lock:
+                cavity += self.keyhole(g, th)
         self.combine(body, cavity, cut=True)
         body.name = f"c{int(th)}_r{k:02d}"
         return body
 
-    def annulus_sector(self, r0, r1, a0, a1, height_expr):
-        sk = self.comp.sketches.add(self.comp.xYConstructionPlane)
+    def annulus_sector(self, r0, r1, a0, a1, height_expr, z0=(None, 0.0)):
+        sk = self.comp.sketches.add(self.zplane(z0[0]))
 
         def pol(r, a):
-            return self.pt(sk, r * math.cos(math.radians(a)), r * math.sin(math.radians(a)), 0)
+            return self.pt(sk, r * math.cos(math.radians(a)), r * math.sin(math.radians(a)), z0[1])
 
         am = (a0 + a1) / 2
         arcs, lines = sk.sketchCurves.sketchArcs, sk.sketchCurves.sketchLines
@@ -239,6 +254,8 @@ class Builder:
             x0, x1 = sorted((side * (g.r_flange - g.pin_len - 1.0), side * (g.r_flange + 0.1)))
             tools.append(self.yz_prism(self.hole_profile(g), x0, x1))
         self.combine(body, tools, cut=True)
+        if g.decor:
+            self.combine(body, self.decor_tools(g.decor_specs, "frame"), cut=True)
         body.name = "frame"
         return body
 
@@ -249,6 +266,8 @@ class Builder:
             x0, x1 = sorted((side * (g.r_flange - g.pin_len), side * (g.handle_r0 + 0.5)))
             pins.append(self.yz_prism(self.pin_profile(g), x0, x1))
         self.combine(body, pins, cut=False)
+        if g.decor:
+            self.combine(body, self.decor_tools(g.decor_specs, "handle"), cut=True)
         body.name = "handle"
         return body
 
@@ -258,6 +277,73 @@ class Builder:
         for i in range(4):
             sk.sketchCurves.sketchLines.addByTwoPoints(pts[i], pts[(i + 1) % 4])
         return sk.profiles.item(0)
+
+    def polar(self, r, a):
+        return r * math.cos(math.radians(a)), r * math.sin(math.radians(a))
+
+    def circle_profile(self, x, y, r, z_mm):
+        sk = self.comp.sketches.add(self.zplane(f"{z_mm} mm" if z_mm else None))
+        sk.sketchCurves.sketchCircles.addByCenterRadius(self.pt(sk, x, y, z_mm), cm(r))
+        return sk.profiles.item(0)
+
+    def cylinder(self, x, y, r, z0, height):
+        return self.extrude(self.circle_profile(x, y, r, z0), f"{height} mm")
+
+    def keyhole(self, g, th):
+        """Same as keyhole() in _mercedes.py: round entry + arc slot + round slot ends."""
+        c, b, z0, hgt = g.lock_c, g.lock_deg / 2, -1.0, g.floor_t + 2.0
+        w = g.post_neck_r + g.lock_clear
+        tools = [self.cylinder(*self.polar(c, th - b), g.post_head_r + g.lock_clear, z0, hgt),
+                 self.annulus_sector(c - w, c + w, th - b, th + b, f"{hgt} mm", (f"{z0} mm", z0))]
+        tools += [self.cylinder(*self.polar(c, a), w, z0, hgt) for a in (th - b, th + b)]
+        return tools
+
+    def lock_post(self, g, th):
+        x, y = self.polar(g.lock_c, th + g.lock_deg / 2)
+        z1 = g.floor_t + g.lock_play
+        z2 = z1 + (g.post_head_r - g.post_neck_r)
+        return [self.cylinder(x, y, g.post_neck_r, -0.5, z1 + 0.5),
+                self.loft(self.circle_profile(x, y, g.post_neck_r, z1), self.circle_profile(x, y, g.post_head_r, z2)),
+                self.cylinder(x, y, g.post_head_r, z2, g.post_head_t)]
+
+    # ---- decoration (polygons from decor.json, written by cad/parts/_decor.py) ----------------
+    @staticmethod
+    def _area(pts):
+        return abs(sum(x0 * y1 - x1 * y0 for (x0, y0), (x1, y1) in zip(pts, pts[1:] + pts[:1]))) / 2
+
+    def decor_tools(self, specs, target):
+        """Extrude every decoration polygon for one target; returns the new tool bodies."""
+        bodies = []
+        for spec in specs:
+            if spec["target"] != target:
+                continue
+            z0 = spec["z0"]
+            sk = self.comp.sketches.add(self.zplane(f"{z0} mm"))
+            sk.isComputeDeferred = True
+            lines = sk.sketchCurves.sketchLines
+            for poly in spec["polys"]:
+                for loop in [poly["outer"]] + poly["holes"]:
+                    pts = [self.pt(sk, x, y, z0) for x, y in loop]
+                    first = prev = lines.addByTwoPoints(pts[0], pts[1])
+                    for q in pts[2:]:
+                        prev = lines.addByTwoPoints(prev.endSketchPoint, q)
+                    lines.addByTwoPoints(prev.endSketchPoint, first.startSketchPoint)
+            sk.isComputeDeferred = False
+            # pick the sketch regions that are the polygons (not their holes)
+            profs = [sk.profiles.item(i) for i in range(sk.profiles.count)]
+            areas = [pr.areaProperties().area * 100.0 for pr in profs]
+            chosen, used = adsk.core.ObjectCollection.create(), set()
+            for poly in spec["polys"]:
+                want = self._area(poly["outer"]) - sum(self._area(h) for h in poly["holes"])
+                i = min((i for i in range(len(profs)) if i not in used), key=lambda i: abs(areas[i] - want))
+                if abs(areas[i] - want) > 0.01 * want + 0.01:
+                    raise RuntimeError(f"decor: no sketch region matches a {target} polygon ({want:.2f} mm2)")
+                used.add(i)
+                chosen.add(profs[i])
+            e = self.f.extrudeFeatures.addSimple(chosen, adsk.core.ValueInput.createByString(f"{spec['z1'] - z0} mm"),
+                                                 adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
+            bodies += [e.bodies.item(i) for i in range(e.bodies.count)]
+        return bodies
 
     def base(self, g):
         """Top face at z = 0; pockets: 45° ramps, vertical stop wall at pocket_y1."""
@@ -272,6 +358,11 @@ class Builder:
             top = self.rect_profile(None, 0.0, xa - d, g.pocket_y0 - d, xb + d, g.pocket_y1)
             tools.append(self.loft(bot, top))
         self.combine(body, tools, cut=True)
+        if g.twist_lock:
+            for th in COMPARTMENT_ANGLES:
+                self.combine(body, self.lock_post(g, th), cut=False)
+        if g.decor:
+            self.combine(body, self.decor_tools(g.decor_specs, "base"), cut=True)
         body.name = "base"
         return body
 
@@ -287,17 +378,29 @@ def read_params(design):
     return values
 
 
+def load_decor():
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "decor.json")) as f:
+        return json.load(f)
+
+
 def build(design):
     g = Geo(read_params(design))
     root = design.rootComponent
     tray = root.occurrences.addNewComponent(adsk.core.Matrix3D.create()).component
     tray.name = "Tray (one print, in place)"
     tb = Builder(design, tray)
+    g.decor_specs = load_decor() if g.decor else []
     tb.frame(g)
     tb.handle(g)
+    rings = []
     for th in COMPARTMENT_ANGLES:
         for k in range(1, g.n_rings + 1):
-            tb.ring(g, k, th)
+            rings.append(tb.ring(g, k, th))
+            adsk.doEvents()
+    if g.decor:  # one set of tools, cut from every ring (kept until the last cut)
+        tools = tb.decor_tools(g.decor_specs, "rings")
+        for i, r in enumerate(rings):
+            tb.combine(r, tools, cut=True, keep_tools=i < len(rings) - 1)
             adsk.doEvents()
     bcomp = root.occurrences.addNewComponent(adsk.core.Matrix3D.create()).component
     bcomp.name = "Base"

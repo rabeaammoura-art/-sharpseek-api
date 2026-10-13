@@ -27,6 +27,7 @@ mercedes:         ## build, slice (estimate), verify, render the Mercedes tray
 	  prusa-slicer --export-gcode --load $(MERC_PROFILE) --center 162.5,160 -o out/$$p.gcode out/$$p.stl >/dev/null && \
 	  grep -E '^; (filament used \[g\]|estimated printing time \(normal)' out/$$p.gcode; done
 	$(PY) verify_mercedes.py
+	cd parts && ../$(PY) -c "from _mercedes import P; from _decor import export_json; export_json(P, '../fusion/MercedesTray/decor.json')"
 	$(PY) fusion/test_fusion_script.py
 	$(PY) render_mercedes.py
 	mkdir -p release/mercedes_tray && cp out/mercedes_tray.stl out/mercedes_base.stl \
