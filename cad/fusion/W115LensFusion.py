@@ -23,9 +23,9 @@ import adsk.fusion
 
 P = dict(
     L_proj=325.0, H=140.0, lip_h=13.0, n_ribs=4,
-    up_frac=0.15, crest_frac=0.45, down_frac=0.30, rib_P0=11.0, rib_step=0.0,
+    up_frac=0.15, crest_frac=0.45, down_frac=0.30, rib_P0=11.0, rib_step=1.5, edge_r=1.5,
     D_back=28.0, t=3.0,
-    red_w=100.0, mid_w=120.0, A_wrap=50.0, R_end=25.0, R_end_out=20.0,
+    red_w=100.0, mid_w=120.0, A_wrap=50.0, R_end=25.0, R_end_out=24.0,
     r_in_top=12.0, r_in_bot=5.0,
     wall_t=2.5, wall_backoff=6.0, box_cap_y=8.0,
     stud_x1=97.0, stud_dx=130.0, stud_from_top=73.0,
@@ -166,7 +166,12 @@ def run(context):
             plane_back = root.constructionPlanes.add(pi)
         sk_rel = root.sketches.add(plane_back)
         sk_rel.name = "rib relief section"
-        draw(sk_rel, relief_segments(d), lambda pt: (d["P_max"] - pt[0], D, pt[1]))
+        rel = draw(sk_rel, relief_segments(d), lambda pt: (d["P_max"] - pt[0], D, pt[1]))
+        # round every crest / valley edge (the rib corners, not the closing edges)
+        for j in range(1, 4 * d["n_ribs"]):
+            a_, b_ = rel[j - 1], rel[j]
+            sk_rel.sketchCurves.sketchArcs.addFillet(a_, a_.endSketchPoint.geometry, b_, b_.startSketchPoint.geometry,
+                                                     d["edge_r"] * CM)
         path = feats.createPath(path_curves[0], True)
         swi = feats.sweepFeatures.createInput(largest_profile(sk_rel), path, JOIN)
         swi.participantBodies = [body]

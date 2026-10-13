@@ -23,15 +23,16 @@ P = dict(
     crest_frac=0.45,    # flat crest
     down_frac=0.30,     # lower flank, back in to the valley (the rest is the flat valley floor)
     rib_P0=11.0,        # crest protrusion from the valley line
-    rib_step=0.0,       # extra protrusion per rib going down (unconfirmed, so 0)
+    rib_step=1.5,       # each lower rib sticks out this much further (slight, per the owner)
+    edge_r=1.5,         # small rounding on every crest / valley edge (not sharp, per the owner)
     D_back=28.0,        # groove line -> back/flange plane (body depth at nose = D_back + rib_P0)
     t=3.0,              # wall thickness
     flange_w=6.0,       # seal flange width at the back rim
     red_w=100.0,        # red inboard section width (front view)
     mid_w=120.0,        # middle section width (red top / clear bottom)
     A_wrap=50.0,        # amber wrap angle, degrees
-    R_end=25.0,         # inboard corner radius in plan, at the rib crests (ribs wrap round it)
-    R_end_out=20.0,     # outboard (amber) end return radius in plan, at the rib crests
+    R_end=25.0,         # inboard corner radius in plan, at the deepest rib crest (ribs wrap round it)
+    R_end_out=24.0,     # outboard (amber) end return radius in plan, at the deepest rib crest
     r_in_top=12.0, r_in_bot=5.0,   # front-view corner radii, inboard end (the outboard end is shaped by its return)
     wall_t=2.5,         # inner partition walls
     wall_backoff=6.0,   # partition walls stop this far before the back plane
@@ -55,6 +56,10 @@ def derived(p):
     # clear = bottom rib + the 3rd rib's lower flank, up to the bottom edge of its flat crest
     d["clear_top"] = 2 * d["pitch"] - (p["up_frac"] + p["crest_frac"]) * d["pitch"]
     d["box_top"] = p["H"] - p["lip_h"] - 2.0
+    for k in ("Rv", "Rvo"):   # corner radii at the valley line must clear the flange inset
+        if d[k] <= p["flange_w"]:
+            raise ValueError(f"{k}={d[k]:.1f} mm: raise R_end/R_end_out above P_max + flange_w = "
+                             f"{d['P_max'] + p['flange_w']:.1f} mm")
     return d
 
 
@@ -73,11 +78,25 @@ def rib_points(d):
     return pts
 
 
+def _rounded(pts, round_pts, r):
+    """Closed polygon face with the vertices at round_pts filleted by r."""
+    with BuildSketch() as sk:
+        with BuildLine():
+            Polyline(*pts, close=True)
+        make_face()
+        targets = [v for v in sk.vertices()
+                   if any(abs(v.X - x) < 1e-6 and abs(v.Y - y) < 1e-6 for x, y in round_pts)]
+        if r > 0 and targets:
+            fillet(targets, r)
+    return sk.sketch.face()
+
+
 def profile_2d(d):
     """Outer section in (u=Y depth, v=Z height)."""
     H, D = d["H"], d["D_back"]
-    pts = [(D, H), (0, H)] + [(-n, z) for n, z in rib_points(d)] + [(D, 0)]
-    return make_face(Polyline(*pts, close=True))
+    ribs = [(-n, z) for n, z in rib_points(d)]
+    pts = [(D, H), (0, H)] + ribs + [(D, 0)]
+    return _rounded(pts, ribs[:-1], d["edge_r"])
 
 
 def _outboard(d, off, y_back, ang):
@@ -132,7 +151,8 @@ RELIEF_OVERLAP = 2.0  # relief sections reach this far into the core so the unio
 def relief_outer(d):
     """Rib relief section in (n = outward from the valley line, z), closed slightly into the core."""
     e, top = RELIEF_OVERLAP, d["H"] - d["lip_h"]
-    return make_face(Polyline(*rib_points(d), (-e, 0), (-e, top), close=True))
+    ribs = rib_points(d)
+    return _rounded(ribs + [(-e, 0), (-e, top)], ribs[1:-1], d["edge_r"])
 
 
 def relief_inner(d):
