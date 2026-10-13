@@ -33,3 +33,8 @@ mercedes:         ## build, slice (estimate), verify, render the Mercedes tray
 	mkdir -p release/mercedes_tray && cp out/mercedes_tray.stl out/mercedes_tray_handle.stl \
 	  out/mercedes_test_coupon.stl out/mercedes_tray.step out/mercedes_tray_handle.step \
 	  out/mercedes_diagram.png out/mercedes_3d.png out/mercedes_verification.md release/mercedes_tray/
+
+.PHONY: mercedes-animation
+mercedes-animation:  ## render the open/close animation (mp4 + gif)
+	xvfb-run -a $(PY) animate_mercedes.py
+	mkdir -p release/mercedes_tray && cp out/mercedes_animation.mp4 out/mercedes_animation.gif release/mercedes_tray/

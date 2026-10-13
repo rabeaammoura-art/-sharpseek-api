@@ -4,3 +4,6 @@ numpy-stl
 trimesh
 python-fcl
 rtree
+pyvista
+imageio
+imageio-ffmpeg

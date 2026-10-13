@@ -14,6 +14,7 @@ flexible parts. The handle is a second, separate print.
 | `mercedes_test_coupon.stl` | Ø120 test coupon: same walls, lips, gaps and ring height; 4 rings, no posts |
 | `mercedes_tray.step`, `mercedes_tray_handle.step` | Same solids, for a quick non-parametric import |
 | `mercedes_diagram.png`, `mercedes_3d.png` | Mechanism drawings, cut from the real model |
+| `mercedes_animation.mp4` / `.gif` | Opening and closing, rendered from the real model (`make mercedes-animation`) |
 | `mercedes_verification.md` | Results of every automated check |
 | `../../fusion/MercedesTray/` | Fusion 360 script that builds the parametric model |
 
