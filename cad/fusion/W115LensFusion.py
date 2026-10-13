@@ -4,10 +4,12 @@ Scripts and Add-Ins -> Scripts -> "+" -> pick this folder -> Run, in a NEW empty
 Edit P below and re-run to change the size; the values are also written to
 Modify -> Change Parameters (as user parameters) for reference.
 
-Geometry matches cad/parts/w115_lens.py (the reference model, exported as STEP):
-outer section extruded + revolved (amber wrap), plan / front-view trims, shell open at
-the back, interior walls / stop-lamp box / insert bosses, then split into red, clear,
-amber bodies with zero gap for a one-shot multi-material print.
+Geometry follows cad/parts/w115_lens.py (the reference model, exported as STEP):
+a core body behind the rib valley line (plan sketch, extruded), the rib relief swept
+along the valley line round both ends and the amber wrap, the front-view outline, a
+shell open at the back, a back flange plate at the inboard end, interior walls /
+stop-lamp box / insert bosses, then red, clear, amber bodies with zero gap for a
+one-shot multi-material print.
 Coordinates: X along the lens (0 = inboard end), Y depth (- = outward), Z up.
 Difference from the reference: Fusion's Shell leaves a back rim of width t (3 mm);
 the reference model widens it to flange_w (6 mm) as a seal flange.
@@ -21,10 +23,10 @@ import adsk.fusion
 
 P = dict(
     L_proj=325.0, H=140.0, lip_h=13.0, n_ribs=4,
-    nose_R=6.0, shoulder_h=5.0, face_lean=2.0, rib_P0=10.0, rib_step=3.0,
+    crest_frac=0.4, rib_P0=11.0, rib_step=0.0,
     D_back=28.0, t=3.0,
-    red_w=100.0, mid_w=120.0, A_wrap=50.0, R_end=25.0,
-    r_in_top=25.0, r_in_bot=5.0, r_out_top=8.0, r_out_bot=30.0,
+    red_w=100.0, mid_w=120.0, A_wrap=50.0, R_end=25.0, R_end_out=20.0,
+    r_in_top=12.0, r_in_bot=5.0,
     wall_t=2.5, wall_backoff=6.0, box_cap_y=8.0,
     stud_x1=97.0, stud_dx=130.0, stud_from_top=73.0,
     boss_d=11.0, boss_back=4.0, insert_d=6.4, insert_depth=10.0,
@@ -39,8 +41,11 @@ def derived(p):
     d["P_max"] = p["rib_P0"] + (p["n_ribs"] - 1) * p["rib_step"]
     d["xs"] = p["red_w"] + p["mid_w"]
     d["A"] = math.radians(p["A_wrap"])
-    d["Rg"] = (p["L_proj"] - d["xs"]) / math.sin(d["A"]) - d["P_max"]
-    d["clear_top"] = d["pitch"] + 2 * p["nose_R"]
+    d["Rv"] = p["R_end"] - d["P_max"]
+    d["Rvo"] = p["R_end_out"] - d["P_max"]
+    d["Rg"] = (p["L_proj"] - d["xs"] - d["Rvo"] - d["P_max"]) / math.sin(d["A"]) + d["Rvo"]
+    d["crest_h"] = p["crest_frac"] * d["pitch"]
+    d["clear_top"] = 2 * d["pitch"] - d["crest_h"]
     d["box_top"] = p["H"] - p["lip_h"] - 2.0
     return d
 
@@ -49,32 +54,62 @@ def P3(x, y, z):
     return adsk.core.Point3D.create(x * CM, y * CM, z * CM)
 
 
-def section_segments(d):
-    """Outer section as ('L', (y,z), (y,z)) / ('A', start, mid, end) in mm, (y=depth, z=height)."""
-    H, r, D = d["H"], d["nose_R"], d["D_back"]
-    segs = [("L", (D, H), (0, H)), ("L", (0, H), (0, H - d["lip_h"]))]
-    c45 = r * (1 - math.cos(math.pi / 4))
+def plan_loop(d, off, y_back):
+    """Valley line in plan (offset `off` inward) as ('L', p, q) / ('A', p, mid, q) in mm (x, y),
+    plus the closing back arc and line. Returns (path_segments, closing_segments)."""
+    P, Rv, Rvo, xs, Rg, A = d["P_max"], d["Rv"], d["Rvo"], d["xs"], d["Rg"], d["A"]
+    arc = lambda c, r, a0, a1: ("A", (c[0] + r * math.cos(a0), c[1] + r * math.sin(a0)),
+                                (c[0] + r * math.cos((a0 + a1) / 2), c[1] + r * math.sin((a0 + a1) / 2)),
+                                (c[0] + r * math.cos(a1), c[1] + r * math.sin(a1)))
+    path = [("L", (P + off, y_back), (P + off, Rv)),
+            arc((P + Rv, Rv), Rv - off, math.pi, 1.5 * math.pi),
+            ("L", (P + Rv, off), (xs, off)),
+            arc((xs, Rg), Rg - off, 1.5 * math.pi, 1.5 * math.pi + A)]
+    co = (xs + (Rg - Rvo) * math.sin(A), Rg - (Rg - Rvo) * math.cos(A))
+    path.append(arc(co, Rvo - off, A - math.pi / 2, A))
+    start = (co[0] + (Rvo - off) * math.cos(A), co[1] + (Rvo - off) * math.sin(A))
+    inward = (-math.sin(A), math.cos(A))
+    f = (start[0] - xs, start[1] - Rg)
+    rb = Rg - y_back
+    bq = 2 * (f[0] * inward[0] + f[1] * inward[1])
+    cq = f[0] ** 2 + f[1] ** 2 - rb * rb
+    sq = (-bq - math.sqrt(bq * bq - 4 * cq)) / 2
+    if sq < 0:
+        sq = (-bq + math.sqrt(bq * bq - 4 * cq)) / 2
+    end = (start[0] + inward[0] * sq, start[1] + inward[1] * sq)
+    path.append(("L", start, end))
+    a_end = math.atan2(end[1] - Rg, end[0] - xs)
+    closing = [arc((xs, Rg), rb, a_end, 1.5 * math.pi) if a_end > 1.5 * math.pi
+               else arc((xs, Rg), rb, a_end + 2 * math.pi, 1.5 * math.pi),
+               ("L", (xs, y_back), (P + off, y_back))]
+    return path, closing
+
+
+def relief_segments(d):
+    """Rib relief section in (n = outward from the valley line, z), closed 2 mm into the core."""
+    H, hc, s45 = d["H"], d["crest_h"], math.sin(math.pi / 4)
+    segs = []
     for i in range(d["n_ribs"]):
         zt = H - d["lip_h"] - i * d["pitch"]
         zb = zt - d["pitch"]
         Pi = d["rib_P0"] + i * d["rib_step"]
-        sh, fl = d["shoulder_h"], d["face_lean"]
-        segs.append(("L", (0, zt), (-Pi + fl, zt - sh)))
-        segs.append(("L", (-Pi + fl, zt - sh), (-Pi, zb + r)))
-        segs.append(("A", (-Pi, zb + r), (-Pi + c45, zb + c45), (-Pi + r, zb)))
-        segs.append(("L", (-Pi + r, zb), (0, zb) if i < d["n_ribs"] - 1 else (D, 0)))
-    segs.append(("L", (D, 0), (D, H)))
+        segs.append(("A", (0, zt), (Pi * s45, zt - hc + hc * s45), (Pi, zt - hc)))   # crest
+        segs.append(("L", (Pi, zt - hc), (0, zb)))                                   # face -> valley
+    top = H - d["lip_h"]
+    segs += [("L", (0, 0), (-2, 0)), ("L", (-2, 0), (-2, top)), ("L", (-2, top), (0, top))]
     return segs
 
 
-def draw_section(sk, d, x0):
-    to_sk = lambda y, z: sk.modelToSketchSpace(P3(x0, y, z))
-    lines, arcs = sk.sketchCurves.sketchLines, sk.sketchCurves.sketchArcs
-    for s in section_segments(d):
-        if s[0] == "L":
-            lines.addByTwoPoints(to_sk(*s[1]), to_sk(*s[2]))
+def draw(sk, segs, to_model):
+    """Draw segments; to_model maps a 2D point to model (x, y, z) in mm."""
+    q = lambda pt: sk.modelToSketchSpace(P3(*to_model(pt)))
+    curves = []
+    for sg in segs:
+        if sg[0] == "L":
+            curves.append(sk.sketchCurves.sketchLines.addByTwoPoints(q(sg[1]), q(sg[2])))
         else:
-            arcs.addByThreePoints(to_sk(*s[1]), to_sk(*s[2]), to_sk(*s[3]))
+            curves.append(sk.sketchCurves.sketchArcs.addByThreePoints(q(sg[1]), q(sg[2]), q(sg[3])))
+    return curves
 
 
 def largest_profile(sk):
@@ -107,80 +142,61 @@ def run(context):
             if root.parentDesign.userParameters.itemByName(k) is None:
                 design.userParameters.add(k, adsk.core.ValueInput.createByString(f"{v} {unit}".strip()), unit, "W115 lens")
 
-        # 1) Section on a plane at the wrap start (X = xs), with the wrap axis as a construction line.
-        pi = root.constructionPlanes.createInput()
-        pi.setByOffset(root.yZConstructionPlane, val(d["xs"] * CM))
-        plane_xs = root.constructionPlanes.add(pi)
-        sk = root.sketches.add(plane_xs)
-        sk.name = "rib section"
-        draw_section(sk, d, d["xs"])
-        axis = sk.sketchCurves.sketchLines.addByTwoPoints(
-            sk.modelToSketchSpace(P3(d["xs"], d["Rg"], 0)), sk.modelToSketchSpace(P3(d["xs"], d["Rg"], H)))
-        axis.isConstruction = True
-        prof = largest_profile(sk)
-
-        # 2) Straight run back to X = 0, then the amber wrap revolve.
-        ext = feats.extrudeFeatures.addSimple(prof, val(-d["xs"] * CM), NEW)
-        body = ext.bodies.item(0)
-        if body.boundingBox.minPoint.x > 1e-3:          # plane normal pointed the other way
-            ext.deleteMe()
-            ext = feats.extrudeFeatures.addSimple(prof, val(d["xs"] * CM), NEW)
-            body = ext.bodies.item(0)
+        # 1) Core behind the valley line: plan loop on XY, extruded over the full height.
+        path_segs, closing = plan_loop(d, 0.0, D)
+        sk_core = root.sketches.add(root.xYConstructionPlane)
+        sk_core.name = "core plan"
+        draw(sk_core, path_segs + closing, lambda pt: (pt[0], pt[1], 0))
+        body = feats.extrudeFeatures.addSimple(largest_profile(sk_core), val(H * CM), NEW).bodies.item(0)
         body.name = "lens RH"
-        ri = feats.revolveFeatures.createInput(prof, axis, JOIN)
-        ri.setAngleExtent(False, val(d["A"]))
-        ri.participantBodies = [body]
-        rev = feats.revolveFeatures.add(ri)
-        if body.boundingBox.maxPoint.x < (d["xs"] + 1) * CM:  # revolved backwards: flip
-            rev.deleteMe()
-            ri = feats.revolveFeatures.createInput(prof, axis, JOIN)
-            ri.setAngleExtent(False, val(-d["A"]))
-            ri.participantBodies = [body]
-            feats.revolveFeatures.add(ri)
 
-        # 3) Plan-view rounding of the inboard end (XY sketch, intersect along Z).
-        sk2 = root.sketches.add(root.xYConstructionPlane)
-        sk2.name = "plan trim"
-        R, y0, ybig, xbig = d["R_end"], -d["P_max"], D + 200, d["L_proj"] + 200
-        L2, A2 = sk2.sketchCurves.sketchLines, sk2.sketchCurves.sketchArcs
-        q = lambda x, y: sk2.modelToSketchSpace(P3(x, y, 0))
-        L2.addByTwoPoints(q(R, y0 - 0.0), q(xbig, y0))
-        L2.addByTwoPoints(q(xbig, y0), q(xbig, ybig))
-        L2.addByTwoPoints(q(xbig, ybig), q(0, ybig))
-        L2.addByTwoPoints(q(0, ybig), q(0, y0 + R))
-        A2.addByThreePoints(q(0, y0 + R), q(R - R * math.cos(math.pi / 4), y0 + R - R * math.sin(math.pi / 4)), q(R, y0))
-        ei = feats.extrudeFeatures.createInput(largest_profile(sk2), INTERSECT)
-        ei.setSymmetricExtent(val((H + 50) * CM), True)
-        ei.participantBodies = [body]
-        feats.extrudeFeatures.add(ei)
+        # 2) Rib relief swept along the valley line (inboard end wall -> corner -> lens -> wrap ->
+        #    outboard corner -> end wall). Profile sits in the back plane (Y = D) at the path start.
+        sk_path = root.sketches.add(root.xYConstructionPlane)
+        sk_path.name = "valley path"
+        path_curves = draw(sk_path, path_segs, lambda pt: (pt[0], pt[1], 0))
+        pi = root.constructionPlanes.createInput()
+        pi.setByOffset(root.xZConstructionPlane, val(D * CM))
+        plane_back = root.constructionPlanes.add(pi)
+        if abs(plane_back.geometry.origin.y - D * CM) > 1e-6:      # XZ plane normal is -Y: flip the offset
+            plane_back.deleteMe()
+            pi = root.constructionPlanes.createInput()
+            pi.setByOffset(root.xZConstructionPlane, val(-D * CM))
+            plane_back = root.constructionPlanes.add(pi)
+        sk_rel = root.sketches.add(plane_back)
+        sk_rel.name = "rib relief section"
+        draw(sk_rel, relief_segments(d), lambda pt: (d["P_max"] - pt[0], D, pt[1]))
+        path = feats.createPath(path_curves[0], True)
+        swi = feats.sweepFeatures.createInput(largest_profile(sk_rel), path, JOIN)
+        swi.participantBodies = [body]
+        feats.sweepFeatures.add(swi)
 
         # 4) Front-view outline with corner radii (XZ sketch, intersect along Y).
         sk3 = root.sketches.add(root.xZConstructionPlane)
         sk3.name = "front outline"
-        L, rr = d["L_proj"], d
+        L, rr = d["L_proj"] + 50, d          # open past the outboard end (its return shapes it)
         q3 = lambda x, z: sk3.modelToSketchSpace(P3(x, 0, z))
         L3, A3 = sk3.sketchCurves.sketchLines, sk3.sketchCurves.sketchArcs
-        corners = [((0, 0), rr["r_in_bot"], (1, 1)), ((L, 0), rr["r_out_bot"], (-1, 1)),
-                   ((L, H), rr["r_out_top"], (-1, -1)), ((0, H), rr["r_in_top"], (1, -1))]
-        pts = []
-        for (cx, cz), r, (sx, sz) in corners:
-            cc = (cx + sx * r, cz + sz * r)
-            a = (cc[0] - sx * r * math.cos(math.pi / 4), cc[1] - sz * r * math.sin(math.pi / 4))
-            # arc from the vertical edge point to the horizontal edge point (or reverse), via 45 deg
-            p_vert, p_hor = (cx, cc[1]), (cc[0], cz)
-            A3.addByThreePoints(q3(*p_vert), q3(*a), q3(*p_hor))
-            pts.append((p_vert, p_hor))
-        L3.addByTwoPoints(q3(*pts[0][1]), q3(*pts[1][1]))   # bottom
-        L3.addByTwoPoints(q3(*pts[1][0]), q3(*pts[2][0]))   # outboard end
-        L3.addByTwoPoints(q3(*pts[2][1]), q3(*pts[3][1]))   # top
-        L3.addByTwoPoints(q3(*pts[3][0]), q3(*pts[0][0]))   # inboard end
-        ei = feats.extrudeFeatures.createInput(largest_profile(sk3), INTERSECT)
+        rt, rb_ = rr["r_in_top"], rr["r_in_bot"]
+        c45 = math.cos(math.pi / 4)
+        A3.addByThreePoints(q3(0, rb_), q3(rb_ - rb_ * c45, rb_ - rb_ * c45), q3(rb_, 0))          # inboard bottom
+        A3.addByThreePoints(q3(0, H - rt), q3(rt - rt * c45, H - rt + rt * c45), q3(rt, H))       # inboard top
+        L3.addByTwoPoints(q3(rb_, 0), q3(L, 0))
+        L3.addByTwoPoints(q3(L, 0), q3(L, H))
+        L3.addByTwoPoints(q3(L, H), q3(rt, H))
+        L3.addByTwoPoints(q3(0, H - rt), q3(0, rb_))
+        ei = feats.extrudeFeatures.createInput(largest_profile(sk3), NEW)
         ei.setSymmetricExtent(val(400 * CM), True)
-        ei.participantBodies = [body]
-        feats.extrudeFeatures.add(ei)
+        outline = feats.extrudeFeatures.add(ei).bodies.item(0)
+        tbm = adsk.fusion.TemporaryBRepManager.get()
+        outline_copy = tbm.copy(outline)
+        tools = adsk.core.ObjectCollection.create()
+        tools.add(outline)
+        ci = feats.combineFeatures.createInput(body, tools)
+        ci.operation = INTERSECT
+        feats.combineFeatures.add(ci)
 
         # 5) Shell 3 mm inward, open at the back (planar back face + the wrap's back cylinder).
-        tbm = adsk.fusion.TemporaryBRepManager.get()
         solid_copy = tbm.copy(body)
         back = adsk.core.ObjectCollection.create()
         for f in body.faces:
@@ -208,6 +224,10 @@ def run(context):
 
         U, I, S = (adsk.fusion.BooleanTypes.UnionBooleanType, adsk.fusion.BooleanTypes.IntersectionBooleanType,
                    adsk.fusion.BooleanTypes.DifferenceBooleanType)
+        # Back flange plate at the inboard end, out to the rib crests (straight edge seen from behind).
+        plate = tbox(0, d["P_max"] + t, D - t, D, 0, H)
+        tbm.booleanOperation(plate, tbm.copy(outline_copy), I)
+        tbm.booleanOperation(shell, plate, U)
         wt, ct, bt, x1, xs = d["wall_t"], d["clear_top"], d["box_top"], d["red_w"], d["xs"]
         yl, yc = D - d["wall_backoff"], d["box_cap_y"]
         for b in (tbox(x1 - wt / 2, x1 + wt / 2, -50, yl, -1, H + 1), tbox(xs - wt, xs, -50, yl, -1, H + 1),

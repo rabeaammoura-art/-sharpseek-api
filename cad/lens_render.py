@@ -75,13 +75,15 @@ def render(tris, cols, elev, azim, size=(900, 600), margin=30):
 # (label, elev, azim, reference photo filename in ref_dir or None)
 COMPARE = {
     "RH": [
-        ("front, straight (vs ClassicEuro pair, RH)", 8, -90, "ref5_rh.png"),
-        ("front angled (vs ClassicEuro close-up)", 22, -122, "ref2.jpg"),
-        ("inboard end / rib profile (vs Allums RH)", 5, -150, "allums2_end.png"),
+        ("front, straight (vs ClassicEuro RH)", 6, -90, "ref5_rh.png"),
+        ("front, straight - inboard end (vs Allums RH)", 6, -96, "allums_rh_left.png"),
+        ("front angled from inboard end (vs ClassicEuro close-up)", 22, -122, "ref2.jpg"),
+        ("inboard end close (vs ClassicEuro)", 18, -125, "ref2_leftend.png"),
         ("top view (plan wrap)", 89.9, -90, None),
     ],
     "LH": [
         ("LH front angled (vs Soon Heng ARIC LH)", 12, -70, "soon_front.png"),
+        ("LH inboard end, rib crests/valleys (vs Soon Heng)", 14, -55, "soon_front_rightend.png"),
         ("LH inside, straight (vs Soon Heng inside)", 5, 90, "soon_inside.png"),
     ],
 }

@@ -29,6 +29,22 @@ VIEWS = [  # (title, elev, azim) — chosen to match the reference photos
 ]
 
 
+def _cross2(a, b):
+    return a[0] * b[1] - a[1] * b[0]
+
+
+def bed_tilt(pts):
+    """Angle (deg, about +Y) that puts the widest lower-hull edge of the (x, z) points flat."""
+    pts = pts[np.lexsort((pts[:, 1], pts[:, 0]))]
+    hull = []
+    for q in pts:                                    # lower convex hull, monotone chain
+        while len(hull) >= 2 and _cross2(hull[-1] - hull[-2], q - hull[-2]) <= 0:
+            hull.pop()
+        hull.append(q)
+    a, b = max(zip(hull, hull[1:]), key=lambda e: e[1][0] - e[0][0])
+    return np.degrees(np.arctan2(b[1] - a[1], b[0] - a[0]))
+
+
 def export_all():
     OUT.mkdir(parents=True, exist_ok=True)
     bodies, d = lens.make_bodies()
@@ -40,6 +56,11 @@ def export_all():
         # Print orientation: back (seal flange) toward the bed, outer face up -> no supports on the face.
         # Rotate -90 deg about X (car +Y -> print -Z), then drop onto Z=0 and centre on the H2D bed.
         rot = {k: v.moved(Location((0, 0, 0), (-90, 0, 0))) for k, v in parts.items()}
+        # The amber wrap reaches below the flat flange; tilt about the print Y axis so the
+        # lower hull edge (inboard back edge -> amber tip) lies on the bed: shorter supports.
+        pts = np.array([[v.X, v.Z] for p in rot.values() for v in p.vertices()])
+        tilt = bed_tilt(pts)
+        rot = {k: v.moved(Location((0, 0, 0), (0, tilt, 0))) for k, v in rot.items()}
         bb = Compound(children=list(rot.values())).bounding_box()
         shift = Location((175 - bb.center().X, 160 - bb.center().Y, -bb.min.Z))
         mesher = Mesher()
@@ -51,7 +72,7 @@ def export_all():
         mesher.write(str(OUT / f"{side}_lens_multicolour_print.3mf"))
         tot = sum(p.volume for p in parts.values())
         bb = Compound(children=list(parts.values())).bounding_box()
-        print(f"{side}: {tot / 1000:.1f} cm3, {bb.size.X:.1f} x {bb.size.Y:.1f} x {bb.size.Z:.1f} mm")
+        print(f"{side}: {tot / 1000:.1f} cm3, {bb.size.X:.1f} x {bb.size.Y:.1f} x {bb.size.Z:.1f} mm, print tilt {tilt:.1f} deg")
     return d
 
 
