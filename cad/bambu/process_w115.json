@@ -1,0 +1,20 @@
+{
+  "type": "process",
+  "name": "W115 lens 0.20mm @H2D",
+  "inherits": "0.20mm Standard @BBL H2D",
+  "from": "User",
+  "sparse_infill_density": "100%",
+  "enable_support": "1",
+  "support_type": "tree(auto)",
+  "support_on_build_plate_only": "1",
+  "sparse_infill_pattern": "zig-zag",
+  "curr_bed_type": "Textured PEI Plate",
+  "wipe_tower_x": [
+    "40"
+  ],
+  "wipe_tower_y": [
+    "245"
+  ],
+  "support_filament": "1",
+  "support_interface_filament": "1"
+}

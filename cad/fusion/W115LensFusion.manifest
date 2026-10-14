@@ -1,0 +1,8 @@
+{
+  "autodeskProduct": "Fusion360",
+  "type": "script",
+  "author": "",
+  "description": {"": "Parametric Mercedes W114/W115 late-series rear lamp lens (RH + LH, red/clear/amber bodies)"},
+  "supportedOS": "windows|mac",
+  "editEnabled": true
+}
