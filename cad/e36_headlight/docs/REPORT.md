@@ -10,13 +10,28 @@ fascia, openings and module positions, and changes only:
 | Printed parts per lamp | 9 | **3** (housing, projector carrier, Devil Eye clamp ring) |
 | Aiming | 3-point carrier, 2 wedges, top-access screws, 2 brackets, ball stud | **3 spring screws P/A/B from the rear** into posts printed on the back of the skin (classic retrofit principle) |
 | Devil Eye seat | separate adapter ring (from the original) | **printed into the housing** (same footprint as the original ring) |
-| Filament per lamp | 781 g | **643 g** (support 142 g) |
-| Print time per lamp* | 34.5 h | **25.6 h** |
-| Pair | 1.56 kg / 69 h | **1.29 kg / 51 h** |
+| Filament per lamp | 781 g | **528 g** (Bambu Studio, official density 1.02 g/cm³) |
+| Print time per lamp | 34.5 h | **25.5 h** (Bambu Studio estimate) |
+| Pair | 1.56 kg / 69 h | **1.06 kg / ≈51 h** |
 
-\* PrusaSlicer 2.7 with an approximate H2D/ASA-CF profile. The visible-surface settings are unchanged: 0.20 mm layers, outer wall 120 mm/s, top skin 120 mm/s.
-Internal-only changes: 3 walls instead of 4, 12 % gyroid, sparse infill every 2nd layer, faster internal speeds.
-Re-slice in Bambu Studio with the official profile for the real figure. Expect it to be shorter.
+**Bambu Studio 2.08 (official) result**, H2D 0.4 nozzle + Bambu ASA-CF @BBL H2D + 0.20mm Standard @BBL H2D
+(Flathub build, run headless: `slice_bambu.sh`, `tools/bambu_launcher.sh`, `tools/bambu_flatten.py`).
+Only internal settings changed: 3 walls, 12 % gyroid. The visible surface uses the stock Standard profile.
+
+| Plate | Content | Time | Filament |
+|---|---|---|---|
+| 1 | housing, rotated 16°, right nozzle, slim tree supports, no brim/prime tower | **24 h 27 min** | **503 g** |
+| 2 | projector carrier + Devil Eye clamp | **1 h 00 min** | **24.5 g** |
+
+Notes from the official slice:
+- The H2D profile limits each nozzle's area: left X 0–325 (Z 320), right X 25–350 (Z 325). The 317.5 mm-wide housing therefore runs on **one nozzle** with ≈7 mm to spare.
+- Default organic trees spread to X 17 and fail Bambu's "unprintable area" check. **Slim trees pass.**
+- Normal "snug" supports also pass but fill the cavity: 855 g / 27.3 h.
+- A default brim / prime tower also leaves the nozzle area, so both are disabled.
+
+Earlier PrusaSlicer approximation for comparison (density 1.12): 643 g / 25.6 h per lamp.
+
+PrusaSlicer approximation per part:
 
 | Part (left) | Orientation | g | support g | time |
 |---|---|---|---|---|
