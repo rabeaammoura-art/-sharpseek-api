@@ -1,4 +1,39 @@
-# BMW E36 modular headlight — engineering report (iteration 1)
+# BMW E36 modular headlight — engineering report
+
+## v2 (current) — simplified: 3 printed parts per lamp
+
+After review, v1 was judged to have too many parts and too much print time. v2 keeps the same housing,
+fascia, openings and module positions, and changes only:
+
+| | v1 | **v2** |
+|---|---|---|
+| Printed parts per lamp | 9 | **3** (housing, projector carrier, Devil Eye clamp ring) |
+| Aiming | 3-point carrier, 2 wedges, top-access screws, 2 brackets, ball stud | **3 spring screws P/A/B from the rear** into posts printed on the back of the skin (classic retrofit principle) |
+| Devil Eye seat | separate adapter ring (from the original) | **printed into the housing** (same footprint as the original ring) |
+| Filament per lamp | 781 g | **643 g** (support 142 g) |
+| Print time per lamp* | 34.5 h | **25.6 h** |
+| Pair | 1.56 kg / 69 h | **1.29 kg / 51 h** |
+
+\* PrusaSlicer 2.7 with an approximate H2D/ASA-CF profile. The visible-surface settings are unchanged: 0.20 mm layers, outer wall 120 mm/s, top skin 120 mm/s.
+Internal-only changes: 3 walls instead of 4, 12 % gyroid, sparse infill every 2nd layer, faster internal speeds.
+Re-slice in Bambu Studio with the official profile for the real figure. Expect it to be shorter.
+
+| Part (left) | Orientation | g | support g | time |
+|---|---|---|---|---|
+| housing_L_mod | bottom plate on bed, rotated 16 deg about Z | 611.8 | 141.3 | 1d 0h 31m 53s |
+| projector_carrier | -Y up | 19.5 | 0.3 | 41m 54s |
+| devil_clamp | -Y up | 11.7 | 0.0 | 22m 12s |
+
+**Aiming v2:** the carrier hangs on 3 × M5 screws: P (reference, depth), A (pitch only: lever 50 mm, 0.92°/turn) and B (yaw only: lever 112 mm, 0.41°/turn). They thread into heat-set inserts in 3 posts printed on the back of the fascia skin. The posts have ribs to the floor and the top plate. A stainless compression spring (OD10/ID6, L0 22, installed 14) on each screw pushes the carrier rearward against the screw heads, giving no backlash and self-locking by preload. Adjust from the rear with a long screwdriver; the access paths are checked clear. Top access was dropped on request.
+
+**v2 validation (`out/validation.json`):** no unintended static interference. The ±3° pitch × yaw sweep is clear in all 25 poses. Minimum shroud-to-aperture clearance is 4.74 mm. Spring length stays within 8.1–19.9 mm over the full range (free length 22). Both modules come out straight back.
+
+Hardware per lamp (v2): 3 × M5×35/40 ISO 4762 A2, 3 springs, 3 + 3 M5 inserts (posts + carrier), 3 × M4 inserts + 3 × M4×10 (Devil Eye clamp), 3 × M5×12 (projector, verify).
+
+Sections 1–3, 5, 7–8 below still apply. **Section 4 (wedge aiming) and the v1 numbers in section 6 are superseded** and kept for reference only; the v1 code is in git history (commit 9aaa88e).
+
+---
+
 
 Left (Vänster) assembly is documented; the right side is generated as an exact mirror.
 Frame used throughout = the original housing STL frame: **−Y forward, +Z up, +X outboard (fender / turn-signal side)**.

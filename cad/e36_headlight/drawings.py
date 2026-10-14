@@ -12,8 +12,7 @@ import params as P, geom as G
 
 OUT = G.OUT; PT = OUT / "parts"; DW = OUT / "drawings"; DW.mkdir(exist_ok=True)
 H = trimesh.load(OUT / "housing_L_mod.stl")
-NEW = {n: trimesh.load(PT / f"{n}_L.stl") for n in ["projector_carrier", "pivot_cap", "wedge_A", "wedge_B", "inboard_bracket",
-                                                    "outboard_pillar", "devil_adapter", "devil_clamp"]}
+NEW = {n: trimesh.load(PT / f"{n}_L.stl") for n in ["projector_carrier", "devil_clamp"]}
 PH = {n: trimesh.load(PT / f"{n}_L.stl") for n in ["PH_projector_ASSUMED", "PH_devil_eye_ASSUMED"]}
 HW = {p.stem[:-2]: trimesh.load(p) for p in PT.glob("HW_*_L.stl")}
 COL = dict(housing="#222222", new="#1f6fd1", ph="#999999", hw="#c0392b")
@@ -109,55 +108,51 @@ def sheet1(pdf):
 
 def sheet2(pdf):
     fig = plt.figure(figsize=(16.54, 11.69))
-    frame(fig, "Sheet 2 — Aiming mechanism (3-point, top-access wedge adjusters)", 2)
-    a = G.aim_points(); w = G.wedge_geom(); adj = G.adjusters()
-    allm = dict(NEW); allm.update(HW)
+    frame(fig, "Sheet 2 — Aiming (v2): 3 spring screws P / A / B, adjusted from the rear", 2)
+    a = G.aim_points(); posts = G.aim_posts()
     def put(ax, origin, normal, i, j):
         section(ax, H, origin, normal, i, j, COL["housing"], 0.7, fill=COL["housing"])
         for n, m in NEW.items(): section(ax, m, origin, normal, i, j, COL["new"], 0.8, fill=COL["new"])
         for n, m in HW.items(): section(ax, m, origin, normal, i, j, COL["hw"], 0.8, fill=COL["hw"])
         for n, m in PH.items(): section(ax, m, origin, normal, i, j, COL["ph"], 0.5)
-    ax = fig.add_axes([0.03, 0.08, 0.30, 0.84]); ax.set_title(f"Section X={a['A'][0]:.1f} through P and A (pitch)", fontsize=9)
-    put(ax, [a["A"][0], 0, 0], [1, 0, 0], 1, 2)
-    for k in "PA": ax.plot(a[k][1], a[k][2], "o", ms=4, color="g"); ax.text(a[k][1] - 12, a[k][2], k, fontsize=9, color="g")
-    dim(ax, (a["P"][1], a["P"][2]), (a["A"][1], a["A"][2]), f"{a['A'][2]-a['P'][2]:.0f} lever", off=-40, vertical=True)
-    ax.text(adj["A"][1] + 3, G.SEAT_Z + 9, "M5x50 ISO 4762 A2\nhead from ABOVE", fontsize=6.5)
-    ax.set_xlim(-110, -10); ax.set_ylim(120, 270); ax.set_aspect("equal"); ax.grid(alpha=0.2)
-    ax = fig.add_axes([0.35, 0.08, 0.30, 0.84]); ax.set_title(f"Section X={a['B'][0]:.1f} through B (yaw)", fontsize=9)
-    put(ax, [a["B"][0], 0, 0], [1, 0, 0], 1, 2)
-    ax.plot(a["B"][1], a["B"][2], "o", ms=4, color="g"); ax.text(a["B"][1] - 12, a["B"][2], "B", fontsize=9, color="g")
-    ax.text(adj["B"][1] + 3, G.SEAT_Z + 9, "M5x100 ISO 4762 A2\nhead from ABOVE", fontsize=6.5)
-    ax.text(w["cy"] + 3, a["B"][2] - 22, "45° wedge, ISO 10511\nM5 nylon-insert nut\ncaptive (anti-drift)", fontsize=6)
-    ax.set_xlim(-110, -10); ax.set_ylim(120, 270); ax.set_aspect("equal"); ax.grid(alpha=0.2)
-    ax = fig.add_axes([0.67, 0.50, 0.31, 0.42]); ax.set_title(f"Front view of carrier (section Y={a['P'][1]:.1f})", fontsize=9)
+    for k0, (title, X) in enumerate([("through P and A (pitch screw A)", a["A"][0]), ("through B (yaw screw B)", a["B"][0])]):
+        ax = fig.add_axes([0.03 + k0 * 0.32, 0.08, 0.30, 0.84]); ax.set_title(f"Section X={X:.1f} {title}", fontsize=9)
+        put(ax, [X, 0, 0], [1, 0, 0], 1, 2)
+        for k in "PAB":
+            if abs(a[k][0] - X) < 1:
+                ax.plot(a[k][1], a[k][2], "o", ms=4, color="g"); ax.text(a[k][1] + 4, a[k][2] + 4, k, fontsize=9, color="g")
+        ax.set_xlim(-150, -20); ax.set_ylim(120, 260); ax.set_aspect("equal"); ax.grid(alpha=0.2)
+        ax.annotate("screwdriver from the rear", (-62, a["P"][2] - 8), (-45, a["P"][2] - 30), fontsize=7, arrowprops=dict(arrowstyle="->"))
+    ax = fig.add_axes([0.67, 0.50, 0.31, 0.42]); ax.set_title(f"Carrier, front view (section Y={a['P'][1]:.1f})", fontsize=9)
     put(ax, [0, a["P"][1], 0], [0, 1, 0], 0, 2)
     for k in "PAB": ax.plot(a[k][0], a[k][2], "o", ms=5, color="g"); ax.text(a[k][0] + 3, a[k][2] + 3, k, fontsize=9, color="g")
     ax.plot([a["P"][0], a["B"][0]], [a["P"][2], a["B"][2]], "g--", lw=0.6); ax.plot([a["P"][0], a["A"][0]], [a["P"][2], a["A"][2]], "g--", lw=0.6)
-    ax.text(a["B"][0] - 50, a["P"][2] - 8, "pitch axis P-B", fontsize=6, color="g"); ax.text(a["P"][0] - 20, a["A"][2] + 6, "yaw axis P-A", fontsize=6, color="g")
-    dim(ax, (a["P"][0], a["P"][2]), (a["B"][0], a["B"][2]), f"{a['B'][0]-a['P'][0]:.0f} lever", off=-30)
+    dim(ax, (a["P"][0], a["P"][2]), (a["B"][0], a["B"][2]), f"{a['B'][0]-a['P'][0]:.0f} yaw lever", off=-30)
+    dim(ax, (a["P"][0], a["P"][2]), (a["A"][0], a["A"][2]), f"{a['A'][2]-a['P'][2]:.0f}", off=-25, vertical=True)
     ax.set_aspect("equal"); ax.axis("off")
     ax = fig.add_axes([0.67, 0.06, 0.31, 0.40]); ax.axis("off")
     import json
     v = json.loads((OUT / "validation.json").read_text())["checks"]
-    txt = ["Kinematics / validation (validate.py, real booleans):",
-           f"  pitch: {v['adjust']['deg_per_turn_pitch(M5x0.8)']}°/turn, yaw: {v['adjust']['deg_per_turn_yaw(M5x0.8)']}°/turn",
-           f"  range checked ±{P.AIM_RANGE_DEG:.0f}° both axes, 3x3 sweep: " + ("CLEAR" if set(map(str, v['aim_sweep_interference_mm3'].values())) == {'clear'} else "SEE JSON"),
-           f"  min shroud-to-aperture clearance over sweep: {v['shroud_to_aperture_min_clearance_mm']} mm*",
-           f"  wedge travel needed A/B: {v['adjust']['wedge_travel_needed_A_mm']} / {v['adjust']['wedge_travel_needed_B_mm']} mm (ramp ±7)",
+    sw = v["aim_sweep_vs_housing_mm3"]
+    txt = ["Validation (validate.py, real booleans):",
+           f"  pitch (A): {v['adjust']['deg_per_turn_pitch(M5x0.8)']}°/turn, yaw (B): {v['adjust']['deg_per_turn_yaw(M5x0.8)']}°/turn",
+           f"  ±{P.AIM_RANGE_DEG:.0f}° both axes, 5x5 sweep: " + ("CLEAR" if set(map(str, sw.values())) == {'clear'} else "SEE JSON"),
+           f"  shroud-to-aperture min clearance: {v['shroud_to_aperture_min_clearance_mm']} mm*",
+           f"  spring length A {v['adjust']['spring_length_range_A_mm']}, B {v['adjust']['spring_length_range_B_mm']} (free {P.AIM_SPRING['l_free']:.0f})",
            f"  rear removal: projector {v['rear_removal']['bi_led_projector (unbolt 3 screws, pull +Y)']}, devil eye {v['rear_removal']['devil_eye (remove clamp ring, pull +Y)']}",
-           "", "Preload: 2 compression springs Ø8 x 25 free / 16 installed",
-           "  between skin posts and carrier spigots (in line with A, B)",
-           "  push the carrier rearward onto the wedges; the ball load",
-           "  hangs each screw in tension from its head (no drift path).",
-           "Pivot P: DIN 71803 Ø10 ball stud (M6) in a printed socket,",
-           "  closed by the 2xM3 pivot cap. Followers: Ø8 steel balls.",
+           "", "Hardware per lamp: 3x M5x35 ISO 4762 A2 (P, A; B M5x40),",
+           "  3x stainless compression spring OD10 / ID6 / L0 22 (installed 14),",
+           "  3x M5 heat-set inserts in the posts (printed on the skin back).",
+           "Screws tighten = carrier forward; loosen = springs push back.",
+           "Use nylon-patch screws, or a drop of",
+           "  removable threadlocker after final aim.",
            "* depends on ASSUMED module dimensions — re-run after measuring."]
     ax.text(0, 1, "\n".join(txt), fontsize=8, va="top", family="monospace")
     pdf.savefig(fig); fig.savefig(DW / "sheet2_aiming.png", dpi=110); plt.close(fig)
 
 
 def sheet3(pdf):
-    fig = plt.figure(figsize=(16.54, 11.69)); frame(fig, "Sheet 3 — New printed parts (installed orientation, bounding dims)", 3)
+    fig = plt.figure(figsize=(16.54, 11.69)); frame(fig, "Sheet 3 — Separate printed parts (installed orientation, bounding dims)", 3)
     names = list(NEW)
     for k, n in enumerate(names):
         m = NEW[n]; ax = fig.add_axes([0.03 + (k % 4) * 0.245, 0.50 - (k // 4) * 0.44, 0.22, 0.38])

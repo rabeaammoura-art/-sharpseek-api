@@ -136,3 +136,10 @@ def wedge_geom():
     h = P.WEDGE_RAMP_HALF
     return dict(ball_y=ball_y, cy=cy, dz=-r * s, y_front=cy - h, y_back=cy + h + 8.0, screw_y=cy + h + 4.5,
                 ramp_half=h, below=14.0, above=13.0, s=s, r=r)
+
+
+def aim_posts():
+    """v2: post end Y (insert face) for P, A, B = carrier front face minus installed spring length."""
+    f = projector_frame(); a = aim_points()
+    y_end = f["y_mount"] - P.CARRIER_T - P.AIM_SPRING["l_installed"]
+    return {k: (a[k][0], y_end, a[k][2]) for k in "PAB"}

@@ -1,4 +1,5 @@
 {
+  "design": "v2 simplified: housing + carrier + devil clamp per lamp; 3 spring screws from the rear",
   "assumptions": "module envelopes are ASSUMED placeholders (params.py)",
   "checks": {
     "static_interference_mm3": {
@@ -7,77 +8,83 @@
         "0.2 mm clamp preload on the module flange (intended)"
       ]
     },
-    "aim_sweep_interference_mm3": {
-      "pitch -3 / yaw -3": "clear",
-      "pitch -3 / yaw +0": "clear",
-      "pitch -3 / yaw +3": "clear",
-      "pitch +0 / yaw -3": "clear",
-      "pitch +0 / yaw +0": "clear",
-      "pitch +0 / yaw +3": "clear",
-      "pitch +3 / yaw -3": "clear",
-      "pitch +3 / yaw +0": "clear",
-      "pitch +3 / yaw +3": "clear"
+    "aim_sweep_vs_housing_mm3": {
+      "pitch -3.0 / yaw -3.0": "clear",
+      "pitch -3.0 / yaw -1.5": "clear",
+      "pitch -3.0 / yaw +0.0": "clear",
+      "pitch -3.0 / yaw +1.5": "clear",
+      "pitch -3.0 / yaw +3.0": "clear",
+      "pitch -1.5 / yaw -3.0": "clear",
+      "pitch -1.5 / yaw -1.5": "clear",
+      "pitch -1.5 / yaw +0.0": "clear",
+      "pitch -1.5 / yaw +1.5": "clear",
+      "pitch -1.5 / yaw +3.0": "clear",
+      "pitch +0.0 / yaw -3.0": "clear",
+      "pitch +0.0 / yaw -1.5": "clear",
+      "pitch +0.0 / yaw +0.0": "clear",
+      "pitch +0.0 / yaw +1.5": "clear",
+      "pitch +0.0 / yaw +3.0": "clear",
+      "pitch +1.5 / yaw -3.0": "clear",
+      "pitch +1.5 / yaw -1.5": "clear",
+      "pitch +1.5 / yaw +0.0": "clear",
+      "pitch +1.5 / yaw +1.5": "clear",
+      "pitch +1.5 / yaw +3.0": "clear",
+      "pitch +3.0 / yaw -3.0": "clear",
+      "pitch +3.0 / yaw -1.5": "clear",
+      "pitch +3.0 / yaw +0.0": "clear",
+      "pitch +3.0 / yaw +1.5": "clear",
+      "pitch +3.0 / yaw +3.0": "clear"
     },
     "shroud_to_aperture_min_clearance_mm": 4.74,
     "adjust": {
-      "pitch_lever_mm": 50.0,
-      "yaw_lever_mm": 112.00000000000001,
+      "pitch_screw": "A",
+      "yaw_screw": "B",
+      "reference": "P",
       "deg_per_turn_pitch(M5x0.8)": 0.917,
       "deg_per_turn_yaw(M5x0.8)": 0.409,
-      "wedge_travel_needed_A_mm": 2.62,
-      "wedge_travel_needed_B_mm": 5.87,
-      "ramp_capacity_mm": 7.0,
-      "ok": true,
-      "coupling": "pitch axis = line P-B (horizontal), yaw axis = line P-A (vertical): first-order decoupled"
-    },
-    "wedge_travel_clearance": {
-      "wedge_A": [
-        [
-          2.6,
-          36.6
-        ]
+      "spring_length_range_A_mm": [
+        11.4,
+        16.6
       ],
-      "wedge_B": "clear over full travel"
+      "spring_length_range_B_mm": [
+        8.1,
+        19.9
+      ],
+      "spring_free_length_mm": 22.0,
+      "ok": true
     },
-    "top_access": {
+    "rear_screwdriver_access": {
+      "P": {
+        "head_xyz": [
+          -153.3,
+          -70.1,
+          172.1
+        ],
+        "rear_tool_path_vs_housing_mm3": 0.0,
+        "rear_tool_path_vs_projector_mm3": 0.0
+      },
       "A": {
         "head_xyz": [
           -153.3,
-          -44.8,
-          252.3
+          -70.1,
+          222.1
         ],
-        "tool_path_clear": true,
-        "screw_length_min_mm": 49.0,
-        "washer_seat_samples": {
-          "inboard_bracket@Z252.3": 21,
-          "housing@Z251.0": 3
-        },
-        "seat_ok": true
+        "rear_tool_path_vs_housing_mm3": 0.0,
+        "rear_tool_path_vs_projector_mm3": 0.0
       },
       "B": {
         "head_xyz": [
           -41.3,
-          -44.8,
-          252.3
+          -70.1,
+          172.1
         ],
-        "tool_path_clear": true,
-        "screw_length_min_mm": 99.0,
-        "washer_seat_samples": {
-          "housing@Z252.3": 24
-        },
-        "seat_ok": true
+        "rear_tool_path_vs_housing_mm3": 0.0,
+        "rear_tool_path_vs_projector_mm3": 0.0
       }
     },
     "rear_removal": {
       "bi_led_projector (unbolt 3 screws, pull +Y)": "clear",
       "devil_eye (remove clamp ring, pull +Y)": "clear"
-    },
-    "vertical_envelope_at_projector": {
-      "floor_Z": 130.3,
-      "ceiling_Z_front": 241.3,
-      "clear_height_mm": 111.0,
-      "max_module_height_with_\u00b13deg_and_2mm_gaps_mm": 100.7,
-      "if_module_is_124mm_tall": "DOES NOT FIT centred on Zc=186.1"
     }
   }
 }

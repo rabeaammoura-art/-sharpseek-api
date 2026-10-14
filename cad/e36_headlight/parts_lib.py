@@ -289,3 +289,36 @@ def hardware():
                                      + cyl_y(3.5, ycen, ycen + P.STUD_SEAT_OFFSET, Pp[0], Pp[2])
                                      + cyl_y(3.0, ycen + P.STUD_SEAT_OFFSET, ycen + P.STUD_SEAT_OFFSET + 10, Pp[0], Pp[2]))
     return hw
+
+
+# ================================================================== v2 (simplified) parts
+def projector_carrier_v2():
+    """Flat carrier: projector bolts on with 3 x M5 (inserts), carrier hangs on 3 spring screws P/A/B."""
+    cx, cz = P.PROJ_C
+    f = G.projector_frame(); a = G.aim_points(); ym = f["y_mount"]; t = P.CARRIER_T
+    Pp, Ap, Bp = [(a[k][0], a[k][2]) for k in "PAB"]
+    sk = (Pos(cx, cz) * Circle(50.0) + slot(Pp, Ap, 18.0) + slot((cx, cz), Pp, 18.0)
+          + slot((cx, cz), Ap, 16.0) + slot((cx, cz), Bp, 18.0) + Pos(*Bp) * Circle(11.0))
+    c = extrude(plane_at_y(ym) * sk, amount=t)
+    for ang in P.PROJ_MOUNT_ANGLES:
+        x = cx + P.PROJ_MOUNT_PCD / 2 * math.cos(math.radians(ang))
+        z = cz + P.PROJ_MOUNT_PCD / 2 * math.sin(math.radians(ang))
+        c = c + cyl_y(5.5, ym - t + 0.5, ym - t - 3.0, x, z)
+        c = c - cyl_y(P.HSI["M5"] / 2, ym + 1, ym - P.HSI_DEPTH["M5"] - 0.5, x, z)
+    for q in (Pp, Ap, Bp):
+        c = c - cyl_y(P.CLEAR["M5"] / 2 + 0.25, ym + 1, ym - t - 1, *q)                 # spring-screw holes
+        c = c - cyl_y(P.AIM_SPRING["od"] / 2 + 0.4, ym - t - 1, ym - t + 1.5, *q)       # spring seat, 1.5 deep
+    c = c - cyl_y(P.PROJ_SHROUD_D / 2 + 0.5, ym + 1, ym - t - 5, cx, cz)
+    return c
+
+
+def hardware_v2():
+    a = G.aim_points(); ym = G.projector_frame()["y_mount"]; posts = G.aim_posts(); sp = P.AIM_SPRING
+    hw = {}
+    for k in "PAB":
+        x, y_end, z = posts[k]
+        y_head = ym
+        hw[f"HW_screw_{k}"] = cyl_y(4.25, y_head, y_head + 5.0, x, z) + cyl_y(2.5, y_end - 8.0, y_head, x, z)
+        y0, y1 = y_end, ym - P.CARRIER_T + 1.5
+        hw[f"HW_spring_{k}"] = cyl_y(sp["od"] / 2, y0, y1, x, z) - cyl_y(sp["id"] / 2, y0 - 1, y1 + 1, x, z)
+    return hw

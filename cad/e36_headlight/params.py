@@ -72,8 +72,12 @@ FOLLOWER_BALL_D = 8.0                   # [DESIGN] hardened steel ball (bearing 
 FOLLOWER_OFFSET = 11.0                  # [DESIGN] ball centre behind the carrier rear face
 STUD_SEAT_OFFSET = 13.0                 # [ASSUMED] DIN 71803 size 10: ball centre -> seat face, shim to suit
 PIVOT_BALL_D = 10.0                     # [DESIGN] DIN 71803 ball stud 10 mm (M6)
-PRELOAD_SPRING = dict(od=8.0, l_free=25.0, l_installed=16.0)   # [DESIGN] compression springs in front
-                                        # of ears A and B push the carrier rearward onto the wedges
+# v2 SIMPLE AIMING (replaces the v1 wedge mechanism, see git history): the carrier hangs on 3 M5 screws
+# (P, A, B) driven from the REAR into heat-set inserts in 3 posts printed on the back of the fascia skin.
+# A compression spring on each screw pushes carrier and post apart -> no backlash, screws self-locking by preload.
+# A only = pitch (about line P-B), B only = yaw (about line P-A), P = depth/reference.
+AIM_SPRING = dict(od=10.0, id=6.0, l_free=22.0, l_installed=14.0)   # [DESIGN] stainless compression spring
+AIM_POST_D = 16.0                                                  # [DESIGN]
 
 # ---------------------------------------------------------------- outboard Devil Eye
 DEVIL_C = OUTBOARD_APERTURE_C           # [CAD] reuse the proven opening + 3-hole ring interface

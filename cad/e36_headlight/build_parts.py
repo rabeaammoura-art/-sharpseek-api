@@ -7,14 +7,8 @@ import params as P
 import parts_lib as L
 
 OUT = Path(__file__).parent / "out" / "parts"
-PARTS = {   # name: (function, printed?)
-    "projector_carrier": (L.projector_carrier, True),
-    "pivot_cap": (L.pivot_cap, True),
-    "wedge_A": (lambda: L.wedge("A"), True),
-    "wedge_B": (lambda: L.wedge("B"), True),
-    "inboard_bracket": (L.inboard_bracket, True),
-    "outboard_pillar": (L.outboard_pillar, True),
-    "devil_adapter": (L.devil_adapter, True),
+PARTS = {   # name: (function, printed?)  -- v2: 2 printed parts + housing per lamp
+    "projector_carrier": (L.projector_carrier_v2, True),
     "devil_clamp": (L.devil_clamp, True),
     "PH_projector_ASSUMED": (L.ph_projector, False),
     "PH_projector_lens": (L.ph_projector_lens, False),

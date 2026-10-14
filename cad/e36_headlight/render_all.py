@@ -26,12 +26,10 @@ def lamp(side, on=False, hw=True, explode=0.0, inner=True):
          dict(path=str(REF / f"turnsignal_bracket_{side}.stl"), mat="plastic", color=[0.12, 0.12, 0.13])]
     def e(dy, dz=0.0):
         return [0.0, dy * explode, dz * explode] if explode else None
-    parts = [("devil_adapter", "plastic", [0.05, 0.05, 0.055], e(60)), ("devil_clamp", "plastic", [0.05, 0.05, 0.055], e(100)),
+    parts = [("devil_clamp", "plastic", [0.05, 0.05, 0.055], e(100)),
              ("PH_devil_eye_ASSUMED", "black", None, e(150)),
-             ("projector_carrier", "plastic", [0.05, 0.05, 0.055], e(70)), ("pivot_cap", "plastic", [0.05, 0.05, 0.055], e(90)),
-             ("PH_projector_ASSUMED", "black", None, e(160)), ("PH_projector_lens", "lens" if not on else "emit_white", None, e(160)),
-             ("inboard_bracket", "plastic", [0.05, 0.05, 0.055], e(30, -40)), ("outboard_pillar", "plastic", [0.05, 0.05, 0.055], e(30, -40)),
-             ("wedge_A", "alu", None, e(30, 60)), ("wedge_B", "alu", None, e(30, 60))]
+             ("projector_carrier", "plastic", [0.05, 0.05, 0.055], e(70)),
+             ("PH_projector_ASSUMED", "black", None, e(160)), ("PH_projector_lens", "lens" if not on else "emit_white", None, e(160))]
     for n, m, c, off in parts:
         ob = dict(path=str(PT / f"{n}_{sfx}.stl"), mat=m)
         if c: ob["color"] = c
@@ -41,7 +39,7 @@ def lamp(side, on=False, hw=True, explode=0.0, inner=True):
     if hw and side == "L":
         for p in sorted(PT.glob("HW_*_L.stl")):
             ob = dict(path=str(p), mat="chrome")
-            if explode: ob["offset"] = [0, 30 * explode, 60 * explode] if "screw" in p.name else [0, 70 * explode, 0]
+            if explode: ob["offset"] = [0, 40 * explode, 0]
             o.append(ob)
     cx, cz = P.DEVIL_C; x = cx if side == "L" else mx(cx)
     o.append(dict(disc=dict(center=[x, d["y_front"] - 0.3 + (150 * explode if explode else 0), cz], radius=P.DEVIL_LENS_D / 2 - 3),
@@ -61,7 +59,7 @@ VIEWS = {
     "02_front_pair_on": (lamp("L", on=True) + lamp("R", on=True), cam([-195, -1400, 260], PAIR_C, ortho=780), dict(world=0.02, light=0.04, bg=[0.02, 0.02, 0.03])),
     "03_three_quarter": (lamp("L"), cam([330, -620, 420], L_C, lens=55), {}),
     "04_rear_service": (lamp("L"), cam([-260, 560, 430], [-40, -40, 190], lens=50), {}),
-    "05_top_aiming": (lamp("L"), cam([-5, -40, 1200], [-5, -40, 200], ortho=400), {}),
+    "05_rear_aiming_screws": (lamp("L"), cam([-120, 420, 240], [-100, -70, 195], lens=50), {}),
     "06_exploded": (lamp("L", explode=1.0), cam([-650, 420, 520], [-40, 40, 200], lens=45), dict(floor=False)),
     "07_devil_eye_closeup": (lamp("L", on=True), cam([170, -380, 230], [87, -60, 186], lens=85), dict(world=0.05, light=0.15)),
     "08_left_right_34": (lamp("L") + lamp("R"), cam([200, -900, 520], PAIR_C, lens=40), {}),

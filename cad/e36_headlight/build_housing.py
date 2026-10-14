@@ -119,32 +119,28 @@ def build_left():
     # the collar must not stick out of the original envelope
     log["collar_outside_hull_mm3"] = (collar - hull).volume()
 
-    # 5. pads + through holes for the bracket screws, top-access adjuster holes, spring bosses
+    # 5. v2 aiming posts on the back of the skin (P, A, B) with ribs to the floor / top plate
     bosses = mf.Manifold(); holes = mf.Manifold()
-    for name, (x, y, side) in G.mounts().items():
-        if side == "bot":       # M5 from below: pad up to the common bracket datum, counterbore in the underside
-            bosses += cyl_z(x, y, 7.0, 128.0, G.BOSS_TOP_Z_BOTTOM)
-            holes += cyl_z(x, y, P.CLEAR["M5"] / 2, 110.0, G.BOSS_TOP_Z_BOTTOM + 1)
-            holes += cyl_z(x, y, 5.0, 110.0, 125.3 + 3.0)
-        else:                   # M5 from above through the top plate into the pillar insert
-            bosses += cyl_z(x, y, 7.0, G.BOSS_BOT_Z_TOP, G.top_underside_z(x, y) + 2.0)
-            bosses += cyl_z(x, y, 8.0, 245.0, G.SEAT_Z)                       # flat head pad
-            holes += cyl_z(x, y, P.CLEAR["M5"] / 2, G.BOSS_BOT_Z_TOP - 1, 270)
-    log["mounts"] = {k: (round(float(t[0]), 1), round(float(t[1]), 1), t[2]) for k, t in G.mounts().items()}
-    for k, (x, y) in G.adjusters().items():
-        holes += cyl_z(x, y, P.CLEAR["M5"] / 2 + 0.25, 200, 270)
-        if G.ADJ_SEAT[k] == "housing":
-            bosses += cyl_z(x, y, 8.5, 245.0, G.SEAT_Z)                     # Ø17 flat pad for washer + head
-    log["adjuster_xy"] = {k: (round(float(x), 1), round(float(y), 1)) for k, (x, y) in G.adjusters().items()}
-    # preload spring seats on the back of the skin, in line with A and B (cup Ø9.5 x 3 deep on a post)
-    sp = P.PRELOAD_SPRING; yc_front = fr["y_mount"] - P.CARRIER_T
-    for k in ("A", "B"):
-        x, _, z = ap[k]
-        y_seat = yc_front - sp["l_installed"]
-        y_skin = float(G.F(x, z)) + P.FASCIA_T - 0.5
-        bosses += cyl_y(x, z, 7.0, y_skin, y_seat)
-        holes += cyl_y(x, z, sp["od"] / 2 + 0.75, y_seat - 3.0, y_seat + 1.0)
-        log[f"spring_{k}_post_length_mm"] = round(y_seat - y_skin, 1)
+    for k, (x, y_end, z) in G.aim_posts().items():
+        y_skin = float(G.F(x, z)) + P.FASCIA_T - 0.8
+        r = P.AIM_POST_D / 2
+        bosses += cyl_y(x, z, r, y_skin, y_end)
+        bosses += cyl_y(x, z, r + 5.0, y_skin, y_skin + 3.0)                      # load-spreading pad on the skin
+        if k in ("P", "B"):    # rib down to the floor
+            bosses += box(x - 2.5, x + 2.5, y_skin, y_end - 2.0, 129.0, z)
+        else:                  # rib up to the top plate
+            bosses += box(x - 2.5, x + 2.5, y_skin, y_end - 2.0, z, P.TOP_PLATE_UNDERSIDE_FRONT + 1.0)
+        holes += cyl_y(x, z, P.HSI["M5"] / 2, y_end - P.HSI_DEPTH["M5"] - 0.5, y_end + 0.1)
+        log[f"post_{k}_length_mm"] = round(y_end - y_skin, 1)
+    # Devil Eye seat printed into the housing (replaces the separate adapter ring): same footprint as the
+    # original 'hållare ljus 90' ring, on the original tube seat face Y = -38.0
+    d = G.devil_frame(); dx, dz = P.DEVIL_C
+    bosses += cyl_y(dx, dz, 105.5 / 2, P.LIGHTRING_SEAT_Y - 0.5, d["ring_rear"])
+    holes += cyl_y(dx, dz, P.DEVIL_LENS_D / 2 + 0.5, P.LIGHTRING_SEAT_Y - 1.0, d["ring_rear"] + 1.0)
+    holes += cyl_y(dx, dz, P.DEVIL_FLANGE_D / 2 + 0.3, d["y_flange"], d["ring_rear"] + 1.0)
+    for ang in (30.0, 150.0, 270.0):
+        x = dx + (P.DEVIL_FLANGE_D / 2 + 6.0) * np.cos(np.radians(ang)); z = dz + (P.DEVIL_FLANGE_D / 2 + 6.0) * np.sin(np.radians(ang))
+        holes += cyl_y(x, z, P.HSI["M4"] / 2, d["ring_rear"] - P.HSI_DEPTH["M4"] - 0.5, d["ring_rear"] + 0.1)
     H = H + bosses - holes
 
     # 6. drain holes (Ø6) in the bottom plate at the front of the new cavity

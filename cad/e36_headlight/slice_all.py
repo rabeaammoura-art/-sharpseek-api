@@ -47,7 +47,7 @@ def main():
     res["housing_L_mod"] = dict(orientation="bottom plate on bed, rotated 16 deg about Z", **(s or {"error": "slice failed"}),
                                 support_g=round(s["g"] - n["g"], 1) if s and n else None)
     print("housing", res["housing_L_mod"])
-    for name in ["projector_carrier", "pivot_cap", "wedge_A", "wedge_B", "inboard_bracket", "outboard_pillar", "devil_adapter", "devil_clamp"]:
+    for name in ["projector_carrier", "devil_clamp"]:
         mesh = trimesh.load(OUT / "parts" / f"{name}_L.stl"); best = None
         for k, R in ROTS.items():
             m = orient(mesh, R); q = tmp / f"{name}_{k[0]}{k[1]}.stl"; m.export(q)

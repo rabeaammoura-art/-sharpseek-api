@@ -1,83 +1,29 @@
 {
   "housing_L_mod": {
     "orientation": "bottom plate on bed, rotated 16 deg about Z",
-    "g": 638.26,
-    "cm3": 569.87,
-    "time_s": 101326,
-    "time": "1d 4h 8m 46s",
-    "cost": 25.53,
-    "support_g": 140.6
+    "g": 611.82,
+    "cm3": 546.27,
+    "time_s": 88313,
+    "time": "1d 0h 31m 53s",
+    "cost": 24.47,
+    "support_g": 141.3
   },
   "projector_carrier": {
-    "orientation": "+Y up",
-    "g": 33.85,
-    "cm3": 30.22,
-    "time_s": 6548,
-    "time": "1h 49m 8s",
-    "cost": 1.35,
-    "support_g": 7.0
-  },
-  "pivot_cap": {
     "orientation": "-Y up",
-    "g": 0.85,
-    "cm3": 0.76,
-    "time_s": 193,
-    "time": "3m 13s",
-    "cost": 0.03,
-    "support_g": 0.0
-  },
-  "wedge_A": {
-    "orientation": "+X up",
-    "g": 4.07,
-    "cm3": 3.63,
-    "time_s": 717,
-    "time": "11m 57s",
-    "cost": 0.16,
-    "support_g": 0.4
-  },
-  "wedge_B": {
-    "orientation": "+X up",
-    "g": 4.07,
-    "cm3": 3.63,
-    "time_s": 717,
-    "time": "11m 57s",
-    "cost": 0.16,
-    "support_g": 0.4
-  },
-  "inboard_bracket": {
-    "orientation": "+X up",
-    "g": 27.1,
-    "cm3": 24.2,
-    "time_s": 4317,
-    "time": "1h 11m 57s",
-    "cost": 1.08,
-    "support_g": 2.8
-  },
-  "outboard_pillar": {
-    "orientation": "+X up",
-    "g": 26.9,
-    "cm3": 24.02,
-    "time_s": 4095,
-    "time": "1h 8m 15s",
-    "cost": 1.08,
-    "support_g": 3.0
-  },
-  "devil_adapter": {
-    "orientation": "+Y up",
-    "g": 33.29,
-    "cm3": 29.72,
-    "time_s": 4708,
-    "time": "1h 18m 28s",
-    "cost": 1.33,
-    "support_g": 1.5
+    "g": 19.46,
+    "cm3": 17.38,
+    "time_s": 2514,
+    "time": "41m 54s",
+    "cost": 0.78,
+    "support_g": 0.3
   },
   "devil_clamp": {
     "orientation": "-Y up",
-    "g": 12.13,
-    "cm3": 10.83,
-    "time_s": 1501,
-    "time": "25m 1s",
-    "cost": 0.49,
+    "g": 11.67,
+    "cm3": 10.42,
+    "time_s": 1332,
+    "time": "22m 12s",
+    "cost": 0.47,
     "support_g": 0.0
   }
 }
