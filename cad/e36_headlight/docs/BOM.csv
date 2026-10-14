@@ -1,0 +1,29 @@
+item,qty_per_headlight,qty_pair,type,spec,source_or_note,status
+Housing (modified original),1,2 (L+R mirrored),printed ASA-CF,housing_L_mod.stl / housing_R_mod.stl,638 g / 28.1 h each (PrusaSlicer approx H2D),designed
+Projector carrier (aiming frame),1,2,printed ASA-CF,projector_carrier,aluminium 3 mm fallback if mount face > ~70 C,designed
+Pivot cap,1,2,printed ASA-CF,pivot_cap,,designed
+Wedge A / wedge B,2,4,printed ASA-CF (or machined aluminium),wedge_A / wedge_B,aluminium recommended for long-term creep,designed
+Inboard bracket (P + A),1,2,printed ASA-CF,inboard_bracket,,designed
+Outboard pillar (B),1,2,printed ASA-CF,outboard_pillar,,designed
+Devil Eye adapter ring,1,2,printed ASA-CF,devil_adapter (derived from original hallare ljus 90),,designed
+Devil Eye clamp ring,1,2,printed ASA-CF,devil_clamp,,designed
+Bi-LED projector 3 in,1,2 (sold as pair),purchased,LUPUAUTO 2pcs 7.62 cm Bi-LED 120W (Temu listing),screenshot price JOD 41.47/pair est.; ALL dimensions to be measured,ASSUMED envelope
+Devil Eye module 3 in,1,2,purchased,3-inch Dynamic Devil Eye 33 mode (Temu listing),screenshot price JOD 28.50 (option 1 in 1); confirm red mode + dimensions,ASSUMED envelope
+Adjuster screw A,1,2,purchased,ISO 4762 M5x50 A2,head on bracket tower,
+Adjuster screw B,1,2,purchased,ISO 4762 M5x100 A2,or M5 threaded rod + cap nut,
+Washer,2,4,purchased,DIN 125 M5 A2,under adjuster heads,
+Prevailing-torque nut,2,4,purchased,ISO 10511 M5 nylon insert,captive in wedges (anti-drift),
+Follower ball,2,4,purchased,steel ball Ø8 (bearing grade),press fit in carrier holders,
+Ball stud,1,2,purchased,DIN 71803 size 10 (Ø10 / M6),verify seat height; shim to suit,
+Preload spring,2,4,purchased,stainless compression OD 8 / L0 25 / ~1 N/mm (8-12 N at 16 mm),,
+Heat-set insert M5,9,18,purchased,brass M5 (hole Ø6.4 x 9.5 per params.py),3 carrier + 3 inboard bracket + 3 pillar,
+Heat-set insert M6,1,2,purchased,brass M6 (hole Ø8.0),ball stud,
+Heat-set insert M4,3,6,purchased,brass M4 (hole Ø5.6),devil adapter,
+Heat-set insert M3,2,4,purchased,brass M3 (hole Ø4.0),pivot cap,
+Bracket screws from below,5,10,purchased,ISO 4762 M5x20 A2,through floor pads into bracket inserts,
+Pillar screw from above,1,2,purchased,ISO 4762 M5x25 A2 + DIN 125 washer,top pad,
+Projector screws,3,6,purchased,M5x12 (verify flange),projector to carrier,
+Pivot cap screws,2,4,purchased,ISO 4762 M3x8 A2,,
+Devil clamp screws,3,6,purchased,ISO 4762 M4x10 A2,,
+Devil adapter to housing,3,6,purchased,M6x20 thread-forming for plastics (as original Ø5.3 pilots / Ø7 holes),reuse what the original build used,
+Wiring,1 set,1 set,purchased,fused relay harness + connectors per module,not designed,open

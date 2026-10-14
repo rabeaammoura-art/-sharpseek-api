@@ -11,7 +11,7 @@ except Exception: pass
 S.render.resolution_x,S.render.resolution_y=sc.get("res",[1600,1000]); S.render.film_transparent=False
 S.view_settings.view_transform='AgX' if 'AgX' in [i.identifier for i in S.view_settings.bl_rna.properties['view_transform'].enum_items] else 'Filmic'
 S.unit_settings.scale_length=0.001
-def mat(kind,color=None,strength=1.0):
+def mat(kind,color=None,strength=1.0,strength_radius=(1.0,)):
     m=bpy.data.materials.new(kind); m.use_nodes=True; nt=m.node_tree; b=nt.nodes["Principled BSDF"]
     I=lambda k,v: b.inputs[k].__setattr__('default_value',v)
     if kind=="asacf":
@@ -29,13 +29,44 @@ def mat(kind,color=None,strength=1.0):
         c=color or ((1,0.02,0.01) if kind=="emit_red" else (0.85,0.9,1.0))
         I("Base Color",(*c,1)); I("Emission Color",(*c,1)); I("Emission Strength",strength)
     elif kind=="yellow": I("Base Color",(0.8,0.5,0.05,1)); I("Roughness",0.5)
+    elif kind=="eye":
+        # procedural iris: radial streaks (noise in polar coords), black pupil, emissive. Display content of
+        # the purchased Devil Eye module, shown on the ASSUMED placeholder lens.
+        R=strength_radius[0]
+        tc=nt.nodes.new("ShaderNodeTexCoord"); sep=nt.nodes.new("ShaderNodeSeparateXYZ"); nt.links.new(tc.outputs["Object"],sep.inputs[0])
+        cmb=nt.nodes.new("ShaderNodeCombineXYZ"); nt.links.new(sep.outputs[0],cmb.inputs[0]); nt.links.new(sep.outputs[1],cmb.inputs[1])
+        ln=nt.nodes.new("ShaderNodeVectorMath"); ln.operation='LENGTH'; nt.links.new(cmb.outputs[0],ln.inputs[0])
+        rn=nt.nodes.new("ShaderNodeMath"); rn.operation='DIVIDE'; rn.inputs[1].default_value=R; nt.links.new(ln.outputs["Value"],rn.inputs[0])
+        at=nt.nodes.new("ShaderNodeMath"); at.operation='ARCTAN2'; nt.links.new(sep.outputs[1],at.inputs[0]); nt.links.new(sep.outputs[0],at.inputs[1])
+        a2=nt.nodes.new("ShaderNodeMath"); a2.operation='MULTIPLY'; a2.inputs[1].default_value=9.0; nt.links.new(at.outputs[0],a2.inputs[0])
+        r2=nt.nodes.new("ShaderNodeMath"); r2.operation='MULTIPLY'; r2.inputs[1].default_value=0.6; nt.links.new(rn.outputs[0],r2.inputs[0])
+        pc=nt.nodes.new("ShaderNodeCombineXYZ"); nt.links.new(a2.outputs[0],pc.inputs[0]); nt.links.new(r2.outputs[0],pc.inputs[1])
+        nz=nt.nodes.new("ShaderNodeTexNoise"); nz.inputs["Scale"].default_value=3.0; nz.inputs["Detail"].default_value=10.0; nt.links.new(pc.outputs[0],nz.inputs["Vector"])
+        cr=nt.nodes.new("ShaderNodeValToRGB"); e=cr.color_ramp.elements
+        e[0].position=0.35; e[0].color=(0.12,0.0,0.0,1); e[1].position=0.75; e[1].color=(1.0,0.015,0.008,1)
+        nt.links.new(nz.outputs["Fac"],cr.inputs[0])
+        mk=nt.nodes.new("ShaderNodeValToRGB"); me=mk.color_ramp.elements; mk.color_ramp.interpolation="EASE"
+        me[0].position=0.30; me[0].color=(0,0,0,1); me[1].position=0.38; me[1].color=(1,1,1,1)
+        e3=mk.color_ramp.elements.new(0.86); e3.color=(1,1,1,1); e4=mk.color_ramp.elements.new(0.98); e4.color=(0.05,0.05,0.05,1)
+        nt.links.new(rn.outputs[0],mk.inputs[0])
+        mul=nt.nodes.new("ShaderNodeMix"); mul.data_type='RGBA'; mul.blend_type='MULTIPLY'; mul.inputs["Factor"].default_value=1.0
+        nt.links.new(cr.outputs[0],mul.inputs[6]); nt.links.new(mk.outputs[0],mul.inputs[7])
+        nt.links.new(mul.outputs[2],b.inputs["Base Color"]); nt.links.new(mul.outputs[2],b.inputs["Emission Color"])
+        I("Emission Strength",strength); I("Roughness",0.3)
     elif kind=="glass_amber": I("Base Color",(1,0.55,0.1,1)); I("Transmission Weight",0.9); I("Roughness",0.05)
     elif kind=="paint": I("Base Color",(*(color or (0.02,0.05,0.2)),1)); I("Metallic",0.6); I("Roughness",0.25); I("Coat Weight",1.0)
     return m
 lo=mathutils.Vector((1e9,)*3); hi=-lo
 for o in sc["objects"]:
+    if "disc" in o:
+        d=o["disc"]; bpy.ops.mesh.primitive_circle_add(vertices=128,fill_type='NGON',radius=d["radius"],location=d["center"],rotation=(math.pi/2,0,0))
+        ob=bpy.context.object
+        ob.data.materials.append(mat(o.get("mat","eye"),o.get("color"),o.get("strength",1.0),(d["radius"],)))
+        if o.get("offset"): ob.location=[a+b for a,b in zip(ob.location,o["offset"])]
+        continue
     bpy.ops.wm.stl_import(filepath=o["path"]); ob=bpy.context.selected_objects[0]
     ob.data.materials.clear(); ob.data.materials.append(mat(o.get("mat","asacf"),o.get("color"),o.get("strength",1.0)))
+    if o.get("offset"): ob.location=o["offset"]
     if o.get("smooth",True):
         for p in ob.data.polygons: p.use_smooth=True
         try:
