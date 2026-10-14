@@ -20,7 +20,10 @@ cat > "$OUT/assemble_$SIDE.json" <<JSON
   {"path": "$STL/${SIDE}_amber_print.stl", "count": 1, "filaments": [3], "assemble_index": [1], "pos_x": [$SHIFT], "pos_y": [0], "pos_z": [0]}]}]}
 JSON
 
-mkdir -p /run/dbus; [ -S /run/dbus/system_bus_socket ] || dbus-daemon --system --fork
+# Flatpak needs a system D-Bus; (re)start it if it isn't running (a stale socket file can be left behind).
+mkdir -p /run/dbus
+dbus-send --system --dest=org.freedesktop.DBus / org.freedesktop.DBus.GetId >/dev/null 2>&1 \
+  || { rm -f /run/dbus/system_bus_socket /run/dbus/pid; dbus-daemon --system --fork; }
 rm -f "$OUT/result.json"
 dbus-run-session -- xvfb-run -a flatpak run --filesystem=host --command=bambu-studio com.bambulab.BambuStudio \
   --debug 2 --arrange 0 --orient 0 \
