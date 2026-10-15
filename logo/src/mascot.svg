@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Mascot: light-bulb head (the idea) streams data down into an open FDM printer that forms
+       the chest; inside it a small multi-layer part is being printed. -->
+  <defs>
+    <radialGradient id="glass" cx="0.4" cy="0.35" r="0.75">
+      <stop offset="0" stop-color="#fff7c2"/><stop offset="0.6" stop-color="#fde047"/>
+      <stop offset="1" stop-color="#f59e0b"/>
+    </radialGradient>
+    <radialGradient id="halo" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fde047" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#fde047" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="window" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e0f2fe"/><stop offset="1" stop-color="#ede9fe"/>
+    </linearGradient>
+    <radialGradient id="hot" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fb923c" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#fb923c" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Head: the idea -->
+  <circle cx="256" cy="104" r="104" fill="url(#halo)"/>
+  <g stroke="#f59e0b" stroke-width="8" stroke-linecap="round">
+    <path d="M256 8 V22"/><path d="M178 36 L188 47"/><path d="M334 36 L324 47"/>
+    <path d="M150 104 H164"/><path d="M362 104 H348"/>
+  </g>
+  <path d="M256 36 a70 70 0 0 1 42 126 v10 h-84 v-10 a70 70 0 0 1 42 -126 z"
+        fill="url(#glass)" stroke="#1e293b" stroke-width="9" stroke-linejoin="round"/>
+  <ellipse cx="228" cy="78" rx="12" ry="20" fill="#fff" opacity="0.7" transform="rotate(30 228 78)"/>
+  <circle cx="236" cy="112" r="8" fill="#1e293b"/><circle cx="276" cy="112" r="8" fill="#1e293b"/>
+  <circle cx="239" cy="109" r="2.5" fill="#fff"/><circle cx="279" cy="109" r="2.5" fill="#fff"/>
+  <path d="M240 134 q16 14 32 0" fill="none" stroke="#1e293b" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="222" cy="130" r="7" fill="#fb7185" opacity="0.5"/>
+  <circle cx="290" cy="130" r="7" fill="#fb7185" opacity="0.5"/>
+  <!-- screw base -->
+  <rect x="220" y="170" width="72" height="34" rx="8" fill="#94a3b8" stroke="#1e293b" stroke-width="8"/>
+  <path d="M224 182 H288 M224 192 H288" stroke="#1e293b" stroke-width="4"/>
+  <path d="M240 204 h32 l-6 10 h-20 z" fill="#1e293b"/>
+
+  <!-- Data stream from the idea down to the printer -->
+  <g stroke="#2563eb" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 9">
+    <path d="M238 220 V258"/><path d="M256 220 V258"/><path d="M274 220 V258"/>
+  </g>
+  <rect x="233" y="232" width="10" height="10" rx="2" fill="#7c3aed"/>
+  <rect x="269" y="224" width="10" height="10" rx="2" fill="#2563eb"/>
+  <rect x="251" y="242" width="10" height="10" rx="2" fill="#38bdf8"/>
+
+  <!-- Arms -->
+  <g fill="none" stroke="#1e293b" stroke-width="14" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M142 330 Q104 350 100 398"/>
+    <path d="M370 324 Q412 306 424 262"/>
+  </g>
+  <circle cx="100" cy="404" r="16" fill="#fde047" stroke="#1e293b" stroke-width="8"/>
+  <circle cx="426" cy="254" r="16" fill="#fde047" stroke="#1e293b" stroke-width="8"/>
+
+  <!-- Legs -->
+  <g stroke="#1e293b" stroke-width="16" stroke-linecap="round">
+    <path d="M212 452 V484"/><path d="M300 452 V484"/>
+  </g>
+  <ellipse cx="204" cy="492" rx="24" ry="11" fill="#1e293b"/>
+  <ellipse cx="308" cy="492" rx="24" ry="11" fill="#1e293b"/>
+
+  <!-- Chest: open-frame FDM printer -->
+  <rect x="142" y="262" width="228" height="196" rx="18" fill="url(#window)" stroke="#1e293b" stroke-width="10"/>
+  <rect x="142" y="262" width="228" height="26" rx="14" fill="#2563eb" stroke="#1e293b" stroke-width="10"/>
+  <circle cx="340" cy="275" r="5" fill="#4ade80"/>
+  <rect x="162" y="288" width="12" height="134" fill="#94a3b8"/>
+  <rect x="338" y="288" width="12" height="134" fill="#94a3b8"/>
+  <!-- X gantry + extruder fed by the data stream -->
+  <path d="M168 326 H344" stroke="#475569" stroke-width="7" stroke-linecap="round"/>
+  <path d="M256 288 V306" stroke="#7c3aed" stroke-width="5" stroke-dasharray="2 6" stroke-linecap="round"/>
+  <rect x="230" y="306" width="52" height="38" rx="7" fill="#7c3aed" stroke="#1e293b" stroke-width="6"/>
+  <path d="M244 318 h24" stroke="#c4b5fd" stroke-width="4" stroke-linecap="round"/>
+  <path d="M247 344 h18 l-9 14 z" fill="#f59e0b" stroke="#1e293b" stroke-width="4" stroke-linejoin="round"/>
+  <circle cx="256" cy="362" r="14" fill="url(#hot)"/>
+  <!-- Part being built, layer by layer -->
+  <g stroke="#1e293b" stroke-width="2">
+    <rect x="216" y="402" width="80" height="8" rx="2" fill="#6d28d9"/>
+    <rect x="222" y="394" width="68" height="8" rx="2" fill="#8b5cf6"/>
+    <rect x="228" y="386" width="56" height="8" rx="2" fill="#6d28d9"/>
+    <rect x="234" y="378" width="44" height="8" rx="2" fill="#8b5cf6"/>
+    <rect x="240" y="370" width="24" height="8" rx="2" fill="#f97316"/>
+  </g>
+  <rect x="184" y="410" width="144" height="10" rx="3" fill="#334155"/>
+  <rect x="142" y="428" width="228" height="30" rx="14" fill="#1e293b"/>
+  <rect x="300" y="437" width="44" height="12" rx="4" fill="#38bdf8"/>
+</svg>
