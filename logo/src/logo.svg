@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 360" width="1240" height="360">
+  <!-- Horizontal lockup: mark + Latin wordmark + Arabic wordmark. -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2563eb"/><stop offset="1" stop-color="#7c3aed"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(40 40) scale(0.546875)">
+    <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+    <circle cx="226" cy="226" r="118" fill="none" stroke="#fff" stroke-width="44"/>
+    <path d="M310 310 L398 398" stroke="#fff" stroke-width="52" stroke-linecap="round"/>
+    <path d="M172 200 L226 254 L280 200" fill="none" stroke="#facc15" stroke-width="36"
+          stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="360" y="190" font-family="Inter" font-weight="800" font-size="150" letter-spacing="-4"
+        fill="#2563eb">Sharp<tspan fill="#7c3aed">Seek</tspan></text>
+  <text x="364" y="300" font-family="Noto Sans Arabic" font-weight="700" font-size="84"
+        fill="#64748b">شارب سيك</text>
+</svg>
