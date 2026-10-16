@@ -44,6 +44,14 @@ BOTTOM_WINDOW = (100, 20, -103)  # fog / DRL strip
 
 # --- Fixing ---
 SCREW_D = 4.5              # face plate -> shell screws (M4 + clearance)
+INSERT_D = 5.6             # hole for M4 brass heat-set insert in the shell bosses
+INSERT_DEPTH = 10
+BOSS_D = 11
+# Joint between face plate and shell:
+LIP_GAP = 0.3              # locating lip clearance to the shell's inner wall (ASA shrink)
+LIP_T = 2.0                # lip thickness
+LIP_H = 4.0                # how far the lip reaches into the shell
+GROOVE_DEPTH = 2.2         # seal groove in the face plate back, for a 3 mm silicone cord
 SCREW_Z = (84, -84)        # heights of the face screw pairs (top, bottom)
 WIRE_HOLE_D = 20           # rear grommet
 TAB_SIZE = (18, 14, 4)     # side mounting tabs to the car (PLACEHOLDER positions)
@@ -76,8 +84,13 @@ def outline(inset=0.0) -> Face:
     return _OUTLINES[inset]
 
 
-for _inset in (0.0, FLANGE, FLANGE + WALL, FLANGE + WALL + 12.0):
+for _inset in (0.0, FLANGE, FLANGE + WALL, FLANGE + WALL + 12.0,
+               FLANGE + WALL + LIP_GAP, FLANGE + WALL + LIP_GAP + LIP_T):
     outline(_inset)
+
+# Seal groove sits right over the shell rim; the lip sits just inside the shell wall.
+SEAL_GROOVE = outline(FLANGE) - outline(FLANGE + WALL)
+LIP = outline(FLANGE + WALL + LIP_GAP) - outline(FLANGE + WALL + LIP_GAP + LIP_T)
 
 
 def half_width(z, inset):
@@ -149,6 +162,18 @@ def face_plate(lights, top_window, bottom_window, screw_z=SCREW_Z, extra_cuts=()
             for cut in extra_cuts:
                 add(cut)
         extrude(amount=FACE_T, mode=Mode.SUBTRACT)
+        back = Plane.XZ.offset(FACE_T)  # the face plate's back, resting on the shell rim
+        # Seal groove for a silicone cord, squeezed by the shell rim.
+        with BuildSketch(back):
+            add(SEAL_GROOVE)
+        extrude(amount=-GROOVE_DEPTH, mode=Mode.SUBTRACT)
+        # Locating lip that drops inside the shell so the two parts line up, notched
+        # around the screw bosses.
+        with BuildSketch(back):
+            add(LIP)
+            with Locations(*screw_points(screw_z)):
+                Circle(BOSS_D / 2 + 1, mode=Mode.SUBTRACT)
+        extrude(amount=LIP_H)
     return face.part
 
 
@@ -165,12 +190,12 @@ def shell(screw_z=SCREW_Z) -> Part:
         # Screw bosses inside the rim.
         with BuildSketch(Plane.XZ.offset(FACE_T)):
             with Locations(*screw_points(screw_z)):
-                Circle(5)
+                Circle(BOSS_D / 2)
         extrude(amount=15)
         with BuildSketch(Plane.XZ.offset(FACE_T)):
             with Locations(*screw_points(screw_z)):
-                Circle(3.3 / 2)  # M4 self-tap / heat-insert pilot
-        extrude(amount=15, mode=Mode.SUBTRACT)
+                Circle(INSERT_D / 2)
+        extrude(amount=INSERT_DEPTH, mode=Mode.SUBTRACT)
         # Rear wire hole.
         with BuildSketch(Plane.XZ.offset(FACE_T + DEPTH)):
             Circle(WIRE_HOLE_D / 2)
