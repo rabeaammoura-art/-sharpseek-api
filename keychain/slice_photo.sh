@@ -7,7 +7,7 @@ DIR=$(cd "$1" && pwd); N=$2; shift 2; COLS=("$@")
 HERE=$(cd "$(dirname "$0")" && pwd); PR=$DIR/presets
 BBL="$(flatpak info --user --show-location com.bambulab.BambuStudio)/files/share/BambuStudio/profiles/BBL"
 FIL=(); for c in "${COLS[@]}"; do FIL+=("$HERE/bambu/filament_$c.json"); done
-"$HERE/../.venv-cad/bin/python" "$HERE/../cad/bambu/flatten.py" "$BBL" "$PR" "$HERE/bambu/process_keychain.json" "${FIL[@]}" >/dev/null
+"$HERE/../.venv-cad/bin/python" "$HERE/../cad/bambu/flatten.py" "$BBL" "$PR" "$HERE/bambu/${PROCESS:-process_keychain}.json" "${FIL[@]}" >/dev/null
 python3 - "$N" "$DIR" "${COLS[@]}" <<'PY'
 import json, sys
 n, d, cols = int(sys.argv[1]), sys.argv[2], sys.argv[3:]
