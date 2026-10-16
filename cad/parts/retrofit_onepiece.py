@@ -50,30 +50,110 @@ NUT_FROM_END = 4.0
 ROOT_R = 8                 # post root flare, so the post doesn't snap off at the layer joint
 ROOT_H = 12
 
-# --- Neon-flex DRL grooves: arcs concentric with the light, above and below it ---
+# --- Neon-flex DRL grooves above and below the light ---
 # For 6 x 12 mm "side bend" silicone neon flex: 6 mm lit face forward, 12 mm deep.
-# The strip sits in the groove flush with the face; each end dives into a hole to the back
-# for the end cap and cable.
+# The strip sits in the groove flush with the face; each end dives into a slot to the back
+# for the end cap and cable. Three line styles (make(style=...)):
+#   "arc"      arcs concentric with the light
+#   "frame"    gentle curves that follow the frame's top and bottom edges
+#   "straight" straight horizontal bars
 NEON_W = 6.0 + 0.4         # strip width + fit
 NEON_DEPTH = 12.0          # groove depth from the face front (strip height)
 NEON_WALL = 2.0            # groove walls behind the face plate
-NEON_R = OPENING_D / 2 + 11  # arc centre-line radius (min bend for 6x12 side-bend ~50 mm)
-NEON_ARCS = {"top": (40, 140), "bottom": (220, 320)}  # degrees from +X
+NEON_GAP = 16              # face left between the light opening and the groove
+NEON_MARGIN = 2            # face left between groove wall and the frame's inner edge
+NEON_MIN_BEND_R = 50       # tightest bend a 6x12 side-bend strip takes
 NEON_END_HOLE = (NEON_W, 14)  # through-slot at each end for the end cap + cable
+_KEEP_OUT = NEON_W / 2 + NEON_WALL + NEON_MARGIN  # centre line -> frame inner edge
+_FRAME_IN = base.outline(FRAME_W).outer_wire()
 
 
-def neon_arc(a0, a1):
-    return Edge.make_circle(NEON_R, start_angle=a0, end_angle=a1).locate(Location((0, LIGHT_Z)))
+def _inside_frame(x, z):
+    return Face(_FRAME_IN).is_inside(Vector(x, z)) and _FRAME_IN.distance_to(Vertex(x, z, 0)) >= _KEEP_OUT
 
 
-def neon_ends():
-    """(x, z, angle) of each groove end, angle = arc tangent there in degrees."""
+def _arc_paths():
+    import math
+    r = OPENING_D / 2 + NEON_GAP + NEON_W / 2
+    paths = []
+    for mid in (90, 270):
+        da = 0
+        while da < 90:
+            a = math.radians(mid + da + 1)
+            if not _inside_frame(r * math.cos(a), LIGHT_Z + r * math.sin(a)):
+                break
+            da += 1
+        paths.append(Edge.make_circle(r, start_angle=mid - da, end_angle=mid + da)
+                     .locate(Location((0, LIGHT_Z))))
+    return paths
+
+
+def _straight_paths():
+    paths = []
+    r_open = OPENING_D / 2
+    for sign in (1, -1):
+        z_frame = max(p.Y * sign for p in (_FRAME_IN.position_at(i / 400) for i in range(400)))
+        z = sign * (r_open + NEON_GAP + NEON_W / 2)
+        z = sign * min(abs(z), z_frame - _KEEP_OUT)
+        x = 0
+        while _inside_frame(x + 1 + NEON_W / 2, z):
+            x += 1
+        paths.append(Edge.make_line((-x, z), (x, z)))
+    return paths
+
+
+def _frame_paths():
+    """Flat arcs that follow the frame's top and bottom edges: a 3-point arc through the
+    frame-parallel contour at the centre and at +/-x, grown while it stays inside the frame
+    and NEON_GAP clear of the light."""
+    contour = base.outline(FRAME_W + _KEEP_OUT + 1).outer_wire()  # +1: off the keep-out line
+    pts = [contour.position_at(i / 1440) for i in range(1440)]
+    r_min = OPENING_D / 2 + NEON_GAP + NEON_W / 2
+
+    def z_at(x, sign):
+        near = [p for p in pts if p.Y * sign > 0 and abs(p.X - x) < 1.0]
+        return sign * max(p.Y * sign for p in near)
+
+    def ok(edge):
+        for i in range(41):
+            p = edge.position_at(i / 40)
+            if (p - Vector(0, LIGHT_Z)).length < r_min or not _inside_frame(p.X, p.Y):
+                return False
+        return 1 / max(_curv(edge, 0.5), 1e-9) >= NEON_MIN_BEND_R
+
+    paths = []
+    for sign in (1, -1):
+        z0 = z_at(0, sign)
+        best = None
+        for x in range(20, 90):
+            z1 = (z_at(x, sign) + z_at(-x, sign)) / 2
+            e = Edge.make_three_point_arc((-x, z1), (0, z0), (x, z1))
+            if not ok(e):
+                break
+            best = e
+        paths.append(best)
+    return paths
+
+
+def _curv(edge, t):
+    """Curvature at parameter t, from three nearby points."""
+    a, b, c = (edge.position_at(min(max(u, 0), 1)) for u in (t - 0.01, t, t + 0.01))
+    ab, bc, ca = (b - a).length, (c - b).length, (a - c).length
+    area2 = abs((b - a).cross(c - a).Z)
+    return 2 * area2 / max(ab * bc * ca, 1e-9)
+
+
+NEON_STYLES = {"arc": _arc_paths, "frame": _frame_paths, "straight": _straight_paths}
+
+
+def neon_ends(paths):
+    """(x, z, angle) of each groove end, angle = path tangent there in degrees."""
     import math
     out = []
-    for a0, a1 in NEON_ARCS.values():
-        for a in (a0, a1):
-            r = math.radians(a)
-            out.append((NEON_R * math.cos(r), LIGHT_Z + NEON_R * math.sin(r), a + 90))
+    for e in paths:
+        for t in (0, 1):
+            p, d = e.position_at(t), e.tangent_at(t)
+            out.append((p.X, p.Y, math.degrees(math.atan2(d.Y, d.X))))
     return out
 
 
@@ -83,7 +163,8 @@ def car_holes():
     return [(0, z_top - CAR_HOLE_INSET), (0, z_bot + CAR_HOLE_INSET), (x_side, 0), (-x_side, 0)]
 
 
-def make() -> Part:
+def make(style="arc") -> Part:
+    paths = NEON_STYLES[style]()
     post_len = -POST_END_Y - FACE_T
     with BuildPart() as p:
         with BuildSketch(Plane.XZ):
@@ -115,16 +196,16 @@ def make() -> Part:
                     Rectangle(POST_D, M5_NUT_AF)
         extrude(amount=M5_NUT_H, mode=Mode.SUBTRACT)
         # Neon grooves: walls behind the face, then the groove from the front.
-        for a0, a1 in NEON_ARCS.values():
+        for path in paths:
             with BuildSketch(back):
-                SlotArc(neon_arc(a0, a1), NEON_W + 2 * NEON_WALL)
+                SlotArc(path, NEON_W + 2 * NEON_WALL)
             extrude(amount=NEON_DEPTH + NEON_WALL - FACE_T)
             with BuildSketch(Plane.XZ):
-                SlotArc(neon_arc(a0, a1), NEON_W)
+                SlotArc(path, NEON_W)
             extrude(amount=NEON_DEPTH, mode=Mode.SUBTRACT)
         # End slots through the groove floor for the end caps and cables.
         with BuildSketch(Plane.XZ.offset(NEON_DEPTH)):
-            for x, z, ang in neon_ends():
+            for x, z, ang in neon_ends(paths):
                 with Locations(Location((x, z), ang)):
                     Rectangle(NEON_END_HOLE[1], NEON_END_HOLE[0])
         extrude(amount=NEON_WALL, mode=Mode.SUBTRACT)
