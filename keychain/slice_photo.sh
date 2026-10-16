@@ -11,7 +11,7 @@ FIL=(); for c in "${COLS[@]}"; do FIL+=("$HERE/bambu/filament_$c.json"); done
 python3 - "$N" "$DIR" "${COLS[@]}" <<'PY'
 import json, sys
 n, d, cols = int(sys.argv[1]), sys.argv[2], sys.argv[3:]
-xs = [30 + 80 * (i % 4) for i in range(n)]; ys = [20 + 78 * (i // 4) for i in range(n)]
+xs = [45 + 68 * (i % 4) for i in range(n)]; ys = [20 + 95 * (i // 4) for i in range(n)]
 objs = [{"path": f"{d}/{c}.stl", "count": n, "filaments": [k + 1], "assemble_index": list(range(1, n + 1)),
          "pos_x": xs, "pos_y": ys, "pos_z": [0] * n} for k, c in enumerate(cols)]
 json.dump({"plates": [{"plate_name": f"keychain x{n}", "need_arrange": False, "objects": objs}]}, open(f"{d}/assemble_x{n}.json", "w"), indent=1)

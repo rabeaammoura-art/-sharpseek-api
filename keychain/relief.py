@@ -2,8 +2,10 @@
 with the figure raised as a shallow 3D relief so the face gets real shadows from the light.
 
 Stack: black base plate under everything, then each colour as columns up to its height.
-Figure height = plate + relief from a depth map (depth.py); the drawing's dark lines on the face
-and hands are kept (engraved one layer) so the features stay the original drawing's.
+Each colour region of the figure is a flat plateau whose height comes from a depth map (depth.py),
+so the parts stand out from each other (hands over the shirt, face over the hair) and cast shadows,
+while the face and palms stay flat with no layer lines across them. The drawing's dark lines on the
+face and hands are kept (engraved one layer) so the features stay the original drawing's.
 
 Usage: python relief.py <image> <girl|boy> <depth.npy> <out dir> [height_mm]
 Writes <colour>.stl per filament, preview.png and heights.npz (for renders).
@@ -23,10 +25,11 @@ from hueforge import PEOPLE, letter_shapes  # noqa: E402
 PX = 0.1                     # mm per map pixel
 BASE = 1.2                   # black backing plate, mm
 PLATE = 2.0                  # top of letter / rim / lowest point of the figure
-RELIEF = 1.8                 # overall depth range of the figure above PLATE, mm
-DETAIL = 0.6                 # extra local relief (nose, cheeks, folds), mm
+LAYER = 0.12                 # print layer height; plateaus sit on whole layers
+PLATEAU_LO, PLATEAU_HI = 0.36, 1.8   # height above PLATE of the farthest / nearest region, mm
+MIN_PLATEAU = 2.0            # mm2; smaller regions (eyes, teeth) take the height around them
+ROUND_W, ROUND_H = 0.8, 0.24 # rounded rim of each region: width, drop (two layers)
 LINE_DEPTH = 0.12            # face lines sit one layer below the skin around them
-EDGE = 1.0                   # mm over which the figure rounds down at its silhouette
 OUTLINE_MM = 1.1             # black rim around the whole shape
 
 # class -> (filament name, display colour); index = class id
@@ -131,7 +134,7 @@ def classify(img, fig):
         n, cc, st, _ = cv2.connectedComponentsWithStats(((cls == c) & fig).astype(np.uint8))
         big = st[1:, cv2.CC_STAT_AREA].max()
         for i in range(1, n):
-            if st[i, cv2.CC_STAT_AREA] < (0.2 if c in (SKIN, BROWN) else 0.02) * big:
+            if st[i, cv2.CC_STAT_AREA] < {SKIN: 0.2, BROWN: 0.2, WHITE: 0.04}.get(c, 0.02) * big:
                 ring = cv2.dilate((cc == i).astype(np.uint8), np.ones((5, 5), np.uint8)) > 0
                 around = cls[ring & (cc != i) & fig & ((cls != BLACK) | (into is None))]
                 if not around.size:
@@ -171,20 +174,40 @@ def classify(img, fig):
 
 
 def relief(dep, fig, cls):
+    """Layered relief: every colour region is a flat plateau at its own height (from the depth map, in
+    whole layers), with only a rounded rim at its edges, so no layer lines run across the face or hands."""
     d = dep.astype(np.float32)
     lo, hi = np.percentile(d[fig], [2, 98])
     dn = np.clip((d - lo) / (hi - lo), 0, 1)
-    dn[~fig] = 0
-    broad = cv2.GaussianBlur(dn, (0, 0), 4.0 / PX)
-    w = cv2.GaussianBlur(fig.astype(np.float32), (0, 0), 4.0 / PX)
-    broad = np.where(w > 1e-3, broad / np.maximum(w, 1e-3), 0)       # mask-normalised blur
-    detail = dn - broad
-    detail /= max(np.percentile(np.abs(detail[fig]), 98), 1e-6)
-    h = RELIEF * (0.15 + 0.85 * broad) + DETAIL * np.clip(detail, -1, 1)
-    h = cv2.GaussianBlur(h, (0, 0), 0.8)
-    dist = cv2.distanceTransform(fig.astype(np.uint8), cv2.DIST_L2, 5) * PX
-    s = np.clip(dist / EDGE, 0, 1); s = s * s * (3 - 2 * s)
-    h = 0.25 + (np.maximum(h, 0.25) - 0.25) * (0.35 + 0.65 * s)
+    h = np.zeros(fig.shape, np.float32)
+    own = np.zeros(fig.shape, bool)
+    for c in (WHITE, SKIN, BLUE, BROWN):
+        n, cc, st, _ = cv2.connectedComponentsWithStats(((cls == c) & fig).astype(np.uint8))
+        for i in range(1, n):
+            if st[i, cv2.CC_STAT_AREA] * PX * PX < MIN_PLATEAU:
+                continue                                   # eyes, teeth: take the height around them
+            m = cc == i
+            h[m] = PLATEAU_LO + (PLATEAU_HI - PLATEAU_LO) * np.median(dn[m])
+            own |= m
+    h = np.round(h / LAYER) * LAYER
+    # small parts and drawn lines take the highest plateau next to them
+    k = np.ones((3, 3), np.uint8)
+    todo = fig & ~own
+    for _ in range(60):
+        if not todo.any():
+            break
+        grown = cv2.dilate(np.where(own, h, 0), k)
+        reach = todo & (cv2.dilate(own.astype(np.uint8), k) > 0)
+        h[reach] = grown[reach]; own |= reach; todo &= ~reach
+    # soft rounded rim inside each plateau (a couple of layers), lines engraved one layer
+    rim = np.zeros(fig.shape, np.float32)
+    for c in (WHITE, SKIN, BLUE, BROWN):
+        m = ((cls == c) & fig).astype(np.uint8)
+        body = ((m > 0) | ((cls == BLACK) & fig)).astype(np.uint8)   # drawn lines don't start a rim
+        dist = cv2.distanceTransform(body, cv2.DIST_L2, 3) * PX
+        s = np.clip(dist / ROUND_W, 0, 1)
+        rim = np.where(m > 0, ROUND_H * (1 - (1 - s) ** 2) - ROUND_H, rim)
+    h = h + rim
     h[(cls == BLACK) & fig] -= LINE_DEPTH
     return np.where(fig, PLATE + np.maximum(h, 0.15), 0)
 
