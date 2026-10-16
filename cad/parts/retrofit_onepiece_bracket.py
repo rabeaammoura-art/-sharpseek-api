@@ -15,7 +15,7 @@ _spec = importlib.util.spec_from_file_location("retrofit_onepiece", Path(__file_
 op = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(op)
 
-T = 5.0
+T = 6.0                    # bracket thickness (the light hangs on it)
 PRINT_ROTATION = ("X", -90)  # front face down on the bed
 RING_IN_R = 50             # clears the heatsink fins (they reach ~47 mm from centre)
 RING_OUT_R = 62

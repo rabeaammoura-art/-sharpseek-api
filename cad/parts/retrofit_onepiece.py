@@ -53,16 +53,28 @@ SNAP_CATCH_Z = SNAP_WINDOW_TOP + SNAP_CATCH - SNAP_GAP
 PRY_NOTCHES = (-20, 20)    # x of the pry notches in the ring's bottom edge
 PRY_NOTCH = (10, 1.2, 4)   # width, depth into the ring's back, reach in from the edge
 SNAP_LEN = 15.5            # hook length behind the face plate front
-KEEPER_T = 2.0
-KEEPER_LEN = 17.5          # keeper wall reaches this far behind the face plate front
+KEEPER_T = 3.0             # = RIB_T: the keepers are the rear rib
 # Hook positions as (x, sign of z): top/bottom pairs and side pairs, clear of the car screws
 # and the aiming posts; symmetric, so one ring fits both lights.
 SNAP_SPOTS = [(-40, 1), (40, 1), (-40, -1), (40, -1), ("side", 50), ("side", -50),
               ("-side", 50), ("-side", -50)]
 
 # Car fixing holes through the face plate (PLACEHOLDER positions: match the car's screws).
+# In the four corners, where the plate is wide; beside the light it is only ~15 mm.
 CAR_HOLE_D = 5.5
-CAR_HOLE_INSET = 7         # hole centre distance in from the outline edge
+CAR_HOLE_INSET = 9.5       # hole centre in from the edge: ~4 mm of plate outside the countersink
+CAR_HOLE_Z = 85            # corner holes at +/- this height
+
+# --- Stiffening (the face plate alone is a flat 5 mm sheet with a 149 mm hole in it) ---
+# Rear rib: a continuous wall round the back, just inside the edge band (inside the fender
+# opening); the snap keeper windows are cut into it and the aiming posts merge into it.
+RIB_T = 3.0
+RIB_LEN = 17.5             # reaches this far behind the face plate front
+RIB_DRAINS = (-12, 12)     # x of the drain gaps in the rib's bottom, so water can't pool
+RIB_DRAIN_W = 5
+# Collar: a ring round the light opening behind the face; ties the posts together.
+COLLAR_T = 3.0
+COLLAR_LEN = 12.0          # behind the face plate front
 
 # --- Aiming: 3 posts behind the face plate, one spring screw (M5) on each ---
 # P = pivot corner (set once), V above it = up/down, H beside it = left/right.
@@ -187,9 +199,19 @@ def neon_ends(paths):
 
 
 def car_holes():
-    z_top, z_bot = base.FLANGE_PROFILE[0][1], base.FLANGE_PROFILE[-1][1]
-    x_side = base.half_width(0, 0) - CAR_HOLE_INSET
-    return [(0, z_top - CAR_HOLE_INSET), (0, z_bot + CAR_HOLE_INSET), (x_side, 0), (-x_side, 0)]
+    pts = []
+    for z in (CAR_HOLE_Z, -CAR_HOLE_Z):
+        x = base.half_width(z, 0) - CAR_HOLE_INSET
+        pts += [(x, z), (-x, z)]
+    return pts
+
+
+# The rib's inner face is flush with the keeper position next to each hook.
+_RIB_IN = SNAP_INSET + SNAP_T / 2 + SNAP_GAP
+# Beside the light the rib would run almost on top of the collar (0.1 mm apart), which makes
+# OCC's booleans drop material there; so the rib stops where it meets the collar.
+RIB = (base.outline(_RIB_IN) - base.outline(_RIB_IN + RIB_T)
+       - Pos(0, LIGHT_Z) * Circle(OPENING_D / 2 + COLLAR_T))
 
 
 def snap_planes():
@@ -259,20 +281,20 @@ def make(style="frame") -> Part:
                 with Locations(Location((x, z), ang)):
                     Rectangle(NEON_END_HOLE[1], NEON_END_HOLE[0])
         extrude(amount=NEON_WALL, mode=Mode.SUBTRACT)
-        # Snap keepers: a wall behind the face beside each slot, with a window for the catch.
-        y_wall = SNAP_T / 2 + SNAP_GAP
-        for pl in snap_planes():
-            with BuildPart(pl, mode=Mode.ADD):
-                with Locations((0, y_wall + KEEPER_T / 2, -(FACE_T + KEEPER_LEN) / 2)):
-                    Box(SNAP_W + 4, KEEPER_T, KEEPER_LEN - FACE_T)
-            with BuildPart(pl, mode=Mode.SUBTRACT):
-                win_top, win_bot = SNAP_WINDOW_TOP, SNAP_LEN + 1
-                with Locations((0, y_wall + KEEPER_T / 2, -(win_top + win_bot) / 2)):
-                    Box(SNAP_W + 0.6, KEEPER_T + 0.2, win_bot - win_top)
-                # Slot through the face plate; its inner side is flush with the keeper wall.
-                y0 = -SNAP_T / 2 - SNAP_CATCH - 0.1
-                with Locations(((0, (y0 + y_wall) / 2, -FACE_T / 2))):
-                    Box(SNAP_W + 0.6, y_wall - y0, FACE_T + 0.2)
+        # Rear rib (doubles as the snap keepers) and the collar round the light opening.
+        with BuildSketch(back):
+            add(RIB)
+        extrude(amount=RIB_LEN - FACE_T)
+        with BuildSketch(back):
+            with Locations((0, LIGHT_Z)):
+                Circle(OPENING_D / 2 + COLLAR_T)
+                Circle(OPENING_D / 2, mode=Mode.SUBTRACT)
+        extrude(amount=COLLAR_LEN - FACE_T)
+        # Drain gaps in the bottom of the rib (behind the face plate only).
+        z_low = RIB.bounding_box().min.Y
+        for x in RIB_DRAINS:
+            with Locations((x, -(FACE_T + RIB_LEN + 1) / 2, z_low + RIB_T)):
+                Box(RIB_DRAIN_W, RIB_LEN - FACE_T + 1, RIB_T * 3, mode=Mode.SUBTRACT)
         # Light opening and car holes.
         with BuildSketch(Plane.XZ):
             with Locations((0, LIGHT_Z)):
@@ -285,4 +307,17 @@ def make(style="frame") -> Part:
         for x, z in car_holes():
             with Locations((x, -h / 2, z)):
                 Cone(CSK_D / 2, CAR_HOLE_D / 2, h, rotation=(90, 0, 0), mode=Mode.SUBTRACT)
-    return p.part
+    # Keeper windows in the rib + slots through the face plate (inner side flush with the
+    # rib). Cut one at a time on the finished part: done inside the builder (as one compound
+    # or eight nested cuts) OCC also dropped a chunk of face plate beside the light.
+    part = p.part
+    y_wall = SNAP_T / 2 + SNAP_GAP
+    win_top, win_bot = SNAP_WINDOW_TOP, SNAP_LEN + 1
+    y0 = -SNAP_T / 2 - SNAP_CATCH - 0.1
+    for pl in snap_planes():
+        loc = pl.location
+        part = part - loc * Pos(0, y_wall + KEEPER_T / 2, -(win_top + win_bot) / 2) * Box(
+            SNAP_W + 0.6, KEEPER_T + 1.0, win_bot - win_top)
+        part = part - loc * Pos(0, (y0 + y_wall) / 2, -FACE_T / 2) * Box(
+            SNAP_W + 0.6, y_wall - y0, FACE_T + 0.2)
+    return part
