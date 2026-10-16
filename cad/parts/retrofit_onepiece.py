@@ -19,6 +19,7 @@ base = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(base)
 
 FACE_T = 5.0
+PRINT_ROTATION = ("X", -90)  # front face down on the bed
 LIGHT_D = 141              # found 5.75" light: 141 dia x 76 deep
 LIGHT_Z = 0
 TILT_GAP = 4.0             # radial gap around the light so it can tilt ~3 deg each way

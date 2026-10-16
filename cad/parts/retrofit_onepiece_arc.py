@@ -5,6 +5,7 @@ from pathlib import Path
 _spec = importlib.util.spec_from_file_location("retrofit_onepiece", Path(__file__).with_name("retrofit_onepiece.py"))
 base = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(base)
+PRINT_ROTATION = base.PRINT_ROTATION
 
 
 def make():
