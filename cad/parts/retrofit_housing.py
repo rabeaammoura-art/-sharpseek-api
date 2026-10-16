@@ -19,12 +19,13 @@ WALL = 3.0
 FACE_T = 5.0
 FLANGE = 6.0         # face plate overhang around the shell (bezel seat / seal land)
 
-# --- Round light (size to be decided; 5.75" sealed LED ≈ 146 mm) ---
-LIGHT_D = 146 + 1.0  # cut-out = light body + clearance
-LIGHT_Z = 0.0        # light centre height relative to housing centre
+# --- Round lights: (diameter of light body, centre height from housing centre) ---
+LIGHT_CLEARANCE = 1.0      # added to each cut-out diameter
+SINGLE_575 = [(146, 0)]    # one 5.75" LED
+TWIN_45 = [(114, 60), (114, -60)]  # two 4.5" stacked
 
-# --- Optional windows (set to 0 to drop) ---
-TOP_WINDOW = (120, 22)     # indicator strip (W, H); 0 if the light has an amber halo
+# --- Optional windows (W, H); (0, 0) to drop ---
+TOP_WINDOW = (120, 22)     # indicator strip; drop if the light has an amber halo
 BOTTOM_WINDOW = (110, 20)  # fog / DRL strip
 
 # --- Fixing ---
@@ -37,20 +38,21 @@ def outline(w, h, r):
     return RectangleRounded(w, h, r)
 
 
-def face_plate() -> Part:
+def face_plate(lights, top_window, bottom_window) -> Part:
     with BuildPart() as face:
         with BuildSketch(Plane.XZ):
             outline(WIDTH + 2 * FLANGE, HEIGHT + 2 * FLANGE, CORNER_R + FLANGE)
         extrude(amount=FACE_T)  # Plane.XZ normal is -Y, so this grows toward the engine
         with BuildSketch(Plane.XZ):
-            with Locations((0, LIGHT_Z)):
-                Circle(LIGHT_D / 2)
-            if TOP_WINDOW[0]:
-                with Locations((0, HEIGHT / 2 - 12 - TOP_WINDOW[1] / 2)):
-                    RectangleRounded(*TOP_WINDOW, 5)
-            if BOTTOM_WINDOW[0]:
-                with Locations((0, -HEIGHT / 2 + 12 + BOTTOM_WINDOW[1] / 2)):
-                    RectangleRounded(*BOTTOM_WINDOW, 5)
+            for d, z in lights:
+                with Locations((0, z)):
+                    Circle((d + LIGHT_CLEARANCE) / 2)
+            if top_window[0]:
+                with Locations((0, HEIGHT / 2 - 12 - top_window[1] / 2)):
+                    RectangleRounded(*top_window, 5)
+            if bottom_window[0]:
+                with Locations((0, -HEIGHT / 2 + 12 + bottom_window[1] / 2)):
+                    RectangleRounded(*bottom_window, 5)
         extrude(amount=FACE_T, mode=Mode.SUBTRACT)
         # Screw holes into the shell's side walls, above and below the light.
         with BuildSketch(Plane.XZ):
@@ -99,5 +101,6 @@ def shell() -> Part:
     return sh.part
 
 
-def make() -> Part:
-    return Compound([shell(), face_plate()])
+def make(lights=SINGLE_575, top_window=TOP_WINDOW, bottom_window=BOTTOM_WINDOW) -> Part:
+    """Default variant: one 5.75" light with indicator and fog windows."""
+    return Compound([shell(), face_plate(lights, top_window, bottom_window)])
