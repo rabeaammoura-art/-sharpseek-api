@@ -1,7 +1,8 @@
 """One-piece retrofit housing: the face plate alone, no rear shell and no light tube.
 
-Idea from the user's own Fusion sketch. The face plate (traced W114 outline, curved
-indicator/fog windows) screws straight onto the car. The 5.75" light hangs from a separate
+Idea from the user's own Fusion sketch. The face plate (traced W114 outline, raised frame,
+two curved grooves above and below the light for 6x12 mm silicone neon-flex LED strip as
+DRL "eyebrows") screws straight onto the car. The light's own halo does the turn signal. The 5.75" light hangs from a separate
 aiming bracket (retrofit_onepiece_bracket.py) bolted to the 4 M5 holes on its back; the
 bracket rides on 3 posts behind the face plate with a spring screw on each post, like the
 original headlight's adjusters. Turning the screws tilts the light up/down and left/right.
@@ -36,7 +37,7 @@ CAR_HOLE_INSET = 7         # hole centre distance in from the outline edge
 
 # --- Aiming: 3 posts behind the face plate, one spring screw (M5) on each ---
 # P = pivot corner (set once), V above it = up/down, H beside it = left/right.
-# Posts sit in the side band between the windows and the light, clear of the lamp boxes.
+# Posts sit in the side band beside the light, clear of the neon grooves.
 POSTS = {"P": (-78, -30), "V": (-78, 30), "H": (78, -30)}
 PAD_DEPTH = 60             # measured: light front face -> mounting-pad face on its back
 SPRING_GAP = 10            # spring length between post end and bracket (reuse the old ones)
@@ -49,42 +50,30 @@ NUT_FROM_END = 4.0
 ROOT_R = 8                 # post root flare, so the post doesn't snap off at the layer joint
 ROOT_H = 12
 
-WINDOWS = base.crescent_windows((OPENING_D - base.LIGHT_CLEARANCE, LIGHT_Z))
-
-# --- Lamp boxes behind the windows (top = amber indicator, bottom = fog/DRL) ---
-# A lens cut from 2 mm clear polycarbonate sits in a pocket against the back of the face
-# (glue/seal with silicone); an LED strip sticks to the box's back wall.
-LENS_LEDGE = 3.0           # lens overlaps the window by this much all round
-LENS_T = 2.0
-BOX_WALL = 2.0
-BOX_DEPTH = 22             # behind the face plate, lens included
-WIRE_HOLE_D = 6
-DRAIN_D = 2.5              # lets condensation out at the lowest point
-LENS = [offset(w, LENS_LEDGE).faces()[0] for w in WINDOWS]
-BOX_OUTER = [offset(w, LENS_LEDGE + BOX_WALL).faces()[0] for w in WINDOWS]
+# --- Neon-flex DRL grooves: arcs concentric with the light, above and below it ---
+# For 6 x 12 mm "side bend" silicone neon flex: 6 mm lit face forward, 12 mm deep.
+# The strip sits in the groove flush with the face; each end dives into a hole to the back
+# for the end cap and cable.
+NEON_W = 6.0 + 0.4         # strip width + fit
+NEON_DEPTH = 12.0          # groove depth from the face front (strip height)
+NEON_WALL = 2.0            # groove walls behind the face plate
+NEON_R = OPENING_D / 2 + 11  # arc centre-line radius (min bend for 6x12 side-bend ~50 mm)
+NEON_ARCS = {"top": (40, 140), "bottom": (220, 320)}  # degrees from +X
+NEON_END_HOLE = (NEON_W, 14)  # through-slot at each end for the end cap + cable
 
 
-def wire_hole(cavity):
-    """Wire hole in the box's back wall: on the centre line, mid-way through the cavity."""
-    wire = cavity.outer_wire()
-    zs = [p.Y for p in (wire.position_at(i / 2000) for i in range(2000)) if abs(p.X) < 1.5]
-    return (0, (min(zs) + max(zs)) / 2)
+def neon_arc(a0, a1):
+    return Edge.make_circle(NEON_R, start_angle=a0, end_angle=a1).locate(Location((0, LIGHT_Z)))
 
 
-def drain_holes(cavity, inset=2.5):
-    """Drain holes just above the cavity's lowest points (both tips if it has two)."""
-    wire = cavity.outer_wire()
-    pts = [wire.position_at(i / 400) for i in range(400)]
-    z_min = min(p.Y for p in pts)
-    lows = [p for p in pts if p.Y < z_min + 0.5]
-    left = min(lows, key=lambda p: p.X)
-    right = max(lows, key=lambda p: p.X)
-    picks = [left, right] if right.X - left.X > 20 else [left]
-    c = cavity.center()
+def neon_ends():
+    """(x, z, angle) of each groove end, angle = arc tangent there in degrees."""
+    import math
     out = []
-    for p in picks:
-        d = Vector(c.X - p.X, c.Y - p.Y).normalized() * inset
-        out.append((p.X + d.X, p.Y + d.Y))
+    for a0, a1 in NEON_ARCS.values():
+        for a in (a0, a1):
+            r = math.radians(a)
+            out.append((NEON_R * math.cos(r), LIGHT_Z + NEON_R * math.sin(r), a + 90))
     return out
 
 
@@ -125,29 +114,24 @@ def make() -> Part:
                 with Locations((x - (POST_D / 2) * (1 if x > 0 else -1), z)):
                     Rectangle(POST_D, M5_NUT_AF)
         extrude(amount=M5_NUT_H, mode=Mode.SUBTRACT)
-        # Lamp boxes: solid block, then hollow it (lens pocket + cavity share one outline).
-        with BuildSketch(back):
-            for f in BOX_OUTER:
-                add(f)
-        extrude(amount=BOX_DEPTH)
-        with BuildSketch(back):
-            for f in LENS:
-                add(f)
-        extrude(amount=BOX_DEPTH - BOX_WALL, mode=Mode.SUBTRACT)
-        box_back = back.offset(BOX_DEPTH)
-        for f in LENS:
-            with BuildSketch(box_back):
-                with Locations(wire_hole(f)):
-                    Circle(WIRE_HOLE_D / 2)
-                with Locations(*drain_holes(f)):
-                    Circle(DRAIN_D / 2)
-            extrude(amount=-BOX_WALL, mode=Mode.SUBTRACT)
-        # Light opening, windows, car holes.
+        # Neon grooves: walls behind the face, then the groove from the front.
+        for a0, a1 in NEON_ARCS.values():
+            with BuildSketch(back):
+                SlotArc(neon_arc(a0, a1), NEON_W + 2 * NEON_WALL)
+            extrude(amount=NEON_DEPTH + NEON_WALL - FACE_T)
+            with BuildSketch(Plane.XZ):
+                SlotArc(neon_arc(a0, a1), NEON_W)
+            extrude(amount=NEON_DEPTH, mode=Mode.SUBTRACT)
+        # End slots through the groove floor for the end caps and cables.
+        with BuildSketch(Plane.XZ.offset(NEON_DEPTH)):
+            for x, z, ang in neon_ends():
+                with Locations(Location((x, z), ang)):
+                    Rectangle(NEON_END_HOLE[1], NEON_END_HOLE[0])
+        extrude(amount=NEON_WALL, mode=Mode.SUBTRACT)
+        # Light opening and car holes.
         with BuildSketch(Plane.XZ):
             with Locations((0, LIGHT_Z)):
                 Circle(OPENING_D / 2)
-            for w in WINDOWS:
-                add(w)
             with Locations(*car_holes()):
                 Circle(CAR_HOLE_D / 2)
         extrude(amount=FACE_T, mode=Mode.SUBTRACT)
