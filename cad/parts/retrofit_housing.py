@@ -66,11 +66,17 @@ def outline(inset=0.0) -> Face:
     """
     if inset not in _OUTLINES:
         face = flange_face()
-        _OUTLINES[inset] = face if not inset else offset(face, -inset).faces()[0]
+        if inset:
+            # Re-fit the offset curve as a plain spline: OCC's OFFSET curves break later
+            # 2D offsets/fillets.
+            wire = offset(face, -inset).faces()[0].outer_wire()
+            pts = [wire.position_at(i / 120) for i in range(120)]
+            face = Face(Wire([Edge.make_spline(pts, periodic=True)]))
+        _OUTLINES[inset] = face
     return _OUTLINES[inset]
 
 
-for _inset in (0.0, FLANGE, FLANGE + WALL):
+for _inset in (0.0, FLANGE, FLANGE + WALL, FLANGE + WALL + 12.0):
     outline(_inset)
 
 
@@ -100,7 +106,32 @@ def screw_points(screw_z=SCREW_Z):
     return pts
 
 
-def face_plate(lights, top_window, bottom_window, screw_z=SCREW_Z) -> Part:
+def crescent_windows(light, rib=6.0, edge_band=12.0, z_top=50.0, z_bot=-55.0, corner_r=4.0):
+    """Indicator (top) and fog (bottom) windows that wrap around a round light, like the
+    original amber indicator followed the reflector.
+
+    Each window is the area between the light cut-out (+ `rib`) and the housing outline
+    (inset to leave `edge_band` inside the shell wall for the face screws), above `z_top`
+    or below `z_bot`. Call outside any builder.
+    """
+    d, z = light
+    ring = Circle((d + LIGHT_CLEARANCE) / 2 + rib).locate(Location((0, z)))
+    area = outline(FLANGE + WALL + edge_band)
+    big = 400
+    top = area & Rectangle(big, big).locate(Location((0, z_top + big / 2)))
+    bottom = area & Rectangle(big, big).locate(Location((0, z_bot - big / 2)))
+    windows = []
+    for w in (top - ring, bottom - ring):
+        # Round the corners by shrinking then growing (fillet_2d fails on offset splines).
+        shrunk = offset(w.faces()[0], -corner_r).faces()[0]
+        rounded = offset(shrunk, corner_r, kind=Kind.ARC).faces()[0].outer_wire()
+        # Re-fit as one spline: the offset's many tiny edges make an invalid print mesh.
+        pts = [rounded.position_at(i / 160) for i in range(160)]
+        windows.append(Face(Wire([Edge.make_spline(pts, periodic=True)])))
+    return windows
+
+
+def face_plate(lights, top_window, bottom_window, screw_z=SCREW_Z, extra_cuts=()) -> Part:
     with BuildPart() as face:
         with BuildSketch(Plane.XZ):
             add(outline())
@@ -115,6 +146,8 @@ def face_plate(lights, top_window, bottom_window, screw_z=SCREW_Z) -> Part:
                         RectangleRounded(w, h, 5)
             with Locations(*screw_points(screw_z)):
                 Circle(SCREW_D / 2)
+            for cut in extra_cuts:
+                add(cut)
         extrude(amount=FACE_T, mode=Mode.SUBTRACT)
     return face.part
 
@@ -157,6 +190,7 @@ def shell(screw_z=SCREW_Z) -> Part:
 
 
 def make(lights=SINGLE_575, top_window=TOP_WINDOW, bottom_window=BOTTOM_WINDOW,
-         screw_z=SCREW_Z) -> Part:
+         screw_z=SCREW_Z, extra_cuts=()) -> Part:
     """Default variant: one 5.75" light with indicator and fog windows."""
-    return Compound([shell(screw_z), face_plate(lights, top_window, bottom_window, screw_z)])
+    return Compound([shell(screw_z),
+                     face_plate(lights, top_window, bottom_window, screw_z, extra_cuts)])

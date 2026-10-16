@@ -14,14 +14,16 @@ sys.path.insert(0, str(Path(__file__).parent / "parts"))
 import retrofit_housing as rh  # noqa: E402
 import retrofit_housing_7in as r7  # noqa: E402
 import retrofit_housing_575_35 as rc  # noqa: E402
+import retrofit_housing_575_curved as rv  # noqa: E402
 
-# (title, lights, top window, bottom window, screw heights, front rim (diameter, z) or None)
+NONE = (0, 0, 0)
+# (title, lights, top window, bottom window, screw heights, extra cuts, front rim (d, z) or None)
 VARIANTS = [
-    ('1 x 5.75" (141 mm)', rh.SINGLE_575, rh.TOP_WINDOW, rh.BOTTOM_WINDOW, rh.SCREW_Z, None),
-    ('2 x 4.5" (114 mm)', rh.TWIN_45, (0, 0, 0), (0, 0, 0), rh.SCREW_Z, None),
-    ('1 x 7" (177.8 mm rim)', rh.SEVEN_IN, r7.INDICATOR_WINDOW, r7.FOG_WINDOW, r7.SCREW_Z,
+    ('5.75" + curved indicator/fog', rh.SINGLE_575, NONE, NONE, rh.SCREW_Z, rv.WINDOWS, None),
+    ('2 x 4.5" (114 mm)', rh.TWIN_45, NONE, NONE, rh.SCREW_Z, (), None),
+    ('5.75" + 3.5" (141 + 90 mm)', rh.COMBO_575_35, NONE, NONE, rc.SCREW_Z, (), None),
+    ('1 x 7" (177.8 mm rim)', rh.SEVEN_IN, r7.INDICATOR_WINDOW, r7.FOG_WINDOW, r7.SCREW_Z, (),
      (rh.SEVEN_RIM_D, rh.SEVEN_Z)),
-    ('5.75" + 3.5" (141 + 90 mm)', rh.COMBO_575_35, (0, 0, 0), (0, 0, 0), rc.SCREW_Z, None),
 ]
 
 
@@ -33,9 +35,9 @@ def plot_section(ax, part, y, **style):
 
 fig, axs = plt.subplots(1, len(VARIANTS), figsize=(20, 8))
 shell = rh.shell()
-for ax, (title, lights, top, bottom, screw_z, rim) in zip(axs, VARIANTS):
+for ax, (title, lights, top, bottom, screw_z, cuts, rim) in zip(axs, VARIANTS):
     plot_section(ax, shell, -rh.FACE_T - 30, color="0.6", lw=1, ls="--")
-    plot_section(ax, rh.face_plate(lights, top, bottom, screw_z), -rh.FACE_T / 2, color="k", lw=1.2)
+    plot_section(ax, rh.face_plate(lights, top, bottom, screw_z, cuts), -rh.FACE_T / 2, color="k", lw=1.2)
     if rim:
         rim_d, rim_z = rim
         ax.add_patch(plt.Circle((0, rim_z), rim_d / 2, fill=False, color="tab:orange", lw=1.5, ls=":"))
