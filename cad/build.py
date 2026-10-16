@@ -25,6 +25,11 @@ def load(path: Path):
     return mod.make(), mod
 
 
+def _wants_build(path: Path) -> bool:
+    """Modules can opt out of `make` (build everything) with BUILD = False."""
+    return "BUILD = False" not in path.read_text()
+
+
 def for_print(part, mod):
     rot = getattr(mod, "PRINT_ROTATION", None)
     if rot:
@@ -38,6 +43,8 @@ def main(names):
     OUT.mkdir(exist_ok=True)
     paths = [ROOT / "parts" / f"{n}.py" for n in names] or sorted((ROOT / "parts").glob("*.py"))
     for path in paths:
+        if not names and not _wants_build(path):
+            continue
         part, mod = load(path)
         export_step(part, str(OUT / f"{path.stem}.step"))
         printed = for_print(part, mod)

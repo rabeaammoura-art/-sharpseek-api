@@ -7,6 +7,10 @@ Axes: X = width, Z = height (on the car), Y = depth (front face at Y=0, -Y towar
 """
 from build123d import *
 
+# Shared outline/helpers for the current one-piece design; its own two-piece make() is the
+# archived first design (see ../archive), so build.py skips it.
+BUILD = False
+
 # --- Outer outline of the original housing flange (= our face plate) ---
 # Traced from the front-view photo of the bare housing, scaled 0.273 mm/px so the
 # lens matches the ruler photos (~165 wide, ~260 tall). Accuracy about ±5 mm.

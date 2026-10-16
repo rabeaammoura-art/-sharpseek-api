@@ -1,6 +1,6 @@
 PY := ../.venv-cad/bin/python
 PROFILE ?= config/bambu_h2d_asa_0.2mm.ini
-PART ?= test_bracket
+PART ?= retrofit_onepiece
 
 .PHONY: all build slice preview clean
 all: build slice preview
