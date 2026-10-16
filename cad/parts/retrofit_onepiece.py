@@ -25,12 +25,32 @@ LIGHT_Z = 0
 TILT_GAP = 4.0             # radial gap around the light so it can tilt ~3 deg each way
 OPENING_D = LIGHT_D + 2 * TILT_GAP
 
-# Raised matte-black frame round the edge, in place of the chrome trim ring.
+# Matte-black frame round the edge, in place of the chrome trim ring: a separate flat ring
+# (retrofit_onepiece_ring.py) that snaps on with hooks through slots in the face plate and
+# hides the car screws. Separate so the housing's front prints flat on the bed.
 FRAME_W = 15
-FRAME_H = 3                # stands proud of the face plate's front
+FRAME_H = 3                # ring thickness, stands proud of the face plate's front
 FRAME = base.outline() - base.outline(FRAME_W)
-CAR_HOLE_CBORE_D = 10      # counterbore so the car screw heads sit flush in the frame
-CAR_HOLE_CBORE_DEPTH = 4
+# Car screws: M5 countersunk (flat head) so they sit flush under the ring.
+CSK_D = 10.4               # countersink diameter at the face (M5 flat head ~9.2-10)
+
+# --- Snap hooks (on the ring) and keepers (on the housing) ---
+# Each hook goes through a slot in the face plate and its catch clicks into a window in a
+# small keeper wall behind the face. Long hook (~15 mm) so it bends gently: printed upright
+# it bends across its layers, so strain must stay low (~1 %).
+SNAP_INSET = 12            # hook centre line, measured in from the outline edge
+SNAP_W = 8                 # hook width (along the edge)
+SNAP_T = 2.0               # hook thickness
+SNAP_CATCH = 0.8           # how far the catch sticks out
+SNAP_CATCH_Z = 13.2        # catch's flat face, this far behind the face plate front
+SNAP_LEN = 15.5            # hook length behind the face plate front
+SNAP_GAP = 0.2             # hook <-> keeper wall clearance
+KEEPER_T = 2.0
+KEEPER_LEN = 17.5          # keeper wall reaches this far behind the face plate front
+# Hook positions as (x, sign of z): top/bottom pairs and side pairs, clear of the car screws
+# and the aiming posts; symmetric, so one ring fits both lights.
+SNAP_SPOTS = [(-40, 1), (40, 1), (-40, -1), (40, -1), ("side", 50), ("side", -50),
+              ("-side", 50), ("-side", -50)]
 
 # Car fixing holes through the face plate (PLACEHOLDER positions: match the car's screws).
 CAR_HOLE_D = 5.5
@@ -164,6 +184,30 @@ def car_holes():
     return [(0, z_top - CAR_HOLE_INSET), (0, z_bot + CAR_HOLE_INSET), (x_side, 0), (-x_side, 0)]
 
 
+def snap_planes():
+    """One Plane per hook: origin on the hook centre line at the face plate front, x along
+    the edge, y pointing inward (toward the keeper wall), z toward the front of the car.
+    Found on the +X side and mirrored, so the pattern is exactly symmetric."""
+    wire = base.outline(SNAP_INSET).outer_wire()
+    pts = [(i / 1440, wire.position_at(i / 1440)) for i in range(1440)]
+    planes = []
+    for a, b in SNAP_SPOTS:
+        if a in ("side", "-side"):
+            sx = 1 if a == "side" else -1
+            u, p = min(pts, key=lambda q: abs(q[1].Y - b) + (0 if q[1].X > 0 else 1e3))
+        else:
+            sx = 1 if a > 0 else -1
+            u, p = min(pts, key=lambda q: abs(q[1].X - abs(a)) + (0 if q[1].Y * b > 0 else 1e3))
+        t = wire.tangent_at(u)
+        origin = Vector(sx * p.X, 0, p.Y)
+        t3 = Vector(sx * t.X, 0, t.Y)
+        y_dir = Vector(0, 1, 0).cross(t3)  # local y = z x x
+        if y_dir.dot(Vector(-origin.X, 0, LIGHT_Z - origin.Z)) < 0:
+            t3 = -t3
+        planes.append(Plane(origin=origin, x_dir=t3, z_dir=(0, 1, 0)))
+    return planes
+
+
 def make(style="frame") -> Part:
     paths = NEON_STYLES[style]()
     post_len = -POST_END_Y - FACE_T
@@ -171,9 +215,6 @@ def make(style="frame") -> Part:
         with BuildSketch(Plane.XZ):
             add(base.outline())
         extrude(amount=FACE_T)  # Plane.XZ normal is -Y: grows toward the engine
-        with BuildSketch(Plane.XZ):
-            add(FRAME)
-        extrude(amount=-FRAME_H)  # toward the front
         # Aiming posts.
         back = Plane.XZ.offset(FACE_T)
         with BuildSketch(back):
@@ -210,6 +251,20 @@ def make(style="frame") -> Part:
                 with Locations(Location((x, z), ang)):
                     Rectangle(NEON_END_HOLE[1], NEON_END_HOLE[0])
         extrude(amount=NEON_WALL, mode=Mode.SUBTRACT)
+        # Snap keepers: a wall behind the face beside each slot, with a window for the catch.
+        y_wall = SNAP_T / 2 + SNAP_GAP
+        for pl in snap_planes():
+            with BuildPart(pl, mode=Mode.ADD):
+                with Locations((0, y_wall + KEEPER_T / 2, -(FACE_T + KEEPER_LEN) / 2)):
+                    Box(SNAP_W + 4, KEEPER_T, KEEPER_LEN - FACE_T)
+            with BuildPart(pl, mode=Mode.SUBTRACT):
+                win_top, win_bot = SNAP_CATCH_Z - 0.1, SNAP_LEN + 1
+                with Locations((0, y_wall + KEEPER_T / 2, -(win_top + win_bot) / 2)):
+                    Box(SNAP_W + 0.6, KEEPER_T + 0.2, win_bot - win_top)
+                # Slot through the face plate; its inner side is flush with the keeper wall.
+                y0 = -SNAP_T / 2 - SNAP_CATCH - 0.1
+                with Locations(((0, (y0 + y_wall) / 2, -FACE_T / 2))):
+                    Box(SNAP_W + 0.6, y_wall - y0, FACE_T + 0.2)
         # Light opening and car holes.
         with BuildSketch(Plane.XZ):
             with Locations((0, LIGHT_Z)):
@@ -217,9 +272,9 @@ def make(style="frame") -> Part:
             with Locations(*car_holes()):
                 Circle(CAR_HOLE_D / 2)
         extrude(amount=FACE_T, mode=Mode.SUBTRACT)
-        # Counterbore from the frame's front face (Plane.XZ.offset(-h) sits at Y=+h).
-        with BuildSketch(Plane.XZ.offset(-FRAME_H)):
-            with Locations(*car_holes()):
-                Circle(CAR_HOLE_CBORE_D / 2)
-        extrude(amount=CAR_HOLE_CBORE_DEPTH, mode=Mode.SUBTRACT)
+        # 90 deg countersinks for M5 flat-head car screws.
+        h = (CSK_D - CAR_HOLE_D) / 2
+        for x, z in car_holes():
+            with Locations((x, -h / 2, z)):
+                Cone(CSK_D / 2, CAR_HOLE_D / 2, h, rotation=(90, 0, 0), mode=Mode.SUBTRACT)
     return p.part
