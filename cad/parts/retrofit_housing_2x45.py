@@ -8,4 +8,4 @@ _spec.loader.exec_module(base)
 
 
 def make():
-    return base.make(lights=base.TWIN_45, top_window=(0, 0), bottom_window=(0, 0))
+    return base.make(lights=base.TWIN_45, top_window=(0, 0, 0), bottom_window=(0, 0, 0))

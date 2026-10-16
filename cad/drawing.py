@@ -15,7 +15,7 @@ import retrofit_housing as rh  # noqa: E402
 
 VARIANTS = [
     ('1 x 5.75" (146 mm)', rh.SINGLE_575, rh.TOP_WINDOW, rh.BOTTOM_WINDOW),
-    ('2 x 4.5" (114 mm)', rh.TWIN_45, (0, 0), (0, 0)),
+    ('2 x 4.5" (114 mm)', rh.TWIN_45, (0, 0, 0), (0, 0, 0)),
 ]
 
 
@@ -27,15 +27,14 @@ def plot_section(ax, part, y, **style):
 
 fig, axs = plt.subplots(1, len(VARIANTS), figsize=(11, 8))
 shell = rh.shell()
-inner_x = rh.WIDTH / 2 - rh.WALL
 for ax, (title, lights, top, bottom) in zip(axs, VARIANTS):
     plot_section(ax, shell, -rh.FACE_T - 30, color="0.6", lw=1, ls="--")
     plot_section(ax, rh.face_plate(lights, top, bottom), -rh.FACE_T / 2, color="k", lw=1.2)
-    for d, z in lights:
+    for (d, z), gap in zip(lights, rh.clearances(lights)):
         r = (d + rh.LIGHT_CLEARANCE) / 2
         ax.annotate("", (-r, z), (r, z), arrowprops=dict(arrowstyle="<->", color="tab:blue"))
         ax.text(0, z + 3, f"Ø{d}", ha="center", color="tab:blue")
-        ax.text(r + 1, z - 12, f"{inner_x - r:.1f} mm\nto inner wall", fontsize=7, color="tab:red")
+        ax.text(r + 1, z - 12, f"min {gap:.1f} mm\nto inner wall", fontsize=7, color="tab:red")
     ax.set_title(title)
     ax.set_aspect("equal")
     ax.grid(alpha=0.3)
