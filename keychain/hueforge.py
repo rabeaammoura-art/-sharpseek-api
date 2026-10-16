@@ -28,11 +28,11 @@ BASE_LAYERS = 12         # white base: first layer + 11 x 0.08 = 1.04 mm
 # filament stack above the base: (name, colour, transmission distance mm, layers)
 STACK = [("skin", "#D9A07A", 1.4, 6), ("brown", "#5C3A24", 0.9, 5), ("black", "#1A1A1A", 0.5, 5)]
 WHITE = "#F6F6F6"
-OUTLINE_MM, BORDER_MM = 0.6, 1.4
+OUTLINE_MM, BORDER_MM = 0.6, 0.9   # dark rim hugging the shape (no filled gaps)
 
 PEOPLE = {
     "girl": dict(letter="S", style="bow", crop=(560, 250, 898, 1088)),
-    "boy": dict(letter="O", style="pixel", crop=(66, 278, 348, 1112)),
+    "boy": dict(letter="O", style="star", crop=(66, 278, 348, 1112)),
 }
 
 
@@ -83,24 +83,21 @@ def letter_shapes(person, H):
     if person["style"] == "bow":
         L = letter(person["letter"], H, 0, 0)
         minx, miny, maxx, maxy = L.bounds
-        bow, knot = bow_shape(maxx - 0.18 * H, maxy - 0.01 * H, 0.12 * H)
+        bow, knot = bow_shape(minx + 0.24 * H, maxy - 0.02 * H, 0.12 * H)
         inline = L.buffer(-0.034 * H).difference(L.buffer(-0.05 * H))
         return [(L, "fill"), (inline, "light"), (bow, "fill"), (knot, "dark")]
-    cell, n = 5.2, 9
-    c0 = cell * n / 2
-    blocks, light = [], []
-    for i in range(n):
-        for j in range(n):
-            x, y = i * cell, j * cell
-            if 2.6 * cell <= math.hypot(x + cell / 2 - c0, (y + cell / 2 - c0) / 1.08) <= 4.55 * cell:
-                blocks.append(box(x, y, x + cell, y + cell))
-                if (i + 2 * j) % 7 == 0:
-                    light.append(box(x + 1.0, y + 1.0, x + cell - 1.0, y + cell - 1.0))
-    ring = unary_union(blocks)
-    seams = unary_union([b.boundary.buffer(0.4) for b in blocks]).intersection(ring)
-    k = H / (ring.bounds[3] - ring.bounds[1])
-    sc = lambda g: affinity.scale(g, k, k, origin=(0, 0))
-    return [(sc(ring), "fill"), (sc(unary_union(light)), "light"), (sc(seams), "dark")]
+    L = letter(person["letter"], H, 0, 0)                       # bold round O
+    minx, miny, maxx, maxy = L.bounds
+    inline = L.buffer(-0.034 * H).difference(L.buffer(-0.05 * H))
+    star = star_shape(minx + 0.14 * H, maxy - 0.08 * H, 0.13 * H, 0.055 * H)
+    return [(L, "fill"), (inline, "light"), (star, "fill")]
+
+
+def star_shape(cx, cy, r_out, r_in, points=5):
+    pts = [(cx + (r_out if k % 2 == 0 else r_in) * math.sin(math.pi * k / points),
+            cy + (r_out if k % 2 == 0 else r_in) * math.cos(math.pi * k / points)) for k in range(2 * points)]
+    from shapely.geometry import Polygon
+    return Polygon(pts).buffer(0.25 * r_in).buffer(-0.1 * r_in)
 
 
 def raster(geom, shape, origin):
@@ -165,7 +162,14 @@ def build(image, who, height):
     region = lev[r0:r0 + fh, c0:c0 + fw]
     region[fig > 0] = flev[fig > 0]
     edge = cv2.morphologyEx(fig, cv2.MORPH_GRADIENT, np.ones((3, 3), np.uint8)) > 0
-    region[edge & (fig > 0)] = top                    # crisp dark edge around the figure
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    pale = (hsv[..., 2] > 200) & (hsv[..., 1] < 40)
+    near_edge = cv2.dilate(edge.astype(np.uint8), np.ones((5, 5), np.uint8)) > 0
+    region[(edge | (pale & near_edge)) & (fig > 0)] = top  # crisp dark edge, no white fringe
+    covered = np.zeros((Hh, W), bool)
+    covered[r0:r0 + fh, c0:c0 + fw] |= fig > 0
+    covered |= raster(L_all.buffer(OUTLINE_MM / 2 + 0.15), (Hh, W), (ox, oy)) > 0
+    lev[inside & ~covered] = top                       # only the thin rim left between them
 
     # outer border ring in the darkest tone
     border = inside & ~(raster(outline.buffer(-BORDER_MM), (Hh, W), (ox, oy)) > 0)
