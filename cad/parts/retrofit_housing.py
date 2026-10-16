@@ -27,8 +27,13 @@ FLANGE = 6.0         # face plate overhang around the shell (bezel seat / seal l
 
 # --- Round lights: (diameter of light body, centre height from housing centre) ---
 LIGHT_CLEARANCE = 1.0      # added to each cut-out diameter
-SINGLE_575 = [(146, 0)]    # one 5.75" LED
-TWIN_45 = [(114, 60), (114, -60)]  # two 4.5" stacked
+SINGLE_575 = [(141, 0)]    # one 5.75" LED (found: 141 dia x 76 deep)
+TWIN_45 = [(114, 60), (114, -60)]  # two 4.5" stacked (found: 114 x 65, fog light)
+# 7" (found: 177.8 rim x 75 deep): rim sits ON the face plate, only the rear body goes through.
+SEVEN_RIM_D = 177.8
+SEVEN_REAR_D = 158         # PLACEHOLDER: rear body diameter behind the rim, to be measured
+SEVEN_Z = 30               # raised to the widest part of the outline
+SEVEN_IN = [(SEVEN_REAR_D, SEVEN_Z)]
 
 # --- Optional windows (W, H, centre Z); W = 0 to drop ---
 TOP_WINDOW = (110, 22, 100)      # indicator strip; drop if the light has an amber halo
@@ -36,7 +41,7 @@ BOTTOM_WINDOW = (100, 20, -103)  # fog / DRL strip
 
 # --- Fixing ---
 SCREW_D = 4.5              # face plate -> shell screws (M4 + clearance)
-SCREW_Z = 84               # face screws at +/- this height
+SCREW_Z = (84, -84)        # heights of the face screw pairs (top, bottom)
 WIRE_HOLE_D = 20           # rear grommet
 TAB_SIZE = (18, 14, 4)     # side mounting tabs to the car (PLACEHOLDER positions)
 
@@ -79,15 +84,20 @@ def clearances(lights):
     return [inner.distance_to(Vertex(0, z, 0)) - (d + LIGHT_CLEARANCE) / 2 for d, z in lights]
 
 
-def screw_points():
+def rim_margin(rim_d, z):
+    """Gap (mm) from a light's front rim to the face plate's outer edge."""
+    return outline().outer_wire().distance_to(Vertex(0, z, 0)) - rim_d / 2
+
+
+def screw_points(screw_z=SCREW_Z):
     pts = []
-    for z in (SCREW_Z, -SCREW_Z):
+    for z in screw_z:
         x = half_width(z, FLANGE) - WALL - 4.5
         pts += [(x, z), (-x, z)]
     return pts
 
 
-def face_plate(lights, top_window, bottom_window) -> Part:
+def face_plate(lights, top_window, bottom_window, screw_z=SCREW_Z) -> Part:
     with BuildPart() as face:
         with BuildSketch(Plane.XZ):
             add(outline())
@@ -100,13 +110,13 @@ def face_plate(lights, top_window, bottom_window) -> Part:
                 if w:
                     with Locations((0, z)):
                         RectangleRounded(w, h, 5)
-            with Locations(*screw_points()):
+            with Locations(*screw_points(screw_z)):
                 Circle(SCREW_D / 2)
         extrude(amount=FACE_T, mode=Mode.SUBTRACT)
     return face.part
 
 
-def shell() -> Part:
+def shell(screw_z=SCREW_Z) -> Part:
     with BuildPart() as sh:
         with BuildSketch(Plane.XZ.offset(FACE_T)):
             add(outline(FLANGE))
@@ -118,11 +128,11 @@ def shell() -> Part:
         extrude(amount=DEPTH - WALL, mode=Mode.SUBTRACT)
         # Screw bosses inside the rim.
         with BuildSketch(Plane.XZ.offset(FACE_T)):
-            with Locations(*screw_points()):
+            with Locations(*screw_points(screw_z)):
                 Circle(5)
         extrude(amount=15)
         with BuildSketch(Plane.XZ.offset(FACE_T)):
-            with Locations(*screw_points()):
+            with Locations(*screw_points(screw_z)):
                 Circle(3.3 / 2)  # M4 self-tap / heat-insert pilot
         extrude(amount=15, mode=Mode.SUBTRACT)
         # Rear wire hole.
@@ -143,6 +153,7 @@ def shell() -> Part:
     return sh.part
 
 
-def make(lights=SINGLE_575, top_window=TOP_WINDOW, bottom_window=BOTTOM_WINDOW) -> Part:
+def make(lights=SINGLE_575, top_window=TOP_WINDOW, bottom_window=BOTTOM_WINDOW,
+         screw_z=SCREW_Z) -> Part:
     """Default variant: one 5.75" light with indicator and fog windows."""
-    return Compound([shell(), face_plate(lights, top_window, bottom_window)])
+    return Compound([shell(screw_z), face_plate(lights, top_window, bottom_window, screw_z)])
