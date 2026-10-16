@@ -23,6 +23,13 @@ LIGHT_Z = 0
 TILT_GAP = 4.0             # radial gap around the light so it can tilt ~3 deg each way
 OPENING_D = LIGHT_D + 2 * TILT_GAP
 
+# Raised matte-black frame round the edge, in place of the chrome trim ring.
+FRAME_W = 15
+FRAME_H = 3                # stands proud of the face plate's front
+FRAME = base.outline() - base.outline(FRAME_W)
+CAR_HOLE_CBORE_D = 10      # counterbore so the car screw heads sit flush in the frame
+CAR_HOLE_CBORE_DEPTH = 4
+
 # Car fixing holes through the face plate (PLACEHOLDER positions: match the car's screws).
 CAR_HOLE_D = 5.5
 CAR_HOLE_INSET = 7         # hole centre distance in from the outline edge
@@ -93,6 +100,9 @@ def make() -> Part:
         with BuildSketch(Plane.XZ):
             add(base.outline())
         extrude(amount=FACE_T)  # Plane.XZ normal is -Y: grows toward the engine
+        with BuildSketch(Plane.XZ):
+            add(FRAME)
+        extrude(amount=-FRAME_H)  # toward the front
         # Aiming posts.
         back = Plane.XZ.offset(FACE_T)
         with BuildSketch(back):
@@ -141,4 +151,9 @@ def make() -> Part:
             with Locations(*car_holes()):
                 Circle(CAR_HOLE_D / 2)
         extrude(amount=FACE_T, mode=Mode.SUBTRACT)
+        # Counterbore from the frame's front face (Plane.XZ.offset(-h) sits at Y=+h).
+        with BuildSketch(Plane.XZ.offset(-FRAME_H)):
+            with Locations(*car_holes()):
+                Circle(CAR_HOLE_CBORE_D / 2)
+        extrude(amount=CAR_HOLE_CBORE_DEPTH, mode=Mode.SUBTRACT)
     return p.part
