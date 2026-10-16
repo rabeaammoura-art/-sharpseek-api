@@ -36,15 +36,23 @@ CSK_D = 10.4               # countersink diameter at the face (M5 flat head ~9.2
 
 # --- Snap hooks (on the ring) and keepers (on the housing) ---
 # Each hook goes through a slot in the face plate and its catch clicks into a window in a
-# small keeper wall behind the face. Long hook (~15 mm) so it bends gently: printed upright
-# it bends across its layers, so strain must stay low (~1 %).
+# small keeper wall behind the face. The catch's front face is a 45 deg ramp, not a flat
+# lock, so the ring comes off FROM THE FRONT: lever it with a plastic trim tool in one of the
+# two pry notches under its bottom edge (the back of the housing is not reachable once it is
+# screwed to the car). Long hook (~15 mm) so it bends gently: printed upright it bends
+# across its layers, so strain must stay low (~1.5 %).
 SNAP_INSET = 12            # hook centre line, measured in from the outline edge
 SNAP_W = 8                 # hook width (along the edge)
 SNAP_T = 2.0               # hook thickness
 SNAP_CATCH = 0.8           # how far the catch sticks out
-SNAP_CATCH_Z = 13.2        # catch's flat face, this far behind the face plate front
-SNAP_LEN = 15.5            # hook length behind the face plate front
+SNAP_WINDOW_TOP = 13.1     # keeper window's top edge, this far behind the face plate front
 SNAP_GAP = 0.2             # hook <-> keeper wall clearance
+# Catch tip (most protruding point) depth: puts the 45 deg retention ramp right on the
+# window's top edge when the ring is home, so it sits without rattle.
+SNAP_CATCH_Z = SNAP_WINDOW_TOP + SNAP_CATCH - SNAP_GAP
+PRY_NOTCHES = (-20, 20)    # x of the pry notches in the ring's bottom edge
+PRY_NOTCH = (10, 1.2, 4)   # width, depth into the ring's back, reach in from the edge
+SNAP_LEN = 15.5            # hook length behind the face plate front
 KEEPER_T = 2.0
 KEEPER_LEN = 17.5          # keeper wall reaches this far behind the face plate front
 # Hook positions as (x, sign of z): top/bottom pairs and side pairs, clear of the car screws
@@ -258,7 +266,7 @@ def make(style="frame") -> Part:
                 with Locations((0, y_wall + KEEPER_T / 2, -(FACE_T + KEEPER_LEN) / 2)):
                     Box(SNAP_W + 4, KEEPER_T, KEEPER_LEN - FACE_T)
             with BuildPart(pl, mode=Mode.SUBTRACT):
-                win_top, win_bot = SNAP_CATCH_Z - 0.1, SNAP_LEN + 1
+                win_top, win_bot = SNAP_WINDOW_TOP, SNAP_LEN + 1
                 with Locations((0, y_wall + KEEPER_T / 2, -(win_top + win_bot) / 2)):
                     Box(SNAP_W + 0.6, KEEPER_T + 0.2, win_bot - win_top)
                 # Slot through the face plate; its inner side is flush with the keeper wall.
