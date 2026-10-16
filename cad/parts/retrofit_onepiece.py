@@ -36,8 +36,10 @@ POST_D = 14
 POST_END_Y = -(PAD_DEPTH - SPRING_GAP)  # posts stop here; the bracket sits at -PAD_DEPTH
 M5_CLEAR = 5.5
 M5_NUT_AF = 8.0 + 0.3      # trapped M5 nut in each post end
-M5_NUT_H = 4.0 + 0.4
+M5_NUT_H = 5.0 + 0.4      # fits a plain or a nylon-lock (nyloc) M5 nut
 NUT_FROM_END = 4.0
+ROOT_R = 11                # post root flare, so the post doesn't snap off at the layer joint
+ROOT_H = 12
 
 WINDOWS = base.crescent_windows((OPENING_D - base.LIGHT_CLEARANCE, LIGHT_Z))
 
@@ -60,6 +62,10 @@ def make() -> Part:
             with Locations(*POSTS.values()):
                 Circle(POST_D / 2)
         extrude(amount=post_len)
+        # Cone at each post root: spreads the load into the face plate.
+        for x, z in POSTS.values():
+            with Locations((x, -FACE_T - ROOT_H / 2, z)):
+                Cone(ROOT_R, POST_D / 2, ROOT_H, rotation=(90, 0, 0))
         with BuildSketch(back.offset(post_len)):
             with Locations(*POSTS.values()):
                 Circle(M5_CLEAR / 2)

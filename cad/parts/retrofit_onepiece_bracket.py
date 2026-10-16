@@ -21,7 +21,7 @@ RING_OUT_R = 62
 PAD_R = 54                 # PLACEHOLDER (photo estimate): M5 holes on the light's back
 PAD_ANGLES = (26, -26, 154, 206)  # degrees from +X; two pairs either side of the cable
 ARM_W = 16
-EAR_HOLE_D = 6.5           # oversized so the bracket can tilt on the screws
+EAR_HOLE_D = 5.4           # M5 + just enough play to tilt ~3 deg; more would let it rattle
 
 
 def pad_points():
