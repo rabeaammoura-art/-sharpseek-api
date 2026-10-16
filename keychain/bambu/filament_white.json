@@ -3,5 +3,5 @@
   "name": "Keychain PLA white @H2D",
   "inherits": "Bambu PLA Basic @BBL H2D",
   "from": "User",
-  "filament_colour": ["#FFFFFF"]
+  "filament_colour": ["#F4F4F4"]
 }

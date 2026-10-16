@@ -3,5 +3,5 @@
   "name": "Keychain PLA skin @H2D",
   "inherits": "Bambu PLA Basic @BBL H2D",
   "from": "User",
-  "filament_colour": ["#F3C9A3"]
+  "filament_colour": ["#D69C76"]
 }
