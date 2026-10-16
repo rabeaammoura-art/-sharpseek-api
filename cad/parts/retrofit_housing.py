@@ -9,9 +9,9 @@ Axes: X = width, Z = height (on the car), Y = depth (front face at Y=0, -Y towar
 from build123d import *
 
 # --- Outer shape (PLACEHOLDER: measure the fender opening) ---
-WIDTH = 165          # across the car
-HEIGHT = 245         # vertical
-CORNER_R = 35
+WIDTH = 165          # across the car (photo estimate: lens ~165 wide)
+HEIGHT = 258         # vertical (photo estimate: lens ~260 tall)
+CORNER_R = 30        # photo estimate
 DEPTH = 95           # shell depth behind the face plate
 WALL = 3.0
 
