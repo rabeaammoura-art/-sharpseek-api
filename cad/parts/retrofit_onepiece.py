@@ -29,8 +29,9 @@ CAR_HOLE_INSET = 7         # hole centre distance in from the outline edge
 
 # --- Aiming: 3 posts behind the face plate, one spring screw (M5) on each ---
 # P = pivot corner (set once), V above it = up/down, H beside it = left/right.
-POSTS = {"P": (-74, -70), "V": (-74, 70), "H": (74, -70)}
-PAD_DEPTH = 62             # PLACEHOLDER: light front face -> mounting-pad face on its back
+# Posts sit in the side band between the windows and the light, clear of the lamp boxes.
+POSTS = {"P": (-78, -30), "V": (-78, 30), "H": (78, -30)}
+PAD_DEPTH = 60             # measured: light front face -> mounting-pad face on its back
 SPRING_GAP = 10            # spring length between post end and bracket (reuse the old ones)
 POST_D = 14
 POST_END_Y = -(PAD_DEPTH - SPRING_GAP)  # posts stop here; the bracket sits at -PAD_DEPTH
@@ -38,10 +39,46 @@ M5_CLEAR = 5.5
 M5_NUT_AF = 8.0 + 0.3      # trapped M5 nut in each post end
 M5_NUT_H = 5.0 + 0.4      # fits a plain or a nylon-lock (nyloc) M5 nut
 NUT_FROM_END = 4.0
-ROOT_R = 11                # post root flare, so the post doesn't snap off at the layer joint
+ROOT_R = 8                 # post root flare, so the post doesn't snap off at the layer joint
 ROOT_H = 12
 
 WINDOWS = base.crescent_windows((OPENING_D - base.LIGHT_CLEARANCE, LIGHT_Z))
+
+# --- Lamp boxes behind the windows (top = amber indicator, bottom = fog/DRL) ---
+# A lens cut from 2 mm clear polycarbonate sits in a pocket against the back of the face
+# (glue/seal with silicone); an LED strip sticks to the box's back wall.
+LENS_LEDGE = 3.0           # lens overlaps the window by this much all round
+LENS_T = 2.0
+BOX_WALL = 2.0
+BOX_DEPTH = 22             # behind the face plate, lens included
+WIRE_HOLE_D = 6
+DRAIN_D = 2.5              # lets condensation out at the lowest point
+LENS = [offset(w, LENS_LEDGE).faces()[0] for w in WINDOWS]
+BOX_OUTER = [offset(w, LENS_LEDGE + BOX_WALL).faces()[0] for w in WINDOWS]
+
+
+def wire_hole(cavity):
+    """Wire hole in the box's back wall: on the centre line, mid-way through the cavity."""
+    wire = cavity.outer_wire()
+    zs = [p.Y for p in (wire.position_at(i / 2000) for i in range(2000)) if abs(p.X) < 1.5]
+    return (0, (min(zs) + max(zs)) / 2)
+
+
+def drain_holes(cavity, inset=2.5):
+    """Drain holes just above the cavity's lowest points (both tips if it has two)."""
+    wire = cavity.outer_wire()
+    pts = [wire.position_at(i / 400) for i in range(400)]
+    z_min = min(p.Y for p in pts)
+    lows = [p for p in pts if p.Y < z_min + 0.5]
+    left = min(lows, key=lambda p: p.X)
+    right = max(lows, key=lambda p: p.X)
+    picks = [left, right] if right.X - left.X > 20 else [left]
+    c = cavity.center()
+    out = []
+    for p in picks:
+        d = Vector(c.X - p.X, c.Y - p.Y).normalized() * inset
+        out.append((p.X + d.X, p.Y + d.Y))
+    return out
 
 
 def car_holes():
@@ -78,6 +115,23 @@ def make() -> Part:
                 with Locations((x - (POST_D / 2) * (1 if x > 0 else -1), z)):
                     Rectangle(POST_D, M5_NUT_AF)
         extrude(amount=M5_NUT_H, mode=Mode.SUBTRACT)
+        # Lamp boxes: solid block, then hollow it (lens pocket + cavity share one outline).
+        with BuildSketch(back):
+            for f in BOX_OUTER:
+                add(f)
+        extrude(amount=BOX_DEPTH)
+        with BuildSketch(back):
+            for f in LENS:
+                add(f)
+        extrude(amount=BOX_DEPTH - BOX_WALL, mode=Mode.SUBTRACT)
+        box_back = back.offset(BOX_DEPTH)
+        for f in LENS:
+            with BuildSketch(box_back):
+                with Locations(wire_hole(f)):
+                    Circle(WIRE_HOLE_D / 2)
+                with Locations(*drain_holes(f)):
+                    Circle(DRAIN_D / 2)
+            extrude(amount=-BOX_WALL, mode=Mode.SUBTRACT)
         # Light opening, windows, car holes.
         with BuildSketch(Plane.XZ):
             with Locations((0, LIGHT_Z)):
