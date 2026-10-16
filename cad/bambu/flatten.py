@@ -4,8 +4,9 @@ The Bambu Studio CLI reads only the keys present in each JSON file; it does not 
 `inherits` chain the way the GUI does. This resolves the chain against the system profiles
 shipped with Bambu Studio and writes complete presets.
 
-Usage: python flatten.py <BBL profiles dir> <out dir>
-Writes machine.json, process.json, filament_<colour>.json for the W115 lens on an H2D.
+Usage: python flatten.py <BBL profiles dir> <out dir> [user preset json ...]
+Writes machine.json plus one flattened file per user preset (the process one as process.json).
+With no presets given, uses the W115 lens presets next to this script.
 """
 import json
 import sys
@@ -42,7 +43,7 @@ def resolve(by_name, kind, preset):
     return merged
 
 
-def main(profiles_dir, out_dir):
+def main(profiles_dir, out_dir, presets=None):
     by_name = index_profiles(Path(profiles_dir))
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -51,8 +52,9 @@ def main(profiles_dir, out_dir):
     machine.update({"from": "system", "inherits": "", "name": MACHINE})
     (out / "machine.json").write_text(json.dumps(machine, indent=1))
 
-    for fname in USER_PRESETS:
-        user = json.loads((HERE / fname).read_text())
+    for path in [Path(p) for p in presets] if presets else [HERE / f for f in USER_PRESETS]:
+        fname = path.name
+        user = json.loads(path.read_text())
         kind = user["type"]
         flat = resolve(by_name, kind, user)
         flat.update({"from": "User", "inherits": user["inherits"], "name": user["name"]})
@@ -65,4 +67,4 @@ def main(profiles_dir, out_dir):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2])
+    main(sys.argv[1], sys.argv[2], sys.argv[3:])

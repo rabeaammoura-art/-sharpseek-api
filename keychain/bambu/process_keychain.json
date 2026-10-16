@@ -1,0 +1,9 @@
+{
+  "type": "process",
+  "name": "Keychain 0.20mm @H2D",
+  "inherits": "0.20mm Standard @BBL H2D",
+  "from": "User",
+  "curr_bed_type": "Textured PEI Plate",
+  "wipe_tower_x": ["40"],
+  "wipe_tower_y": ["255"]
+}
