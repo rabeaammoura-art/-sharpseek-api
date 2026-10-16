@@ -1,4 +1,4 @@
-"""Variant of retrofit_onepiece with "frame" neon DRL lines (see NEON_STYLES there)."""
+"""Variant of retrofit_onepiece with "arc" neon DRL lines (see NEON_STYLES there)."""
 import importlib.util
 from pathlib import Path
 
@@ -8,4 +8,4 @@ _spec.loader.exec_module(base)
 
 
 def make():
-    return base.make(style="frame")
+    return base.make(style="arc")

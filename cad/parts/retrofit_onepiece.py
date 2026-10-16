@@ -163,7 +163,7 @@ def car_holes():
     return [(0, z_top - CAR_HOLE_INSET), (0, z_bot + CAR_HOLE_INSET), (x_side, 0), (-x_side, 0)]
 
 
-def make(style="arc") -> Part:
+def make(style="frame") -> Part:
     paths = NEON_STYLES[style]()
     post_len = -POST_END_Y - FACE_T
     with BuildPart() as p:
