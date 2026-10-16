@@ -34,6 +34,9 @@ SEVEN_RIM_D = 177.8
 SEVEN_REAR_D = 158         # PLACEHOLDER: rear body diameter behind the rim, to be measured
 SEVEN_Z = 30               # raised to the widest part of the outline
 SEVEN_IN = [(SEVEN_REAR_D, SEVEN_Z)]
+# 5.75" headlight on top + small round fog/DRL below. A 4.5" (114) does not fit under a
+# 5.75" (about 4 mm short at each end); a 3.5" (~90) is the largest that does.
+COMBO_575_35 = [(141, 48), (90, -74)]
 
 # --- Optional windows (W, H, centre Z); W = 0 to drop ---
 TOP_WINDOW = (110, 22, 100)      # indicator strip; drop if the light has an amber halo

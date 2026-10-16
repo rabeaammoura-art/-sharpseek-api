@@ -13,6 +13,7 @@ from build123d import Plane, section
 sys.path.insert(0, str(Path(__file__).parent / "parts"))
 import retrofit_housing as rh  # noqa: E402
 import retrofit_housing_7in as r7  # noqa: E402
+import retrofit_housing_575_35 as rc  # noqa: E402
 
 # (title, lights, top window, bottom window, screw heights, front rim (diameter, z) or None)
 VARIANTS = [
@@ -20,6 +21,7 @@ VARIANTS = [
     ('2 x 4.5" (114 mm)', rh.TWIN_45, (0, 0, 0), (0, 0, 0), rh.SCREW_Z, None),
     ('1 x 7" (177.8 mm rim)', rh.SEVEN_IN, r7.INDICATOR_WINDOW, r7.FOG_WINDOW, r7.SCREW_Z,
      (rh.SEVEN_RIM_D, rh.SEVEN_Z)),
+    ('5.75" + 3.5" (141 + 90 mm)', rh.COMBO_575_35, (0, 0, 0), (0, 0, 0), rc.SCREW_Z, None),
 ]
 
 
@@ -29,7 +31,7 @@ def plot_section(ax, part, y, **style):
         ax.plot([p.X for p in pts], [p.Z for p in pts], **style)
 
 
-fig, axs = plt.subplots(1, len(VARIANTS), figsize=(16, 8))
+fig, axs = plt.subplots(1, len(VARIANTS), figsize=(20, 8))
 shell = rh.shell()
 for ax, (title, lights, top, bottom, screw_z, rim) in zip(axs, VARIANTS):
     plot_section(ax, shell, -rh.FACE_T - 30, color="0.6", lw=1, ls="--")
