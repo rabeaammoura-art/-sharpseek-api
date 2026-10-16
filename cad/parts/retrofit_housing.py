@@ -44,9 +44,13 @@ BOTTOM_WINDOW = (100, 20, -103)  # fog / DRL strip
 
 # --- Fixing ---
 SCREW_D = 4.5              # face plate -> shell screws (M4 + clearance)
-INSERT_D = 5.6             # hole for M4 brass heat-set insert in the shell bosses
-INSERT_DEPTH = 10
-BOSS_D = 11
+# Plain M4 nut trapped in each shell boss (no inserts): slide the nut in from the inside
+# through a side slot, then screw M4 x 16 through the face plate into it.
+NUT_AF = 7.0 + 0.3         # M4 nut across flats + clearance
+NUT_H = 3.2 + 0.4          # M4 nut height + clearance
+NUT_Y = 5.0                # nut pocket starts this far behind the shell rim
+BOSS_D = 13
+BOSS_LEN = 15
 # Joint between face plate and shell:
 LIP_GAP = 0.3              # locating lip clearance to the shell's inner wall (ASA shrink)
 LIP_T = 2.0                # lip thickness
@@ -187,15 +191,25 @@ def shell(screw_z=SCREW_Z) -> Part:
         with BuildSketch(Plane.XZ.offset(FACE_T)):
             add(outline(FLANGE + WALL))
         extrude(amount=DEPTH - WALL, mode=Mode.SUBTRACT)
-        # Screw bosses inside the rim.
-        with BuildSketch(Plane.XZ.offset(FACE_T)):
+        # Screw bosses inside the rim, each with a nut trap.
+        rim = Plane.XZ.offset(FACE_T)
+        with BuildSketch(rim):
             with Locations(*screw_points(screw_z)):
                 Circle(BOSS_D / 2)
-        extrude(amount=15)
-        with BuildSketch(Plane.XZ.offset(FACE_T)):
+        extrude(amount=BOSS_LEN)
+        with BuildSketch(rim):
             with Locations(*screw_points(screw_z)):
-                Circle(INSERT_D / 2)
-        extrude(amount=INSERT_DEPTH, mode=Mode.SUBTRACT)
+                Circle(SCREW_D / 2)
+        extrude(amount=BOSS_LEN, mode=Mode.SUBTRACT)
+        with BuildSketch(rim.offset(NUT_Y)):
+            for x, z in screw_points(screw_z):
+                # Hex pocket with flats top/bottom, plus a slot opening toward the
+                # housing centre so the nut slides in from the inside.
+                with Locations((x, z)):
+                    RegularPolygon(NUT_AF / 3 ** 0.5, 6)
+                with Locations((x - (BOSS_D / 2) * (1 if x > 0 else -1), z)):
+                    Rectangle(BOSS_D, NUT_AF)
+        extrude(amount=NUT_H, mode=Mode.SUBTRACT)
         # Rear wire hole.
         with BuildSketch(Plane.XZ.offset(FACE_T + DEPTH)):
             Circle(WIRE_HOLE_D / 2)
