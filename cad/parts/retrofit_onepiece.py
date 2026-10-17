@@ -45,6 +45,9 @@ SKIRT_T = 1.6
 TOP_HOOK_W = 50
 LIP_DEPTH = 2.5            # how far the lip reaches in behind the edge
 LIP_T = 1.5
+# TPU gasket between the housing's back and the fender (retrofit_onepiece_gasket.py).
+GASKET_T = 1.6
+GASKET_IN = 12.7           # inner edge, in from the outline (just outside the rear rib)
 # Bottom: one M3 countersunk self-tapping screw through the ring into the face plate.
 RING_SCREW_INSET = 7.5
 RING_SCREW_PILOT = 2.5
@@ -69,8 +72,9 @@ COLLAR_LEN = 12.0          # behind the face plate front
 
 # --- Aiming: 3 posts behind the face plate, one spring screw (M5) on each ---
 # P = pivot corner (set once), V above it = up/down, H beside it = left/right.
-# Posts sit in the side band beside the light, clear of the neon grooves.
-POSTS = {"P": (-78, -30), "V": (-78, 30), "H": (78, -30)}
+# Posts sit between the collar and the rear rib (everything behind the face must stay inside
+# the rib: outside it the housing's back sits on the fender), clear of the neon grooves.
+POSTS = {"P": (-62, -55), "V": (-62, 55), "H": (62, -55)}
 PAD_DEPTH = 60             # measured: light front face -> mounting-pad face on its back
 SPRING_GAP = 10            # spring length between post end and bracket (reuse the old ones)
 POST_D = 14
@@ -204,6 +208,12 @@ RIB = (base.outline(_RIB_IN) - base.outline(_RIB_IN + RIB_T)
        - Pos(0, LIGHT_Z) * Circle(OPENING_D / 2 + COLLAR_T))
 
 
+# Collar, trimmed to the rib's outline: beside the light the face is only ~15 mm wide and
+# its outer part sits on the fender.
+COLLAR = ((Pos(0, LIGHT_Z) * Circle(OPENING_D / 2 + COLLAR_T) - Pos(0, LIGHT_Z) * Circle(OPENING_D / 2))
+          & base.outline(_RIB_IN))
+
+
 def _top_band(face):
     """The part of a face within the top hook's width, above the light."""
     return face & Pos(0, 130) * Rectangle(TOP_HOOK_W, 60)
@@ -265,9 +275,7 @@ def make(style="frame") -> Part:
             add(RIB)
         extrude(amount=RIB_LEN - FACE_T)
         with BuildSketch(back):
-            with Locations((0, LIGHT_Z)):
-                Circle(OPENING_D / 2 + COLLAR_T)
-                Circle(OPENING_D / 2, mode=Mode.SUBTRACT)
+            add(COLLAR)
         extrude(amount=COLLAR_LEN - FACE_T)
         # Drain gaps in the bottom of the rib (behind the face plate only).
         z_low = RIB.bounding_box().min.Y

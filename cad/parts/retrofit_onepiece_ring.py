@@ -1,7 +1,8 @@
 """Frame ring for retrofit_onepiece, fixed like the original chrome ring: one hook on top,
 one screw at the bottom. A matte-black band round the housing edge (in place of the chrome
 trim ring) with a skirt round its outside that wraps the housing's edge: the L-section keeps
-the ring stiff and straight so it sits flush all round, and hides the housing's edge.
+the ring stiff and straight so it sits flush all round, and hides the housing's edge and
+the TPU gasket's edge behind it.
 
 Fitting: tilt the ring (bottom away from the car), slide its top lip down behind the
 housing's top edge, swing the bottom in, then one M3 countersunk self-tapping screw at the
@@ -34,7 +35,7 @@ def make() -> Part:
         extrude(amount=op.FRAME_H)
         with BuildSketch(Plane.XZ):
             add(SKIRT)
-        extrude(amount=op.FACE_T)  # down the housing's edge, to its back
+        extrude(amount=op.FACE_T + op.GASKET_T)  # down the housing's edge and the gasket's
         with BuildSketch(Plane.XZ.offset(op.FACE_T - op.LIP_T)):
             add(LIP)
         extrude(amount=op.LIP_T)

@@ -7,7 +7,7 @@ Usage: python check.py
 import sys
 from pathlib import Path
 
-from build123d import Cylinder, Vector
+from build123d import Cylinder, Plane, Vector, extrude
 
 sys.path.insert(0, str(Path(__file__).parent / "parts"))
 import retrofit_onepiece as op  # noqa: E402
@@ -25,6 +25,8 @@ def overlap(a, b):
 def main():
     light = Cylinder(op.LIGHT_D / 2, op.PAD_DEPTH, rotation=(90, 0, 0)).translate((0, -op.PAD_DEPTH / 2, 0))
     r = ring.make()
+    # Outside the rear rib the housing's back sits on the fender: nothing may stick out there.
+    fender = extrude(Plane.XZ.offset(op.FACE_T) * (op.base.outline() - op.base.outline(op._RIB_IN)), 60)
     ok = True
     for side, housing, bracket, sx in (("right", op.make(), br.make(), 1), ("left", op_l.make(), br_l.make(), -1)):
         results = {
@@ -32,6 +34,7 @@ def main():
             "housing x bracket": overlap(housing, bracket),
             "housing x light": overlap(housing, light),
             "ring x light": overlap(r, light),
+            "housing x fender": overlap(housing, fender),
         }
         for name, v in results.items():
             flag = v < 1e-3
