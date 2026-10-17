@@ -19,10 +19,10 @@ P = dict(
     lip_h=13.0,         # top seal-lip band (rubber gasket sits on it)
     n_ribs=4,
     # Each rib is a trapezoid, all faces flat, top to bottom (fractions of the rib height):
-    up_frac=0.15,       # upper flank, out from the valley above to the crest
-    crest_frac=0.45,    # flat crest
-    down_frac=0.30,     # lower flank, back in to the valley (the rest is the flat valley floor)
-    rib_P0=11.0,        # crest protrusion from the valley line
+    up_frac=0.06,       # upper flank, out from the valley above to the crest (near vertical, measured)
+    crest_frac=0.64,    # flat crest (~20 mm, measured from the owner's video)
+    down_frac=0.06,     # lower flank, back in to the valley (the rest is the flat valley floor, ~7.6 mm slot)
+    rib_P0=23.0,        # crest protrusion from the valley line (~25 mm deep slots, measured)
     rib_step=1.5,       # each lower rib sticks out this much further (slight, per the owner)
     edge_r=1.5,         # small rounding on every crest / valley edge (not sharp, per the owner)
     D_back=28.0,        # groove line -> back/flange plane (body depth at nose = D_back + rib_P0)
@@ -31,13 +31,14 @@ P = dict(
     red_w=100.0,        # red inboard section width (front view)
     mid_w=120.0,        # middle section width (red top / clear bottom)
     A_wrap=50.0,        # amber wrap angle, degrees
-    R_end=25.0,         # inboard corner radius in plan, at the deepest rib crest (ribs wrap round it)
-    R_end_out=24.0,     # outboard (amber) end return radius in plan, at the deepest rib crest
+    R_end=36.0,         # inboard corner radius in plan, at the deepest rib crest (ribs wrap round it)
+    R_end_out=36.0,     # outboard (amber) end return radius in plan, at the deepest rib crest
     r_in_top=12.0, r_in_bot=5.0,   # front-view corner radii, inboard end (the outboard end is shaped by its return)
     wall_t=2.5,         # inner partition walls
     wall_backoff=6.0,   # partition walls stop this far before the back plane
     box_cap_y=8.0,      # depth (Y) of the stop-lamp box inner panel
-    stud_x1=97.0, stud_dx=130.0, stud_from_top=73.0,
+    stud_x1=97.0, stud_dx=120.0,   # stud spacing ~115-120 mm from the ruler photo
+    stud_from_top=73.0,
     boss_d=11.0, boss_back=4.0,        # boss ends this far before the back plane
     insert_d=6.4, insert_depth=10.0,   # M5 heat-set insert (stud = M5 threaded rod)
 )
