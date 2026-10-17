@@ -1,6 +1,6 @@
 """Assembly checks for the one-piece retrofit, both sides: no part overlaps another, the
 light (141 dia, 60 to the pads) clears the housing, the bracket ears line up with the posts,
-and every snap catch sits in its keeper window.
+and the ring's top lip and bottom screw land on the housing.
 
 Usage: python check.py
 """
@@ -39,12 +39,16 @@ def main():
             print(f"{side:5} {name:18} {'ok' if flag else f'OVERLAP {v:.3f} mm3'}")
         y_ear = -op.PAD_DEPTH - br.T / 2
         ears = all(not bracket.is_inside(Vector(sx * x, y_ear, z)) for x, z in op.POSTS.values())
-        catches = all(not housing.is_inside(pl.from_local_coords(Vector(0, op.SNAP_T / 2 + 0.4, -op.SNAP_CATCH_Z - 0.3)))
-                      and r.is_inside(pl.from_local_coords(Vector(0, op.SNAP_T / 2 + 0.4, -op.SNAP_CATCH_Z - 0.3)))
-                      for pl in op.snap_planes())
-        ok &= ears and catches
+        x, z = op.ring_screw()
+        screw = (not housing.is_inside(Vector(x, -2, z)) and not r.is_inside(Vector(x, 1.5, z))
+                 and housing.is_inside(Vector(x + op.RING_SCREW_PILOT, -2, z)))
+        lip_z = max(p.Y for p in (op.base.outline().outer_wire().position_at(i / 720) for i in range(720)))
+        lip = r.is_inside(Vector(0, -op.FACE_T + op.LIP_T / 2, lip_z - 1)) and not housing.is_inside(
+            Vector(0, -op.FACE_T + op.LIP_T / 2, lip_z - 1))
+        ok &= ears and screw and lip
         print(f"{side:5} {'ear holes on posts':18} {'ok' if ears else 'MISALIGNED'}")
-        print(f"{side:5} {'catches in windows':18} {'ok' if catches else 'WRONG'}")
+        print(f"{side:5} {'ring screw hole':18} {'ok' if screw else 'WRONG'}")
+        print(f"{side:5} {'ring top lip':18} {'ok' if lip else 'WRONG'}")
     print("ALL OK" if ok else "PROBLEMS FOUND")
     return 0 if ok else 1
 

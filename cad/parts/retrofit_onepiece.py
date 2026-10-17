@@ -25,39 +25,30 @@ LIGHT_Z = 0
 TILT_GAP = 4.0             # radial gap around the light so it can tilt ~3 deg each way
 OPENING_D = LIGHT_D + 2 * TILT_GAP
 
-# Matte-black frame round the edge, in place of the chrome trim ring: a separate flat ring
-# (retrofit_onepiece_ring.py) that snaps on with hooks through slots in the face plate and
-# hides the car screws. Separate so the housing's front prints flat on the bed.
+# Matte-black frame round the edge, in place of the chrome trim ring: a separate ring
+# (retrofit_onepiece_ring.py) that hides the car screws. Separate so the housing's front
+# prints flat on the bed.
 FRAME_W = 15
 FRAME_H = 3                # ring thickness, stands proud of the face plate's front
 FRAME = base.outline() - base.outline(FRAME_W)
 # Car screws: M5 countersunk (flat head) so they sit flush under the ring.
 CSK_D = 10.4               # countersink diameter at the face (M5 flat head ~9.2-10)
 
-# --- Snap hooks (on the ring) and keepers (on the housing) ---
-# Each hook goes through a slot in the face plate and its catch clicks into a window in a
-# small keeper wall behind the face. The catch's front face is a 45 deg ramp, not a flat
-# lock, so the ring comes off FROM THE FRONT: lever it with a plastic trim tool in one of the
-# two pry notches under its bottom edge (the back of the housing is not reachable once it is
-# screwed to the car). Long hook (~15 mm) so it bends gently: printed upright it bends
-# across its layers, so strain must stay low (~1.5 %).
-SNAP_INSET = 12            # hook centre line, measured in from the outline edge
-SNAP_W = 8                 # hook width (along the edge)
-SNAP_T = 2.0               # hook thickness
-SNAP_CATCH = 0.8           # how far the catch sticks out
-SNAP_WINDOW_TOP = 13.1     # keeper window's top edge, this far behind the face plate front
-SNAP_GAP = 0.2             # hook <-> keeper wall clearance
-# Catch tip (most protruding point) depth: puts the 45 deg retention ramp right on the
-# window's top edge when the ring is home, so it sits without rattle.
-SNAP_CATCH_Z = SNAP_WINDOW_TOP + SNAP_CATCH - SNAP_GAP
-PRY_NOTCHES = (-20, 20)    # x of the pry notches in the ring's bottom edge
-PRY_NOTCH = (10, 1.2, 4)   # width, depth into the ring's back, reach in from the edge
-SNAP_LEN = 15.5            # hook length behind the face plate front
-KEEPER_T = 3.0             # = RIB_T: the keepers are the rear rib
-# Hook positions as (x, sign of z): top/bottom pairs and side pairs, clear of the car screws
-# and the aiming posts; symmetric, so one ring fits both lights.
-SNAP_SPOTS = [(-40, 1), (40, 1), (-40, -1), (40, -1), ("side", 50), ("side", -50),
-              ("-side", 50), ("-side", -50)]
+# --- How the ring holds on (like the original chrome ring: one hook on top, one screw at
+# the bottom) ---
+# The ring is an L-section: a skirt round its outside wraps the housing's edge, which keeps
+# it stiff and straight so it sits flush all round with only these two fixings.
+RING_GAP = 0.25            # skirt <-> housing edge clearance
+SKIRT_T = 1.6
+# Top hook: a lip on the skirt's top that tucks behind the housing's top edge, into a
+# shallow recess in the housing's back so it doesn't sit between housing and fender.
+TOP_HOOK_W = 50
+LIP_DEPTH = 2.5            # how far the lip reaches in behind the edge
+LIP_T = 1.5
+# Bottom: one M3 countersunk self-tapping screw through the ring into the face plate.
+RING_SCREW_INSET = 7.5
+RING_SCREW_PILOT = 2.5
+RING_SCREW_DEPTH = 4.5
 
 # Car fixing holes through the face plate (PLACEHOLDER positions: match the car's screws).
 # In the four corners, where the plate is wide; beside the light it is only ~15 mm.
@@ -206,36 +197,24 @@ def car_holes():
     return pts
 
 
-# The rib's inner face is flush with the keeper position next to each hook.
-_RIB_IN = SNAP_INSET + SNAP_T / 2 + SNAP_GAP
+_RIB_IN = 13.2             # rib's outer face, measured in from the outline edge
 # Beside the light the rib would run almost on top of the collar (0.1 mm apart), which makes
 # OCC's booleans drop material there; so the rib stops where it meets the collar.
 RIB = (base.outline(_RIB_IN) - base.outline(_RIB_IN + RIB_T)
        - Pos(0, LIGHT_Z) * Circle(OPENING_D / 2 + COLLAR_T))
 
 
-def snap_planes():
-    """One Plane per hook: origin on the hook centre line at the face plate front, x along
-    the edge, y pointing inward (toward the keeper wall), z toward the front of the car.
-    Found on the +X side and mirrored, so the pattern is exactly symmetric."""
-    wire = base.outline(SNAP_INSET).outer_wire()
-    pts = [(i / 1440, wire.position_at(i / 1440)) for i in range(1440)]
-    planes = []
-    for a, b in SNAP_SPOTS:
-        if a in ("side", "-side"):
-            sx = 1 if a == "side" else -1
-            u, p = min(pts, key=lambda q: abs(q[1].Y - b) + (0 if q[1].X > 0 else 1e3))
-        else:
-            sx = 1 if a > 0 else -1
-            u, p = min(pts, key=lambda q: abs(q[1].X - abs(a)) + (0 if q[1].Y * b > 0 else 1e3))
-        t = wire.tangent_at(u)
-        origin = Vector(sx * p.X, 0, p.Y)
-        t3 = Vector(sx * t.X, 0, t.Y)
-        y_dir = Vector(0, 1, 0).cross(t3)  # local y = z x x
-        if y_dir.dot(Vector(-origin.X, 0, LIGHT_Z - origin.Z)) < 0:
-            t3 = -t3
-        planes.append(Plane(origin=origin, x_dir=t3, z_dir=(0, 1, 0)))
-    return planes
+def _top_band(face):
+    """The part of a face within the top hook's width, above the light."""
+    return face & Pos(0, 130) * Rectangle(TOP_HOOK_W, 60)
+
+
+TOP_RECESS = _top_band(base.outline() - base.outline(LIP_DEPTH + 0.5))
+
+
+def ring_screw():
+    z_bot = min(p.Y for p in (base.outline().outer_wire().position_at(i / 720) for i in range(720)))
+    return (0, z_bot + RING_SCREW_INSET)
 
 
 def make(style="frame") -> Part:
@@ -281,7 +260,7 @@ def make(style="frame") -> Part:
                 with Locations(Location((x, z), ang)):
                     Rectangle(NEON_END_HOLE[1], NEON_END_HOLE[0])
         extrude(amount=NEON_WALL, mode=Mode.SUBTRACT)
-        # Rear rib (doubles as the snap keepers) and the collar round the light opening.
+        # Rear rib round the back and the collar round the light opening.
         with BuildSketch(back):
             add(RIB)
         extrude(amount=RIB_LEN - FACE_T)
@@ -307,17 +286,13 @@ def make(style="frame") -> Part:
         for x, z in car_holes():
             with Locations((x, -h / 2, z)):
                 Cone(CSK_D / 2, CAR_HOLE_D / 2, h, rotation=(90, 0, 0), mode=Mode.SUBTRACT)
-    # Keeper windows in the rib + slots through the face plate (inner side flush with the
-    # rib). Cut one at a time on the finished part: done inside the builder (as one compound
-    # or eight nested cuts) OCC also dropped a chunk of face plate beside the light.
-    part = p.part
-    y_wall = SNAP_T / 2 + SNAP_GAP
-    win_top, win_bot = SNAP_WINDOW_TOP, SNAP_LEN + 1
-    y0 = -SNAP_T / 2 - SNAP_CATCH - 0.1
-    for pl in snap_planes():
-        loc = pl.location
-        part = part - loc * Pos(0, y_wall + KEEPER_T / 2, -(win_top + win_bot) / 2) * Box(
-            SNAP_W + 0.6, KEEPER_T + 1.0, win_bot - win_top)
-        part = part - loc * Pos(0, (y0 + y_wall) / 2, -FACE_T / 2) * Box(
-            SNAP_W + 0.6, y_wall - y0, FACE_T + 0.2)
-    return part
+        # Recess behind the top edge for the ring's hook lip.
+        with BuildSketch(back):
+            add(TOP_RECESS)
+        extrude(amount=-(LIP_T + 0.2), mode=Mode.SUBTRACT)
+        # Pilot hole for the ring's bottom screw.
+        with BuildSketch(Plane.XZ):
+            with Locations(ring_screw()):
+                Circle(RING_SCREW_PILOT / 2)
+        extrude(amount=RING_SCREW_DEPTH, mode=Mode.SUBTRACT)
+    return p.part
