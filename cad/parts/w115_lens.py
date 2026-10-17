@@ -30,9 +30,12 @@ P = dict(
     flange_w=6.0,       # seal flange width at the back rim
     red_w=100.0,        # red inboard section width (front view)
     mid_w=120.0,        # middle section width (red top / clear bottom)
-    A_wrap=50.0,        # amber wrap angle, degrees
-    R_end=36.0,         # inboard corner radius in plan, at the deepest rib crest (ribs wrap round it)
-    R_end_out=36.0,     # outboard (amber) end return radius in plan, at the deepest rib crest
+    A_wrap=88.0,        # amber wrap angle of the swept surface, degrees (cut back by the end edge)
+    wrap_cut=72.0,      # where the open amber end edge cuts the wrap, at the bottom (valley angle, deg)
+    R_end=72.5,         # inboard end: one big sweep back to the flange (sled-like, per the video); radius at the deepest crest
+    fade_in=95.0,       # ribs fade out over this path length at the inboard end (video)
+    fade_out=75.0,      # ... and at the outboard (amber) end, finishing before the end edge
+    end_slant=25.0,     # amber end cut on a slant along the fender: bottom reaches this much further out
     r_in_top=12.0, r_in_bot=5.0,   # front-view corner radii, inboard end (the outboard end is shaped by its return)
     wall_t=2.5,         # inner partition walls
     wall_backoff=6.0,   # partition walls stop this far before the back plane
@@ -50,16 +53,16 @@ def derived(p):
     d["P_max"] = p["rib_P0"] + (p["n_ribs"] - 1) * p["rib_step"]
     d["xs"] = p["red_w"] + p["mid_w"]                     # wrap start = amber boundary
     d["A"] = math.radians(p["A_wrap"])
-    d["Rvo"] = p["R_end_out"] - d["P_max"]                  # outboard return radius at the valley line
-    # Wrap radius at the valley line, chosen so the outboard crest lands on L_proj.
-    d["Rg"] = (p["L_proj"] - d["xs"] - d["Rvo"] - d["P_max"]) / math.sin(d["A"]) + d["Rvo"]
+    # Wrap radius at the valley line: the amber shell curls round the car corner like a horn and
+    # simply ends at a slanted edge (no end wall); at the bottom that edge sits on L_proj.
+    d["Rg"] = (p["L_proj"] - d["xs"]) / math.sin(math.radians(p["wrap_cut"]))
     d["Rv"] = p["R_end"] - d["P_max"]                       # inboard corner radius at the valley line
     # clear = bottom rib + the 3rd rib's lower flank, up to the bottom edge of its flat crest
     d["clear_top"] = 2 * d["pitch"] - (p["up_frac"] + p["crest_frac"]) * d["pitch"]
     d["box_top"] = p["H"] - p["lip_h"] - 2.0
-    for k in ("Rv", "Rvo"):   # corner radii at the valley line must clear the flange inset
+    for k in ("Rv",):         # corner radius at the valley line must clear the flange inset
         if d[k] <= p["flange_w"]:
-            raise ValueError(f"{k}={d[k]:.1f} mm: raise R_end/R_end_out above P_max + flange_w = "
+            raise ValueError(f"{k}={d[k]:.1f} mm: raise R_end above P_max + flange_w = "
                              f"{d['P_max'] + p['flange_w']:.1f} mm")
     return d
 
@@ -100,37 +103,15 @@ def profile_2d(d):
     return _rounded(pts, ribs[:-1], d["edge_r"])
 
 
-def _outboard(d, off, y_back, ang):
-    """Outboard return: corner arc after the wrap, then the end wall running in to the back.
-    Returns (corner arc, end-wall line, end point on the back circle)."""
-    xs, Rg, Rvo, A = d["xs"], d["Rg"], d["Rvo"], d["A"]
-    tdir = Vector(math.cos(A), math.sin(A))              # wrap tangent at its end
-    inward = Vector(-math.sin(A), math.cos(A))           # toward the wrap centre
-    co = Vector(xs + (Rg - Rvo) * math.sin(A), Rg - (Rg - Rvo) * math.cos(A))
-    corner = CenterArc(co, Rvo - off, math.degrees(A) - 90, 90)
-    start = co + tdir * (Rvo - off)
-    # walk inward until the back circle (radius Rg - y_back about the wrap centre)
-    c = Vector(xs, Rg)
-    rb = Rg - y_back
-    f = start - c
-    b = 2 * f.dot(inward)
-    cc = f.dot(f) - rb * rb
-    s_ = (-b - math.sqrt(b * b - 4 * cc)) / 2 if b * b - 4 * cc >= 0 else 0
-    s_ = max(s_, (-b + math.sqrt(max(b * b - 4 * cc, 0))) / 2) if s_ < 0 else s_
-    end = start + inward * s_
-    return corner, Line(start, end), end
-
-
 def valley_path(d, off, y_start, ang=None):
-    """Valley line in plan (offset `off` inward): inboard end wall, corner, along the lens,
-    amber wrap, outboard corner and end wall. The rib relief is swept on it."""
+    """Valley line in plan (offset `off` inward): short inboard wall, big inboard sweep, along the
+    lens, then the amber wrap (cut later by the slanted end edge). The rib relief is swept on it."""
     P, Rv, xs, Rg, A = d["P_max"], d["Rv"], d["xs"], d["Rg"], d["A"]
-    corner, endline, _ = _outboard(d, off, y_start, A)
-    return Wire([Line((P + off, y_start), (P + off, Rv)),
-                 CenterArc((P + Rv, Rv), Rv - off, 180, 90),
+    # inboard sweep: arc of radius Rv about (P + Rv, Rv), starting where it meets y = y_start
+    phi0 = 180.0 - math.degrees(math.asin(max(-1.0, min(1.0, (y_start - Rv) / (Rv - off)))))
+    return Wire([CenterArc((P + Rv, Rv), Rv - off, phi0, 270.0 - phi0),
                  Line((P + Rv, off), (xs, off)),
-                 CenterArc((xs, Rg), Rg - off, 270, math.degrees(A)),
-                 corner, endline])
+                 CenterArc((xs, Rg), Rg - off, 270, math.degrees(A))])
 
 
 def core(d, off, y_back, ang, z0, z1):
@@ -139,9 +120,11 @@ def core(d, off, y_back, ang, z0, z1):
     path = valley_path(d, off, y_back)
     end = path.position_at(1)
     rb = Rg - y_back
-    a_end = math.degrees(math.atan2(end.Y - Rg, end.X - xs)) % 360
-    edges = list(path.edges()) + [CenterArc((xs, Rg), rb, 270, a_end - 270),
-                                  Line((xs, y_back), (d["P_max"] + off, y_back))]
+    a_end = 270 + math.degrees(ang)
+    back_end = Vector(xs + rb * math.cos(math.radians(a_end)), Rg + rb * math.sin(math.radians(a_end)))
+    start = path.position_at(0)
+    edges = list(path.edges()) + [Line(end, back_end), CenterArc((xs, Rg), rb, 270, a_end - 270),
+                                  Line((xs, y_back), start)]
     face = make_face(Wire.combine(edges)[0])
     return extrude(face, amount=z1 - z0).moved(Location((0, 0, z0)))
 
@@ -166,8 +149,58 @@ def relief_inner(d):
 
 
 def sweep_relief(d, face, off, y_start, ang):
-    pl = Plane(origin=(d["P_max"] + off, y_start, 0), x_dir=(-1, 0, 0), z_dir=(0, 1, 0))
-    return sweep(pl * face, path=valley_path(d, off, y_start, ang), transition=Transition.RIGHT)
+    path = valley_path(d, off, y_start, ang)
+    o, t = path.position_at(0), path.tangent_at(0)
+    pl = Plane(origin=(o.X, o.Y, 0), x_dir=(t.Y, -t.X, 0), z_dir=(-t.X, -t.Y, 0))
+    return sweep(pl * face, path=path, transition=Transition.RIGHT)
+
+
+def fade_region(d, inset):
+    """Plan region (extruded in Z) behind a curve that follows the rib crests along the lens and
+    closes in onto the valley line at both ends, so the ribs fade out there. `inset` moves it inward
+    (for the cavity, so the wall keeps its thickness)."""
+    path = valley_path(d, 0, d["D_back"])
+    # ribs are gone just before the end edge reaches them at the top (the edge is slanted, so the
+    # top of the lens ends first); from there the amber is a smooth horn down to the bottom tip
+    x_top = d["L_proj"] - d["end_slant"]
+    th_top = math.asin(min((x_top - d["xs"]) / d["Rg"], 1.0)) - math.radians(3)
+    S = sum(e.length for e in path.edges()[:2]) + d["Rg"] * th_top          # edges: inboard sweep, straight, wrap
+    full = d["P_max"] + 6.0
+    pts = []
+    n = 260
+    for i in range(n + 1):
+        s_ = path.length * i / n
+        a = min(s_ / d["fade_in"], 1.0); b = min(max(S - s_, 0.0) / d["fade_out"], 1.0)
+        f = (a * a * (3 - 2 * a)) * (b * b * (3 - 2 * b))
+        p = path.position_at(s_, position_mode=PositionMode.LENGTH)
+        t = path.tangent_at(s_, position_mode=PositionMode.LENGTH)
+        out = Vector(t.Y, -t.X)                              # outward from the valley line
+        e = (full + 1.0) * f - 1.0 - inset              # fully faded = 1 mm inside the body (clean union)
+        pts.append((p.X + out.X * e, p.Y + out.Y * e))
+    # close behind the lens: carry on past the outboard end wall (into the body), then round the back
+    t_end = path.tangent_at(1.0)
+    ext = (pts[-1][0] + t_end.X * 200, pts[-1][1] + t_end.Y * 200)
+    far = 600.0
+    pts += [ext, (ext[0], far), (pts[0][0], far)]
+    with BuildSketch() as sk:
+        with BuildLine():
+            Polyline(*pts, close=True)
+        make_face()
+    return extrude(sk.sketch, amount=d["H"] + 20).moved(Location((0, 0, -10)))
+
+
+def slant_keep(d, inset):
+    """Half-space (as a big prism along Y) on the inboard side of the slanted amber end cut."""
+    H, L = d["H"], d["L_proj"]
+    x0, x1 = L + 0.5 - d["end_slant"], L + 0.5          # cut line at z = H and z = 0
+    n = Vector(H, 0, x1 - x0).normalized()               # plane normal in XZ (points outboard)
+    off = n * inset
+    pts = [(-500, -500), (x1 + (x1 - x0) * 500 / H, -500), (x0 - (x1 - x0) * 500 / H, H + 500), (-500, H + 500)]
+    with BuildSketch(Plane.XZ) as sk:
+        with BuildLine():
+            Polyline(*pts, close=True)
+        make_face()
+    return extrude(sk.sketch, amount=600, both=True).moved(Location((-off.X, 0, -off.Z)))
 
 
 def front_trim(d, inset):
@@ -191,19 +224,20 @@ def make_bodies(p=P):
     d = derived(p)
     t, fw, D, H = d["t"], d["flange_w"], d["D_back"], d["H"]
     A, R_back = d["A"], d["Rg"] - D
-    outer = (core(d, 0, D, A, 0, H) + sweep_relief(d, relief_outer(d), 0, D, A)) & front_trim(d, 0)
+    outer = (core(d, 0, D, A, 0, H) + (sweep_relief(d, relief_outer(d), 0, D, A) & fade_region(d, 0))) \
+        & front_trim(d, 0) & slant_keep(d, 0)
 
     # Cavity: wall-offset chamber + back opening that leaves a seal flange of width fw.
-    chamber = core(d, t, D - t, A, t, H - t) + sweep_relief(d, relief_inner(d), t, D - t, A)
+    chamber = core(d, t, D - t, A, t, H - t) + (sweep_relief(d, relief_inner(d), t, D - t, A) & fade_region(d, t))
     # back opening: behind the flat back in the straight part, inside the back cylinder in the wrap
     behind = box(-50, d["xs"], D - t - 0.5, D + 10, -50, 500) + (
         Cylinder(R_back + t + 0.5, 500).moved(Location((d["xs"], d["Rg"], 0))) & box(d["xs"], 1000, -1000, 1000, -50, 500))
     opening = core(d, fw, D + 10, A, fw, H - fw) & behind
-    cavity = (chamber + opening) & front_trim(d, t)
+    cavity = (chamber + opening) & front_trim(d, t)   # open at the amber end edge, like the real one
     shell = outer - cavity
-    # Flat back flange plate: at the inboard end it reaches out to the rib crests, so seen
-    # from behind the end is a straight edge (as on the real lens), not the rib scallops.
-    plate = (box(0, d["xs"], D - t, D, 0, H) & front_trim(d, 0)) - opening
+    # Flat back flange plate over the straight part (the inboard end sweeps back into it).
+    x_plate = valley_path(d, 0, D).position_at(0).X
+    plate = (box(x_plate, d["xs"], D - t, D, 0, H) & front_trim(d, 0)) - opening
     shell += plate
 
     # Inner partitions and the raised stop-lamp box (all clipped to the cavity).
