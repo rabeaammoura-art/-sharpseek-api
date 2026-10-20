@@ -2,7 +2,7 @@
 
 Usage: python bambu_slice.py [--support] [--printer NAME] [--process NAME]
                              [--filament NAME] [--plate TYPE] [--price-kg N] [--kwh-price N]
-                             [--watts N] part.stl ...
+                             [--watts N] [--set KEY=VALUE ...] [--out DIR] part.stl ...
 
 Defaults: Bambu Lab H2D 0.4 nozzle, 0.20mm Standard, Bambu ASA, Textured PEI Plate.
 Each part is sliced on its own plate; prints time, filament weight and cost per part and in total.
@@ -15,7 +15,6 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).parent
-OUT = ROOT / "out" / "bambu"
 CLI = str(ROOT / "bambu-studio")
 
 
@@ -67,15 +66,27 @@ def main():
     ap.add_argument("--price-kg", type=float, default=8.0, help="filament price per kg (JOD)")
     ap.add_argument("--kwh-price", type=float, default=0.10, help="electricity price per kWh (JOD)")
     ap.add_argument("--watts", type=float, default=350.0, help="average printer power draw")
+    ap.add_argument("--set", action="append", default=[], metavar="KEY=VALUE",
+                    help="override a setting, e.g. --set wall_loops=3 --set sparse_infill_density=10%%; "
+                         "prefix machine. or filament. for those profiles")
+    ap.add_argument("--out", type=Path, default=ROOT / "out" / "bambu", help="output directory")
     a = ap.parse_args()
 
+    OUT = a.out
     OUT.mkdir(parents=True, exist_ok=True)
     machine = flatten("machine", a.printer)
     process = flatten("process", a.process)
     process["curr_bed_type"] = a.plate
+    filament = flatten("filament", a.filament)
     if a.support:
         process.update(enable_support="1", support_type="tree(auto)")
-    for name, d in (("machine", machine), ("process", process), ("filament", flatten("filament", a.filament))):
+    for kv in a.set:
+        key, value = kv.split("=", 1)
+        target = {"machine": machine, "filament": filament}.get(key.split(".")[0], process)
+        key = key.split(".", 1)[1] if target is not process else key
+        # per-extruder settings are lists in the profile; set every entry
+        target[key] = [value] * len(target[key]) if isinstance(target.get(key), list) else value
+    for name, d in (("machine", machine), ("process", process), ("filament", filament)):
         json.dump(d, open(OUT / f"{name}.json", "w"), indent=1)
     cx, cy = plate_center(machine)
     total_s = total_g = 0.0
