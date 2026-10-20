@@ -1,10 +1,11 @@
 """Slice STLs with Bambu Studio using the official Bambu Lab system profiles.
 
 Usage: python bambu_slice.py [--support] [--printer NAME] [--process NAME]
-                             [--filament NAME] [--plate TYPE] part.stl ...
+                             [--filament NAME] [--plate TYPE] [--price-kg N] [--kwh-price N]
+                             [--watts N] part.stl ...
 
 Defaults: Bambu Lab H2D 0.4 nozzle, 0.20mm Standard, Bambu ASA, Textured PEI Plate.
-Each part is sliced on its own plate; prints time and filament weight per part.
+Each part is sliced on its own plate; prints time, filament weight and cost per part and in total.
 """
 import argparse
 import glob
@@ -63,6 +64,9 @@ def main():
     ap.add_argument("--filament", default="Bambu ASA @BBL H2D 0.4 nozzle")
     ap.add_argument("--plate", default="Textured PEI Plate")
     ap.add_argument("--support", action="store_true", help="enable tree(auto) supports")
+    ap.add_argument("--price-kg", type=float, default=30.0, help="filament price per kg")
+    ap.add_argument("--kwh-price", type=float, default=0.20, help="electricity price per kWh")
+    ap.add_argument("--watts", type=float, default=350.0, help="average printer power draw")
     a = ap.parse_args()
 
     OUT.mkdir(parents=True, exist_ok=True)
@@ -74,6 +78,7 @@ def main():
     for name, d in (("machine", machine), ("process", process), ("filament", flatten("filament", a.filament))):
         json.dump(d, open(OUT / f"{name}.json", "w"), indent=1)
     cx, cy = plate_center(machine)
+    total_s = total_g = 0.0
 
     for stl in map(Path, a.stl):
         part_dir = OUT / stl.stem
@@ -94,9 +99,24 @@ def main():
         plate = res["sliced_plates"][0]
         s = int(plate["total_predication"])
         grams = sum(f["total_used_g"] for f in plate["filaments"])
-        print(f"{stl.stem}: {s // 3600}h{s % 3600 // 60:02d}m  {grams:.1f} g  -> {part_dir / 'out.3mf'}")
+        total_s += s
+        total_g += grams
+        print(f"{stl.stem}: {hm(s)}  {grams:.1f} g  {cost(s, grams, a):.2f}  -> {part_dir / 'out.3mf'}")
         if plate["warning_message"]:
             print(f"  warning: {plate['warning_message']}")
+    filament = total_g / 1000 * a.price_kg
+    power = total_s / 3600 * a.watts / 1000 * a.kwh_price
+    print(f"TOTAL: {hm(total_s)}  {total_g:.1f} g  filament {filament:.2f} + electricity {power:.2f}"
+          f" = {filament + power:.2f}")
+
+
+def hm(seconds) -> str:
+    seconds = int(seconds)
+    return f"{seconds // 3600}h{seconds % 3600 // 60:02d}m"
+
+
+def cost(seconds, grams, a) -> float:
+    return grams / 1000 * a.price_kg + seconds / 3600 * a.watts / 1000 * a.kwh_price
 
 
 if __name__ == "__main__":

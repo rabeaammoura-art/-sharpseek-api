@@ -8,6 +8,8 @@
 | Slice (Bambu) | Bambu Studio CLI (Flathub) + official BBL profiles | `out/bambu/<part>/out.3mf` + print time & weight |
 | Preview | matplotlib | `out/<part>.png` |
 
+In Claude Code: `/3d-cost <files or zip>` slices with Bambu Studio and reports time + cost.
+
 ## Usage
 
 ```bash
