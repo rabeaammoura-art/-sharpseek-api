@@ -64,8 +64,8 @@ def main():
     ap.add_argument("--filament", default="Bambu ASA @BBL H2D 0.4 nozzle")
     ap.add_argument("--plate", default="Textured PEI Plate")
     ap.add_argument("--support", action="store_true", help="enable tree(auto) supports")
-    ap.add_argument("--price-kg", type=float, default=30.0, help="filament price per kg")
-    ap.add_argument("--kwh-price", type=float, default=0.20, help="electricity price per kWh")
+    ap.add_argument("--price-kg", type=float, default=8.0, help="filament price per kg (JOD)")
+    ap.add_argument("--kwh-price", type=float, default=0.10, help="electricity price per kWh (JOD)")
     ap.add_argument("--watts", type=float, default=350.0, help="average printer power draw")
     a = ap.parse_args()
 

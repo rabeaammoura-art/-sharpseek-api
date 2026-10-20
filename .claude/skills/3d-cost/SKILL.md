@@ -18,7 +18,7 @@ Arguments: $ARGUMENTS
    ```
    Pass through any `--printer`, `--process`, `--filament`, `--plate`, `--price-kg`,
    `--kwh-price`, `--watts` the user gave. Defaults: H2D 0.4 nozzle, 0.20mm Standard,
-   Bambu ASA, 30 per kg, 0.20 per kWh, 350 W.
+   Bambu ASA, 8 JOD per kg, 0.10 JOD per kWh, 350 W. Report costs in JOD (دينار).
 4. If a part reports a "floating regions" warning without supports, re-run it with `--support`.
    If a part FAILS because it does not fit the plate, say so (give its size from
    `prusa-slicer --info`) instead of guessing numbers.
