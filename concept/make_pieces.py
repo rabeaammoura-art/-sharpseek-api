@@ -11,7 +11,7 @@ PXMM=5.0                                                   # 5 px per mm  (0.2 m
 param=int(round(LEN_CM*10*PXMM))                           # stl_to_mask scales to this many px
 subprocess.run(["python3","stl_to_mask.py",str(param)],check=True,capture_output=True)
 mat=np.load(f"e30_ref/mask_{param}.npy"); H,W=mat.shape
-T=4.0; CLR=0.2; TW,TH=31.5,31.0; MAXJ=5; MINSP=6.0     # thickness, clearance (mm), bed (cm), joints per seam, min spacing (cm)
+T=4.0; CLR=0.2; TW,TH=32.0,31.5; MAXJ=5; MINSP=6.0     # thickness, clearance (mm), bed (cm), joints per seam, min spacing (cm)
 xs=(np.arange(W)+0.5)/(PXMM*10); ys=(H-0.5-np.arange(H))/(PXMM*10)            # cm
 lab=np.zeros((H,W),np.int8)
 for i,(th,d) in enumerate(LINES): lab+=(((xs[None,:]*math.cos(th)+ys[:,None]*math.sin(th))>d).astype(np.int8)<<i)
@@ -49,6 +49,13 @@ for i,(th,d) in enumerate(LINES):
 print(f"{TAG}: {len(joints)} joints",{k:len(v) for k,v in {p:[j for j in joints if j[2]==p] for p in set(j[2] for j in joints)}.items()})
 # ---- build region masks + joints
 M={r:(mat&(lab==r)) for r in np.unique(lab[mat])}
+def _score(m):
+    yy,xx=np.where(m[::10,::10]); P=np.stack([xx*10/PXMM,yy*10/PXMM],1)
+    h=P[ConvexHull(P).vertices] if len(P)>3 else P; best=9
+    for a in np.radians(np.arange(0,180,2)):
+        c,s_=np.cos(a),np.sin(a); u=h[:,0]*c+h[:,1]*s_; v=-h[:,0]*s_+h[:,1]*c; best=min(best,max((u.max()-u.min())/(TW*10),(v.max()-v.min())/(TH*10)))
+    return best
+SC={r:_score(M[r]) for r in M}
 def rrect(u0,u1,v0,v1,r=0.2,n=6):
     pts=[]
     for cu,cv,a0 in ((u1-r,v1-r,0),(u0+r,v1-r,90),(u0+r,v0+r,180),(u1-r,v0+r,270)):
@@ -57,10 +64,10 @@ def rrect(u0,u1,v0,v1,r=0.2,n=6):
 def draw(mask,pts_world,val):
     im=Image.fromarray(mask.astype(np.uint8)*255); ImageDraw.Draw(im).polygon([px(*p) for p in pts_world],fill=255 if val else 0); return np.array(im)>0
 for idx,(w,i,pair,sc,pos,n,t) in enumerate(joints):
-    a,b=pair; male,female=(a,b) if idx%2==0 else (b,a); nm=n if idx%2==0 else (-n[0],-n[1])
+    a,b=pair; male,female=(a,b) if SC[a]<=SC[b] else (b,a); nm=n if male==a else (-n[0],-n[1])
     W2=lambda u,v:(pos[0]+(u*t[0]+v*nm[0])/10, pos[1]+(u*t[1]+v*nm[1])/10)         # (u along seam, v male->female) mm -> world cm
-    mpad=[W2(u*10,v*10) for u,v in rrect(-0.9,0.9,-1.2,0.05)]; tab=[W2(*p) for p in ((-3,-0.5),(3,-0.5),(5,8.5),(-5,8.5))]
-    fpad=[W2(u*10,v*10) for u,v in rrect(-0.9,0.9,-0.05,1.6)]; sock=[W2(*p) for p in ((-(3+CLR),-0.3),(3+CLR,-0.3),(5+CLR,8.5+CLR),(-(5+CLR),8.5+CLR))]
+    mpad=[W2(u*10,v*10) for u,v in rrect(-0.9,0.9,-1.2,0.0)]; tab=[W2(*p) for p in ((-3,-0.5),(3,-0.5),(5,8.5),(-5,8.5))]
+    fpad=[W2(u*10,v*10) for u,v in rrect(-0.9,0.9,0.0,1.6)]; sock=[W2(*p) for p in ((-(3+CLR),-0.3),(3+CLR,-0.3),(5+CLR,8.5+CLR),(-(5+CLR),8.5+CLR))]
     M[male]=draw(draw(M[male],mpad,1),tab,1); M[female]=draw(draw(M[female],fpad,1),sock,0)
 names={r:chr(65+i) for i,r in enumerate(sorted(M))}
 # overlap between pieces (should be only 0)
@@ -105,8 +112,8 @@ for r in sorted(M):
     rows.append((names[r],du/10,dv/10,sc_<=1,sub.sum()/PXMM**2/100)); print(f"  piece {names[r]}: {du/10:.1f} x {dv/10:.1f} cm on plate, fits {sc_<=1}, material {sub.sum()/PXMM**2/100:.0f} cm2")
 # ---- overview picture
 fig,ax=plt.subplots(figsize=(13,6.8)); cols=["#e07a5f","#81b29a","#f2cc8f","#9b5de5","#00b4d8","#3d405b","#6a994e","#bc4749"]
-img=np.ones((H//5,W//5,3))*0.97
-for k,r in enumerate(sorted(M)): sm=M[r][::5,::5]; img[:sm.shape[0],:sm.shape[1]][sm]=matplotlib.colors.to_rgb(cols[k%8])
+img=np.ones(M[sorted(M)[0]][::5,::5].shape+(3,))*0.97
+for k,r in enumerate(sorted(M)): sm=M[r][::5,::5]; img[sm]=matplotlib.colors.to_rgb(cols[k%8])
 ax.imshow(img,extent=[0,W/PXMM/10,0,H/PXMM/10],origin="upper",interpolation="nearest")
 for w,i,pair,sc,pos,n,t in joints: ax.plot(*pos,marker="D",color="k",ms=7,mfc="yellow")
 for k,r in enumerate(sorted(M)):
