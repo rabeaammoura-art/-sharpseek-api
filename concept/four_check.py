@@ -31,7 +31,7 @@ def job(args):
     return None
 G={}
 if __name__=="__main__":
-    for L in (940,900,860,820,780):
+    for L in (740,700,660,620):
         G[L]=load(L)
         with Pool(4) as p:
             r=[x for x in p.map(job,[(L,cx,cy) for cx in range(16,80,3) for cy in range(8,40,3)]) if x]
