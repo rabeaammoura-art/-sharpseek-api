@@ -12,7 +12,9 @@ def px(p): return ((p[0]-x0)*k*PXCM,(p[1]-y0)*k*PXCM)
 im=Image.new('L',(Wp,Hp),0); d=ImageDraw.Draw(im)
 for pl in P: d.line([px(p) for p in pl],fill=255,width=4)
 m=np.array(im)>0
-m=ndi.binary_closing(m,iterations=3)
+def _disk(r):
+    y,x=np.ogrid[-r:r+1,-r:r+1]; return x*x+y*y<=r*r
+m=ndi.binary_closing(np.pad(m,60),structure=_disk(35))[60:-60,60:-60]
 m=ndi.binary_fill_holes(m)
 m=ndi.binary_opening(m,iterations=2)
 print("silhouette area m2: %.3f"%(m.sum()/1e6))   # px = mm2 -> m2 = px/1e6

@@ -47,7 +47,7 @@ def trial(args):
 if __name__=="__main__":
     results=[]
     with Pool(4) as p:
-        for k,cnt in ((2,400),(3,500),(4,500)):
+        for k,cnt in ((3,600),(4,600),(5,500)):
             jobs=[(k,s*7+k,cnt) for s in range(8)]
             rs=[r for r in p.map(trial,jobs) if r]
             if rs:
