@@ -14,7 +14,8 @@ mat=np.load(f"e30_ref/mask_{param}.npy"); H,W=mat.shape
 T=4.0; CLR=0.2; TW,TH=32.0,31.5; MAXJ=3; MINSP=6.0     # thickness, clearance (mm), bed (cm), joints per seam, min spacing (cm)
 xs=(np.arange(W)+0.5)/(PXMM*10); ys=(H-0.5-np.arange(H))/(PXMM*10)            # cm
 from scipy import ndimage as ndi
-BAND=3.0; WIDE=16.0                                         # seam may wander +-3 cm ; pads hide inside material wider than 16 mm
+import os
+BAND=float(os.environ.get("BAND","3.0")); WIDE=16.0                                         # seam may wander +-3 cm ; pads hide inside material wider than 16 mm
 edt=ndi.distance_transform_edt(mat)/PXMM*2                  # local material width, mm
 cost=np.where(mat,2.0+58.0*np.clip(1-edt/WIDE,0,1),1.0).astype(np.float32)
 def at_px(x,y):
@@ -39,6 +40,12 @@ for i,(th,d) in enumerate(LINES):
     n=(math.cos(th),math.sin(th)); t=(-math.sin(th),math.cos(th)); p0=(d*n[0],d*n[1])
     sg_,dl=SEAM[i]; S_=(xs[None,:]-p0[0])*t[0]+(ys[:,None]-p0[1])*t[1]; U_=(xs[None,:]-p0[0])*n[0]+(ys[:,None]-p0[1])*n[1]
     lab+=((U_>np.interp(S_,sg_,dl)).astype(np.int8)<<i)
+mm2=np.bincount(lab[mat].ravel(),minlength=1<<len(LINES))/PXMM**2          # merge tiny regions (< 15 cm2) into their neighbour
+for r_ in range(len(mm2)):
+    if 0<mm2[r_]<1500:
+        reg=(lab==r_); dil=ndi.binary_dilation(reg,iterations=int(8*PXMM))&~reg
+        nb=np.bincount(lab[dil&mat].ravel(),minlength=len(mm2)); nb[r_]=0
+        if nb.sum()>0: lab[reg]=int(np.argmax(nb)); print("merged tiny region",r_,"->",int(np.argmax(nb)),"(%.0f mm2)"%mm2[r_])
 def px(x,y): return (x*10*PXMM, H-1-y*10*PXMM)                                   # cm -> pixel (col,row)
 def at(x,y):
     c=int(round(x*10*PXMM)); r=int(round(H-1-y*10*PXMM))
