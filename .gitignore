@@ -1,2 +1,5 @@
 .venv-cad/
 __pycache__/
+
+# third-party design file and derivatives (licensed, personal use only)
+concept/e30_ref/
