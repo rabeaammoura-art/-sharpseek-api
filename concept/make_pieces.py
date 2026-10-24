@@ -72,6 +72,9 @@ for idx,(w,i,pair,sc,pos,n,t) in enumerate(joints):
 names={r:chr(65+i) for i,r in enumerate(sorted(M))}
 # overlap between pieces (should be only 0)
 ov=sum(int((M[a]&M[b]).sum()) for a in M for b in M if a<b); print("overlap pixels between pieces:",ov)
+U=np.zeros_like(mat)
+for r_ in M: U|=M[r_]
+print("visible added area mm2:",round(float((U&~mat).sum())/PXMM**2),"| material removed (sockets) mm2:",round(float((mat&~U).sum())/PXMM**2))
 # ---- polygonise, rotate to fit the bed, export
 def rdp(pts,eps):
     pts=np.array(pts); keep=np.zeros(len(pts),bool); keep[0]=keep[-1]=True; st=[(0,len(pts)-1)]
