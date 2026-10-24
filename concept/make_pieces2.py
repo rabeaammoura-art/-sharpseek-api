@@ -6,6 +6,9 @@ from scipy.spatial import ConvexHull
 from build123d import Face, Wire, Solid, Compound, export_stl
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
 LEN_CM=float(sys.argv[1]); TAG=sys.argv[2]
+import os
+COLOR=os.environ.get('COLOR','0')=='1'
+from zones import zone_masks, ZONES
 LINES=[(math.radians(float(a)),float(b)) for a,b in (s.split(",") for s in sys.argv[3].split(";"))]
 PXMM=5.0                                                   # 5 px per mm  (0.2 mm / px)
 param=int(round(LEN_CM*10*PXMM))                           # stl_to_mask scales to this many px
@@ -134,7 +137,8 @@ def best_rot(allpts):
         sc=max(du/(TW*10),dv/(TH*10))
         if best is None or sc<best[0]: best=(sc,a,du,dv)
     return best
-files=[]; rows=[]
+files=[]; rows=[]; cfiles=[]
+ZM=zone_masks(mat.shape,PXMM,LEN_CM) if COLOR else None
 for r in sorted(M):
     m=M[r]; yy,xx=np.where(m); y0,y1,x0,x1=yy.min(),yy.max(),xx.min(),xx.max(); sub=m[y0:y1+1,x0:x1+1]; h,w=sub.shape
     gen=contourpy.contour_generator(z=np.pad(sub.astype(float),1),fill_type=FillType.OuterOffset); P,O=gen.filled(0.5,np.inf)
@@ -153,6 +157,24 @@ for r in sorted(M):
         wf=lambda rg:Wire.make_polygon([tr(p) for p in rg],close=True)
         sol.append(Solid.extrude(Face(wf(rings[0]),[wf(q) for q in rings[1:]]),(0,0,T)))
     f=f"e30_ref/{TAG}_{names[r]}.stl"; export_stl(Compound(sol),f); files.append(f)
+    if COLOR:
+        def part(mask_full,z0,hh,fname):
+            sub=mask_full[y0:y1+1,x0:x1+1]
+            if sub.sum()<50: return
+            gen=contourpy.contour_generator(z=np.pad(sub.astype(float),1),fill_type=FillType.OuterOffset); P2,O2=gen.filled(0.5,np.inf); sl=[]
+            for pts,off in zip(P2,O2):
+                rings=[]
+                for a_,b_ in zip(off[:-1],off[1:]):
+                    rg=[((x-1)/PXMM,(h-1-(y-1))/PXMM) for x,y in pts[a_:b_]][:-1]
+                    if len(rg)>=3: rings.append(rdp(rg+[rg[0]],0.05)[:-1])
+                if not rings: continue
+                wfz=lambda rg:Wire.make_polygon([(rot(p)[0]-mn[0],rot(p)[1]-mn[1],z0) for p in rg],close=True)
+                sl.append(Solid.extrude(Face(wfz(rings[0]),[wfz(q) for q in rings[1:]]),(0,0,hh)))
+            if sl: export_stl(Compound(sl),fname); cfiles.append(fname)
+        zany=np.zeros_like(m)
+        for zn,(col,_) in ZONES.items():
+            zk=m&ZM[zn]; zany|=zk; part(zk,2.8,4.2,f"e30_ref/{TAG}_{names[r]}_{col}.stl")
+        part(m,0.0,2.8,f"e30_ref/{TAG}_{names[r]}_black_base.stl"); part(m&~zany,2.8,1.2,f"e30_ref/{TAG}_{names[r]}_black_top.stl")
     rows.append((names[r],du/10,dv/10,sc_<=1,sub.sum()/PXMM**2/100)); print(f"  piece {names[r]}: {du/10:.1f} x {dv/10:.1f} cm on plate, fits {sc_<=1}, material {sub.sum()/PXMM**2/100:.0f} cm2")
 # ---- overview picture
 fig,ax=plt.subplots(figsize=(13,6.8)); cols=["#e07a5f","#81b29a","#f2cc8f","#9b5de5","#00b4d8","#3d405b","#6a994e","#bc4749"]
@@ -165,3 +187,4 @@ for k,r in enumerate(sorted(M)):
 ax.set_xticks(range(0,int(LEN_CM)+1,10)); ax.set_yticks(range(0,int(H/PXMM/10)+1,10)); ax.grid(True,color="#ccc",lw=.5); ax.set_xlabel("cm"); ax.set_ylabel("cm")
 ax.set_title(f"{TAG}: {LEN_CM:.0f} cm, {len(M)} pieces, {len(joints)} dovetail joints (yellow diamonds)"); fig.tight_layout(); fig.savefig(f"e30_ref/{TAG}_plan.png",dpi=100)
 open(f"e30_ref/{TAG}_files.txt","w").write("\n".join(files))
+if COLOR: open(f"e30_ref/{TAG}_colorfiles.txt","w").write("\n".join(cfiles))
