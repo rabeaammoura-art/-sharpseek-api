@@ -1,0 +1,10 @@
+numpy
+scipy
+shapely>=2.0
+manifold3d
+fonttools
+opencv-python-headless
+potracer
+matplotlib
+Pillow
+pytest

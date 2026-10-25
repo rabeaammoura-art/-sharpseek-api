@@ -1,0 +1,9 @@
+{
+  "autodeleteType": 1,
+  "autodelete": false,
+  "author": "3D ZONE TECH",
+  "description": {"": "Build a student pack (tag, pencil, ruler, bottle tag) from pack.json written by generate.py: one body per colour, exact layer heights, teardrop pencil tunnel."},
+  "supportedOS": "windows|mac",
+  "type": "script",
+  "version": "1.0.0"
+}
