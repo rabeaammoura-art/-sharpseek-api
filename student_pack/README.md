@@ -66,3 +66,18 @@ Smaller extras: `--set 'flush_multiplier=[0.3]'` saves ~15 min per plate (risk: 
 colours over the two H2D nozzles (`filament_maps` 1 2 1 2) saved ~14 min in the slicer but is unverified on the printer.
 **Do not** change to 0.24 mm layers (white tops out at 3.08, black at 2.12) or switch the prime tower off (not verified).
 The remaining time is mostly the design itself: raised colours in 8 layers (18 changes per piece) and the 12 mm pencil plates.
+
+## Fewer colours (themes `construction3`, `construction2`)
+Same traced art, white merged into black (windows, cone stripes), orange merged into yellow for 2 colours, name letters in
+yellow with a black ring, yellow ruler body with black ticks. `--theme construction2` / `construction3`.
+Sliced (H2D, PETG, 0.20 mm, one kid, one plate with all four pieces):
+
+| version | time | filament (model + purge) |
+|---|---|---|
+| 4 colours (black, yellow, orange, white) | 2 h 58 | 62.8 g (43.2 + 19.6) |
+| 3 colours (black, yellow, orange) | 2 h 28 | 52.9 g (41.6 + 11.3) |
+| 2 colours (black, yellow) | 2 h 07 | 48.1 g (41.5 + 6.7) |
+| 2 colours, two kids on one plate | 3 h 43 | 88.0 g -> **1 h 52 per kid** |
+
+Layer tops checked in the G-code (black 2.2, yellow 2.8; plate 11.6 mm on the pencil). The remaining ~2 h is plain printing
+(1.6 mm solid base + the 12 mm pencil plate), not colour changes.

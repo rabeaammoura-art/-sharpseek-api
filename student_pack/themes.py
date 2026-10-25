@@ -63,3 +63,21 @@ THEMES = {
         },
     ),
 }
+
+
+def _derive(base, name, label, remap, **over):
+    """Fewer-colour variant of a traced theme: motif layers are merged by `remap` (e.g. white -> black) and the
+    layer stack / name styling / ruler layout are overridden.  Same art, fewer filament changes."""
+    d = dict(THEMES[base], label=label, variant_of=base, remap=remap)
+    d.update(over)
+    THEMES[name] = d
+
+
+_derive("construction", "construction3", "Construction, 3 colours (black, yellow, orange)", {"white": "black"},
+        letters="yellow", filament_rgb={"black": "#1C1C1C", "yellow": "#F6BA1C", "orange": "#FA7614"},
+        heights={"black": 2.2, "yellow": 2.8, "orange": 2.8}, text_rings=[("black", 2.2)],
+        ruler=dict(band="yellow", ticks="black", rim="black", rim_w=1.6, stripes="black", body="yellow", halo=1.2))
+_derive("construction", "construction2", "Construction, 2 colours (black, yellow)", {"white": "black", "orange": "yellow"},
+        letters="yellow", filament_rgb={"black": "#1C1C1C", "yellow": "#F6BA1C"},
+        heights={"black": 2.2, "yellow": 2.8}, text_rings=[("black", 2.2)],
+        ruler=dict(band="yellow", ticks="black", rim="black", rim_w=1.6, stripes="black", body="yellow", halo=1.2))

@@ -290,6 +290,9 @@ def ruler(theme, name):
         t = text_geom(str(cm), 3.2, BOLD)
         b = t.bounds
         numbers.append(affinity.translate(t, x0 + cm * 10 - (b[0] + b[2]) / 2, num_base))
+    layout_top = H - rim + 0.01
+    if rc["body"]:    # keep the 0.5 mm gaps between ticks in the body colour (they are thinner than the 0.8 mm clean-up)
+        ops.append((rc["body"], box(x0 - 1.5, num_base - 0.4, x0 + RULER_MM + 1.5, layout_top).intersection(inner), True))
     ops.append((rc["ticks"], unary_union(ticks + numbers), True))
     zone_top = num_base - 0.8
     zone_bot = rim + stripe_h + (0.4 if stripe_h else 1.2)
@@ -311,10 +314,15 @@ def ruler(theme, name):
     nx = free_l + (free_r - free_l - tw) / 2
     ny = zone_bot + (zone_h - th_) / 2
     nops = [(c, affinity.translate(g, nx, ny), e) for c, g, e in nops]
-    if left:
-        ops += [(c, g, False) for c, g in place(left, margin, zone_bot + (zone_h - left["height"] * sl) / 2 if not stripe_h else zone_bot, sl)]
-    if right:
-        ops += [(c, g, False) for c, g in place(right, W - margin - wr, zone_bot + (zone_h - right["height"] * sr) / 2 if not stripe_h else zone_bot, sr)]
+    halo = rc.get("halo")      # body colour = motif colour: give each motif a sticker outline in the outline colour
+    for m_, s_, x_ in ((left, sl, margin), (right, sr, W - margin - wr)):
+        if not m_:
+            continue
+        y_ = zone_bot + (zone_h - m_["height"] * s_) / 2 if not stripe_h else zone_bot
+        placed = place(m_, x_, y_, s_)
+        if halo:
+            ops.append((th["outline"], unary_union([g for _, g in placed]).buffer(halo, join_style=1), False))
+        ops += [(c, g, False) for c, g in placed]
     ops += nops
     # keep everything inside the rim
     ops = [(c, g.intersection(inner) if c not in (rc["rim"],) else g, e) for c, g, e in ops]
