@@ -84,6 +84,7 @@ a.card:hover { border-color: var(--accent); }
 /* product page */
 .pdp { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem; align-items: start; }
 @media (max-width: 860px) { .pdp { grid-template-columns: minmax(0, 1fr); } }
+.lightbox { position: fixed; inset: 0; z-index: 99; background: rgba(0,0,0,.88); display: grid; place-items: center; padding: 1rem; cursor: zoom-out; } .lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; background: #fff; border-radius: 8px; } .lightbox button { position: absolute; top: 1rem; inset-inline-end: 1rem; }
 .spec { width: 100%; border-collapse: collapse; font-size: .94rem; } .spec th, .spec td { text-align: start; padding: .55rem .2rem; border-bottom: 1px solid var(--line); vertical-align: top; }
 .spec th { width: 34%; color: var(--muted); font-weight: 500; } .spec td.m { font-family: var(--f-mono); direction: ltr; text-align: start; unicode-bidi: isolate; }
 .price { font: 800 2rem var(--f-display); } .price small { font: 600 1rem var(--f-body); color: var(--muted); margin-inline-start: .3rem; }
@@ -242,7 +243,14 @@ function askForm(pid) {
     <div class="row">${API ? '<button class="btn primary" id="aSend" type="button">أرسل الطلب</button>' : ""}<a class="btn primary" id="aWa" href="#" target="_blank" rel="noopener" ${API ? "hidden" : ""}>أرسل على واتساب</a><button class="btn" id="aCopy" type="button">انسخ الطلب</button></div>
     <p class="hint" id="aNote"></p><div class="ok" id="aOk" hidden></div></form>`;
 }
+function zoom(src) {
+  const o = document.createElement("div"); o.className = "lightbox"; o.setAttribute("role", "dialog"); o.setAttribute("aria-label", "عرض الصورة");
+  o.innerHTML = `<img src="${src}" alt=""><button type="button" class="iconbtn" aria-label="إغلاق">✕</button>`;
+  const close = () => { o.remove(); document.removeEventListener("keydown", onKey); }, onKey = (e) => e.key === "Escape" && close();
+  o.onclick = close; document.addEventListener("keydown", onKey); document.body.appendChild(o);
+}
 function bindGallery() {
+  const m = document.getElementById("gMain"); if (m) { m.style.cursor = "zoom-in"; m.onclick = () => zoom(m.src); }
   const t = document.getElementById("gThumbs"); if (!t) return;
   t.onclick = (e) => { const b = e.target.closest("button[data-src]"); if (b) document.getElementById("gMain").src = b.dataset.src; };
 }
