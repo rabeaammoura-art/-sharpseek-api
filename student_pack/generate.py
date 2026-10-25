@@ -102,6 +102,32 @@ def build(name, theme, outdir, pieces=PIECES, slice_=False):
     return out
 
 
+def build_plate(jobs, outdir, pieces=PIECES, slice_=False):
+    """All pieces of all kids of ONE theme on a single plate: each layer needs its colour changes only once for every
+    piece on the plate, so the time per piece drops a lot.  Returns the 3MF path."""
+    themes = {t for _, t in jobs}
+    if len(themes) != 1:
+        raise SystemExit("--plate needs kids of the same theme (otherwise 8 filaments); run it once per theme")
+    theme = themes.pop()
+    items = []
+    for name, _ in jobs:
+        base = re.sub(r"[^A-Za-z0-9]+", "_", name).strip("_").lower()
+        for kind in pieces:
+            p = layout.KINDS[kind](theme, name)
+            items.append((p, mesh.solids(p), f"{base}_{kind}"))
+    pos = mesh.arrange([i[0] for i in items])
+    ys = [y + i[0].size[1] for (i, (x, y)) in zip(items, pos)]
+    if max(ys) - min(y for _, y in pos) > 290:
+        raise SystemExit(f"{len(items)} pieces do not fit one plate (max ~8 pieces = 2 kids with all four pieces); use fewer kids or --pieces")
+    out = Path(outdir); out.mkdir(parents=True, exist_ok=True)
+    path = out / ("plate_" + "_".join(re.sub(r"[^A-Za-z0-9]+", "", n).upper() for n, _ in jobs) + f"_{theme}.3mf")
+    mesh.write_plate_3mf(path, [(p, s, n, xy) for (p, s, n), xy in zip(items, pos)])
+    print(f"plate {path.name}: {len(items)} pieces")
+    if slice_:
+        subprocess.run([sys.executable, str(HERE / "verify_slice.py"), str(path)], check=False)
+    return path
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--name")
@@ -110,6 +136,7 @@ def main():
     ap.add_argument("--out", default=str(HERE / "out"))
     ap.add_argument("--pieces", default=",".join(PIECES))
     ap.add_argument("--slice", action="store_true", help="slice every 3MF in Bambu Studio (time + grams)")
+    ap.add_argument("--plate", action="store_true", help="also write ONE plate 3MF with every piece of every kid (same theme) - far less colour-change time")
     ap.add_argument("--list-themes", action="store_true")
     a = ap.parse_args()
     if a.list_themes:
@@ -121,7 +148,9 @@ def main():
         ap.error("give --name and --theme (or --pack NAME:THEME ...)")
     for name, theme in jobs:
         print(f"{name} / {theme}")
-        build(name, theme, a.out, a.pieces.split(","), a.slice)
+        build(name, theme, a.out, a.pieces.split(","), a.slice and not a.plate)
+    if a.plate:
+        build_plate(jobs, a.out, a.pieces.split(","), a.slice)
 
 
 if __name__ == "__main__":

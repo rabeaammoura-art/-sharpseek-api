@@ -24,16 +24,14 @@ OUT = HERE / "out" / "bambu"
 
 
 def set_plate_position(src: Path, dst: Path, cx, cy):
-    """Copy the 3MF with its build item centred on the (cx, cy) plate point."""
+    """Copy the 3MF with every build item moved from the generator's (128, 128) plate centre to the real plate centre."""
     with zipfile.ZipFile(src) as zi, zipfile.ZipFile(dst, "w", zipfile.ZIP_DEFLATED) as zo:
         for n in zi.namelist():
             data = zi.read(n)
             if n == "3D/3dmodel.model":
                 s = data.decode()
-                verts = [tuple(map(float, m)) for m in re.findall(r'<vertex x="([-\d.]+)" y="([-\d.]+)"', s)]
-                xs, ys = [v[0] for v in verts], [v[1] for v in verts]
-                tx, ty = cx - (max(xs) + min(xs)) / 2, cy - (max(ys) + min(ys)) / 2
-                s = re.sub(r'(<item objectid="1" transform="1 0 0 0 1 0 0 0 1 )[-\d.]+ [-\d.]+', rf"\g<1>{tx:.3f} {ty:.3f}", s)
+                s = re.sub(r'(<item objectid="\d+" transform="1 0 0 0 1 0 0 0 1 )([-\d.]+) ([-\d.]+)',
+                           lambda m: f"{m.group(1)}{float(m.group(2)) + cx - 128:.3f} {float(m.group(3)) + cy - 128:.3f}", s)
                 data = s.encode()
             zo.writestr(n, data)
 
@@ -53,7 +51,10 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     machine, process = bs.flatten("machine", a.printer), bs.flatten("process", a.process)
     process["curr_bed_type"] = a.plate
-    process.update(wipe_tower_x=["190"], wipe_tower_y=["30"])   # keep the prime tower on the plate, clear of the part
+    pa = (machine.get("extruder_printable_area") or [",".join(machine["printable_area"])])[0]
+    pts = [tuple(map(float, p.split("x"))) for p in pa.split(",")]
+    cx, cy = (min(p[0] for p in pts) + max(p[0] for p in pts)) / 2, (min(p[1] for p in pts) + max(p[1] for p in pts)) / 2
+    process.update(wipe_tower_x=[str(int(cx + 100))], wipe_tower_y=["10"])   # prime tower in the free right-hand strip
     for kv in a.set:
         k, v = kv.split("=", 1)
         v = json.loads(v)
@@ -61,9 +62,6 @@ def main():
     fil = bs.flatten("filament", a.filament)
     for n, d in (("machine", machine), ("process", process), ("filament", fil)):
         json.dump(d, open(OUT / f"{n}.json", "w"), indent=1)
-    pa = (machine.get("extruder_printable_area") or [",".join(machine["printable_area"])])[0]
-    pts = [tuple(map(float, p.split("x"))) for p in pa.split(",")]
-    cx, cy = (min(p[0] for p in pts) + max(p[0] for p in pts)) / 2, (min(p[1] for p in pts) + max(p[1] for p in pts)) / 2
     tot_s = tot_g = 0.0
     for f in map(Path, a.files):
         d = OUT / f.stem

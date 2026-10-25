@@ -51,10 +51,18 @@ Studio (flush multiplier, assign 2 colours per H2D nozzle, smaller tower) once t
 One component per piece, one solid body per colour (named by colour), exact heights, real teardrop cut feature.
 The logic is smoke-tested against a fake `adsk` API only; **run it once in Fusion** and tell me what breaks.
 
-## Faster prints (verified against the G-code, OSAYD tag, H2D, PETG)
-Colour changes + purge dominate the time (18 tool changes per piece).
-- Default 0.20 mm: 57 min, purge 8.6 g. Layer tops exact: yellow/orange 2.8, white 3.2, black 2.2.
-- `--set 'flush_multiplier=[0.3]'` (same 0.20 mm layers, prime tower on): 50 min, purge 4.1 g, layer tops unchanged. Safe for
-  the geometry; lower flush can bleed colour (black→white) so test one real print before using it for the pack.
-- **Do not use** 0.24 mm layers: the stack no longer matches the spec (white tops out at 3.08 instead of 3.2, black at 2.12
-  instead of 2.2, colour boundaries off 1.6). Prime tower off is also not verified on the real H2D, so it isn't recommended.
+## Faster prints (all numbers sliced for the H2D, PETG, 0.20 mm; layer tops checked in the G-code)
+Each colour change costs about 2 min (flush, wipe, nozzle wait), and every layer that holds several colours needs
+them. The fix that works is to **share the changes between pieces**: `python generate.py --pack A:construction B:construction --plate`
+writes one plate 3MF (all pieces of all kids of one theme, shelf-packed, prime tower parked on the right).
+
+| plate | time | per kid |
+|---|---|---|
+| 4 pieces, one kid, separate plates (4 x 3MF) | ~4 h | 4 h |
+| one plate, one kid | 2 h 58 | 2 h 58 |
+| one plate, **two kids** (8 pieces, the most that fits) | 4 h 36 | **2 h 18** |
+
+Smaller extras: `--set 'flush_multiplier=[0.3]'` saves ~15 min per plate (risk: colour bleed, test first); splitting the four
+colours over the two H2D nozzles (`filament_maps` 1 2 1 2) saved ~14 min in the slicer but is unverified on the printer.
+**Do not** change to 0.24 mm layers (white tops out at 3.08, black at 2.12) or switch the prime tower off (not verified).
+The remaining time is mostly the design itself: raised colours in 8 layers (18 changes per piece) and the 12 mm pencil plates.
