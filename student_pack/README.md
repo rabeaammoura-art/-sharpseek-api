@@ -50,3 +50,8 @@ Studio (flush multiplier, assign 2 colours per H2D nozzle, smaller tower) once t
 `fusion360/StudentPack/` – Scripts and Add-Ins → “+” → pick the folder → run → choose `out/<kid>/pack.json`.
 One component per piece, one solid body per colour (named by colour), exact heights, real teardrop cut feature.
 The logic is smoke-tested against a fake `adsk` API only; **run it once in Fusion** and tell me what breaks.
+
+## Faster prints
+Colour changes + purge dominate the time. On the OSAYD tag (H2D, PETG): 57 min default → 50 min with
+`--set 'flush_multiplier=[0.3]'` → 44 min without prime tower → **37 min** with `--process "0.24mm Standard @BBL H2D"` too
+(purge 8.6 g → 1.6 g). Lower flush risks colour bleed (black→white), so test a real print first.

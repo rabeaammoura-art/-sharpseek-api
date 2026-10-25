@@ -45,6 +45,7 @@ def main():
     ap.add_argument("--process", default="0.20mm Standard @BBL H2D")
     ap.add_argument("--filament", default="Bambu PETG Basic @BBL H2D 0.4 nozzle")
     ap.add_argument("--plate", default="Textured PEI Plate")
+    ap.add_argument("--set", action="append", default=[], metavar="KEY=VALUE", help="override a process setting (value as JSON, e.g. flush_multiplier=[\"0.3\"])")
     ap.add_argument("--price-kg", type=float, default=8.0)
     ap.add_argument("--kwh-price", type=float, default=0.10)
     ap.add_argument("--watts", type=float, default=350.0)
@@ -53,6 +54,10 @@ def main():
     machine, process = bs.flatten("machine", a.printer), bs.flatten("process", a.process)
     process["curr_bed_type"] = a.plate
     process.update(wipe_tower_x=["190"], wipe_tower_y=["30"])   # keep the prime tower on the plate, clear of the part
+    for kv in a.set:
+        k, v = kv.split("=", 1)
+        v = json.loads(v)
+        process[k] = [str(x) for x in v] if isinstance(v, list) else str(v)   # presets want strings
     fil = bs.flatten("filament", a.filament)
     for n, d in (("machine", machine), ("process", process), ("filament", fil)):
         json.dump(d, open(OUT / f"{n}.json", "w"), indent=1)
