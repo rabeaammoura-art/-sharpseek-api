@@ -81,3 +81,11 @@ Sliced (H2D, PETG, 0.20 mm, one kid, one plate with all four pieces):
 
 Layer tops checked in the G-code (black 2.2, yellow 2.8; plate 11.6 mm on the pencil). The remaining ~2 h is plain printing
 (1.6 mm solid base + the 12 mm pencil plate), not colour changes.
+
+## Automation: theme + name + colours (2/3/4) + price
+- `python generate.py --name Lina --theme cat --colors 3` (also `--pack OSAYD:construction:2 SALLY:cat:4`).
+- `python pricing.py --catalog` slices every theme x colours x piece once (Bambu Studio, ~30 min) into `catalog.json`;
+  `python pricing.py` prints the price table. Money inputs are in `prices.json` (**assumed values, set your own**).
+- `python order.py orders.csv [--exact] [--plates]` reads `order_id,name,theme,colors,pieces,qty`, writes the print files per
+  order, `out/orders/quotes.csv`, and a quote per order (`--exact` slices the real pieces; `--plates` groups kids into plates
+  of two for shared colour changes). See `orders_example.csv`.

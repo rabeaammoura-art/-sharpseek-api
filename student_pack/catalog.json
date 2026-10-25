@@ -1,0 +1,128 @@
+{
+ "construction:2:tag": {
+  "seconds": 1627,
+  "grams": 10.12,
+  "model_g": 7.97
+ },
+ "construction:2:pencil": {
+  "seconds": 1811,
+  "grams": 11.2,
+  "model_g": 8.13
+ },
+ "construction:2:ruler": {
+  "seconds": 3502,
+  "grams": 22.8,
+  "model_g": 20.65
+ },
+ "construction:2:bottle": {
+  "seconds": 1187,
+  "grams": 6.87,
+  "model_g": 4.72
+ },
+ "construction:3:tag": {
+  "seconds": 2242,
+  "grams": 12.36,
+  "model_g": 7.98
+ },
+ "construction:3:pencil": {
+  "seconds": 2429,
+  "grams": 13.93,
+  "model_g": 8.11
+ },
+ "construction:3:ruler": {
+  "seconds": 4131,
+  "grams": 25.04,
+  "model_g": 20.66
+ },
+ "construction:3:bottle": {
+  "seconds": 1838,
+  "grams": 9.19,
+  "model_g": 4.81
+ },
+ "construction:4:tag": {
+  "seconds": 3438,
+  "grams": 17.71,
+  "model_g": 9.11
+ },
+ "construction:4:pencil": {
+  "seconds": 3659,
+  "grams": 20.04,
+  "model_g": 9.22
+ },
+ "construction:4:ruler": {
+  "seconds": 4547,
+  "grams": 28.21,
+  "model_g": 19.62
+ },
+ "construction:4:bottle": {
+  "seconds": 2961,
+  "grams": 14.0,
+  "model_g": 5.4
+ },
+ "cat:2:tag": {
+  "seconds": 1918,
+  "grams": 12.13,
+  "model_g": 10.03
+ },
+ "cat:2:pencil": {
+  "seconds": 1929,
+  "grams": 11.52,
+  "model_g": 8.48
+ },
+ "cat:2:ruler": {
+  "seconds": 2920,
+  "grams": 20.83,
+  "model_g": 18.72
+ },
+ "cat:2:bottle": {
+  "seconds": 1267,
+  "grams": 7.06,
+  "model_g": 4.95
+ },
+ "cat:3:tag": {
+  "seconds": 2864,
+  "grams": 16.3,
+  "model_g": 10.14
+ },
+ "cat:3:pencil": {
+  "seconds": 1929,
+  "grams": 11.52,
+  "model_g": 8.48
+ },
+ "cat:3:ruler": {
+  "seconds": 3921,
+  "grams": 24.99,
+  "model_g": 18.83
+ },
+ "cat:3:bottle": {
+  "seconds": 2262,
+  "grams": 11.16,
+  "model_g": 4.99
+ },
+ "cat:4:tag": {
+  "seconds": 3469,
+  "grams": 18.56,
+  "model_g": 10.09
+ },
+ "cat:4:pencil": {
+  "seconds": 2682,
+  "grams": 14.7,
+  "model_g": 8.51
+ },
+ "cat:4:ruler": {
+  "seconds": 5201,
+  "grams": 28.98,
+  "model_g": 20.51
+ },
+ "cat:4:bottle": {
+  "seconds": 2933,
+  "grams": 13.54,
+  "model_g": 5.07
+ },
+ "_meta": {
+  "sample_name": "LAYLA",
+  "printer": "Bambu Lab H2D 0.4",
+  "process": "0.20mm Standard",
+  "filament": "Bambu PETG Basic"
+ }
+}
