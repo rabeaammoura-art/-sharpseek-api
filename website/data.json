@@ -1,0 +1,189 @@
+{
+ "currency": "JOD",
+ "premium": 1.3,
+ "step": 0.25,
+ "themes": {
+  "construction": {
+   "label": "إنشاءات",
+   "desc": "حفّارة وقلّاب",
+   "sample": "OMAR",
+   "colours": {
+    "2": {
+     "pack": 2.5,
+     "img": "img/construction-2.png",
+     "costs": {
+      "tag": 0.08616217555555554,
+      "pencil": 0.09545814444444443,
+      "ruler": 0.1925300222222222,
+      "bottle": 0.05929364777777778
+     },
+     "swatches": [
+      {
+       "name": "black",
+       "hex": "#1C1C1C",
+       "z": 2.2
+      },
+      {
+       "name": "yellow",
+       "hex": "#F6BA1C",
+       "z": 2.8
+      }
+     ],
+     "hours": 2.3
+    },
+    "3": {
+     "pack": 3.5,
+     "img": "img/construction-3.png",
+     "costs": {
+      "tag": 0.10771158222222221,
+      "pencil": 0.12044270777777777,
+      "ruler": 0.21421553999999998,
+      "bottle": 0.08174913444444444
+     },
+     "swatches": [
+      {
+       "name": "black",
+       "hex": "#1C1C1C",
+       "z": 2.2
+      },
+      {
+       "name": "yellow",
+       "hex": "#F6BA1C",
+       "z": 2.8
+      },
+      {
+       "name": "orange",
+       "hex": "#FA7614",
+       "z": 2.8
+      }
+     ],
+     "hours": 3.0
+    },
+    "4": {
+     "pack": 4.5,
+     "img": "img/construction-4.png",
+     "costs": {
+      "tag": 0.15652720999999997,
+      "pencil": 0.17487165111111108,
+      "ruler": 0.24029465444444445,
+      "bottle": 0.1261015
+     },
+     "swatches": [
+      {
+       "name": "black",
+       "hex": "#1C1C1C",
+       "z": 2.2
+      },
+      {
+       "name": "yellow",
+       "hex": "#F6BA1C",
+       "z": 2.8
+      },
+      {
+       "name": "orange",
+       "hex": "#FA7614",
+       "z": 2.8
+      },
+      {
+       "name": "white",
+       "hex": "#FCFCFC",
+       "z": 3.2
+      }
+     ],
+     "hours": 4.1
+    }
+   }
+  },
+  "cat": {
+   "label": "قطة",
+   "desc": "قطة صغيرة بمخالب وردية",
+   "sample": "LAYLA",
+   "colours": {
+    "2": {
+     "pack": 2.5,
+     "img": "img/cat-2.png",
+     "costs": {
+      "tag": 0.10296285222222222,
+      "pencil": 0.09882968666666665,
+      "ruler": 0.17317821888888885,
+      "bottle": 0.06139211555555555
+     },
+     "swatches": [
+      {
+       "name": "pink",
+       "hex": "#EC307A",
+       "z": 2.2
+      },
+      {
+       "name": "white",
+       "hex": "#FCFCFC",
+       "z": 3.2
+      }
+     ],
+     "hours": 2.2
+    },
+    "3": {
+     "pack": 3.5,
+     "img": "img/cat-3.png",
+     "costs": {
+      "tag": 0.14114574444444444,
+      "pencil": 0.09882968666666665,
+      "ruler": 0.21182632333333332,
+      "bottle": 0.09956482666666665
+     },
+     "swatches": [
+      {
+       "name": "pink",
+       "hex": "#EC307A",
+       "z": 2.2
+      },
+      {
+       "name": "white",
+       "hex": "#FCFCFC",
+       "z": 3.2
+      },
+      {
+       "name": "black",
+       "hex": "#1C1C1C",
+       "z": 3.4
+      }
+     ],
+     "hours": 3.0
+    },
+    "4": {
+     "pack": 4.5,
+     "img": "img/cat-4.png",
+     "costs": {
+      "tag": 0.16273694888888887,
+      "pencil": 0.12825469999999997,
+      "ruler": 0.25200525777777777,
+      "bottle": 0.12263181777777778
+     },
+     "swatches": [
+      {
+       "name": "pink",
+       "hex": "#EC307A",
+       "z": 2.2
+      },
+      {
+       "name": "lpink",
+       "hex": "#FAA8C8",
+       "z": 2.8
+      },
+      {
+       "name": "white",
+       "hex": "#FCFCFC",
+       "z": 3.2
+      },
+      {
+       "name": "black",
+       "hex": "#1C1C1C",
+       "z": 3.4
+      }
+     ],
+     "hours": 4.0
+    }
+   }
+  }
+ }
+}

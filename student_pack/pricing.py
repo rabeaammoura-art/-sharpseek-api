@@ -58,7 +58,7 @@ def quote(p, cat, base, colours, pieces, numbers=None):
     if set(pieces) == set(PIECES):
         return p["pack_price"][str(colours)], {k: cost[k] for k in pieces}, full
     share = sum(cost[k] for k in pieces) / sum(cost.values())
-    return round_up(p["pack_price"][str(colours)] * share * p["single_premium"], p["round_up_to"]), {k: cost[k] for k in pieces}, sum(cost[k] for k in pieces) + p["packaging_per_pack"]
+    return min(p["pack_price"][str(colours)], round_up(p["pack_price"][str(colours)] * share * p["single_premium"], p["round_up_to"])), {k: cost[k] for k in pieces}, sum(cost[k] for k in pieces) + p["packaging_per_pack"]
 
 
 def pack_price(p, piece_prices):

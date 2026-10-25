@@ -1,0 +1,388 @@
+<title>3D ZONE TECH</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@600;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout concept: a print-layer page. Thin horizontal "layer lines" run behind the hero and between sections;
+   the Student Pack configurator is the centrepiece and shows the real layer stack (mm) of what the customer picks. */
+:root {
+  --bg: #F4F6FA;          /* cool paper */
+  --panel: #FFFFFF;
+  --fg: #0E1B33;          /* navy from the logo */
+  --muted: #55627F;
+  --line: #D9E0EC;
+  --accent: #FF7A1A;      /* logo orange (fills) */
+  --accent-ink: #B94D00;  /* orange for text on light surfaces */
+  --brass: #A9803A;       /* nozzle brass, small details only */
+  --focus: #1B5BD6;
+  --good: #1E7F4F;
+  --font-display: "Baloo Bhaijaan 2", "Segoe UI", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans Arabic", "Segoe UI", Tahoma, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0A1325; --panel: #111D36; --fg: #E9EFFB; --muted: #9DABC9; --line: #21335A;
+    --accent-ink: #FF9A4D; --brass: #D3A85A; --focus: #7FA8FF; --good: #55C18A; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0A1325; --panel: #111D36; --fg: #E9EFFB; --muted: #9DABC9; --line: #21335A;
+  --accent-ink: #FF9A4D; --brass: #D3A85A; --focus: #7FA8FF; --good: #55C18A; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 16px; line-height: 1.65; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.2; margin: 0; text-wrap: balance; }
+h2 { font-size: clamp(1.6rem, 3.4vw, 2.3rem); font-weight: 800; }
+h3 { font-size: 1.15rem; font-weight: 600; }
+p { margin: 0; }
+.mono { font-family: var(--font-mono); direction: ltr; unicode-bidi: isolate; }
+.eyebrow { font-size: .8rem; letter-spacing: .04em; color: var(--accent-ink); font-weight: 600; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 46px; padding: .55rem 1.25rem; border-radius: 10px; border: 2px solid var(--fg); background: transparent; color: var(--fg); font: 600 1rem var(--font-body); cursor: pointer; text-decoration: none; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #1B1000; }
+.btn:hover { transform: translateY(-1px); }
+.btn[aria-disabled="true"] { opacity: .5; pointer-events: none; }
+
+/* header */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg); border-bottom: 1px solid var(--line); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg); }
+.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-block: .6rem; }
+.logo { display: flex; align-items: baseline; gap: .35rem; font-family: var(--font-display); font-weight: 800; text-decoration: none; direction: ltr; }
+.logo .d3 { font-size: 2.1rem; line-height: 1; background: linear-gradient(to bottom, var(--accent) 0 30%, var(--fg) 30%); -webkit-background-clip: text; background-clip: text; color: transparent; letter-spacing: -.02em; }
+.logo .zone { font-size: 1.25rem; color: var(--fg); }
+.logo .tech { font-size: 1.25rem; color: var(--accent); }
+nav ul { display: flex; gap: 1.1rem; list-style: none; margin: 0; padding: 0; }
+nav a { text-decoration: none; font-weight: 500; font-size: .95rem; padding: .35rem 0; border-bottom: 2px solid transparent; }
+nav a:hover { border-color: var(--accent); }
+.iconbtn { min-width: 44px; min-height: 44px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--fg); font-size: 1.1rem; cursor: pointer; }
+@media (max-width: 760px) { nav ul { display: none; } }
+
+/* hero */
+.hero { padding-block: clamp(2rem, 6vw, 4.5rem) 2.5rem; background-image: repeating-linear-gradient(to bottom, transparent 0 15px, var(--line) 15px 16px); background-size: 100% 100%; -webkit-mask-image: none; position: relative; }
+.hero .wrap { display: grid; grid-template-columns: 1.05fr 1fr; gap: 2.2rem; align-items: center; }
+.hero h1 { font-size: clamp(2.2rem, 6vw, 4rem); font-weight: 800; }
+.hero h1 em { font-style: normal; color: var(--accent-ink); }
+.hero .lead { margin-top: 1rem; font-size: 1.1rem; max-width: 34rem; color: var(--muted); }
+.cta { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.5rem; }
+.status { display: inline-flex; gap: .55rem; align-items: center; padding: .4rem .8rem; border: 1px dashed var(--brass); border-radius: 999px; font-size: .85rem; margin-top: 1.4rem; background: var(--panel); }
+.status i { width: .55rem; height: .55rem; border-radius: 50%; background: var(--accent); display: inline-block; }
+.heroimg { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: .6rem; }
+.heroimg img { display: block; width: 100%; height: auto; border-radius: 8px; }
+.heroimg figcaption { font-size: .8rem; color: var(--muted); padding: .5rem .3rem .1rem; }
+@media (max-width: 860px) { .hero .wrap { grid-template-columns: 1fr; } }
+
+/* sections */
+section { padding-block: clamp(2.2rem, 5vw, 3.8rem); border-top: 1px solid var(--line); }
+.head { display: grid; gap: .5rem; margin-bottom: 1.8rem; max-width: 40rem; }
+.head p { color: var(--muted); }
+
+/* configurator */
+.cfg { display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 1.6rem; align-items: start; }
+@media (max-width: 900px) { .cfg { grid-template-columns: minmax(0, 1fr); } }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 1.2rem; display: grid; gap: 1.1rem; min-width: 0; }
+.field { display: grid; gap: .45rem; }
+.field > label, .field > .lab { font-weight: 600; font-size: .95rem; }
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: .5rem; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg label { display: grid; gap: .1rem; text-align: center; padding: .6rem .4rem; border: 2px solid var(--line); border-radius: 10px; cursor: pointer; background: var(--bg); min-height: 56px; align-content: center; }
+.seg label b { font-family: var(--font-display); font-size: 1.05rem; }
+.seg label small { color: var(--muted); font-size: .8rem; }
+.seg input:checked + label { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--panel)); }
+.seg input:focus-visible + label { outline: 3px solid var(--focus); outline-offset: 2px; }
+input[type="text"], input[type="tel"], select, textarea { width: 100%; min-height: 46px; padding: .55rem .8rem; border: 2px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--fg); font: 500 1rem var(--font-body); }
+textarea { min-height: 110px; resize: vertical; }
+#name { font-family: var(--font-mono); font-size: 1.3rem; letter-spacing: .12em; text-transform: uppercase; direction: ltr; text-align: left; }
+.hint { font-size: .82rem; color: var(--muted); }
+.hint.err { color: #C0392B; font-weight: 600; }
+:root[data-theme="dark"] .hint.err { color: #FF8F80; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .hint.err { color: #FF8F80; } }
+.pieces { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+.pieces label { display: flex; gap: .5rem; align-items: center; padding: .55rem .7rem; border: 2px solid var(--line); border-radius: 10px; cursor: pointer; background: var(--bg); min-height: 46px; font-size: .95rem; }
+.pieces input { width: 1.1rem; height: 1.1rem; accent-color: var(--accent); }
+.pieces label:has(input:checked) { border-color: var(--accent); }
+.total { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding-top: .9rem; border-top: 1px dashed var(--line); }
+.total .price { font-family: var(--font-display); font-weight: 800; font-size: 2.2rem; line-height: 1; }
+.total .price small { font-size: 1rem; font-weight: 600; margin-inline-start: .3rem; color: var(--muted); }
+.view { display: grid; gap: 1rem; min-width: 0; }
+.view .shot { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: .7rem; }
+.view .shot img { display: block; width: 100%; height: auto; border-radius: 8px; }
+.view .shot figcaption { font-size: .85rem; color: var(--muted); padding: .55rem .3rem .1rem; }
+.stack { display: grid; gap: .6rem; }
+.stack .bars { display: flex; align-items: flex-end; gap: .6rem; height: 150px; padding: .8rem; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; direction: ltr; }
+.bar { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: .3rem; height: 100%; }
+.bar .col { width: 100%; max-width: 74px; border-radius: 4px 4px 0 0; border: 1px solid rgba(0,0,0,.35); position: relative; background-image: repeating-linear-gradient(to top, transparent 0 5px, rgba(0,0,0,.14) 5px 6px); }
+.bar .col::after { content: ""; position: absolute; inset: auto 0 0 0; height: var(--base); background: rgba(0,0,0,.28); }
+.bar span { font: 500 .75rem var(--font-mono); color: var(--muted); }
+.specs { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: .6rem; }
+.spec { display: grid; gap: .1rem; padding: .7rem .8rem; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+.spec b { font-size: .85rem; }
+.spec span { font: 400 .85rem var(--font-mono); direction: ltr; text-align: start; color: var(--muted); }
+.order { display: grid; gap: .6rem; }
+.summary { white-space: pre-wrap; font-size: .92rem; background: var(--bg); border: 1px dashed var(--brass); border-radius: 10px; padding: .8rem; min-height: 5rem; line-height: 1.7; }
+.row { display: flex; flex-wrap: wrap; gap: .6rem; }
+
+/* products */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; }
+.prod { display: grid; gap: .6rem; align-content: start; padding: 1.1rem; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); min-width: 0; }
+.prod .tag { justify-self: start; font: 500 .72rem var(--font-mono); padding: .15rem .55rem; border: 1px solid var(--brass); color: var(--brass); border-radius: 999px; direction: ltr; }
+.prod p { color: var(--muted); font-size: .93rem; }
+.prod .btn { justify-self: start; min-height: 40px; font-size: .9rem; padding: .35rem .9rem; border-width: 1.5px; }
+.prod.feature { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 7%, var(--panel)); }
+
+/* steps + shop */
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; counter-reset: s; list-style: none; padding: 0; margin: 0; }
+.steps li { counter-increment: s; padding: 1rem 1.1rem; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); display: grid; gap: .3rem; }
+.steps li::before { content: counter(s); font: 500 .85rem var(--font-mono); color: var(--accent-ink); }
+.steps p { color: var(--muted); font-size: .93rem; }
+.gear { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.2rem; }
+.gear span { font: 400 .85rem var(--font-mono); padding: .25rem .65rem; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); direction: ltr; }
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.6rem; }
+@media (max-width: 860px) { .two { grid-template-columns: minmax(0, 1fr); } }
+footer { border-top: 1px solid var(--line); padding-block: 2rem 2.5rem; color: var(--muted); font-size: .92rem; }
+footer .wrap { display: grid; gap: .5rem; }
+footer .sel { user-select: all; font-family: var(--font-mono); direction: ltr; unicode-bidi: isolate; color: var(--fg); }
+@media (prefers-reduced-motion: reduce) { .btn:hover { transform: none; } }
+</style>
+
+<div id="app" dir="rtl" lang="ar">
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="3D ZONE TECH"><span class="d3">3D</span><span class="zone">ZONE</span><span class="tech">TECH</span></a>
+    <nav aria-label="القائمة"><ul>
+      <li><a href="#pack">حزمة الطالب</a></li><li><a href="#products">منتجاتنا</a></li>
+      <li><a href="#custom">اطلب تصميمك</a></li><li><a href="#how">كيف نشتغل</a></li><li><a href="#contact">تواصل</a></li>
+    </ul></nav>
+    <button class="iconbtn" id="themeBtn" type="button" aria-label="تبديل الوضع الليلي">◐</button>
+  </div>
+</header>
+
+<main id="top">
+<div class="hero">
+  <div class="wrap">
+    <div>
+      <p class="eyebrow">طباعة ثلاثية الأبعاد بالألوان · إربد وعمّان</p>
+      <h1>فكرتك بإيدك…<br><em>طبقة طبقة</em></h1>
+      <p class="lead">قطع شخصية باسمك، إكسسوارات سيارات، وهدايا مصممة وملونة وتنطبع عنا. اختار من الجاهز أو احكيلنا فكرتك.</p>
+      <div class="cta">
+        <a class="btn primary" href="#pack">صمّم حزمة الطالب</a>
+        <a class="btn" href="#custom">اطلب تصميم خاص</a>
+      </div>
+      <p class="status"><i></i><span>الحجز المسبق مفتوح. الطباعة بتبدأ مع وصول الطابعة (تقدير: أول تشرين الثاني)</span></p>
+    </div>
+    <figure class="heroimg">
+      <img id="heroImg" src="img/construction-4.png" alt="حزمة الطالب بثيم الإنشاءات: شنطة وقنينة وقلم ومسطرة" width="1100" height="780">
+      <figcaption>تصوّر (Concept) · حزمة الطالب · مثال بالاسم OMAR</figcaption>
+    </figure>
+  </div>
+</div>
+
+<section id="pack">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">منتجنا الأول</p>
+      <h2>حزمة الطالب باسمك</h2>
+      <p>أربع قطع بنفس الثيم: بطاقة شنطة، اسم ينزلق على القلم، مسطرة ١٥ سم، وبطاقة قنينة ماء. اكتب الاسم، اختار الثيم وعدد الألوان، وشوف السعر.</p>
+    </div>
+    <div class="cfg">
+      <form class="card" id="cfgForm" onsubmit="return false">
+        <div class="field"><span class="lab" id="lblTheme">الثيم</span>
+          <div class="seg" role="radiogroup" aria-labelledby="lblTheme" id="themeSeg"></div></div>
+        <div class="field"><label for="name">الاسم (بالإنجليزي)</label>
+          <input id="name" type="text" value="OMAR" maxlength="11" autocomplete="off" spellcheck="false" inputmode="latin">
+          <p class="hint" id="nameHint">حتى ١١ حرف. الأسماء العربية قريباً.</p></div>
+        <div class="field"><span class="lab" id="lblCol">عدد الألوان</span>
+          <div class="seg" role="radiogroup" aria-labelledby="lblCol" id="colSeg"></div></div>
+        <div class="field"><span class="lab">القطع</span>
+          <div class="pieces" id="pieces"></div></div>
+        <div class="total"><div><div class="hint">السعر</div><div class="price" id="price">—</div></div><div class="hint" id="priceNote"></div></div>
+      </form>
+      <div class="view">
+        <figure class="shot" style="margin:0"><img id="shot" src="img/construction-4.png" alt="معاينة الحزمة" width="1100" height="780">
+          <figcaption id="shotCap"></figcaption></figure>
+        <div class="stack"><h3>طبقات الطباعة لهذا الخيار (ملم)</h3>
+          <div class="bars" id="bars" aria-label="ارتفاع كل لون فوق القاعدة"></div>
+          <p class="hint">قاعدة ١.٦ ملم بلون الإطار، وكل لون يعلى فوقها لارتفاعه. هيك بيطلع الاسم والتفاصيل بارزة وملموسة.</p></div>
+        <div class="specs">
+          <div class="spec"><b>بطاقة الشنطة</b><span>70 mm wide · hole Ø5</span></div>
+          <div class="spec"><b>اسم القلم</b><span>85 mm · plate 10.4 · tunnel Ø7.7</span></div>
+          <div class="spec"><b>المسطرة</b><span>165 × 50 mm · 0.5 mm lines</span></div>
+          <div class="spec"><b>بطاقة القنينة</b><span>48 mm wide · hole Ø5</span></div>
+        </div>
+        <div class="card order">
+          <h3>طلبك</h3>
+          <div class="summary" id="summary" aria-live="polite"></div>
+          <div class="row">
+            <a class="btn primary" id="sendWa" href="#" target="_blank" rel="noopener">أرسل الطلب على واتساب</a>
+            <button class="btn" id="copyOrder" type="button">انسخ الطلب</button>
+          </div>
+          <p class="hint" id="orderNote"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="products">
+  <div class="wrap">
+    <div class="head"><p class="eyebrow">منتجاتنا</p><h2>اللي بنطبعه</h2>
+      <p>كل المنتجات هون تصوّر (Concept). نأكد لك السعر والمدة قبل الطباعة، وما بنبيع شي قبل ما نجرّب النموذج الفعلي.</p></div>
+    <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<section id="custom">
+  <div class="wrap two">
+    <div class="head" style="margin:0"><p class="eyebrow">تصميم خاص</p><h2>عندك فكرة أو قطعة مكسورة؟</h2>
+      <p>صورة، قياسات، أو القطعة نفسها. بنمسحها بالسكانر ثلاثي الأبعاد أو بنرسمها من القياسات، وبنرجعلك بسعر وتصوّر قبل ما نطبع.</p>
+      <div class="gear"><span>Bambu Lab H2D</span><span>AMS 4 colours</span><span>CR-Scan Otter</span><span>PLA+</span><span>PETG</span><span>ASA</span><span>TPU 95A</span></div></div>
+    <form class="card" id="reqForm" onsubmit="return false">
+      <div class="field"><label for="rName">اسمك</label><input id="rName" type="text" autocomplete="name"></div>
+      <div class="field"><label for="rPhone">رقم الهاتف</label><input id="rPhone" type="tel" inputmode="tel" autocomplete="tel" dir="ltr"></div>
+      <div class="field"><label for="rKind">شو بدك؟</label><select id="rKind"></select></div>
+      <div class="field"><label for="rText">احكيلنا عن الفكرة</label><textarea id="rText" placeholder="مثلاً: غطاء مفتاح مرسيدس W115، أو لوحة ضوء من صورة العائلة"></textarea></div>
+      <label class="hint" style="display:flex;gap:.5rem;align-items:center"><input id="rHave" type="checkbox" style="accent-color:var(--accent)"> عندي القطعة الأصلية أو صور وقياسات</label>
+      <div class="row"><a class="btn primary" id="reqWa" href="#" target="_blank" rel="noopener">أرسل الطلب على واتساب</a><button class="btn" id="reqCopy" type="button">انسخ الطلب</button></div>
+      <p class="hint" id="reqNote"></p>
+    </form>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="head"><p class="eyebrow">كيف نشتغل</p><h2>من الفكرة لحد باب البيت</h2></div>
+    <ol class="steps">
+      <li><h3>تختار أو توصف</h3><p>من الحزمة الجاهزة أو من نموذج الطلب الخاص.</p></li>
+      <li><h3>نرجعلك بمعاينة وسعر</h3><p>بنرسل لك صورة باسمك أو تصوّر للقطعة، والسعر النهائي والمدة، قبل أي طباعة.</p></li>
+      <li><h3>عربون وطباعة</h3><p>بعد موافقتك وعربون نتفق عليه بنبدأ الطباعة.</p></li>
+      <li><h3>تسليم</h3><p>من إربد أو عمّان. طريقة التوصيل بنتفق عليها معك عند الطلب.</p></li>
+    </ol>
+  </div>
+</section>
+</main>
+
+<footer id="contact">
+  <div class="wrap">
+    <div class="logo" style="font-size:1rem"><span class="d3" style="font-size:1.6rem">3D</span><span class="zone">ZONE</span><span class="tech">TECH</span></div>
+    <p>فكرتك بإيدك… طبقة طبقة · إربد وعمّان، الأردن</p>
+    <p>الإيميل: <span class="sel">3dzonetech@gmail.com</span></p>
+    <p><a href="https://facebook.com/3dzonetech" target="_blank" rel="noopener">صفحتنا على فيسبوك: 3dzonetech</a></p>
+    <p class="hint" id="waLine"></p>
+  </div>
+</footer>
+</div>
+
+<script>
+/* ---- site settings: put the real WhatsApp number here (international format, digits only, e.g. 9627XXXXXXXX) ---- */
+const CONTACT = { whatsapp: "", facebook: "https://facebook.com/3dzonetech", email: "3dzonetech@gmail.com" };
+const DATA = {"currency": "JOD", "premium": 1.3, "step": 0.25, "themes": {"construction": {"label": "إنشاءات", "desc": "حفّارة وقلّاب", "sample": "OMAR", "colours": {"2": {"pack": 2.5, "img": "img/construction-2.png", "costs": {"tag": 0.08616217555555554, "pencil": 0.09545814444444443, "ruler": 0.1925300222222222, "bottle": 0.05929364777777778}, "swatches": [{"name": "black", "hex": "#1C1C1C", "z": 2.2}, {"name": "yellow", "hex": "#F6BA1C", "z": 2.8}], "hours": 2.3}, "3": {"pack": 3.5, "img": "img/construction-3.png", "costs": {"tag": 0.10771158222222221, "pencil": 0.12044270777777777, "ruler": 0.21421553999999998, "bottle": 0.08174913444444444}, "swatches": [{"name": "black", "hex": "#1C1C1C", "z": 2.2}, {"name": "yellow", "hex": "#F6BA1C", "z": 2.8}, {"name": "orange", "hex": "#FA7614", "z": 2.8}], "hours": 3.0}, "4": {"pack": 4.5, "img": "img/construction-4.png", "costs": {"tag": 0.15652720999999997, "pencil": 0.17487165111111108, "ruler": 0.24029465444444445, "bottle": 0.1261015}, "swatches": [{"name": "black", "hex": "#1C1C1C", "z": 2.2}, {"name": "yellow", "hex": "#F6BA1C", "z": 2.8}, {"name": "orange", "hex": "#FA7614", "z": 2.8}, {"name": "white", "hex": "#FCFCFC", "z": 3.2}], "hours": 4.1}}}, "cat": {"label": "قطة", "desc": "قطة صغيرة بمخالب وردية", "sample": "LAYLA", "colours": {"2": {"pack": 2.5, "img": "img/cat-2.png", "costs": {"tag": 0.10296285222222222, "pencil": 0.09882968666666665, "ruler": 0.17317821888888885, "bottle": 0.06139211555555555}, "swatches": [{"name": "pink", "hex": "#EC307A", "z": 2.2}, {"name": "white", "hex": "#FCFCFC", "z": 3.2}], "hours": 2.2}, "3": {"pack": 3.5, "img": "img/cat-3.png", "costs": {"tag": 0.14114574444444444, "pencil": 0.09882968666666665, "ruler": 0.21182632333333332, "bottle": 0.09956482666666665}, "swatches": [{"name": "pink", "hex": "#EC307A", "z": 2.2}, {"name": "white", "hex": "#FCFCFC", "z": 3.2}, {"name": "black", "hex": "#1C1C1C", "z": 3.4}], "hours": 3.0}, "4": {"pack": 4.5, "img": "img/cat-4.png", "costs": {"tag": 0.16273694888888887, "pencil": 0.12825469999999997, "ruler": 0.25200525777777777, "bottle": 0.12263181777777778}, "swatches": [{"name": "pink", "hex": "#EC307A", "z": 2.2}, {"name": "lpink", "hex": "#FAA8C8", "z": 2.8}, {"name": "white", "hex": "#FCFCFC", "z": 3.2}, {"name": "black", "hex": "#1C1C1C", "z": 3.4}], "hours": 4.0}}}}};
+const PIECES = [["tag", "بطاقة شنطة"], ["pencil", "اسم القلم"], ["ruler", "مسطرة ١٥ سم"], ["bottle", "بطاقة قنينة"]];
+const COLOUR_NAMES = { black: "أسود", yellow: "أصفر", orange: "برتقالي", white: "أبيض", pink: "وردي", lpink: "وردي فاتح" };
+const $ = (id) => document.getElementById(id);
+const state = { theme: "construction", colours: "4", pieces: new Set(PIECES.map((p) => p[0])), name: "OMAR" };
+
+const money = (v) => (Math.round(v * 100) / 100).toFixed(2);
+const ceilTo = (v, s) => Math.ceil(v / s - 1e-9) * s;
+function priceFor() {
+  const c = DATA.themes[state.theme].colours[state.colours];
+  const all = PIECES.map((p) => p[0]);
+  const sel = all.filter((k) => state.pieces.has(k));
+  if (!sel.length) return { price: 0, pack: false };
+  if (sel.length === all.length) return { price: c.pack, pack: true };
+  const total = all.reduce((a, k) => a + c.costs[k], 0), part = sel.reduce((a, k) => a + c.costs[k], 0);
+  return { price: Math.min(c.pack, ceilTo(c.pack * (part / total) * DATA.premium, DATA.step)), pack: false };
+}
+function seg(el, name, items, current, onPick) {
+  el.innerHTML = "";
+  items.forEach(([val, title, sub]) => {
+    const id = name + "_" + val;
+    el.insertAdjacentHTML("beforeend", `<input type="radio" name="${name}" id="${id}" value="${val}" ${val === current ? "checked" : ""}><label for="${id}"><b>${title}</b><small>${sub}</small></label>`);
+  });
+  el.onchange = (e) => onPick(e.target.value);
+}
+function message() {
+  const t = DATA.themes[state.theme], c = t.colours[state.colours], p = priceFor();
+  const names = PIECES.filter((x) => state.pieces.has(x[0])).map((x) => x[1]).join("، ");
+  return [`طلب حزمة طالب (حجز مسبق)`, `الاسم: ${state.name || "—"}`, `الثيم: ${t.label}`, `الألوان: ${state.colours} (${c.swatches.map((s) => COLOUR_NAMES[s.name] || s.name).join("، ")})`,
+    `القطع: ${p.pack ? "الباقة كاملة" : names}`, `السعر: ${money(p.price)} دينار`].join("\n");
+}
+function link(text) {
+  const n = CONTACT.whatsapp.replace(/\D/g, "");
+  return n ? `https://wa.me/${n}?text=${encodeURIComponent(text)}` : null;
+}
+function setSend(btn, noteEl, text) {
+  const href = link(text);
+  if (href) { btn.href = href; btn.removeAttribute("aria-disabled"); noteEl.textContent = "بيفتح واتساب والرسالة جاهزة، بس اضغط إرسال. نرجعلك بمعاينة باسمك قبل الطباعة."; }
+  else { btn.href = "#"; btn.setAttribute("aria-disabled", "true"); noteEl.textContent = "رقم الواتساب لسا ما انضاف للموقع. انسخ الطلب وابعتلنا إياه على صفحتنا على فيسبوك أو على الإيميل أعلاه."; }
+}
+async function copy(text, btn) {
+  const old = btn.textContent;
+  try { await navigator.clipboard.writeText(text); btn.textContent = "تم النسخ"; }
+  catch (e) { const s = document.getElementById("summary"); if (s && text === s.textContent) { const r = document.createRange(); r.selectNodeContents(s); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); btn.textContent = "حدّد النص وانسخه"; } else btn.textContent = "انسخه يدوياً"; }
+  setTimeout(() => (btn.textContent = old), 1800);
+}
+function render() {
+  const keep = document.activeElement && document.activeElement.id;
+  const t = DATA.themes[state.theme], c = t.colours[state.colours], p = priceFor();
+  seg($("themeSeg"), "theme", Object.entries(DATA.themes).map(([k, v]) => [k, v.label, v.desc]), state.theme, (v) => { state.theme = v; render(); });
+  seg($("colSeg"), "col", ["2", "3", "4"].map((k) => [k, `${k} ألوان`, `${money(t.colours[k].pack)} د.أ`]), state.colours, (v) => { state.colours = v; render(); });
+  $("pieces").innerHTML = PIECES.map(([k, l]) => `<label><input type="checkbox" value="${k}" ${state.pieces.has(k) ? "checked" : ""}> ${l}</label>`).join("");
+  $("pieces").onchange = (e) => { e.target.checked ? state.pieces.add(e.target.value) : state.pieces.delete(e.target.value); render(); };
+  $("price").innerHTML = p.price ? `${money(p.price)}<small>دينار</small>` : "—";
+  $("priceNote").textContent = p.price ? (p.pack ? "سعر الباقة الكاملة" : "سعر القطع المختارة") : "اختار قطعة وحدة على الأقل";
+  $("shot").src = c.img; $("heroImg").src = DATA.themes.construction.colours["4"].img;
+  $("shotCap").textContent = `تصوّر (Concept) · ${t.label} · ${state.colours} ألوان · مثال بالاسم ${t.sample}. نرسل لك معاينة باسمك قبل الطباعة.`;
+  const zmax = Math.max(...c.swatches.map((s) => s.z));
+  $("bars").innerHTML = c.swatches.map((s) => `<div class="bar"><div class="col" style="height:${Math.round((s.z / zmax) * 96)}px;background:${s.hex};--base:${(1.6 / s.z) * 100}%"></div><span>${COLOUR_NAMES[s.name] || s.name}</span><span>${s.z}</span></div>`).join("");
+  $("summary").textContent = message();
+  setSend($("sendWa"), $("orderNote"), message());
+  if (keep && $(keep) && keep !== "name") $(keep).focus();
+}
+$("name").addEventListener("input", (e) => {
+  const raw = e.target.value, clean = raw.replace(/[^A-Za-z ]/g, "").slice(0, 11);
+  e.target.value = clean; state.name = clean.trim();
+  const h = $("nameHint");
+  if (raw !== clean) { h.textContent = "حروف إنجليزية فقط حالياً. الأسماء العربية قريباً."; h.className = "hint err"; }
+  else if (!state.name) { h.textContent = "اكتب الاسم."; h.className = "hint err"; }
+  else { h.textContent = "حتى ١١ حرف. الأسماء العربية قريباً."; h.className = "hint"; }
+  render();
+});
+$("copyOrder").onclick = (e) => copy(message(), e.currentTarget);
+
+/* products */
+const PRODUCTS = [
+  ["حزمة الطالب", "بطاقة شنطة، اسم للقلم، مسطرة، وبطاقة قنينة بنفس الثيم واسم الطالب.", "حجز مسبق", true],
+  ["لوحات ضوء ولمبات", "صورتك تتحول لوحة ضوء ثلاثية الأبعاد (ليثوفين) أو لمبة ديكور.", "Concept"],
+  ["إكسسوارات سيارات", "قطع لـ BMW E30 وE36 ومرسيدس W115 وسيارات كهربائية: حامل أكواب، فتحات تكييف، شبك أمامي.", "Concept"],
+  ["أغطية مفاتيح السيارة", "غطاء مفتاح بتصميم يناسب سيارتك.", "Concept"],
+  ["حامل يد التحكم", "حامل ليد الألعاب بشخصيات أصلية من تصميمنا.", "Concept"],
+  ["هدايا NFC ناطقة", "هدية بتلمسها بجوالك وبتفتح رسالة أو صورة أو صوت.", "Concept"],
+  ["تصاميم أردنية", "هدايا بروح البلد، من البتراء وغيرها.", "Concept"],
+  ["قطع دراجات نارية", "قطع وإكسسوارات حسب الموديل.", "Concept"],
+  ["رقع TPU", "رقع مرنة بتصميمك لأي استخدام.", "Concept"],
+  ["قطع بدل حسب الطلب", "قطعة انكسرت أو ما عاد بتنباع؟ نمسحها أو نرسمها من القياسات.", "حسب الطلب"],
+];
+$("grid").innerHTML = PRODUCTS.map(([n, d, tag, feat], i) => `<article class="prod${feat ? " feature" : ""}"><span class="tag">${tag}</span><h3>${n}</h3><p>${d}</p>${feat ? '<a class="btn primary" href="#pack">صمّمها</a>' : `<a class="btn" href="#custom" data-kind="${i}">اسأل عن السعر</a>`}</article>`).join("");
+$("rKind").innerHTML = PRODUCTS.map(([n], i) => `<option value="${n}">${n}</option>`).join("") + '<option value="فكرة ثانية">فكرة ثانية</option>';
+$("grid").addEventListener("click", (e) => { const a = e.target.closest("a[data-kind]"); if (a) { $("rKind").value = PRODUCTS[a.dataset.kind][0]; reqRender(); } });
+
+/* custom request */
+function reqMsg() {
+  return [`طلب تصميم خاص`, `الاسم: ${$("rName").value.trim() || "—"}`, `الهاتف: ${$("rPhone").value.trim() || "—"}`, `النوع: ${$("rKind").value}`,
+    `الفكرة: ${$("rText").value.trim() || "—"}`, `عندي القطعة أو صور وقياسات: ${$("rHave").checked ? "نعم" : "لا"}`].join("\n");
+}
+function reqRender() { setSend($("reqWa"), $("reqNote"), reqMsg()); }
+["rName", "rPhone", "rKind", "rText", "rHave"].forEach((id) => $(id).addEventListener("input", reqRender));
+$("reqCopy").onclick = (e) => copy(reqMsg(), e.currentTarget);
+
+/* theme toggle + contact line */
+$("themeBtn").onclick = () => {
+  const r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  r.dataset.theme = dark ? "light" : "dark";
+};
+$("waLine").textContent = CONTACT.whatsapp ? "واتساب: " + CONTACT.whatsapp : "";
+render(); reqRender();
+</script>
