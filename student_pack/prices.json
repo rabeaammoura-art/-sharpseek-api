@@ -1,7 +1,7 @@
 {
-  "_note": "ASSUMED numbers - edit to your real costs and margins. Filament/electricity match the earlier 3d-cost defaults.",
+  "_note": "Filament = landed JOD/kg from 3D_ZONE_TECH_Filament.xlsx (incl. shipping & customs). Margin/rounding are assumptions - edit.",
   "currency": "JOD",
-  "filament_per_kg": 8.0,
+  "filament_per_kg": 4.263,
   "electricity_per_kwh": 0.1,
   "printer_watts": 350,
   "machine_hour_rate": 0.0,
@@ -9,5 +9,13 @@
   "packaging_per_pack": 0.15,
   "markup": 1.5,
   "pack_discount": 0.1,
-  "round_up_to": 0.25
+  "round_up_to": 0.25,
+  "materials": {
+    "PETG": 4.263,
+    "AD-PETG": 6.488,
+    "PLA+": 6.951,
+    "Silk PLA": 8.805,
+    "ASA": 7.878
+  },
+  "material": "PETG"
 }

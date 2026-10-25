@@ -25,8 +25,13 @@ PIECES = generate.PIECES
 SAMPLE_NAME = "LAYLA"            # 5 letters = typical name length; real orders can differ a little
 
 
-def load_prices():
-    return json.loads(PRICES.read_text())
+def load_prices(material=None):
+    """prices.json; `material` (or its "material" key) picks the landed JOD/kg from the filament sheet."""
+    p = json.loads(PRICES.read_text())
+    if "materials" in p:
+        p["material"] = material or p["material"]
+        p["filament_per_kg"] = p["materials"][p["material"]]
+    return p
 
 
 def piece_cost(p, seconds, grams):
@@ -79,9 +84,9 @@ def build_catalog(jobs=3, themes=BASE_THEMES):
     CATALOG.write_text(json.dumps(cat, indent=1))
 
 
-def table():
-    cat, p = json.loads(CATALOG.read_text()), load_prices()
-    print(f"Prices in {p['currency']} (ASSUMED margins - edit prices.json). Time/grams from the Bambu Studio slice.\n")
+def table(material=None):
+    cat, p = json.loads(CATALOG.read_text()), load_prices(material)
+    print(f"Prices in {p['currency']}, filament {p.get('material', '')} at {p['filament_per_kg']} JOD/kg (landed). Margin = assumption. Time/grams from the Bambu Studio slice.\n")
     print(f"{'theme':13s}{'col':>4s}" + "".join(f"{k:>16s}" for k in PIECES) + f"{'PACK':>9s}")
     for base in BASE_THEMES:
         for colours in (2, 3, 4):
@@ -99,5 +104,6 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--catalog", action="store_true")
     ap.add_argument("--jobs", type=int, default=3)
+    ap.add_argument("--material", help="PETG | AD-PETG | PLA+ | ... (keys of prices.json materials)")
     a = ap.parse_args()
-    build_catalog(a.jobs) if a.catalog else table()
+    build_catalog(a.jobs) if a.catalog else table(a.material)
