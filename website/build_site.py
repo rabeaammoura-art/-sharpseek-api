@@ -55,7 +55,7 @@ def main():
                 "hours": round(sum(cat[pricing.key(base, c, k)]["seconds"] for k in pricing.PIECES) / 3600, 1)}
         data["themes"][base] = entry
     (HERE / "worker" / "pricing.json").write_text(json.dumps(data, ensure_ascii=False))     # the Worker recomputes every price from this
-    page = (HERE / "page.src.html").read_text(encoding="utf-8").replace("__DATA__", json.dumps(data, ensure_ascii=False))
+    page = (HERE / "site.src.html").read_text(encoding="utf-8").replace("__DATA__", json.dumps(data, ensure_ascii=False))
     src = page.replace("__API__", "")                                  # preview build: no server
     (HERE / "artifact.html").write_text(src, encoding="utf-8")
     src = page.replace("__API__", "/api")

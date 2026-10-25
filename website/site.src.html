@@ -1,0 +1,367 @@
+<title>3D ZONE TECH</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@600;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Direction A (agreed): blueprint. Dark navy with a faint layer grid, orange accents, measurements in mono type.
+   The logo always sits on a light tile because its navy letters vanish on a dark ground. Dark is the default look for
+   everyone; the toggle switches to a light version of the same palette. */
+:root {
+  --bg: #0B1730; --panel: #11244A; --fg: #EAF1FF; --muted: #9CB0D6; --line: #27427A; --grid: rgba(80, 120, 200, .12);
+  --accent: #FF7A1A; --accent-ink: #FF9A4D; --on-accent: #1A0E00; --tile: #EEF2FB; --focus: #8DB4FF; --good: #55C18A; --err: #FF8F80;
+  --f-display: "Baloo Bhaijaan 2", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans Arabic", "Segoe UI", Tahoma, system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  --bg: #F3F6FB; --panel: #FFFFFF; --fg: #0E1B33; --muted: #55627F; --line: #D5DDEB; --grid: rgba(30, 60, 120, .07);
+  --accent-ink: #B94D00; --tile: #FFFFFF; --focus: #1B5BD6; --good: #1E7F4F; --err: #C0392B; color-scheme: light;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg) repeating-linear-gradient(to bottom, transparent 0 23px, var(--grid) 23px 24px); color: var(--fg); font: 16px/1.7 var(--f-body); }
+a { color: inherit; } p { margin: 0; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3, h4 { font-family: var(--f-display); line-height: 1.2; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2.2rem, 5.6vw, 3.8rem); font-weight: 800; } h2 { font-size: clamp(1.6rem, 3.4vw, 2.3rem); font-weight: 800; } h3 { font-size: 1.2rem; font-weight: 600; }
+.mono { font-family: var(--f-mono); direction: ltr; unicode-bidi: isolate; }
+.eyebrow { font: 500 .78rem var(--f-mono); letter-spacing: .1em; color: var(--accent-ink); direction: ltr; text-align: right; display: block; margin-bottom: .6rem; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 46px; padding: .5rem 1.25rem; border-radius: 4px; border: 1.5px solid var(--accent); background: transparent; color: var(--fg); font: 600 1rem var(--f-body); cursor: pointer; text-decoration: none; }
+.btn.primary { background: var(--accent); color: var(--on-accent); } .btn:hover { filter: brightness(1.1); }
+.btn[aria-disabled="true"], .btn:disabled { opacity: .45; pointer-events: none; }
+
+/* header */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg); border-bottom: 1px solid var(--line); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg); }
+.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-block: .55rem; }
+.brand { display: flex; align-items: center; gap: .6rem; text-decoration: none; }
+.brand .tile { background: var(--tile); border-radius: 8px; padding: 3px 7px; display: grid; } .brand img { height: 38px; width: auto; display: block; }
+.brand b { font: 800 1.1rem var(--f-display); direction: ltr; letter-spacing: .02em; } .brand b em { color: var(--accent); font-style: normal; }
+.top nav ul { display: flex; gap: 1.3rem; list-style: none; margin: 0; padding: 0; }
+.top nav a { text-decoration: none; font-weight: 500; padding: .4rem 0; border-bottom: 2px solid transparent; }
+.top nav a:hover, .top nav a[aria-current="page"] { border-color: var(--accent); }
+.iconbtn { min-width: 44px; min-height: 44px; border-radius: 6px; border: 1px solid var(--line); background: var(--panel); color: var(--fg); font-size: 1.1rem; cursor: pointer; }
+.burger { display: none; }
+@media (max-width: 780px) { .burger { display: inline-block; } .top nav { position: absolute; inset: 100% 0 auto 0; background: var(--bg); border-bottom: 1px solid var(--line); display: none; padding: .6rem max(16px, env(safe-area-inset-left, 0px)); } .top nav.open { display: block; } .top nav ul { flex-direction: column; gap: .2rem; } }
+
+/* views */
+.view { padding-block: clamp(1.8rem, 4vw, 3rem) 3.5rem; } .view > .wrap { display: grid; gap: 2.2rem; }
+.crumbs { font-size: .88rem; color: var(--muted); } .crumbs a { color: var(--accent-ink); }
+.head { display: grid; gap: .5rem; max-width: 42rem; } .head p { color: var(--muted); }
+.hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 2rem; align-items: center; }
+.hero h1 em { font-style: normal; color: var(--accent); } .hero .lead { margin-top: 1rem; color: var(--muted); max-width: 34rem; font-size: 1.08rem; }
+.chips { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: 1.2rem; } .chip { padding: .3rem .9rem; border: 1px solid var(--accent); color: var(--accent-ink); font: 500 .88rem var(--f-mono); direction: ltr; }
+.cta { display: flex; gap: .7rem; flex-wrap: wrap; margin-top: 1.5rem; }
+.logotile { background: var(--tile); border: 1px solid var(--line); padding: 1.6rem; display: grid; place-items: center; position: relative; }
+.logotile img { width: min(100%, 380px); height: auto; display: block; }
+.logotile::after { content: "0.20 mm"; direction: ltr; position: absolute; top: -.65rem; inset-inline-start: 1rem; background: var(--bg); color: var(--accent-ink); padding: 0 .4rem; font: 500 .72rem var(--f-mono); }
+@media (max-width: 860px) { .hero { grid-template-columns: minmax(0, 1fr); } }
+.svc { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+.box { background: var(--panel); border: 1px solid var(--line); padding: 1.2rem; display: grid; gap: .5rem; align-content: start; min-width: 0; }
+.box p { color: var(--muted); font-size: .95rem; }
+.cat { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .8rem; }
+.card { display: grid; gap: .5rem; align-content: start; background: var(--panel); border: 1px solid var(--line); padding: .8rem; text-decoration: none; min-width: 0; }
+a.card:hover { border-color: var(--accent); }
+.card .ph, .ph { aspect-ratio: 4 / 3; background: color-mix(in srgb, var(--line) 35%, var(--panel)); border: 1px dashed var(--line); display: grid; place-items: center; font: 400 .74rem var(--f-mono); color: var(--muted); text-align: center; padding: .4rem; }
+.card h4 { font-size: 1.05rem; font-weight: 600; } .card small { color: var(--muted); font-size: .84rem; line-height: 1.5; }
+.card .row { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+.badge { font: 500 .7rem var(--f-mono); padding: .05rem .55rem; border: 1px dashed var(--accent-ink); color: var(--accent-ink); border-radius: 99px; direction: ltr; white-space: nowrap; }
+.card.soon { opacity: .6; cursor: not-allowed; border-style: dashed; }
+.vision { border-block: 1px solid var(--line); background: color-mix(in srgb, var(--panel) 70%, transparent); padding-block: 2rem; }
+.vision .wrap { display: grid; gap: .8rem; } .vision p { max-width: 44rem; color: var(--muted); font-size: 1.05rem; }
+.draft { font: 400 .78rem var(--f-mono); color: var(--accent-ink); }
+
+/* product page */
+.pdp { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem; align-items: start; }
+@media (max-width: 860px) { .pdp { grid-template-columns: minmax(0, 1fr); } }
+.spec { width: 100%; border-collapse: collapse; font-size: .94rem; } .spec th, .spec td { text-align: start; padding: .55rem .2rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+.spec th { width: 34%; color: var(--muted); font-weight: 500; } .spec td.m { font-family: var(--f-mono); direction: ltr; text-align: start; unicode-bidi: isolate; }
+.price { font: 800 2rem var(--f-display); } .price small { font: 600 1rem var(--f-body); color: var(--muted); margin-inline-start: .3rem; }
+.field { display: grid; gap: .4rem; } .field > label, .field > .lab { font-weight: 600; font-size: .95rem; }
+input[type="text"], input[type="tel"], select, textarea { width: 100%; min-height: 46px; padding: .5rem .8rem; border: 1.5px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--fg); font: 500 1rem var(--f-body); }
+textarea { min-height: 100px; resize: vertical; }
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: .5rem; } .seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg label { display: grid; text-align: center; padding: .55rem .4rem; border: 1.5px solid var(--line); cursor: pointer; background: var(--bg); min-height: 54px; align-content: center; }
+.seg label b { font: 600 1rem var(--f-display); } .seg label small { color: var(--muted); font-size: .78rem; }
+.seg input:checked + label { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--panel)); } .seg input:focus-visible + label { outline: 3px solid var(--focus); outline-offset: 2px; }
+.pieces { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; } .pieces label { display: flex; gap: .5rem; align-items: center; padding: .5rem .7rem; border: 1.5px solid var(--line); cursor: pointer; background: var(--bg); min-height: 44px; font-size: .93rem; }
+.pieces input { width: 1.05rem; height: 1.05rem; accent-color: var(--accent); } .pieces label:has(input:checked) { border-color: var(--accent); }
+#name { font: 500 1.25rem var(--f-mono); letter-spacing: .12em; text-transform: uppercase; direction: ltr; text-align: left; }
+.hint { font-size: .82rem; color: var(--muted); } .hint.err, .err-box { color: var(--err); font-weight: 600; }
+.shot { background: var(--tile); border: 1px solid var(--line); padding: .6rem; margin: 0; } .shot img { display: block; width: 100%; height: auto; } .shot figcaption { font-size: .82rem; color: #55627F; padding: .5rem .2rem 0; }
+.bars { display: flex; align-items: flex-end; gap: .6rem; height: 150px; padding: .8rem; background: var(--bg); border: 1px solid var(--line); direction: ltr; }
+.bar { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: .3rem; height: 100%; }
+.bar .col { width: 100%; max-width: 74px; border: 1px solid rgba(0, 0, 0, .4); position: relative; background-image: repeating-linear-gradient(to top, transparent 0 5px, rgba(0, 0, 0, .14) 5px 6px); }
+.bar .col::after { content: ""; position: absolute; inset: auto 0 0 0; height: var(--base); background: rgba(0, 0, 0, .28); } .bar span { font: 500 .72rem var(--f-mono); color: var(--muted); }
+.summary { white-space: pre-wrap; font-size: .92rem; background: var(--bg); border: 1px dashed var(--accent); padding: .8rem; line-height: 1.7; }
+.row { display: flex; flex-wrap: wrap; gap: .6rem; }
+.ok { border: 2px solid var(--good); padding: 1rem; display: grid; gap: .4rem; } .ok .code { font: 500 1.6rem var(--f-mono); letter-spacing: .06em; direction: ltr; }
+.hp { position: absolute; inset-inline-start: -9999px; width: 1px; height: 1px; opacity: 0; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; } @media (max-width: 480px) { .grid2 { grid-template-columns: 1fr; } }
+.stack { display: grid; gap: 1rem; min-width: 0; }
+.soonbox { display: grid; gap: .5rem; opacity: .65; } .soonbox .row { align-items: center; }
+footer { border-top: 1px solid var(--line); padding-block: 2rem 2.5rem; color: var(--muted); font-size: .92rem; background: var(--bg); }
+footer .wrap { display: grid; grid-template-columns: auto 1fr; gap: 1.2rem; align-items: center; } footer .tile { background: var(--tile); border-radius: 8px; padding: 6px 10px; } footer img { height: 90px; width: auto; display: block; }
+footer .sel { user-select: all; font-family: var(--f-mono); direction: ltr; unicode-bidi: isolate; color: var(--fg); }
+@media (max-width: 520px) { footer .wrap { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-reduced-motion: reduce) { .btn:hover { filter: none; } }
+</style>
+
+<div id="app" dir="rtl" lang="ar">
+<header class="top"><div class="wrap">
+  <a class="brand" href="#home" aria-label="3D ZONE TECH"><span class="tile"><img src="img/logo-mark.png" alt="" width="260" height="202"></span><b>ZONE <em>TECH</em></b></a>
+  <nav id="nav" aria-label="القائمة الرئيسية"><ul>
+    <li><a href="#home" data-nav="home">الرئيسية</a></li><li><a href="#products" data-nav="products">منتجاتنا</a></li>
+    <li><a href="#shop" data-nav="shop">المتجر</a></li><li><a href="#contact" data-nav="contact">تواصل معنا</a></li>
+  </ul></nav>
+  <div class="row" style="flex-wrap:nowrap"><button class="iconbtn" id="themeBtn" type="button" aria-label="تبديل الوضع الفاتح والداكن">☀</button><button class="iconbtn burger" id="burger" type="button" aria-label="القائمة" aria-expanded="false">☰</button></div>
+</div></header>
+
+<main id="main"></main>
+
+<footer><div class="wrap">
+  <span class="tile"><img src="img/logo.png" alt="3D ZONE TECH" width="684" height="700"></span>
+  <div><p>فكرتك بإيدك… طبقة طبقة · إربد وعمّان، الأردن</p>
+    <p>الإيميل: <span class="sel">3dzonetech@gmail.com</span></p>
+    <p><a href="https://facebook.com/3dzonetech" target="_blank" rel="noopener">صفحتنا على فيسبوك: 3dzonetech</a></p></div>
+</div></footer>
+</div>
+
+<script>
+/* ---- settings: real WhatsApp number goes here (international format, digits only) ---- */
+const CONTACT = { whatsapp: "", facebook: "https://facebook.com/3dzonetech", email: "3dzonetech@gmail.com" };
+const DATA = __DATA__;
+const API = "__API__";   // "" = preview: orders are copied / sent by WhatsApp instead of saved
+
+const CATS = [
+  { id: "lamps", name: "مصابيح", desc: "لوحات ضوء ولمبات ديكور مضيئة", products: ["lithophane", "lamp"] },
+  { id: "decor", name: "ديكور وأكسسوارات", desc: "قطع للبيت والمكتب وهدايا صغيرة", products: ["controller", "jordan", "tpu"] },
+  { id: "custom", name: "قطع حسب طلبك", desc: "من فكرتك، أو من قطعة مكسورة نمسحها أو نرسمها", products: ["custom"], direct: true },
+  { id: "car", name: "قطع سيارات", desc: "BMW · Mercedes · سيارات كهربائية · دراجات", products: ["cupholder", "vent", "grille", "headlight", "w115", "ev", "keyfob", "moto"] },
+  { id: "gifts", name: "هدايا ومنتجات شخصية", desc: "باسمك وبألوانك", products: ["pack", "nfc"] },
+];
+const SOON = [{ name: "طابعات وقطعها", desc: "طابعات 3D وقطع غيار" }, { name: "فيلامنت", desc: "خيوط طباعة بألوان وأنواع" }];
+const MATERIALS = "PLA+ · PETG · ASA · TPU";
+const P = {
+  lithophane: ["لوحة ضوء (ليثوفين)", "صورتك تتحول لوحة ثلاثية الأبعاد تظهر بالضوء.", "Concept"],
+  lamp: ["لمبة ديكور", "لمبة بتصميم خاص للبيت أو المكتب.", "Concept"],
+  controller: ["حامل يد تحكم", "حامل ليد الألعاب بشخصيات أصلية من تصميمنا.", "Concept"],
+  jordan: ["تصاميم أردنية", "هدايا وقطع ديكور بروح البلد، مثل البتراء.", "Concept"],
+  tpu: ["رقع TPU", "رقع مرنة بتصميمك.", "Concept"],
+  custom: ["قطعة حسب طلبك", "قطعة انكسرت أو ما عاد بتنباع، أو فكرة جديدة. نمسحها بالسكانر ثلاثي الأبعاد أو نرسمها من القياسات.", "حسب الطلب"],
+  cupholder: ["حامل أكواب BMW E30/E36", "حامل أكواب مصمم لمقصورة E30 وE36.", "Concept", "BMW E30 · E36"],
+  vent: ["فتحات تكييف", "فتحات تكييف بديلة أو بتصميم مختلف.", "Concept", "حسب السيارة"],
+  grille: ["شبك أمامي (Kidney grille)", "شبك أمامي بتصميم مخصص.", "Concept", "BMW"],
+  headlight: ["طقم إضاءة أمامية E36", "طقم إكسسوارات الإضاءة الأمامية.", "Concept", "BMW E36"],
+  w115: ["قطع مرسيدس W115", "قطع بدل وإكسسوارات للكلاسيك.", "Concept", "Mercedes W115"],
+  ev: ["قطع داخلية لسيارات كهربائية", "حوامل وقطع داخلية حسب الموديل.", "Concept", "سيارات كهربائية"],
+  keyfob: ["أغطية مفاتيح السيارة", "غطاء مفتاح بتصميم يناسب سيارتك.", "Concept", "حسب المفتاح"],
+  moto: ["قطع دراجات نارية", "قطع وإكسسوارات حسب الموديل.", "Concept", "دراجات نارية"],
+  pack: ["حزمة الطالب", "أربع قطع بنفس الثيم واسم الطالب: بطاقة شنطة، اسم للقلم، مسطرة ١٥ سم، وبطاقة قنينة.", "حجز مسبق"],
+  nfc: ["هدايا NFC ناطقة", "هدية بتلمسها بجوالك وبتفتح رسالة أو صورة أو صوت.", "Concept"],
+};
+const $ = (id) => document.getElementById(id), esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const catOf = (pid) => CATS.find((c) => c.products.includes(pid));
+const money = (v) => (Math.round(v * 100) / 100).toFixed(2);
+
+/* ---------- views ---------- */
+function catCard(c) { return `<a class="card" href="#${c.direct ? "p-" + c.products[0] : "c-" + c.id}"><div class="ph">صورة القسم</div><h4>${c.name}</h4><small>${c.desc}</small></a>`; }
+function soonCard(s) { return `<div class="card soon" aria-disabled="true"><div class="ph">صورة القسم</div><div class="row"><h4>${s.name}</h4><span class="badge">قريباً</span></div><small>${s.desc}</small></div>`; }
+const VIEWS = {
+  home: () => `<div class="view"><div class="wrap">
+    <div class="hero"><div><span class="eyebrow">3D PRINTING · 3D SCANNING · IRBID · AMMAN</span>
+      <h1>فكرتك بإيدك… <em>طبقة طبقة</em></h1>
+      <p class="lead">3D ZONE TECH شركة طباعة وسكانر ثلاثي الأبعاد في إربد وعمّان. نصمم ونطبع بالألوان، ونمسح القطع بالسكانر.</p>
+      <div class="chips"><span class="chip">PRINT 3D</span><span class="chip">SCAN 3D</span></div>
+      <div class="cta"><a class="btn primary" href="#products">شوف منتجاتنا</a><a class="btn" href="#p-custom">اطلب قطعتك</a></div></div>
+      <div class="logotile"><img src="img/logo.png" alt="شعار 3D ZONE TECH" width="684" height="700"></div></div>
+    <div class="svc"><div class="box"><span class="eyebrow">01 · PRINT</span><h3>طباعة ثلاثية الأبعاد</h3><p>طابعة متعددة الألوان (Bambu Lab H2D مع AMS لأربعة ألوان) بمواد PLA+ وPETG وASA وTPU.</p></div>
+      <div class="box"><span class="eyebrow">02 · SCAN</span><h3>سكانر ثلاثي الأبعاد</h3><p>نمسح قطعتك بالسكانر (CR-Scan Otter) ونحولها لملف جاهز للتعديل أو الطباعة.</p></div></div>
+    <div class="stack"><div class="head"><span class="eyebrow">CATALOGUE</span><h2>شو بنقدّم</h2></div>
+      <div class="cat">${CATS.map(catCard).join("")}${SOON.map(soonCard).join("")}</div></div></div>
+    <div class="vision" style="margin-top:2.4rem"><div class="wrap"><span class="eyebrow">VISION</span><h2>نظرتنا</h2>
+      <p>نحوّل الفكرة لقطعة حقيقية، بدقة وبألوان، من أول رسمة لحد باب البيت.</p><span class="draft">نص مسودة، بنعدله معك</span></div></div></div>`,
+  products: () => `<div class="view"><div class="wrap"><div class="head"><span class="eyebrow">PRODUCTS</span><h2>منتجاتنا</h2><p>اللي بنصممه ونصنعه نحن. كل منتج "Concept" لحد ما نجرّب نموذجاً حقيقياً.</p></div>
+    ${CATS.map((c) => `<div class="stack"><div class="row" style="justify-content:space-between;align-items:baseline"><h3>${c.name}</h3>${c.direct ? "" : `<a class="crumbs" href="#c-${c.id}" style="color:var(--accent-ink)">كل المنتجات</a>`}</div>
+      <div class="cat">${c.products.slice(0, 4).map(prodCard).join("")}</div></div>`).join("")}</div></div>`,
+  shop: () => `<div class="view"><div class="wrap"><div class="head"><span class="eyebrow">SHOP</span><h2>المتجر</h2><p>المنتجات الجاهزة للبيع. بنفعّلها قريباً.</p></div>
+    <div class="cat">${SOON.concat([{ name: "قطع غيار الطابعات", desc: "قطع وإكسسوارات لطابعات 3D" }]).map(soonCard).join("")}</div></div></div>`,
+  contact: () => `<div class="view"><div class="wrap"><div class="head"><span class="eyebrow">CONTACT</span><h2>تواصل معنا</h2><p>إربد وعمّان. اكتب لنا أو ابعت فكرتك.</p></div>
+    <div class="svc"><div class="box"><h3>الإيميل</h3><p class="mono" style="user-select:all">3dzonetech@gmail.com</p></div>
+      <div class="box"><h3>فيسبوك</h3><p><a href="https://facebook.com/3dzonetech" target="_blank" rel="noopener">facebook.com/3dzonetech</a></p></div>
+      <div class="box"><h3>واتساب</h3><p>${CONTACT.whatsapp ? `<span class="mono">${esc(CONTACT.whatsapp)}</span>` : "بنضيف الرقم قريباً"}</p></div></div>
+    <div><a class="btn primary" href="#p-custom">اطلب قطعتك</a></div>
+    ${API ? trackBox() : ""}</div></div>`,
+};
+function prodCard(pid) { const p = P[pid]; return `<a class="card" href="#p-${pid}"><div class="ph">صورة المنتج</div><div class="row"><h4>${p[0]}</h4></div><small>${p[1]}</small><span class="badge" style="justify-self:start">${p[2]}</span></a>`; }
+function catView(c) { return `<div class="view"><div class="wrap"><p class="crumbs"><a href="#products">منتجاتنا</a> / ${c.name}</p><div class="head"><span class="eyebrow">${c.id.toUpperCase()}</span><h2>${c.name}</h2><p>${c.desc}</p></div><div class="cat">${c.products.map(prodCard).join("")}</div></div></div>`; }
+
+/* ---------- generic product page: specs + ask-for-price ---------- */
+function genericView(pid) {
+  const p = P[pid], c = catOf(pid);
+  const rows = [["الحالة", p[2]], ...(p[3] ? [["التوافق", p[3]]] : []), ["المواد", MATERIALS], ["الألوان", "حسب المتوفر عندنا"], ["المقاس", "حسب طلبك"], ["مدة التنفيذ", "نؤكدها عند الطلب"], ["السعر", "اطلب سعر"]];
+  return `<div class="view"><div class="wrap"><p class="crumbs"><a href="#products">منتجاتنا</a> / ${c.direct ? "" : `<a href="#c-${c.id}">${c.name}</a> / `}${p[0]}</p>
+    <div class="pdp"><div class="stack"><div class="ph" style="aspect-ratio:4/3">صور المنتج (بعد أول نموذج مطبوع)</div></div>
+    <div class="stack"><div class="head"><span class="eyebrow">${p[2].toUpperCase()}</span><h2>${p[0]}</h2><p>${p[1]}</p></div>
+      <table class="spec"><tbody>${rows.map(([k, v]) => `<tr><th scope="row">${k}</th><td>${esc(v)}</td></tr>`).join("")}</tbody></table>
+      ${askForm(pid)}</div></div></div></div>`;
+}
+function askForm(pid) {
+  return `<form class="stack" id="askForm" onsubmit="return false"><h3>${pid === "custom" ? "احكيلنا عن الفكرة" : "اسأل عن السعر"}</h3>
+    <div class="grid2"><div class="field"><label for="aName">اسمك</label><input id="aName" type="text" autocomplete="name"></div>
+      <div class="field"><label for="aPhone">رقم الهاتف</label><input id="aPhone" type="tel" inputmode="tel" dir="ltr" autocomplete="tel"></div></div>
+    <div class="field"><label for="aText">${pid === "custom" ? "شو بدك؟" : "تفاصيل (الموديل، اللون…)"}</label><textarea id="aText"></textarea></div>
+    <label class="hint" style="display:flex;gap:.5rem;align-items:center"><input id="aHave" type="checkbox" style="accent-color:var(--accent)"> عندي القطعة الأصلية أو صور وقياسات</label>
+    <input class="hp" id="aWeb" type="text" tabindex="-1" autocomplete="off" aria-hidden="true"><p class="err-box" id="aErr" role="alert" hidden></p>
+    <div class="row">${API ? '<button class="btn primary" id="aSend" type="button">أرسل الطلب</button>' : ""}<a class="btn primary" id="aWa" href="#" target="_blank" rel="noopener" ${API ? "hidden" : ""}>أرسل على واتساب</a><button class="btn" id="aCopy" type="button">انسخ الطلب</button></div>
+    <p class="hint" id="aNote"></p><div class="ok" id="aOk" hidden></div></form>`;
+}
+function bindAsk(pid) {
+  const msg = () => ["طلب سعر / تصميم", `المنتج: ${P[pid][0]}`, `الاسم: ${$("aName").value.trim() || "—"}`, `الهاتف: ${$("aPhone").value.trim() || "—"}`, `التفاصيل: ${$("aText").value.trim() || "—"}`, `عنده القطعة أو صور وقياسات: ${$("aHave").checked ? "نعم" : "لا"}`].join("\n");
+  const refresh = () => setSend($("aWa"), $("aNote"), msg());
+  ["aName", "aPhone", "aText", "aHave"].forEach((id) => $(id).addEventListener("input", refresh)); refresh();
+  $("aCopy").onclick = (e) => copy(msg(), e.currentTarget);
+  if (API) $("aSend").onclick = async (e) => {
+    const b = e.currentTarget; showErr($("aErr"), ""); b.disabled = true; b.textContent = "جاري الإرسال…";
+    const j = await post("/orders", { kind: "custom", product: P[pid][0], text: $("aText").value, have: $("aHave").checked, customer: $("aName").value, phone: $("aPhone").value, area: "غير ذلك", website: $("aWeb").value });
+    b.disabled = false; b.textContent = "أرسل الطلب"; if (!j.ok) return showErr($("aErr"), j.error);
+    okBox($("aOk"), j, "بنرجعلك على رقمك بتصوّر وسعر.");
+  };
+}
+
+/* ---------- Student Pack product page (configurator) ---------- */
+const PIECES = [["tag", "بطاقة شنطة"], ["pencil", "اسم القلم"], ["ruler", "مسطرة ١٥ سم"], ["bottle", "بطاقة قنينة"]];
+const COLOUR_NAMES = { black: "أسود", yellow: "أصفر", orange: "برتقالي", white: "أبيض", pink: "وردي", lpink: "وردي فاتح" };
+const state = { theme: "construction", colours: "4", pieces: new Set(PIECES.map((p) => p[0])), name: "OMAR" };
+const ceilTo = (v, s) => Math.ceil(v / s - 1e-9) * s;
+function priceFor() {
+  const c = DATA.themes[state.theme].colours[state.colours], all = PIECES.map((p) => p[0]), sel = all.filter((k) => state.pieces.has(k));
+  if (!sel.length) return { price: 0, pack: false };
+  if (sel.length === all.length) return { price: c.pack, pack: true };
+  const total = all.reduce((a, k) => a + c.costs[k], 0), part = sel.reduce((a, k) => a + c.costs[k], 0);
+  return { price: Math.min(c.pack, ceilTo(c.pack * (part / total) * DATA.premium, DATA.step)), pack: false };
+}
+function packView() {
+  const p = P.pack;
+  return `<div class="view"><div class="wrap"><p class="crumbs"><a href="#products">منتجاتنا</a> / <a href="#c-gifts">هدايا ومنتجات شخصية</a> / ${p[0]}</p>
+  <div class="head"><span class="eyebrow">PRE-ORDER · STUDENT PACK</span><h2>حزمة الطالب باسمك</h2><p>${p[1]} اكتب الاسم، اختار الثيم وعدد الألوان، وشوف السعر.</p></div>
+  <div class="pdp"><form class="stack box" id="cfgForm" onsubmit="return false">
+    <div class="field"><span class="lab" id="lblTheme">الثيم</span><div class="seg" role="radiogroup" aria-labelledby="lblTheme" id="themeSeg"></div></div>
+    <div class="field"><label for="name">الاسم (بالإنجليزي)</label><input id="name" type="text" value="OMAR" maxlength="11" autocomplete="off" spellcheck="false" inputmode="latin"><p class="hint" id="nameHint">حتى ١١ حرف. الأسماء العربية قريباً.</p></div>
+    <div class="field"><span class="lab" id="lblCol">عدد الألوان</span><div class="seg" role="radiogroup" aria-labelledby="lblCol" id="colSeg"></div></div>
+    <div class="field"><span class="lab">القطع</span><div class="pieces" id="pieces"></div></div>
+    <div class="row" style="justify-content:space-between;align-items:baseline;border-top:1px dashed var(--line);padding-top:.8rem"><div><div class="hint">السعر</div><div class="price" id="price">—</div></div><div class="hint" id="priceNote"></div></div>
+    <div id="checkout" ${API ? "" : "hidden"}><div class="grid2"><div class="field"><label for="cName">اسمك</label><input id="cName" type="text" autocomplete="name"></div><div class="field"><label for="cPhone">رقم الهاتف</label><input id="cPhone" type="tel" inputmode="tel" dir="ltr" autocomplete="tel"></div>
+      <div class="field"><label for="cArea">المنطقة</label><select id="cArea"><option>إربد</option><option>عمّان</option><option>غير ذلك</option></select></div><div class="field"><label for="cQty">عدد الباقات</label><select id="cQty"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div></div>
+      <div class="field" style="margin-top:.6rem"><label for="cNote">ملاحظات (اختياري)</label><input id="cNote" type="text" maxlength="200"></div><input class="hp" id="cWebsite" type="text" tabindex="-1" autocomplete="off" aria-hidden="true"></div>
+    <div class="summary" id="summary" aria-live="polite"></div><p class="err-box" id="orderErr" role="alert" hidden></p>
+    <div class="row">${API ? '<button class="btn primary" id="placeOrder" type="button">أكّد الطلب</button>' : ""}<a class="btn primary" id="sendWa" href="#" target="_blank" rel="noopener" ${API ? "hidden" : ""}>أرسل الطلب على واتساب</a><button class="btn" id="copyOrder" type="button">انسخ الطلب</button></div>
+    <p class="hint" id="orderNote"></p><div class="ok" id="orderOk" hidden></div></form>
+  <div class="stack"><figure class="shot"><img id="shot" src="" alt="معاينة الحزمة" width="1100" height="780"><figcaption id="shotCap"></figcaption></figure>
+    <div class="box"><h3>طبقات الطباعة لهذا الخيار (ملم)</h3><div class="bars" id="bars"></div><p class="hint">قاعدة ١.٦ ملم بلون الإطار، وكل لون يعلى فوقها لارتفاعه.</p></div>
+    <table class="spec"><tbody><tr><th scope="row">بطاقة الشنطة</th><td class="m">70 mm wide · hole Ø5</td></tr><tr><th scope="row">اسم القلم</th><td class="m">85 mm · plate 10.4 · tunnel Ø7.7</td></tr><tr><th scope="row">المسطرة</th><td class="m">165 × 50 mm · 0.5 mm lines</td></tr><tr><th scope="row">بطاقة القنينة</th><td class="m">48 mm wide · hole Ø5</td></tr></tbody></table></div></div></div></div>`;
+}
+function seg(el, name, items, current, onPick) {
+  el.innerHTML = items.map(([v, t, s]) => `<input type="radio" name="${name}" id="${name}_${v}" value="${v}" ${v === current ? "checked" : ""}><label for="${name}_${v}"><b>${t}</b><small>${s}</small></label>`).join("");
+  el.onchange = (e) => onPick(e.target.value);
+}
+function packMsg() {
+  const t = DATA.themes[state.theme], c = t.colours[state.colours], p = priceFor(), q = API ? Number($("cQty").value) || 1 : 1;
+  const names = PIECES.filter((x) => state.pieces.has(x[0])).map((x) => x[1]).join("، ");
+  return ["طلب حزمة طالب (حجز مسبق)", `الاسم: ${state.name || "—"}`, `الثيم: ${t.label}`, `الألوان: ${state.colours} (${c.swatches.map((s) => COLOUR_NAMES[s.name] || s.name).join("، ")})`,
+    `القطع: ${p.pack ? "الباقة كاملة" : names}`, ...(API ? [`عدد الباقات: ${q}`] : []), `السعر: ${money(p.price * q)} دينار`].join("\n");
+}
+function packRender() {
+  const keep = document.activeElement && document.activeElement.id, t = DATA.themes[state.theme], c = t.colours[state.colours], p = priceFor();
+  seg($("themeSeg"), "theme", Object.entries(DATA.themes).map(([k, v]) => [k, v.label, v.desc]), state.theme, (v) => { state.theme = v; packRender(); });
+  seg($("colSeg"), "col", ["2", "3", "4"].map((k) => [k, `${k} ألوان`, `${money(t.colours[k].pack)} د.أ`]), state.colours, (v) => { state.colours = v; packRender(); });
+  $("pieces").innerHTML = PIECES.map(([k, l]) => `<label><input type="checkbox" value="${k}" ${state.pieces.has(k) ? "checked" : ""}> ${l}</label>`).join("");
+  $("pieces").onchange = (e) => { e.target.checked ? state.pieces.add(e.target.value) : state.pieces.delete(e.target.value); packRender(); };
+  const q = API ? Number($("cQty").value) || 1 : 1;
+  $("price").innerHTML = p.price ? `${money(p.price * q)}<small>دينار</small>` : "—";
+  $("priceNote").textContent = p.price ? (p.pack ? "سعر الباقة الكاملة" : "سعر القطع المختارة") : "اختار قطعة وحدة على الأقل";
+  $("shot").src = c.img; $("shotCap").textContent = `تصوّر (Concept) · ${t.label} · ${state.colours} ألوان · مثال بالاسم ${t.sample}. نرسل لك معاينة باسمك قبل الطباعة.`;
+  const zmax = Math.max(...c.swatches.map((s) => s.z));
+  $("bars").innerHTML = c.swatches.map((s) => `<div class="bar"><div class="col" style="height:${Math.round((s.z / zmax) * 96)}px;background:${s.hex};--base:${(1.6 / s.z) * 100}%"></div><span>${COLOUR_NAMES[s.name] || s.name}</span><span>${s.z}</span></div>`).join("");
+  $("summary").textContent = packMsg(); setSend($("sendWa"), $("orderNote"), packMsg());
+  if (keep && $(keep) && keep !== "name") $(keep).focus();
+}
+function bindPack() {
+  $("name").addEventListener("input", (e) => {
+    const raw = e.target.value, clean = raw.replace(/[^A-Za-z ]/g, "").slice(0, 11); e.target.value = clean; state.name = clean.trim();
+    const h = $("nameHint");
+    if (raw !== clean) { h.textContent = "حروف إنجليزية فقط حالياً. الأسماء العربية قريباً."; h.className = "hint err"; }
+    else if (!state.name) { h.textContent = "اكتب الاسم."; h.className = "hint err"; } else { h.textContent = "حتى ١١ حرف. الأسماء العربية قريباً."; h.className = "hint"; }
+    packRender();
+  });
+  $("cQty").addEventListener("change", packRender);
+  $("copyOrder").onclick = (e) => copy(packMsg(), e.currentTarget);
+  if (API) $("placeOrder").onclick = async (e) => {
+    const b = e.currentTarget; showErr($("orderErr"), "");
+    if (!state.name) return showErr($("orderErr"), "اكتب الاسم اللي بدك إياه على القطع.");
+    if (!state.pieces.size) return showErr($("orderErr"), "اختار قطعة وحدة على الأقل.");
+    b.disabled = true; b.textContent = "جاري الإرسال…";
+    const j = await post("/orders", { kind: "pack", name: state.name, theme: state.theme, colours: Number(state.colours), pieces: [...state.pieces], qty: Number($("cQty").value),
+      customer: $("cName").value, phone: $("cPhone").value, area: $("cArea").value, details: $("cNote").value, website: $("cWebsite").value });
+    b.disabled = false; b.textContent = "أكّد الطلب"; if (!j.ok) return showErr($("orderErr"), j.error);
+    okBox($("orderOk"), j, "بنتواصل معك على رقمك بمعاينة باسمك والسعر النهائي والعربون قبل ما نبدأ الطباعة.");
+  };
+  packRender();
+}
+
+/* ---------- shared helpers ---------- */
+function link(text) { const n = CONTACT.whatsapp.replace(/\D/g, ""); return n ? `https://wa.me/${n}?text=${encodeURIComponent(text)}` : null; }
+function setSend(btn, note, text) {
+  const href = link(text);
+  if (href) { btn.href = href; btn.removeAttribute("aria-disabled"); btn.hidden = false; if (!API) note.textContent = "بيفتح واتساب والرسالة جاهزة، بس اضغط إرسال. نرجعلك بمعاينة قبل الطباعة."; }
+  else { btn.href = "#"; btn.setAttribute("aria-disabled", "true"); if (!API) note.textContent = "رقم الواتساب لسا ما انضاف للموقع. انسخ الطلب وابعتلنا إياه على فيسبوك أو الإيميل أسفل الصفحة."; }
+}
+async function copy(text, btn) {
+  const old = btn.textContent;
+  try { await navigator.clipboard.writeText(text); btn.textContent = "تم النسخ"; } catch (e) { btn.textContent = "انسخه يدوياً"; }
+  setTimeout(() => (btn.textContent = old), 1800);
+}
+async function post(path, body) {
+  const r = await fetch(API + path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+  return r.json().catch(() => ({ ok: false, error: "تعذّر الاتصال، جرّب مرة ثانية." }));
+}
+function showErr(el, msg) { el.textContent = msg; el.hidden = !msg; }
+function okBox(el, j, extra) {
+  el.hidden = false;
+  el.innerHTML = `<b>وصلنا طلبك</b><div class="code">${j.code}</div>${j.total != null ? `<p>المجموع: ${money(j.total)} دينار</p>` : ""}<p>${extra}</p><p class="hint">احفظ رقم الطلب. بتقدر تتبّعه من صفحة "تواصل معنا".</p>`;
+}
+function trackBox() {
+  return `<form class="box" id="trackForm" onsubmit="return false"><h3>تتبّع طلبك</h3><div class="grid2"><div class="field"><label for="tCode">رقم الطلب</label><input id="tCode" type="text" placeholder="ZT-1001" dir="ltr" autocomplete="off"></div>
+  <div class="field"><label for="tPhone">رقم الهاتف</label><input id="tPhone" type="tel" dir="ltr" autocomplete="tel"></div></div><div class="row"><button class="btn primary" id="tGo" type="button">تتبّع</button></div><p id="tOut" class="hint" aria-live="polite"></p></form>`;
+}
+function bindTrack() {
+  const go = $("tGo"); if (!go) return;
+  go.onclick = async () => {
+    const out = $("tOut"); out.className = "hint"; out.textContent = "…";
+    const r = await fetch(`${API}/track?id=${encodeURIComponent($("tCode").value)}&phone=${encodeURIComponent($("tPhone").value)}`).then((x) => x.json()).catch(() => ({ ok: false, error: "تعذّر الاتصال." }));
+    out.className = r.ok ? "hint" : "hint err"; out.textContent = r.ok ? `${r.code}: ${r.statusText}` : r.error;
+  };
+}
+
+/* ---------- router: bare hash tokens (home, products, shop, contact, c-<cat>, p-<product>) ---------- */
+function route() {
+  const t = (location.hash || "#home").slice(1) || "home", main = $("main");
+  let html, after, nav = "home", title = "3D ZONE TECH";
+  if (VIEWS[t]) { html = VIEWS[t](); nav = t; if (t === "contact") after = bindTrack; }
+  else if (t.startsWith("c-") && CATS.find((c) => c.id === t.slice(2))) { const c = CATS.find((x) => x.id === t.slice(2)); html = catView(c); nav = "products"; title = c.name; }
+  else if (t.startsWith("p-") && P[t.slice(2)]) { const pid = t.slice(2); nav = "products"; title = P[pid][0];
+    if (pid === "pack") { html = packView(); after = bindPack; } else { html = genericView(pid); after = () => bindAsk(pid); } }
+  else { html = VIEWS.home(); }
+  main.innerHTML = html; document.title = title === "3D ZONE TECH" ? title : `${title} · 3D ZONE TECH`;
+  document.querySelectorAll("[data-nav]").forEach((a) => (a.dataset.nav === nav ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
+  $("nav").classList.remove("open"); $("burger").setAttribute("aria-expanded", "false");
+  if (after) after();
+  window.scrollTo(0, 0);
+}
+$("burger").onclick = () => { const o = $("nav").classList.toggle("open"); $("burger").setAttribute("aria-expanded", String(o)); };
+$("themeBtn").onclick = () => { const r = document.documentElement, light = r.dataset.theme !== "light"; r.dataset.theme = light ? "light" : "dark"; $("themeBtn").textContent = light ? "☾" : "☀"; };
+addEventListener("hashchange", route); route();
+</script>
