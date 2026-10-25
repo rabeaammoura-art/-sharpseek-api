@@ -41,7 +41,7 @@ rect = lambda x0, y0, x1, y1: CS.square([x1 - x0, y1 - y0]).translate([x0, y0])
 def rot(c, ang, cx, cy): return c.translate([-cx, -cy]).rotate(ang).translate([cx, cy])
 def pad_at(cx, cy, ang): return rot(CS.square([PAD_L, PAD_W], center=True).offset(0, JoinType.Round).translate([cx, cy]), ang, cx, cy).offset(0, JoinType.Round)
 def key2d(cx, cy, ang, grow=0.0):
-    c = CS([KEY]).translate([cx, cy]); c = rot(c, ang, cx, cy)
+    c = CS([KEY], FillRule.EvenOdd).translate([cx, cy]); c = rot(c, ang, cx, cy)
     return c.offset(grow, JoinType.Round, 2, 24) if grow else c
 
 def build(name, wmm, nx, ny, out):
@@ -102,7 +102,7 @@ def build(name, wmm, nx, ny, out):
         tm = trimesh.Trimesh(ms.vert_properties[:, :3], ms.tri_verts); tm.merge_vertices()
         fn = f"e30_{name}_{k[0] + 1}x{k[1] + 1}.stl"; tm.export(out / fn)
         meta[fn] = dict(size=[round(w, 1), round(h, 1)], fits=bool(w <= 325 and h <= 320), watertight=bool(tm.is_watertight))
-    key = m3.Manifold.extrude(CS([KEY]), KEYT); ms = key.to_mesh()
+    key = m3.Manifold.extrude(CS([KEY], FillRule.EvenOdd), KEYT); ms = key.to_mesh()
     trimesh.Trimesh(ms.vert_properties[:, :3], ms.tri_verts).export(out / "e30_key.stl")
     print(name, f"{W:.0f}x{H:.0f} mm", f"{nx}x{ny}", "keys", nkeys, json.dumps(meta))
     json.dump(dict(keys=nkeys, keylog=keylog, pieces=meta), open(out / f"layout_{name}.json", "w"))
