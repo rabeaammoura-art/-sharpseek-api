@@ -51,7 +51,10 @@ Studio (flush multiplier, assign 2 colours per H2D nozzle, smaller tower) once t
 One component per piece, one solid body per colour (named by colour), exact heights, real teardrop cut feature.
 The logic is smoke-tested against a fake `adsk` API only; **run it once in Fusion** and tell me what breaks.
 
-## Faster prints
-Colour changes + purge dominate the time. On the OSAYD tag (H2D, PETG): 57 min default → 50 min with
-`--set 'flush_multiplier=[0.3]'` → 44 min without prime tower → **37 min** with `--process "0.24mm Standard @BBL H2D"` too
-(purge 8.6 g → 1.6 g). Lower flush risks colour bleed (black→white), so test a real print first.
+## Faster prints (verified against the G-code, OSAYD tag, H2D, PETG)
+Colour changes + purge dominate the time (18 tool changes per piece).
+- Default 0.20 mm: 57 min, purge 8.6 g. Layer tops exact: yellow/orange 2.8, white 3.2, black 2.2.
+- `--set 'flush_multiplier=[0.3]'` (same 0.20 mm layers, prime tower on): 50 min, purge 4.1 g, layer tops unchanged. Safe for
+  the geometry; lower flush can bleed colour (black→white) so test one real print before using it for the pack.
+- **Do not use** 0.24 mm layers: the stack no longer matches the spec (white tops out at 3.08 instead of 3.2, black at 2.12
+  instead of 2.2, colour boundaries off 1.6). Prime tower off is also not verified on the real H2D, so it isn't recommended.
