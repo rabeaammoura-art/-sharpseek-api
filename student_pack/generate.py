@@ -20,7 +20,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from shapely.geometry import Point
+from shapely.geometry import Point, box
 
 import layout
 import mesh
@@ -50,6 +50,8 @@ def checks(piece):
             ok, limit = lost == 0, 0.5
             thin[c] = lost
         else:
+            if piece.kind == "ruler":                          # the 0.5 mm gaps between ticks (body colour) are intentional
+                g = g.difference(box(0, layout.RULER_H - 11.0, layout.RULER_W, layout.RULER_H))
             lost = g.area - opening(g, MIN_FEATURE / 2 - 0.05).area      # sliver area (corner rounding is < 1% of area)
             ok, limit = lost <= max(1.0, 0.01 * g.area), MIN_FEATURE
             thin[c] = round(lost, 2)
