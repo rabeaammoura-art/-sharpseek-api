@@ -137,11 +137,11 @@ const DATA = {"currency": "JOD", "premium": 1.3, "step": 0.25, "themes": {"const
 const API = "";   // "" = preview: orders are copied / sent by WhatsApp instead of saved
 
 const CATS = [
-  { id: "lamps", name: "مصابيح", desc: "لوحات ضوء ولمبات ديكور مضيئة", products: ["lithophane", "lamp"] },
-  { id: "decor", name: "ديكور وأكسسوارات", desc: "قطع للبيت والمكتب وهدايا صغيرة", products: ["controller", "jordan", "tpu"] },
+  { id: "lamps", name: "مصابيح", desc: "لوحات ضوء ولمبات ديكور مضيئة", img: "img/products/teddy-assembled.jpg", products: ["teddy", "lithophane", "lamp"] },
+  { id: "decor", name: "ديكور وأكسسوارات", desc: "قطع للبيت والمكتب وهدايا صغيرة", img: "img/products/mercedes-tray.jpg", products: ["mtray", "controller", "jordan", "tpu"] },
   { id: "custom", name: "قطع حسب طلبك", desc: "من فكرتك، أو من قطعة مكسورة نمسحها أو نرسمها", products: ["custom"], direct: true },
-  { id: "car", name: "قطع سيارات", desc: "BMW · Mercedes · سيارات كهربائية · دراجات", products: ["cupholder", "vent", "grille", "headlight", "w115", "ev", "keyfob", "moto"] },
-  { id: "gifts", name: "هدايا ومنتجات شخصية", desc: "باسمك وبألوانك", products: ["pack", "nfc"] },
+  { id: "car", name: "قطع سيارات", desc: "BMW · Mercedes · سيارات كهربائية · دراجات", img: "img/products/e36-devil-eye.jpg", products: ["e36", "cupholder", "vent", "grille", "w115", "ev", "keyfob", "moto"] },
+  { id: "gifts", name: "هدايا ومنتجات شخصية", desc: "باسمك وبألوانك", img: "img/construction-4.png", products: ["pack", "nfc"] },
 ];
 const SOON = [{ name: "طابعات وقطعها", desc: "طابعات 3D وقطع غيار" }, { name: "فيلامنت", desc: "خيوط طباعة بألوان وأنواع" }];
 const MATERIALS = "PLA+ · PETG · ASA · TPU";
@@ -152,10 +152,15 @@ const P = {
   jordan: ["تصاميم أردنية", "هدايا وقطع ديكور بروح البلد، مثل البتراء.", "Concept"],
   tpu: ["رقع TPU", "رقع مرنة بتصميمك.", "Concept"],
   custom: ["قطعة حسب طلبك", "قطعة انكسرت أو ما عاد بتنباع، أو فكرة جديدة. نمسحها بالسكانر ثلاثي الأبعاد أو نرسمها من القياسات.", "حسب الطلب"],
-  cupholder: ["حامل أكواب BMW E30/E36", "حامل أكواب مصمم لمقصورة E30 وE36.", "Concept", "BMW E30 · E36"],
+  e36: ["ضوء أمامي BMW E36 معياري", "ضوء أمامي مصمم من الصفر لـ E36: بروجكتور Bi-LED داخلي وعين حمراء (Devil Eye) خارجية، بتركيب معياري يمين ويسار.", "Concept", "BMW E36",
+    ["img/products/e36-three-quarter.jpg", "img/products/e36-front-on.jpg", "img/products/e36-devil-eye.jpg", "img/products/e36-exploded.jpg", "img/products/e36-front-off.jpg"], [["المادة", "ASA-CF (التصميم الحالي)"], ["الأجزاء", "يمين وشمال"]]],
+  cupholder: ["حامل أكواب BMW E30", "حامل أكواب مصمم لمقصورة E30. بنضيف الصور بعد الطباعة التجريبية.", "Concept", "BMW E30"],
+  mtray: ["صينية مرسيدس", "صينية بمقبض: بتنطبع مطوية على قاعدتها، وبعدين المقبض بيرتفع ويتقفل. فيها نقش بتصميم مخصص.", "Concept", null,
+    ["img/products/mercedes-tray.jpg", "img/products/mercedes-carving.jpg"], [["المقاس (وضع الطباعة)", "285 × 285 × 10 mm"]]],
+  teddy: ["دبدوب القلب (ليثوفين + LED)", "دبدوب بيحمل قلب ليثوفين مضيء: صورتك على القلب والـLED من خلفه. بيتركب من جزأين.", "Concept", null,
+    ["img/products/teddy-assembled.jpg", "img/products/teddy-exploded.jpg"], [["المقاس", "≈ 16 × 20 cm"], ["الإضاءة", "LED مع كبل"]]],
   vent: ["فتحات تكييف", "فتحات تكييف بديلة أو بتصميم مختلف.", "Concept", "حسب السيارة"],
   grille: ["شبك أمامي (Kidney grille)", "شبك أمامي بتصميم مخصص.", "Concept", "BMW"],
-  headlight: ["طقم إضاءة أمامية E36", "طقم إكسسوارات الإضاءة الأمامية.", "Concept", "BMW E36"],
   w115: ["قطع مرسيدس W115", "قطع بدل وإكسسوارات للكلاسيك.", "Concept", "Mercedes W115"],
   ev: ["قطع داخلية لسيارات كهربائية", "حوامل وقطع داخلية حسب الموديل.", "Concept", "سيارات كهربائية"],
   keyfob: ["أغطية مفاتيح السيارة", "غطاء مفتاح بتصميم يناسب سيارتك.", "Concept", "حسب المفتاح"],
@@ -168,7 +173,8 @@ const catOf = (pid) => CATS.find((c) => c.products.includes(pid));
 const money = (v) => (Math.round(v * 100) / 100).toFixed(2);
 
 /* ---------- views ---------- */
-function catCard(c) { return `<a class="card" href="#${c.direct ? "p-" + c.products[0] : "c-" + c.id}"><div class="ph">صورة القسم</div><h4>${c.name}</h4><small>${c.desc}</small></a>`; }
+const imgBox = (src, ph, alt) => (src ? `<div class="ph" style="border-style:solid;padding:0;overflow:hidden"><img src="${src}" alt="${alt || ""}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block"></div>` : `<div class="ph">${ph}</div>`);
+function catCard(c) { return `<a class="card" href="#${c.direct ? "p-" + c.products[0] : "c-" + c.id}">${imgBox(c.img, "صورة القسم", c.name)}<h4>${c.name}</h4><small>${c.desc}</small></a>`; }
 function soonCard(s) { return `<div class="card soon" aria-disabled="true"><div class="ph">صورة القسم</div><div class="row"><h4>${s.name}</h4><span class="badge">قريباً</span></div><small>${s.desc}</small></div>`; }
 const VIEWS = {
   home: () => `<div class="view"><div class="wrap">
@@ -196,18 +202,24 @@ const VIEWS = {
     <div><a class="btn primary" href="#p-custom">اطلب قطعتك</a></div>
     ${API ? trackBox() : ""}</div></div>`,
 };
-function prodCard(pid) { const p = P[pid]; return `<a class="card" href="#p-${pid}"><div class="ph">صورة المنتج</div><div class="row"><h4>${p[0]}</h4></div><small>${p[1]}</small><span class="badge" style="justify-self:start">${p[2]}</span></a>`; }
+function prodCard(pid) { const p = P[pid]; return `<a class="card" href="#p-${pid}">${imgBox(p[4] && p[4][0], "صورة المنتج", p[0])}<div class="row"><h4>${p[0]}</h4></div><small>${p[1]}</small><span class="badge" style="justify-self:start">${p[2]}</span></a>`; }
 function catView(c) { return `<div class="view"><div class="wrap"><p class="crumbs"><a href="#products">منتجاتنا</a> / ${c.name}</p><div class="head"><span class="eyebrow">${c.id.toUpperCase()}</span><h2>${c.name}</h2><p>${c.desc}</p></div><div class="cat">${c.products.map(prodCard).join("")}</div></div></div>`; }
 
 /* ---------- generic product page: specs + ask-for-price ---------- */
 function genericView(pid) {
   const p = P[pid], c = catOf(pid);
-  const rows = [["الحالة", p[2]], ...(p[3] ? [["التوافق", p[3]]] : []), ["المواد", MATERIALS], ["الألوان", "حسب المتوفر عندنا"], ["المقاس", "حسب طلبك"], ["مدة التنفيذ", "نؤكدها عند الطلب"], ["السعر", "اطلب سعر"]];
+  const rows = [["الحالة", p[2]], ...(p[3] ? [["التوافق", p[3]]] : []), ...(p[5] || []), ...(p[5] ? [] : [["المواد", MATERIALS]]), ["الألوان", "حسب المتوفر عندنا"], ["المقاس", "حسب طلبك"], ["مدة التنفيذ", "نؤكدها عند الطلب"], ["السعر", "اطلب سعر"]];
   return `<div class="view"><div class="wrap"><p class="crumbs"><a href="#products">منتجاتنا</a> / ${c.direct ? "" : `<a href="#c-${c.id}">${c.name}</a> / `}${p[0]}</p>
-    <div class="pdp"><div class="stack"><div class="ph" style="aspect-ratio:4/3">صور المنتج (بعد أول نموذج مطبوع)</div></div>
+    <div class="pdp"><div class="stack">${gallery(p)}</div>
     <div class="stack"><div class="head"><span class="eyebrow">${p[2].toUpperCase()}</span><h2>${p[0]}</h2><p>${p[1]}</p></div>
       <table class="spec"><tbody>${rows.map(([k, v]) => `<tr><th scope="row">${k}</th><td>${esc(v)}</td></tr>`).join("")}</tbody></table>
       ${askForm(pid)}</div></div></div></div>`;
+}
+function gallery(p) {
+  const im = p[4];
+  if (!im || !im.length) return `<div class="ph" style="aspect-ratio:4/3">الصور بعد أول نموذج مطبوع</div>`;
+  return `<figure class="shot" style="margin:0;padding:0"><img id="gMain" src="${im[0]}" alt="${esc(p[0])}" width="1200" height="750"></figure>` +
+    (im.length > 1 ? `<div class="row" id="gThumbs">${im.map((u, i) => `<button class="iconbtn" type="button" data-src="${u}" aria-label="صورة ${i + 1}" style="padding:0;width:72px;height:56px;overflow:hidden;min-width:0"><img src="${u}" alt="" style="width:100%;height:100%;object-fit:cover;display:block"></button>`).join("")}</div>` : "");
 }
 function askForm(pid) {
   return `<form class="stack" id="askForm" onsubmit="return false"><h3>${pid === "custom" ? "احكيلنا عن الفكرة" : "اسأل عن السعر"}</h3>
@@ -219,7 +231,12 @@ function askForm(pid) {
     <div class="row">${API ? '<button class="btn primary" id="aSend" type="button">أرسل الطلب</button>' : ""}<a class="btn primary" id="aWa" href="#" target="_blank" rel="noopener" ${API ? "hidden" : ""}>أرسل على واتساب</a><button class="btn" id="aCopy" type="button">انسخ الطلب</button></div>
     <p class="hint" id="aNote"></p><div class="ok" id="aOk" hidden></div></form>`;
 }
+function bindGallery() {
+  const t = document.getElementById("gThumbs"); if (!t) return;
+  t.onclick = (e) => { const b = e.target.closest("button[data-src]"); if (b) document.getElementById("gMain").src = b.dataset.src; };
+}
 function bindAsk(pid) {
+  bindGallery();
   const msg = () => ["طلب سعر / تصميم", `المنتج: ${P[pid][0]}`, `الاسم: ${$("aName").value.trim() || "—"}`, `الهاتف: ${$("aPhone").value.trim() || "—"}`, `التفاصيل: ${$("aText").value.trim() || "—"}`, `عنده القطعة أو صور وقياسات: ${$("aHave").checked ? "نعم" : "لا"}`].join("\n");
   const refresh = () => setSend($("aWa"), $("aNote"), msg());
   ["aName", "aPhone", "aText", "aHave"].forEach((id) => $(id).addEventListener("input", refresh)); refresh();
