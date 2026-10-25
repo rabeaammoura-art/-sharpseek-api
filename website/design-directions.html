@@ -1,0 +1,130 @@
+<title>اتجاهات التصميم</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@600;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Noto+Kufi+Arabic:wght@500;700&display=swap">
+<style>
+/* Layout concept: three full mock-ups of the same home screen (hero + one product card + footer strip), each in its own
+   visual world, stacked so they can be compared. The page chrome stays neutral so the three directions carry the colour. */
+:root { --bg: #F1F3F7; --panel: #FFFFFF; --fg: #101B30; --muted: #5A6785; --line: #D6DDEA; --pick: #1B5BD6;
+  --f-body: "IBM Plex Sans Arabic", "Segoe UI", Tahoma, sans-serif; --f-mono: "IBM Plex Mono", ui-monospace, monospace; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #0B1222; --panel: #131E36; --fg: #E8EEFA; --muted: #9AA8C6; --line: #22345B; --pick: #7FA8FF; color-scheme: dark; } }
+:root[data-theme="dark"] { --bg: #0B1222; --panel: #131E36; --fg: #E8EEFA; --muted: #9AA8C6; --line: #22345B; --pick: #7FA8FF; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font: 16px/1.65 var(--f-body); }
+.wrap { max-width: 1040px; margin: 0 auto; padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px)); padding-block: 1.8rem 3rem; display: grid; gap: 2.4rem; }
+h1 { font: 800 clamp(1.7rem, 4vw, 2.4rem)/1.2 "Baloo Bhaijaan 2", sans-serif; margin: 0; }
+.intro p { color: var(--muted); max-width: 44rem; margin: .5rem 0 0; }
+.dir > header { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem 1rem; margin-bottom: .8rem; }
+.dir > header b { font: 600 1.3rem "Baloo Bhaijaan 2", sans-serif; }
+.dir > header span { color: var(--muted); font-size: .92rem; }
+.frame { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; direction: rtl; }
+.note { margin-top: .7rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: .6rem; font-size: .9rem; color: var(--muted); }
+.note div { border-inline-start: 3px solid var(--line); padding-inline-start: .7rem; }
+.note b { color: var(--fg); display: block; }
+.sw { display: flex; gap: .4rem; margin-top: .5rem; }
+.sw i { width: 28px; height: 28px; border-radius: 6px; border: 1px solid rgba(128,128,128,.4); display: block; }
+img { max-width: 100%; height: auto; display: block; }
+.tbar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: .8rem 1.2rem; flex-wrap: wrap; }
+.tbar nav { display: flex; gap: 1.1rem; font-size: .9rem; flex-wrap: wrap; }
+.btn { display: inline-block; padding: .65rem 1.3rem; font-weight: 600; text-decoration: none; }
+
+/* ---- A: blueprint (dark, technical) ---- */
+.A { --c-bg: #0C1A33; --c-card: #12254A; --c-fg: #EAF1FF; --c-mut: #9CB0D6; --c-acc: #FF7A1A; --c-line: #27427A;
+  background: var(--c-bg) repeating-linear-gradient(to bottom, transparent 0 23px, rgba(80,120,200,.12) 23px 24px); color: var(--c-fg); }
+.A .tbar { border-bottom: 1px solid var(--c-line); } .A .logo { font: 800 1.3rem "Baloo Bhaijaan 2"; direction: ltr; } .A .logo em { color: var(--c-acc); font-style: normal; }
+.A .hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 1.5rem; padding: 2rem 1.4rem; align-items: center; }
+.A h2 { font: 800 clamp(1.8rem, 4vw, 2.8rem)/1.15 "Baloo Bhaijaan 2"; margin: 0; } .A h2 em { color: var(--c-acc); font-style: normal; }
+.A .tag { font: 500 .75rem var(--f-mono); color: var(--c-acc); letter-spacing: .08em; direction: ltr; display: block; margin-bottom: .6rem; }
+.A p { color: var(--c-mut); } .A .btn { background: var(--c-acc); color: #1A0E00; border-radius: 4px; } .A .btn.o { background: transparent; color: var(--c-fg); border: 1px solid var(--c-line); margin-inline-start: .5rem; }
+.A .pic { background: var(--c-card); border: 1px solid var(--c-line); padding: .6rem; position: relative; }
+.A .pic::after { content: "70 mm"; position: absolute; top: -.7rem; inset-inline-start: 1rem; background: var(--c-bg); padding: 0 .4rem; font: 500 .7rem var(--f-mono); color: var(--c-acc); }
+.A .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; padding: 0 1.4rem 1.6rem; }
+.A .card { border: 1px solid var(--c-line); background: var(--c-card); padding: 1rem; } .A .card h4 { margin: 0 0 .2rem; font: 600 1.05rem "Baloo Bhaijaan 2"; }
+.A .card .price { font: 500 1.2rem var(--f-mono); color: var(--c-acc); direction: ltr; }
+@media (max-width: 720px) { .A .hero { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---- B: playful maker (bright, puffy) ---- */
+.B { --c-bg: #FFF8EC; --c-fg: #14213D; --c-acc: #FF7A1A; --c-nav: #14213D; --c-soft: #FFE2C2; background: var(--c-bg); color: var(--c-fg); }
+.B .tbar { background: var(--c-nav); color: #fff; } .B .logo { font: 800 1.35rem "Baloo Bhaijaan 2"; direction: ltr; } .B .logo em { color: var(--c-acc); font-style: normal; }
+.B .hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 1.5rem; padding: 2rem 1.4rem; align-items: center; }
+.B h2 { font: 800 clamp(2rem, 5vw, 3.3rem)/1.05 "Baloo Bhaijaan 2"; margin: 0; } .B h2 mark { background: var(--c-acc); color: #14213D; padding: 0 .4rem; border-radius: 10px; }
+.B p { color: #43506D; } .B .btn { background: var(--c-acc); color: #14213D; border-radius: 999px; border: 3px solid #14213D; box-shadow: 0 4px 0 #14213D; }
+.B .btn.o { background: #fff; margin-inline-start: .5rem; }
+.B .pic { background: var(--c-soft); border-radius: 28px; padding: .8rem; border: 3px solid #14213D; transform: rotate(-1.2deg); }
+.B .pic img { border-radius: 18px; }
+.B .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; padding: 0 1.4rem 1.6rem; }
+.B .card { background: #fff; border: 3px solid #14213D; border-radius: 22px; padding: 1rem; box-shadow: 0 5px 0 #14213D; } .B .card h4 { margin: 0 0 .2rem; font: 700 1.15rem "Baloo Bhaijaan 2"; }
+.B .card .price { display: inline-block; font: 800 1.1rem "Baloo Bhaijaan 2"; background: var(--c-soft); border-radius: 999px; padding: .1rem .8rem; }
+@media (max-width: 720px) { .B .hero { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---- C: showroom (quiet, image-led, shop-ready) ---- */
+.C { --c-bg: #FAFAF9; --c-fg: #17181B; --c-mut: #6A6D75; --c-acc: #E8661A; --c-line: #E3E3E0; background: var(--c-bg); color: var(--c-fg); }
+.C .tbar { border-bottom: 1px solid var(--c-line); } .C .logo { font: 700 1.1rem "Noto Kufi Arabic"; direction: ltr; letter-spacing: .06em; } .C .logo em { color: var(--c-acc); font-style: normal; }
+.C .hero { display: grid; grid-template-columns: 1fr 1.2fr; gap: 2rem; padding: 2.6rem 1.4rem; align-items: center; }
+.C h2 { font: 700 clamp(1.7rem, 3.6vw, 2.6rem)/1.35 "Noto Kufi Arabic"; margin: 0; } .C p { color: var(--c-mut); }
+.C .btn { background: var(--c-fg); color: #fff; border-radius: 2px; } .C .btn.o { background: transparent; color: var(--c-fg); border: 1px solid var(--c-fg); margin-inline-start: .5rem; }
+.C .pic { background: #EFEFEC; padding: 1.2rem; } .C .pic img { mix-blend-mode: multiply; }
+.C .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.4rem; padding: 0 1.4rem 1.8rem; }
+.C .card h4 { margin: .6rem 0 .1rem; font: 500 1rem "Noto Kufi Arabic"; } .C .card .ph { aspect-ratio: 4 / 3; background: #EFEFEC; display: grid; place-items: center; color: #9A9DA5; font: 400 .8rem var(--f-mono); }
+.C .card .price { color: var(--c-mut); font: 400 .95rem var(--f-mono); direction: ltr; }
+@media (max-width: 720px) { .C .hero { grid-template-columns: minmax(0, 1fr); } }
+</style>
+
+<div class="wrap">
+  <div class="intro">
+    <h1>ثلاث اتجاهات لشكل الموقع</h1>
+    <p>نفس الصفحة الرئيسية بثلاث شخصيات مختلفة. الشعار هون مكتوب بحروفه مؤقتاً لحد ما تبعتلي ملف شعارك الفعلي، والصور هي معاينات الحزمة اللي طلعت من المولّد. اختار الأقرب، أو قلّي "من A الألوان ومن C الترتيب".</p>
+  </div>
+
+  <section class="dir A-wrap">
+    <header><b>A · مخطط هندسي</b><span>داكن، خطوط وقياسات بالملم، شكل ورشة تقنية</span></header>
+    <div class="frame A">
+      <div class="tbar"><span class="logo">3D ZONE <em>TECH</em></span><nav><span>حزمة الطالب</span><span>منتجاتنا</span><span>اطلب تصميمك</span><span>تواصل</span></nav></div>
+      <div class="hero">
+        <div><span class="tag">LAYER BY LAYER · 0.20 mm</span><h2>فكرتك بإيدك… <em>طبقة طبقة</em></h2><p>قطع ملونة باسمك وإكسسوارات سيارات وهدايا، مطبوعة بدقة وبقياسات مضبوطة بالملم.</p>
+          <p><a class="btn">صمّم حزمتك</a><a class="btn o">اطلب تصميم خاص</a></p></div>
+        <div class="pic"><img src="img/construction-4.png" alt="معاينة حزمة الطالب" width="1100" height="780"></div>
+      </div>
+      <div class="cards"><div class="card"><h4>حزمة الطالب</h4><p>أربع قطع باسمك</p><div class="price">2.50 – 4.50 JOD</div></div>
+        <div class="card"><h4>إكسسوارات سيارات</h4><p>BMW · Mercedes · EV</p><div class="price">اطلب سعر</div></div>
+        <div class="card"><h4>لوحات ضوء وهدايا</h4><p>ليثوفين · NFC</p><div class="price">اطلب سعر</div></div></div>
+    </div>
+    <div class="note"><div><b>يناسب</b>الشباب وأصحاب السيارات، وصورة الشركة "مصنع تقني".</div><div><b>يضعف</b>أقل دفئاً مع الأهل والأطفال، والداكن بيحتاج انتباه بالقراءة.</div></div>
+    <div class="sw"><i style="background:#0C1A33"></i><i style="background:#12254A"></i><i style="background:#FF7A1A"></i><i style="background:#EAF1FF"></i></div>
+  </section>
+
+  <section class="dir">
+    <header><b>B · لعوب وملوّن</b><span>فاتح، حروف منفوخة زي شعارك، أزرار بارزة</span></header>
+    <div class="frame B">
+      <div class="tbar"><span class="logo">3D ZONE <em>TECH</em></span><nav><span>حزمة الطالب</span><span>منتجاتنا</span><span>اطلب تصميمك</span><span>تواصل</span></nav></div>
+      <div class="hero">
+        <div><h2>اسمك على <mark>كل شي</mark> بالمدرسة</h2><p>شنطة، قلم، مسطرة وقنينة بنفس الثيم واسمك. اكتب الاسم واختار الألوان.</p>
+          <p><a class="btn">صمّم حزمتك</a><a class="btn o">شوف المنتجات</a></p></div>
+        <div class="pic"><img src="img/cat-3.png" alt="معاينة حزمة الطالب بثيم القطة" width="1100" height="780"></div>
+      </div>
+      <div class="cards"><div class="card"><h4>حزمة الطالب</h4><p>أربع قطع باسمك</p><span class="price">من 2.50 د</span></div>
+        <div class="card"><h4>إكسسوارات سيارات</h4><p>لسيارتك بالضبط</p><span class="price">اطلب سعر</span></div>
+        <div class="card"><h4>هدايا ولوحات ضوء</h4><p>من صورتك</p><span class="price">اطلب سعر</span></div></div>
+    </div>
+    <div class="note"><div><b>يناسب</b>الأهل والطلاب (أول منتج)، وبيشبه شعارك المنفوخ.</div><div><b>يضعف</b>أقل جدية لقطع السيارات وللمتجر الكبير مستقبلاً.</div></div>
+    <div class="sw"><i style="background:#FFF8EC"></i><i style="background:#14213D"></i><i style="background:#FF7A1A"></i><i style="background:#FFE2C2"></i></div>
+  </section>
+
+  <section class="dir">
+    <header><b>C · معرض هادي</b><span>مساحات بيضاء، صور كبيرة، يكبر معنا لمتجر كامل</span></header>
+    <div class="frame C">
+      <div class="tbar"><span class="logo">3D ZONE <em>TECH</em></span><nav><span>حزمة الطالب</span><span>منتجاتنا</span><span>اطلب تصميمك</span><span>تواصل</span></nav></div>
+      <div class="hero">
+        <div><h2>طباعة ثلاثية الأبعاد بالألوان، مصممة لك</h2><p>من الحزم الشخصية لإكسسوارات السيارات، نصمم ونطبع في إربد وعمّان.</p>
+          <p><a class="btn">ابدأ الطلب</a><a class="btn o">المنتجات</a></p></div>
+        <div class="pic"><img src="img/construction-3.png" alt="معاينة حزمة الطالب" width="1100" height="780"></div>
+      </div>
+      <div class="cards"><div class="card"><div class="ph">صورة المنتج</div><h4>حزمة الطالب</h4><div class="price">2.50 JOD</div></div>
+        <div class="card"><div class="ph">صورة المنتج</div><h4>غطاء مفتاح</h4><div class="price">اطلب سعر</div></div>
+        <div class="card"><div class="ph">صورة المنتج</div><h4>لوحة ضوء</h4><div class="price">اطلب سعر</div></div></div>
+    </div>
+    <div class="note"><div><b>يناسب</b>موقع شركة موثوق وبعدين متجر (فيلامنت، قطع طابعات، طابعات) وبيعجب بيع خارج الأردن.</div><div><b>يضعف</b>أبرد وأقل شخصية، وبيحتاج صور منتجات حقيقية حتى يبيّن حلو.</div></div>
+    <div class="sw"><i style="background:#FAFAF9"></i><i style="background:#17181B"></i><i style="background:#E8661A"></i><i style="background:#EFEFEC"></i></div>
+  </section>
+</div>
