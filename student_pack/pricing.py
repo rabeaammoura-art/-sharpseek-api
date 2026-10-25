@@ -56,14 +56,12 @@ def quote(p, cat, base, colours, pieces, numbers=None):
     cost = {k: piece_cost(p, *num[k]) for k in PIECES}
     full = sum(cost.values()) + p["packaging_per_pack"]
     if set(pieces) == set(PIECES):
-        return p["pack_price"], {k: cost[k] for k in pieces}, full
+        return p["pack_price"][str(colours)], {k: cost[k] for k in pieces}, full
     share = sum(cost[k] for k in pieces) / sum(cost.values())
-    return round_up(p["pack_price"] * share * p["single_premium"], p["round_up_to"]), {k: cost[k] for k in pieces}, sum(cost[k] for k in pieces) + p["packaging_per_pack"]
+    return round_up(p["pack_price"][str(colours)] * share * p["single_premium"], p["round_up_to"]), {k: cost[k] for k in pieces}, sum(cost[k] for k in pieces) + p["packaging_per_pack"]
 
 
 def pack_price(p, piece_prices):
-    if p.get("pack_price"):
-        return p["pack_price"]
     return round_up(sum(piece_prices) * (1 - p["pack_discount"]) + p["packaging_per_pack"], p["round_up_to"])
 
 
@@ -112,7 +110,7 @@ def table(material=None):
             singles = [quote(p, cat, base, colours, (k,))[0] for k in PIECES]
             hrs = sum(cat[key(base, colours, k)]["seconds"] for k in PIECES) / 3600
             g = sum(cat[key(base, colours, k)]["grams"] for k in PIECES)
-            print(f"{base:13s}{colours:>4d}{full:>8.2f}{price:>8.2f}{price - full:>8.2f}{(price - full) / price:>8.0%}   " + " / ".join(f"{x:.2f}" for x in singles) + f"   {hrs:.1f}h  {g:.0f}g")
+            print(f"{base:13s}{colours:>4d}{full:>8.2f}{price:>8.2f}{price - full:>8.2f}{(price - full) / price:>8.0%}   " + " / ".join(f"{x:.2f}" for x in singles) + f"   {hrs:.1f}h  {g:.0f}g  profit/h {(price - full) / hrs:.2f}")
 
 
 if __name__ == "__main__":
