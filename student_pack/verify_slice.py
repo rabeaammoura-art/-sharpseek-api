@@ -72,8 +72,8 @@ def main():
         cols = json.loads(zipfile.ZipFile(f).read("Metadata/project_settings.config"))["filament_colour"]
         files = []
         for i, c in enumerate(cols, 1):
-            json.dump(dict(fil, filament_colour=[c], name=f"{fil['name']} slot{i}"), open(OUT / f"filament_{i}.json", "w"), indent=1)
-            files.append(str(OUT / f"filament_{i}.json"))
+            json.dump(dict(fil, filament_colour=[c], name=f"{fil['name']} slot{i}"), open(d / f"filament_{i}.json", "w"), indent=1)
+            files.append(str(d / f"filament_{i}.json"))
         with open(d / "log.txt", "w") as log:
             subprocess.run([bs.CLI, "--load-settings", f"{OUT / 'machine.json'};{OUT / 'process.json'}",
                             "--load-filaments", ";".join(files),

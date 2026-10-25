@@ -1,0 +1,13 @@
+{
+  "_note": "ASSUMED numbers - edit to your real costs and margins. Filament/electricity match the earlier 3d-cost defaults.",
+  "currency": "JOD",
+  "filament_per_kg": 8.0,
+  "electricity_per_kwh": 0.10,
+  "printer_watts": 350,
+  "machine_hour_rate": 0.50,
+  "labor_per_piece": 0.25,
+  "packaging_per_pack": 0.50,
+  "markup": 1.5,
+  "pack_discount": 0.10,
+  "round_up_to": 0.25
+}

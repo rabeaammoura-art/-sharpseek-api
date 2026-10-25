@@ -83,6 +83,8 @@ def trace_motif(img, theme, spec):
     erase_rgb = 255 if spec["bg"] == "flood" else [v for k, (v, p) in palette.items() if p == spec["bg"]][0]
     for ex0, ey0, ex1, ey1 in spec.get("erase", []):
         crop[max(0, ey0 - y0):max(0, ey1 - y0), max(0, ex0 - x0):max(0, ex1 - x0)] = erase_rgb
+    for pts in spec.get("erase_poly", []):            # free-form erase (px, source coords)
+        cv2.fillPoly(crop, [np.array([(x - x0, y - y0) for x, y in pts], np.int32)], (255, 255, 255) if erase_rgb == 255 else erase_rgb)
     for color, (ex0, ey0, ex1, ey1) in spec.get("paint", []):
         rgb = [v for k, (v, p) in palette.items() if p == color][0]
         crop[max(0, ey0 - y0):max(0, ey1 - y0), max(0, ex0 - x0):max(0, ex1 - x0)] = rgb

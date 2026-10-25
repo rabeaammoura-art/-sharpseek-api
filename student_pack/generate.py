@@ -26,7 +26,7 @@ import layout
 import mesh
 import preview
 from layout import MIN_FEATURE, _polys, opening
-from themes import THEMES
+from themes import BASE_THEMES, THEMES, resolve_theme
 
 HERE = Path(__file__).parent
 PIECES = ("tag", "pencil", "ruler", "bottle")
@@ -133,8 +133,9 @@ def build_plate(jobs, outdir, pieces=PIECES, slice_=False):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--name")
-    ap.add_argument("--theme", choices=list(THEMES))
-    ap.add_argument("--pack", nargs="+", metavar="NAME:THEME")
+    ap.add_argument("--theme", choices=BASE_THEMES, help="base theme; add --colors for the 2/3-colour version")
+    ap.add_argument("--colors", type=int, choices=(2, 3, 4), default=4, help="number of filament colours (default 4)")
+    ap.add_argument("--pack", nargs="+", metavar="NAME:THEME[:COLORS]", help="e.g. OSAYD:construction:2 SALLY:cat")
     ap.add_argument("--out", default=str(HERE / "out"))
     ap.add_argument("--pieces", default=",".join(PIECES))
     ap.add_argument("--slice", action="store_true", help="slice every 3MF in Bambu Studio (time + grams)")
@@ -145,9 +146,13 @@ def main():
         for k, t in THEMES.items():
             print(f"{k:14s} {t['label']}  colours: {', '.join(t['filament_rgb'])}")
         return
-    jobs = [tuple(x.rsplit(":", 1)) for x in a.pack] if a.pack else [(a.name, a.theme)]
-    if not all(jobs[0]) or not all(j[1] in THEMES for j in jobs):
-        ap.error("give --name and --theme (or --pack NAME:THEME ...)")
+    raw = [x.split(":") for x in a.pack] if a.pack else [[a.name, a.theme, str(a.colors)]]
+    try:
+        jobs = [(r[0], resolve_theme(r[1], int(r[2]) if len(r) > 2 else a.colors)) for r in raw if r[0] and r[1]]
+    except (ValueError, KeyError) as e:
+        ap.error(str(e))
+    if len(jobs) != len(raw):
+        ap.error("give --name and --theme (or --pack NAME:THEME[:COLORS] ...)")
     for name, theme in jobs:
         print(f"{name} / {theme}")
         build(name, theme, a.out, a.pieces.split(","), a.slice and not a.plate)

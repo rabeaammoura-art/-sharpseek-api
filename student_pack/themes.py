@@ -52,7 +52,7 @@ THEMES = {
         text_rings=[("pink", 0.8), ("pink", 2.0)],
         ruler=dict(band="lpink", ticks="black", rim="pink", rim_w=1.6, stripes=None, body="lpink"),
         motifs={
-            "tag": dict(box=(25, 590, 395, 850), paint=[("pink", (140, 480, 262, 652))], cut=[(140, 480, 262, 640)], bg="flood", seal=["bottom"],
+            "tag": dict(box=(25, 590, 395, 850), erase_poly=[[(100, 560), (290, 560), (290, 590), (268, 618), (258, 624), (245, 638), (205, 641), (165, 638), (150, 624), (125, 604), (100, 590)]], bg="flood", seal=["bottom"],
                         scale=70 / 377, tab_x_px=205),
             "bottle": dict(box=(1215, 692, 1512, 872), erase=[(1190, 500, 1536, 692)], clip_circle=(1362, 840, 148),
                            paint=[("pink", (1318, 692, 1405, 728))], bg="flood", seal=["bottom"], scale=48 / 310,
@@ -81,3 +81,23 @@ _derive("construction", "construction2", "Construction, 2 colours (black, yellow
         letters="yellow", filament_rgb={"black": "#1C1C1C", "yellow": "#F6BA1C"},
         heights={"black": 2.2, "yellow": 2.8}, text_rings=[("black", 2.2)],
         ruler=dict(band="yellow", ticks="black", rim="black", rim_w=1.6, stripes="black", body="yellow", halo=1.2))
+
+_cat_ruler = dict(band="pink", ticks="white", rim="pink", rim_w=1.6, stripes=None, body=None)
+_derive("cat", "cat3", "Cat, 3 colours (pink, white, black)", {"lpink": "pink"},
+        filament_rgb={"pink": "#EC307A", "white": "#FCFCFC", "black": "#1C1C1C"},
+        heights={"pink": 2.2, "white": 3.2, "black": 3.4}, ruler=_cat_ruler)
+_derive("cat", "cat2", "Cat, 2 colours (pink, white)", {"lpink": "pink", "black": "pink"},
+        filament_rgb={"pink": "#EC307A", "white": "#FCFCFC"}, detail=None,
+        heights={"pink": 2.2, "white": 3.2}, ruler=_cat_ruler)
+
+BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v]
+
+
+def resolve_theme(base, colours=4):
+    """('construction', 3) -> 'construction3'; 4 colours is the base theme itself."""
+    if colours == 4:
+        return base
+    key = f"{base}{colours}"
+    if key not in THEMES:
+        raise ValueError(f"theme {base!r} has no {colours}-colour version (choose 2, 3 or 4)")
+    return key
