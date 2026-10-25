@@ -139,8 +139,7 @@ def resolve(kind, theme, name, ops, silhouette, holes=(), base=BASE, tunnel=None
     for c, g in canvas.items():
         g = g.intersection(sil)
         if not exempt_geom[c].is_empty:      # ticks/numbers keep their 0.5 mm lines; everything else is re-cleaned
-            g = unary_union([_drop_small(opening(g.difference(exempt_geom[c].buffer(0.02)), MIN_FEATURE / 2)),
-                             g.intersection(exempt_geom[c].buffer(0.02))])
+            g = unary_union([_drop_small(opening(g, MIN_FEATURE / 2)), g.intersection(exempt_geom[c].buffer(0.02))])
         else:
             g = _drop_small(opening(g, MIN_FEATURE / 2))
         g = unary_union(_polys(g.buffer(0))).simplify(0.02)
@@ -292,7 +291,7 @@ def ruler(theme, name):
         numbers.append(affinity.translate(t, x0 + cm * 10 - (b[0] + b[2]) / 2, num_base))
     layout_top = H - rim + 0.01
     if rc["body"]:    # keep the 0.5 mm gaps between ticks in the body colour (they are thinner than the 0.8 mm clean-up)
-        ops.append((rc["body"], box(x0 - 1.5, num_base - 0.4, x0 + RULER_MM + 1.5, layout_top).intersection(inner), True))
+        ops.append((rc["body"], box(0, num_base - 0.4, W, layout_top).intersection(inner), True))
     ops.append((rc["ticks"], unary_union(ticks + numbers), True))
     zone_top = num_base - 0.8
     zone_bot = rim + stripe_h + (0.4 if stripe_h else 1.2)
