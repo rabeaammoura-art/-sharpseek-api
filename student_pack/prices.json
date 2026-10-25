@@ -1,7 +1,7 @@
 {
   "_note": "Filament = landed JOD/kg from 3D_ZONE_TECH_Filament.xlsx (incl. shipping & customs). Margin/rounding are assumptions - edit.",
   "currency": "JOD",
-  "filament_per_kg": 4.263,
+  "filament_per_kg": 6.951,
   "electricity_per_kwh": 0.1,
   "printer_watts": 350,
   "machine_hour_rate": 0.0,
@@ -17,5 +17,7 @@
     "Silk PLA": 8.805,
     "ASA": 7.878
   },
-  "material": "PETG"
+  "material": "PLA+",
+  "pack_price": 2.5,
+  "single_premium": 1.3
 }

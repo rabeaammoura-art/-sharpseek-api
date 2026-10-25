@@ -86,18 +86,15 @@ def main():
                 if not e:
                     raise SystemExit("no catalog numbers: run  python pricing.py --catalog  first (or use --exact)")
                 numbers[k] = (e["seconds"], e["grams"])
-        piece_prices = {k: pricing.piece_price(prices, *numbers[k]) for k in o["pieces"]}
-        if set(o["pieces"]) == set(generate.PIECES):
-            each = pricing.pack_price(prices, list(piece_prices.values())); label = "PACK"
-        else:
-            each = pricing.round_up(sum(piece_prices.values()) + prices["packaging_per_pack"], prices["round_up_to"]); label = "|".join(o["pieces"])
+        each, piece_costs, cost_total = pricing.quote(prices, cat, o["base"], o["colours"], o["pieces"], numbers if a.exact else None)
+        label = "PACK" if set(o["pieces"]) == set(generate.PIECES) else "|".join(o["pieces"])
         total = each * o["qty"]
+        piece_prices = {k: round(c, 2) for k, c in piece_costs.items()}
         hours = sum(s for s, _ in numbers.values()) / 3600
-        print(f"{o['order_id']:>6s} {o['name']:12s} {theme:13s}{o['colours']:>4d} {label:22s}{o['qty']:>4d}{each:>8.2f}{total:>9.2f}   ~{hours:.1f} h print, {sum(g for _, g in numbers.values()):.0f} g")
+        print(f"{o['order_id']:>6s} {o['name']:12s} {theme:13s}{o['colours']:>4d} {label:22s}{o['qty']:>4d}{each:>8.2f}{total:>9.2f}   ~{hours:.1f} h print, {sum(g for _, g in numbers.values()):.0f} g, cost {cost_total:.2f}")
         quote_rows.append(dict(order_id=o["order_id"], name=o["name"], theme=o["base"], colors=o["colours"], pieces=label, qty=o["qty"],
                                price_each=f"{each:.2f}", total=f"{total:.2f}", print_hours=f"{hours:.2f}",
-                               grams=f"{sum(g for _, g in numbers.values()):.0f}", files=str(gen_dir),
-                               piece_prices=json.dumps({k: float(v) for k, v in piece_prices.items()})))
+                               grams=f"{sum(g for _, g in numbers.values()):.0f}", files=str(gen_dir), cost_each=f"{cost_total:.2f}"))
         groups.setdefault((o["base"], o["colours"]), []).extend([(o["name"], theme)] * o["qty"])
     with open(out / "quotes.csv", "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=list(quote_rows[0])); w.writeheader(); w.writerows(quote_rows)

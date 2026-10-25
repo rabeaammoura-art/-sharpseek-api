@@ -46,7 +46,24 @@ def piece_price(p, seconds, grams):
     return round_up(piece_cost(p, seconds, grams) * (1 + p["markup"]), p["round_up_to"])
 
 
+def quote(p, cat, base, colours, pieces, numbers=None):
+    """Selling price for an order line.  Full pack = fixed `pack_price`; a partial order = the pieces' share of the pack price
+    x `single_premium`, rounded up.  `numbers` = {piece: (seconds, grams)} from an exact slice, else the catalog.
+    Returns (price_each, {piece: cost}, pack_cost)."""
+    num = {k: (cat[key(base, colours, k)]["seconds"], cat[key(base, colours, k)]["grams"]) for k in PIECES}
+    if numbers:
+        num.update(numbers)
+    cost = {k: piece_cost(p, *num[k]) for k in PIECES}
+    full = sum(cost.values()) + p["packaging_per_pack"]
+    if set(pieces) == set(PIECES):
+        return p["pack_price"], {k: cost[k] for k in pieces}, full
+    share = sum(cost[k] for k in pieces) / sum(cost.values())
+    return round_up(p["pack_price"] * share * p["single_premium"], p["round_up_to"]), {k: cost[k] for k in pieces}, sum(cost[k] for k in pieces) + p["packaging_per_pack"]
+
+
 def pack_price(p, piece_prices):
+    if p.get("pack_price"):
+        return p["pack_price"]
     return round_up(sum(piece_prices) * (1 - p["pack_discount"]) + p["packaging_per_pack"], p["round_up_to"])
 
 
@@ -86,18 +103,16 @@ def build_catalog(jobs=3, themes=BASE_THEMES):
 
 def table(material=None):
     cat, p = json.loads(CATALOG.read_text()), load_prices(material)
-    print(f"Prices in {p['currency']}, filament {p.get('material', '')} at {p['filament_per_kg']} JOD/kg (landed). Margin = assumption. Time/grams from the Bambu Studio slice.\n")
-    print(f"{'theme':13s}{'col':>4s}" + "".join(f"{k:>16s}" for k in PIECES) + f"{'PACK':>9s}")
+    print(f"{p['currency']}, filament {p['material']} at {p['filament_per_kg']}/kg landed, electricity {p['electricity_per_kwh']}/kWh, packaging {p['packaging_per_pack']}. "
+          f"Machine time and labour not charged.\n")
+    print(f"{'theme':13s}{'col':>4s}{'cost':>8s}{'price':>8s}{'profit':>8s}{'margin':>8s}   single piece prices ({'/'.join(PIECES)})   hours  grams")
     for base in BASE_THEMES:
         for colours in (2, 3, 4):
-            row, prices = [], []
-            for k in PIECES:
-                e = cat.get(key(base, colours, k))
-                if not e:
-                    row.append("-"); continue
-                pr = piece_price(p, e["seconds"], e["grams"]); prices.append(pr)
-                row.append(f"{pr:5.2f} ({e['seconds'] // 3600}h{e['seconds'] % 3600 // 60:02d} {e['grams']:.0f}g)")
-            print(f"{base:13s}{colours:>4d}" + "".join(f"{r:>16s}" for r in row) + (f"{pack_price(p, prices):>9.2f}" if len(prices) == 4 else ""))
+            price, costs, full = quote(p, cat, base, colours, PIECES)
+            singles = [quote(p, cat, base, colours, (k,))[0] for k in PIECES]
+            hrs = sum(cat[key(base, colours, k)]["seconds"] for k in PIECES) / 3600
+            g = sum(cat[key(base, colours, k)]["grams"] for k in PIECES)
+            print(f"{base:13s}{colours:>4d}{full:>8.2f}{price:>8.2f}{price - full:>8.2f}{(price - full) / price:>8.0%}   " + " / ".join(f"{x:.2f}" for x in singles) + f"   {hrs:.1f}h  {g:.0f}g")
 
 
 if __name__ == "__main__":
