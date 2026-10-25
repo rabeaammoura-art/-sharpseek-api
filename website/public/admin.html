@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex"><title>لوحة الطلبات · 3D ZONE TECH</title>
+<style>
+:root{--bg:#F4F6FA;--panel:#fff;--fg:#0E1B33;--muted:#55627F;--line:#D9E0EC;--accent:#FF7A1A;--good:#1E7F4F}
+@media (prefers-color-scheme:dark){:root{--bg:#0A1325;--panel:#111D36;--fg:#E9EFFB;--muted:#9DABC9;--line:#21335A;--good:#55C18A;color-scheme:dark}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 system-ui,"Segoe UI",Tahoma,sans-serif;padding:1rem max(16px,env(safe-area-inset-left,0px))}
+h1{font-size:1.3rem;margin:.2rem 0 1rem}input,select,button,textarea{font:inherit;color:inherit;background:var(--panel);border:1.5px solid var(--line);border-radius:8px;padding:.4rem .6rem;min-height:40px}
+button{cursor:pointer;font-weight:600}button.p{background:var(--accent);border-color:var(--accent);color:#1B1000}
+.bar{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;align-items:center}
+.wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:900px;background:var(--panel)}th,td{border-bottom:1px solid var(--line);padding:.5rem .6rem;text-align:start;vertical-align:top}
+th{font-size:.8rem;color:var(--muted)}.code{font-family:ui-monospace,Consolas,monospace;direction:ltr;unicode-bidi:isolate;font-weight:600}.det{max-width:260px;white-space:pre-wrap;color:var(--muted);font-size:.85rem}
+.new{background:color-mix(in srgb,var(--accent) 12%,var(--panel))}#msg{color:var(--muted)}
+</style></head><body>
+<h1>لوحة الطلبات</h1>
+<div class="bar"><input id="tok" type="password" placeholder="كلمة سر الإدارة" autocomplete="current-password"><button class="p" id="go">دخول</button>
+<button id="csv" disabled>تنزيل orders.csv للطباعة</button><button id="ref" disabled>تحديث</button><span id="msg"></span></div>
+<div class="wrap"><table id="t" hidden><thead><tr><th>الرقم</th><th>التاريخ</th><th>الزبون</th><th>الطلب</th><th>السعر</th><th>الحالة</th><th>مدفوع</th><th>ملاحظة</th></tr></thead><tbody></tbody></table></div>
+<script>
+const $=id=>document.getElementById(id);let TOKEN="",META=null;
+const H=()=>({authorization:"Bearer "+TOKEN,"content-type":"application/json"});
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+async function load(){
+  const r=await fetch("/api/admin/orders",{headers:H()});
+  if(r.status===401){$("msg").textContent="كلمة السر غير صحيحة";return}
+  const j=await r.json();META=j;$("t").hidden=false;$("csv").disabled=false;$("ref").disabled=false;$("msg").textContent=j.orders.length+" طلب";
+  $("t").tBodies[0].innerHTML=j.orders.map(o=>`<tr class="${o.status==="new"?"new":""}"><td class="code">${o.code}</td><td class="code">${esc(o.created_at)}</td>
+  <td>${esc(o.customer)}<br><span class="code">${esc(o.phone)}</span><br>${esc(o.area)}</td>
+  <td>${o.kind==="pack"?`<b>${esc(o.name)}</b> · ${esc(o.theme)} · ${o.colours} ألوان<br>${esc(o.pieces)} × ${o.qty}`:`تصميم خاص: <b>${esc(o.name)}</b>`}<div class="det">${esc(o.details)}</div></td>
+  <td>${o.price!=null?(o.price*o.qty).toFixed(2):"—"}</td>
+  <td><select data-id="${o.id}" data-f="status">${j.statuses.map(s=>`<option value="${s}" ${s===o.status?"selected":""}>${j.statusAr[s]}</option>`).join("")}</select></td>
+  <td><input type="checkbox" data-id="${o.id}" data-f="paid" ${o.paid?"checked":""}></td>
+  <td><input data-id="${o.id}" data-f="admin_note" value="${esc(o.admin_note)}"></td></tr>`).join("");
+}
+$("go").onclick=()=>{TOKEN=$("tok").value;load()};$("ref").onclick=load;
+$("t").addEventListener("change",async e=>{const el=e.target,id=el.dataset.id;if(!id)return;
+  const v=el.dataset.f==="paid"?el.checked:el.value;
+  const r=await fetch("/api/admin/orders/"+id,{method:"PATCH",headers:H(),body:JSON.stringify({[el.dataset.f]:v})});
+  $("msg").textContent=r.ok?"تم الحفظ":"فشل الحفظ";});
+$("csv").onclick=async()=>{const r=await fetch("/api/admin/orders.csv",{headers:H()});const b=await r.blob();const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="orders.csv";a.click()};
+</script></body></html>

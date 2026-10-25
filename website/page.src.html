@@ -125,6 +125,16 @@ textarea { min-height: 110px; resize: vertical; }
 .summary { white-space: pre-wrap; font-size: .92rem; background: var(--bg); border: 1px dashed var(--brass); border-radius: 10px; padding: .8rem; min-height: 5rem; line-height: 1.7; }
 .row { display: flex; flex-wrap: wrap; gap: .6rem; }
 
+/* checkout */
+.ok { border: 2px solid var(--good); border-radius: 12px; padding: 1rem; display: grid; gap: .4rem; background: color-mix(in srgb, var(--good) 9%, var(--panel)); }
+.ok .code { font: 500 1.6rem var(--font-mono); letter-spacing: .06em; direction: ltr; }
+.hp { position: absolute; inset-inline-start: -9999px; width: 1px; height: 1px; opacity: 0; }
+.err-box { color: #C0392B; font-weight: 600; font-size: .92rem; }
+:root[data-theme="dark"] .err-box { color: #FF8F80; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .err-box { color: #FF8F80; } }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+@media (max-width: 480px) { .grid2 { grid-template-columns: 1fr; } }
+
 /* products */
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; }
 .prod { display: grid; gap: .6rem; align-content: start; padding: 1.1rem; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); min-width: 0; }
@@ -212,14 +222,27 @@ footer .sel { user-select: all; font-family: var(--font-mono); direction: ltr; u
           <div class="spec"><b>المسطرة</b><span>165 × 50 mm · 0.5 mm lines</span></div>
           <div class="spec"><b>بطاقة القنينة</b><span>48 mm wide · hole Ø5</span></div>
         </div>
-        <div class="card order">
+        <div class="card order" id="orderCard">
           <h3>طلبك</h3>
           <div class="summary" id="summary" aria-live="polite"></div>
+          <div id="checkout" hidden>
+            <div class="grid2">
+              <div class="field"><label for="cName">اسمك</label><input id="cName" type="text" autocomplete="name"></div>
+              <div class="field"><label for="cPhone">رقم الهاتف</label><input id="cPhone" type="tel" inputmode="tel" autocomplete="tel" dir="ltr"></div>
+              <div class="field"><label for="cArea">المنطقة</label><select id="cArea"><option>إربد</option><option>عمّان</option><option>غير ذلك</option></select></div>
+              <div class="field"><label for="cQty">عدد الباقات</label><select id="cQty"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+            </div>
+            <div class="field" style="margin-top:.6rem"><label for="cNote">ملاحظات (اختياري)</label><input id="cNote" type="text" maxlength="200"></div>
+            <input class="hp" id="cWebsite" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+          </div>
+          <p class="err-box" id="orderErr" role="alert" hidden></p>
           <div class="row">
+            <button class="btn primary" id="placeOrder" type="button" hidden>أكّد الطلب</button>
             <a class="btn primary" id="sendWa" href="#" target="_blank" rel="noopener">أرسل الطلب على واتساب</a>
             <button class="btn" id="copyOrder" type="button">انسخ الطلب</button>
           </div>
           <p class="hint" id="orderNote"></p>
+          <div class="ok" id="orderOk" hidden></div>
         </div>
       </div>
     </div>
@@ -245,8 +268,11 @@ footer .sel { user-select: all; font-family: var(--font-mono); direction: ltr; u
       <div class="field"><label for="rKind">شو بدك؟</label><select id="rKind"></select></div>
       <div class="field"><label for="rText">احكيلنا عن الفكرة</label><textarea id="rText" placeholder="مثلاً: غطاء مفتاح مرسيدس W115، أو لوحة ضوء من صورة العائلة"></textarea></div>
       <label class="hint" style="display:flex;gap:.5rem;align-items:center"><input id="rHave" type="checkbox" style="accent-color:var(--accent)"> عندي القطعة الأصلية أو صور وقياسات</label>
-      <div class="row"><a class="btn primary" id="reqWa" href="#" target="_blank" rel="noopener">أرسل الطلب على واتساب</a><button class="btn" id="reqCopy" type="button">انسخ الطلب</button></div>
+      <input class="hp" id="rWebsite" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <p class="err-box" id="reqErr" role="alert" hidden></p>
+      <div class="row"><button class="btn primary" id="reqSend" type="button" hidden>أرسل الطلب</button><a class="btn primary" id="reqWa" href="#" target="_blank" rel="noopener">أرسل الطلب على واتساب</a><button class="btn" id="reqCopy" type="button">انسخ الطلب</button></div>
       <p class="hint" id="reqNote"></p>
+      <div class="ok" id="reqOk" hidden></div>
     </form>
   </div>
 </section>
@@ -260,6 +286,17 @@ footer .sel { user-select: all; font-family: var(--font-mono); direction: ltr; u
       <li><h3>عربون وطباعة</h3><p>بعد موافقتك وعربون نتفق عليه بنبدأ الطباعة.</p></li>
       <li><h3>تسليم</h3><p>من إربد أو عمّان. طريقة التوصيل بنتفق عليها معك عند الطلب.</p></li>
     </ol>
+  </div>
+</section>
+<section id="track" hidden>
+  <div class="wrap two">
+    <div class="head" style="margin:0"><p class="eyebrow">تتبّع طلبك</p><h2>وين صار طلبي؟</h2><p>اكتب رقم الطلب ورقم هاتفك.</p></div>
+    <form class="card" id="trackForm" onsubmit="return false">
+      <div class="field"><label for="tCode">رقم الطلب</label><input id="tCode" type="text" placeholder="ZT-1001" dir="ltr" autocomplete="off"></div>
+      <div class="field"><label for="tPhone">رقم الهاتف</label><input id="tPhone" type="tel" dir="ltr" autocomplete="tel"></div>
+      <div class="row"><button class="btn primary" id="tGo" type="button">تتبّع</button></div>
+      <p id="tOut" class="hint" aria-live="polite"></p>
+    </form>
   </div>
 </section>
 </main>
@@ -279,6 +316,7 @@ footer .sel { user-select: all; font-family: var(--font-mono); direction: ltr; u
 /* ---- site settings: put the real WhatsApp number here (international format, digits only, e.g. 9627XXXXXXXX) ---- */
 const CONTACT = { whatsapp: "", facebook: "https://facebook.com/3dzonetech", email: "3dzonetech@gmail.com" };
 const DATA = __DATA__;
+const API = "__API__";   // "" = preview mode (no server): the order is copied / sent by WhatsApp instead
 const PIECES = [["tag", "بطاقة شنطة"], ["pencil", "اسم القلم"], ["ruler", "مسطرة ١٥ سم"], ["bottle", "بطاقة قنينة"]];
 const COLOUR_NAMES = { black: "أسود", yellow: "أصفر", orange: "برتقالي", white: "أبيض", pink: "وردي", lpink: "وردي فاتح" };
 const $ = (id) => document.getElementById(id);
@@ -307,16 +345,17 @@ function message() {
   const t = DATA.themes[state.theme], c = t.colours[state.colours], p = priceFor();
   const names = PIECES.filter((x) => state.pieces.has(x[0])).map((x) => x[1]).join("، ");
   return [`طلب حزمة طالب (حجز مسبق)`, `الاسم: ${state.name || "—"}`, `الثيم: ${t.label}`, `الألوان: ${state.colours} (${c.swatches.map((s) => COLOUR_NAMES[s.name] || s.name).join("، ")})`,
-    `القطع: ${p.pack ? "الباقة كاملة" : names}`, `السعر: ${money(p.price)} دينار`].join("\n");
+    `القطع: ${p.pack ? "الباقة كاملة" : names}`, ...(API ? [`عدد الباقات: ${Number($("cQty").value) || 1}`] : []), `السعر: ${money(p.price * (API ? Number($("cQty").value) || 1 : 1))} دينار`].join("\n");
 }
 function link(text) {
   const n = CONTACT.whatsapp.replace(/\D/g, "");
   return n ? `https://wa.me/${n}?text=${encodeURIComponent(text)}` : null;
 }
 function setSend(btn, noteEl, text) {
+  if (API) { noteEl.textContent = ""; }
   const href = link(text);
-  if (href) { btn.href = href; btn.removeAttribute("aria-disabled"); noteEl.textContent = "بيفتح واتساب والرسالة جاهزة، بس اضغط إرسال. نرجعلك بمعاينة باسمك قبل الطباعة."; }
-  else { btn.href = "#"; btn.setAttribute("aria-disabled", "true"); noteEl.textContent = "رقم الواتساب لسا ما انضاف للموقع. انسخ الطلب وابعتلنا إياه على صفحتنا على فيسبوك أو على الإيميل أعلاه."; }
+  if (href) { btn.href = href; btn.removeAttribute("aria-disabled"); if (!API) noteEl.textContent = "بيفتح واتساب والرسالة جاهزة، بس اضغط إرسال. نرجعلك بمعاينة باسمك قبل الطباعة."; }
+  else { btn.href = "#"; btn.setAttribute("aria-disabled", "true"); if (!API) noteEl.textContent = "رقم الواتساب لسا ما انضاف للموقع. انسخ الطلب وابعتلنا إياه على صفحتنا على فيسبوك أو على الإيميل أعلاه."; }
 }
 async function copy(text, btn) {
   const old = btn.textContent;
@@ -331,7 +370,8 @@ function render() {
   seg($("colSeg"), "col", ["2", "3", "4"].map((k) => [k, `${k} ألوان`, `${money(t.colours[k].pack)} د.أ`]), state.colours, (v) => { state.colours = v; render(); });
   $("pieces").innerHTML = PIECES.map(([k, l]) => `<label><input type="checkbox" value="${k}" ${state.pieces.has(k) ? "checked" : ""}> ${l}</label>`).join("");
   $("pieces").onchange = (e) => { e.target.checked ? state.pieces.add(e.target.value) : state.pieces.delete(e.target.value); render(); };
-  $("price").innerHTML = p.price ? `${money(p.price)}<small>دينار</small>` : "—";
+  const q = API ? Number($("cQty").value) || 1 : 1;
+  $("price").innerHTML = p.price ? `${money(p.price * q)}<small>دينار</small>` : "—";
   $("priceNote").textContent = p.price ? (p.pack ? "سعر الباقة الكاملة" : "سعر القطع المختارة") : "اختار قطعة وحدة على الأقل";
   $("shot").src = c.img; $("heroImg").src = DATA.themes.construction.colours["4"].img;
   $("shotCap").textContent = `تصوّر (Concept) · ${t.label} · ${state.colours} ألوان · مثال بالاسم ${t.sample}. نرسل لك معاينة باسمك قبل الطباعة.`;
@@ -350,7 +390,61 @@ $("name").addEventListener("input", (e) => {
   else { h.textContent = "حتى ١١ حرف. الأسماء العربية قريباً."; h.className = "hint"; }
   render();
 });
+$("cQty").addEventListener("change", render);
 $("copyOrder").onclick = (e) => copy(message(), e.currentTarget);
+
+/* ---- placing orders through the API ---- */
+async function post(path, body) {
+  const r = await fetch(API + path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+  const j = await r.json().catch(() => ({ ok: false, error: "تعذّر الاتصال، جرّب مرة ثانية." }));
+  return j;
+}
+function showErr(el, msg) { el.textContent = msg; el.hidden = !msg; }
+function okBox(el, j, extra) {
+  el.hidden = false;
+  el.innerHTML = `<b>وصلنا طلبك</b><div class="code">${j.code}</div>${j.total != null ? `<p>المجموع: ${money(j.total)} دينار</p>` : ""}<p>${extra}</p><p class="hint">احفظ رقم الطلب. بتقدر تتبّعه من قسم "تتبّع طلبك" أسفل الصفحة.</p>`;
+  el.scrollIntoView({ block: "nearest", behavior: "smooth" });
+}
+if (API) {
+  $("checkout").hidden = false; $("placeOrder").hidden = false; $("track").hidden = false; $("reqSend").hidden = false;
+  $("sendWa").hidden = !CONTACT.whatsapp; $("reqWa").hidden = !CONTACT.whatsapp;
+  $("placeOrder").onclick = async (e) => {
+    const btn = e.currentTarget; showErr($("orderErr"), "");
+    if (!state.name) return showErr($("orderErr"), "اكتب الاسم اللي بدك إياه على القطع.");
+    if (!state.pieces.size) return showErr($("orderErr"), "اختار قطعة وحدة على الأقل.");
+    btn.disabled = true; btn.textContent = "جاري الإرسال…";
+    const j = await post("/orders", { kind: "pack", name: state.name, theme: state.theme, colours: Number(state.colours), pieces: [...state.pieces],
+      qty: Number($("cQty").value), customer: $("cName").value, phone: $("cPhone").value, area: $("cArea").value, details: $("cNote").value, website: $("cWebsite").value });
+    btn.disabled = false; btn.textContent = "أكّد الطلب";
+    if (!j.ok) return showErr($("orderErr"), j.error);
+    okBox($("orderOk"), j, "بنتواصل معك على رقمك بمعاينة باسمك والسعر النهائي والعربون قبل ما نبدأ الطباعة.");
+  };
+  $("reqSend").onclick = async (e) => {
+    const btn = e.currentTarget; showErr($("reqErr"), "");
+    btn.disabled = true; btn.textContent = "جاري الإرسال…";
+    const j = await post("/orders", { kind: "custom", product: $("rKind").value, text: $("rText").value, have: $("rHave").checked,
+      customer: $("rName").value, phone: $("rPhone").value, area: "غير ذلك", website: $("rWebsite").value });
+    btn.disabled = false; btn.textContent = "أرسل الطلب";
+    if (!j.ok) return showErr($("reqErr"), j.error);
+    okBox($("reqOk"), j, "بنرجعلك على رقمك بتصوّر وسعر.");
+  };
+  $("tGo").onclick = async () => {
+    const out = $("tOut"); out.className = "hint"; out.textContent = "…";
+    const r = await fetch(`${API}/track?id=${encodeURIComponent($("tCode").value)}&phone=${encodeURIComponent($("tPhone").value)}`).then((x) => x.json()).catch(() => ({ ok: false, error: "تعذّر الاتصال." }));
+    out.className = r.ok ? "hint" : "hint err";
+    out.textContent = r.ok ? `${r.code}: ${r.statusText}` : r.error;
+  };
+}
+
+/* checkout */
+.ok { border: 2px solid var(--good); border-radius: 12px; padding: 1rem; display: grid; gap: .4rem; background: color-mix(in srgb, var(--good) 9%, var(--panel)); }
+.ok .code { font: 500 1.6rem var(--font-mono); letter-spacing: .06em; direction: ltr; }
+.hp { position: absolute; inset-inline-start: -9999px; width: 1px; height: 1px; opacity: 0; }
+.err-box { color: #C0392B; font-weight: 600; font-size: .92rem; }
+:root[data-theme="dark"] .err-box { color: #FF8F80; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .err-box { color: #FF8F80; } }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+@media (max-width: 480px) { .grid2 { grid-template-columns: 1fr; } }
 
 /* products */
 const PRODUCTS = [

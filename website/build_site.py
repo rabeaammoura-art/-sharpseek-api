@@ -20,8 +20,8 @@ SAMPLE = {"construction": "OMAR", "cat": "LAYLA"}
 
 
 def sheet(theme, name, out):
-    tmp = HERE / "img" / "_tmp"
-    tmp.mkdir(exist_ok=True)
+    tmp = HERE / "public" / "img" / "_tmp"
+    tmp.mkdir(parents=True, exist_ok=True)
     ims = []
     for k in pricing.PIECES:
         p = layout.KINDS[k](theme, name)
@@ -47,23 +47,25 @@ def main():
             theme = resolve_theme(base, c)
             th = THEMES[theme]
             img = f"img/{base}-{c}.png"
-            sheet(theme, SAMPLE[base], HERE / img)
+            sheet(theme, SAMPLE[base], HERE / "public" / img)
             costs = {k: pricing.piece_cost(p, cat[pricing.key(base, c, k)]["seconds"], cat[pricing.key(base, c, k)]["grams"]) for k in pricing.PIECES}
             entry["colours"][str(c)] = {
                 "pack": p["pack_price"][str(c)], "img": img, "costs": costs,
                 "swatches": [{"name": n, "hex": th["filament_rgb"][n], "z": th["heights"][n]} for n in th["heights"]],
                 "hours": round(sum(cat[pricing.key(base, c, k)]["seconds"] for k in pricing.PIECES) / 3600, 1)}
         data["themes"][base] = entry
-    (HERE / "data.json").write_text(json.dumps(data, ensure_ascii=False, indent=1))
-    src = (HERE / "page.src.html").read_text(encoding="utf-8").replace("__DATA__", json.dumps(data, ensure_ascii=False))
+    (HERE / "worker" / "pricing.json").write_text(json.dumps(data, ensure_ascii=False))     # the Worker recomputes every price from this
+    page = (HERE / "page.src.html").read_text(encoding="utf-8").replace("__DATA__", json.dumps(data, ensure_ascii=False))
+    src = page.replace("__API__", "")                                  # preview build: no server
     (HERE / "artifact.html").write_text(src, encoding="utf-8")
+    src = page.replace("__API__", "/api")
     full = ('<!doctype html>\n<html lang="ar" dir="rtl">\n<head>\n<meta charset="utf-8">\n'
             '<meta name="viewport" content="width=device-width, initial-scale=1">\n</head>\n<body>\n' + src + "\n</body>\n</html>\n")
-    (HERE / "index.html").write_text(full, encoding="utf-8")
-    for f in (HERE / "img" / "_tmp").glob("*"):
+    (HERE / "public" / "index.html").write_text(full, encoding="utf-8")
+    for f in (HERE / "public" / "img" / "_tmp").glob("*"):
         f.unlink()
-    (HERE / "img" / "_tmp").rmdir()
-    print("built", sorted(x.name for x in (HERE / "img").iterdir()))
+    (HERE / "public" / "img" / "_tmp").rmdir()
+    print("built", sorted(x.name for x in (HERE / "public").rglob("*") if x.is_file()))
 
 
 if __name__ == "__main__":
