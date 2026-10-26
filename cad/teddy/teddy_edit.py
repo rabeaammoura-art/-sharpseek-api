@@ -36,10 +36,58 @@ def new_frame(teddy, heart: Polygon):
     return boolean("union", [boolean("difference", [teddy, cutter]), wall, ledge])
 
 
+def _back_plug(teddy, cx=X0, cz=57.5, half=11.0, step=0.25):
+    """Solid that fills the cable tunnel at the back.  Its outer face is a polynomial fitted to the surrounding
+    back surface, so the patch follows the curvature of the body instead of being a flat disc."""
+    g = np.arange(-half, half + step / 2, step)
+    GX, GZ = np.meshgrid(cx + g, cz + g, indexing="ij")
+    o = np.c_[GX.ravel(), np.full(GX.size, 1000.0), GZ.ravel()]
+    loc, ir, _ = teddy.ray.intersects_location(o, np.tile([0, -1.0, 0], (len(o), 1)), multiple_hits=False)
+    yt = np.full(GX.size, np.nan)
+    yt[ir] = loc[:, 1]
+    yt = yt.reshape(GX.shape)
+    r = np.hypot(GX - cx, GZ - cz)
+    ok = np.isfinite(yt) & (yt > 905) & (r > 7.5) & (r < half)
+    dx, dz = (GX - cx)[ok], (GZ - cz)[ok]
+    terms = lambda a, b: np.stack([a ** i * b ** k for i in range(5) for k in range(5 - i)], -1)
+    coef, *_ = np.linalg.lstsq(terms(dx, dz), yt[ok], rcond=None)
+    fit = (terms(GX - cx, GZ - cz) @ coef)
+    resid = np.abs(terms(dx, dz) @ coef - yt[ok]).max()
+    w = np.clip((r - 8.6) / 1.4, 0, 1)
+    w = w * w * (3 - 2 * w)
+    true_ok = np.isfinite(yt) & (yt > 905)
+    sink = 0.03 * np.clip((r - 6.0) / 2.0, 0, 1)                 # hidden below the true surface outside the hole
+    top = np.where(true_ok, fit * (1 - w) + yt * w, fit) - sink
+    n = len(g)
+    idx = lambda a, b: a * n + b
+    top_v = np.c_[GX.ravel(), top.ravel(), GZ.ravel()]
+    bot_v = np.c_[GX.ravel(), np.full(GX.size, 872.0), GZ.ravel()]
+    V = np.vstack([top_v, bot_v])
+    off = n * n
+    F = []
+    for a in range(n - 1):
+        for b in range(n - 1):
+            p, q, rr, s_ = idx(a, b), idx(a + 1, b), idx(a + 1, b + 1), idx(a, b + 1)
+            F += [[p, s_, rr], [p, rr, q]]                       # top faces point +y
+            F += [[p + off, q + off, rr + off], [p + off, rr + off, s_ + off]]
+    for a in range(n - 1):
+        for edge in ((a, 0, a + 1, 0), (a, n - 1, a + 1, n - 1)):
+            pass
+    def wall(i0, i1):
+        F.extend([[i0, i1, i1 + off], [i0, i1 + off, i0 + off]])
+    for a in range(n - 1):
+        wall(idx(a + 1, 0), idx(a, 0)); wall(idx(a, n - 1), idx(a + 1, n - 1))
+        wall(idx(0, a), idx(0, a + 1)); wall(idx(n - 1, a + 1), idx(n - 1, a))
+    m = trimesh.Trimesh(V, np.array(F), process=True)
+    m.fix_normals()
+    if m.volume < 0:
+        m.invert()
+    return m, resid
+
+
 def seal_back_and_bottom_channel(teddy):
-    box = trimesh.creation.box(bounds=[[846, 885, 44], [877, 925, 70]])
-    patch = boolean("intersection", [teddy, box])
-    plug = patch.convex_hull
+    plug, resid = _back_plug(teddy)
+    print('back plug fit residual (mm):', round(float(resid), 3), 'watertight', plug.is_watertight)
     t = boolean("union", [teddy, plug])
     chan = trimesh.creation.cylinder(radius=4.0, height=62.0, sections=64,
                                      transform=trimesh.transformations.translation_matrix([X0, 847.0, 29.0]))

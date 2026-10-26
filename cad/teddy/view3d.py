@@ -19,7 +19,7 @@ def view(meshes,colors,name,azim,elev,res=0.35,center=(861.4,838.8,100),size=(24
     for m,col in zip(meshes,colors):
         loc,ir,it=m.ray.intersects_location(o,dirs,multiple_hits=False)
         dist=np.linalg.norm(loc-o[ir],axis=1)
-        upd=dist<D[ir]; ii=ir[upd]; D[ii]=dist[upd]; N[ii]=m.face_normals[it[upd]]; C[ii]=col
+        upd=dist<D[ir]; ii=ir[upd]; D[ii]=dist[upd]; N[ii]=m.vertex_normals[m.faces[it[upd]]].mean(1); C[ii]=col
     Ld=-d+0.6*(-right)+0.8*up if light is None else light
     Ld=Ld/np.linalg.norm(Ld)
     nn=N*np.sign(-(N@d))[:,None]
