@@ -7,6 +7,14 @@ U=sys.argv[1] if len(sys.argv)>1 else '/root/.claude/uploads/c69ab67c-81c4-5df2-
 PHOTO=sys.argv[2] if len(sys.argv)>2 else U+'5330ae15-image.jpg'
 OUT=sys.argv[3] if len(sys.argv)>3 else 'out/'
 T=trimesh.load(glob.glob(U+'*teddy_rear*')[0]); L=trimesh.load(glob.glob(U+'*front_lith*')[0])
+import numpy as np
+from shapely.geometry import Polygon
+sec=L.section(plane_origin=[0,778.3,0],plane_normal=[0,1,0])
+loop=max(sec.discrete,key=lambda l: np.ptp(l[:,0]))
+Hout=Polygon(loop[:,[0,2]]).buffer(0)
+print('outline',Hout.bounds,Hout.is_valid)
+T=te.ring_fillet(T,Hout)
+print('fillet',T.is_watertight)
 b=te.seal_back_and_bottom_channel(T)
 c=te.carve_details(b)
 print('teddy',len(c.faces),c.is_watertight)

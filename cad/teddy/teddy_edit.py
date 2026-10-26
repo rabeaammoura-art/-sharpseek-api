@@ -102,7 +102,7 @@ def smile_height(px, pz):
 def paw_height(px, pz):
     """Positive = raised (mm).  Pads on both feet (left built, right mirrored)."""
     h = np.zeros(px.shape)
-    cxL, czL = 813.9, 22.0
+    cxL, czL = 809.8, 21.5
     for mirror in (False, True):
         x = (2 * X0 - px) if mirror else px
         # main pad: three soft lobes
@@ -110,9 +110,9 @@ def paw_height(px, pz):
         rs = np.array([_sd_ellipse(x, pz, cx, cz, rx, rz, 0, 2.0) for cx, cz, rx, rz in lobes])
         r = -np.log(np.exp(-9.0 * rs).sum(0)) / 9.0                  # soft union of the lobes
         h = np.maximum(h, 1.3 * _pillow(r, 0.30))
-        for a in np.radians([-46, -16, 16, 46]):
-            cx = cxL + 16.5 * np.sin(a)
-            cz = czL + 6.0 + 14.5 * np.cos(a)
+        for a in np.radians([-42, -14, 14, 42]):
+            cx = cxL + 14.5 * np.sin(a)
+            cz = czL + 5.5 + 13.2 * np.cos(a)
             toe = _pillow(_sd_ellipse(x, pz, cx, cz, 3.9, 4.9, -a, 2.0), 0.34)
             h = np.maximum(h, 1.3 * toe)
     return h
@@ -137,3 +137,17 @@ def carve_details(teddy, max_edge=0.42):
     dy[foot_zone] = paw_height(px[foot_zone], pz[foot_zone]) * wgt[foot_zone]
     v[:, 1] -= dy
     return trimesh.Trimesh(v, m.faces, process=True)
+
+
+def ring_fillet(teddy, outline: Polygon, y_chest=786.0, radius=4.5, dphi=1.2):
+    """Concave fillet blending the raised heart ring into the chest, arms and feet (also closes the tiny
+    crevices where the ring meets them).  Thin stacked layers placed at equal angles around the fillet arc."""
+    yc = y_chest - radius
+    phis = np.radians(np.arange(0, 90 + dphi, dphi))
+    layers = []
+    for a, b in zip(phis[:-1], phis[1:]):
+        y0, y1 = yc + radius * np.sin(a), yc + radius * np.sin(b)
+        w = radius * (1 - np.cos((a + b) / 2))
+        band = outline.buffer(max(w, 0.01), resolution=24).difference(outline.buffer(-0.4, resolution=24))
+        layers.append(prism_xz(band, y0, min(y1, y_chest + 0.3) + (0.3 if b >= phis[-1] else 0.0)))
+    return boolean("union", [teddy] + layers)
