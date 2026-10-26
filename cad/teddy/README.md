@@ -1,10 +1,8 @@
-# Teddy + heart lithophane lamp (v2)
+# Teddy + heart lithophane lamp (v3)
 
-Rebuilt from the v1 STLs (`teddy_rear_heart_LED.stl`, `heart_front_lithophane.stl`):
+Built from the original STLs (`teddy_rear_heart_LED.stl`, `heart_front_lithophane.stl`). The original heart, pocket
+and mounting (stepped tongue that locks the lithophane into the teddy, border ring flush with the body) are unchanged.
 
-- heart frame rebuilt as one smooth curve (old thin frame removed; new 4.8 mm wall overlaps the arms), with a ledge the lithophane rests on
-- lithophane regenerated from `out/lithophane_photo.jpg`, domed shell, smooth outline, 0.25 mm clearance to the frame
-- cable hole moved from the middle of the back to a 8 mm channel in the base (back sealed)
-- smile deepened, paw pads (main pad + 4 toes) raised 1.3 mm on both feet
-
-Run: `python run_teddy.py` (teddy) and `python run_litho.py` (lithophane). Inputs are the v1 STLs and the photo.
+- `relief_swap.py`: keeps the old lithophane and replaces only the relief inside the border with the new photo (`out/lithophane_photo.jpg`), same 0.8-3.2 mm thickness range as before
+- `teddy_edit.py`: back hole sealed, 8 mm cable channel in the base, deeper smile, paw pads (main pad + 4 toes) on both feet
+- `run_v3.py <upload dir> <photo> <out dir>` builds both STLs. (`run_teddy.py`, `run_litho.py`, `litho.py`, `heart.py` are the abandoned v2 attempt with a new frame; not used)
