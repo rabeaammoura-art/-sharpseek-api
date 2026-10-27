@@ -85,10 +85,76 @@ def _back_plug(teddy, cx=X0, cz=57.5, half=11.0, step=0.25):
     return m, resid
 
 
+def retriangulate_back_patch(mesh, cx=X0, cz=57.5, r_cut=11.5, spacing=0.45):
+    """Replace the boolean seam area on the back by a clean triangulation lying exactly on the fitted smooth surface.
+    The boolean leaves sliver triangles (garbage normals -> a visible ring); here the patch is cut out and rebuilt."""
+    from scipy.spatial import Delaunay
+    from shapely.geometry import Polygon as _P, Point
+    V, F = mesh.vertices, mesh.faces
+    c = V[F].mean(1)
+    rc = np.hypot(c[:, 0] - cx, c[:, 2] - cz)
+    sel = (c[:, 1] > 908) & (rc < r_cut)
+    # boundary loop of the selected patch
+    e = np.sort(F[sel][:, [0, 1, 1, 2, 2, 0]].reshape(-1, 2), axis=1)
+    u, cnt = np.unique(e, axis=0, return_counts=True)
+    bedges = u[cnt == 1]
+    nxt = {}
+    for a, b in bedges:
+        nxt.setdefault(a, []).append(b); nxt.setdefault(b, []).append(a)
+    start = bedges[0][0]
+    loop = [start]
+    prev, cur = None, start
+    while True:
+        cand = [x for x in nxt[cur] if x != prev]
+        nx = cand[0] if cand else None
+        if nx is None or nx == start:
+            break
+        loop.append(nx); prev, cur = cur, nx
+    if len(loop) != len(bedges):
+        raise RuntimeError(f"back patch boundary is not a single loop ({len(loop)} of {len(bedges)})")
+    loop = np.array(loop)
+    bp = V[loop]
+    poly = _P(bp[:, [0, 2]]).buffer(0)
+    # smooth reference surface from the ring just outside the patch
+    r = np.hypot(V[:, 0] - cx, V[:, 2] - cz)
+    ref = (V[:, 1] > 908) & (r > r_cut + 1.0) & (r < r_cut + 12)
+    terms = lambda a, b: np.stack([a ** i * b ** k for i in range(5) for k in range(5 - i)], -1)
+    coef, *_ = np.linalg.lstsq(terms(V[ref, 0] - cx, V[ref, 2] - cz), V[ref, 1], rcond=None)
+    gx = np.arange(cx - r_cut, cx + r_cut, spacing)
+    gz = np.arange(cz - r_cut, cz + r_cut, spacing * np.sqrt(3) / 2)
+    pts = []
+    for k, z in enumerate(gz):
+        for x in gx + (spacing / 2 if k % 2 else 0):
+            pts.append((x, z))
+    pts = np.array(pts)
+    inner = poly.buffer(-0.35)
+    keep = np.array([inner.contains(Point(p)) for p in pts])
+    ip = pts[keep]
+    iy = terms(ip[:, 0] - cx, ip[:, 1] - cz) @ coef
+    new_v = np.c_[ip[:, 0], iy, ip[:, 1]]
+    allv = np.vstack([V, new_v])
+    idx_xz = np.vstack([bp[:, [0, 2]], ip])
+    idx_id = np.r_[loop, len(V) + np.arange(len(ip))]
+    import triangle
+    nb = len(bp)
+    seg = np.c_[np.arange(nb), (np.arange(nb) + 1) % nb]
+    res = triangle.triangulate({"vertices": idx_xz, "segments": seg}, "p")      # constrained: keeps every boundary edge
+    assert len(res["vertices"]) == len(idx_xz), "triangle added points"
+    tri = res["triangles"]
+    nf = idx_id[tri]
+    # orient so normals point +y (away from the body)
+    p0, p1, p2 = allv[nf[:, 0]], allv[nf[:, 1]], allv[nf[:, 2]]
+    nrm = np.cross(p1 - p0, p2 - p0)
+    flip = nrm[:, 1] < 0
+    nf[flip] = nf[flip][:, ::-1]
+    out = trimesh.Trimesh(allv, np.vstack([F[~sel], nf]), process=True)
+    return out
+
+
 def seal_back_and_bottom_channel(teddy):
     plug, resid = _back_plug(teddy)
     print('back plug fit residual (mm):', round(float(resid), 3), 'watertight', plug.is_watertight)
-    t = boolean("union", [teddy, plug])
+    t = retriangulate_back_patch(boolean("union", [teddy, plug]))
     chan = trimesh.creation.cylinder(radius=4.0, height=62.0, sections=64,
                                      transform=trimesh.transformations.translation_matrix([X0, 847.0, 29.0]))
     return boolean("difference", [t, chan])
