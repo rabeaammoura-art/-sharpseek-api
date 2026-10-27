@@ -16,3 +16,11 @@ What v4 does
 Files: `out/teddy_rear_heart_LED_v4.stl`, `out/heart_front_lithophane_v4.stl`, previews `out/preview_*.png`, `out/lithophane_photo.jpg`.
 `verify_v4.py` = read-only checks; `slice_check.py` = Bambu Studio slicing check (H2D, PLA, 5 wall loops, 0% infill).
 Older scripts (`run_*.py`, `litho.py`, `v4_lattice_study.py`) are earlier attempts / the lattice design study.
+
+## Chest-heart version (Manus files, fixed here) - out/manus_fix/
+`fix_manus.py <original 200 mm bear stl> <manus lid v2 stl> out/manus_fix/` rebuilds from the original bear (never modified):
+pocket = smooth heart prism (0.3 mm side clearance, flat floor y=78), LED recess 33 x 7 mm, 12 mm cable channel starting
+3 mm behind the floor, 12 x 5 mm trench to the rear edge, 2 pins; lid = exact Manus front surface + uniform 2.0 mm shell,
+rim on the floor plane, 2 bosses with 6 mm bores. Files: `teddy_body_chest_led_v3.stl`, `chest_heart_lid_v3.stl`.
+Print weight (Bambu Studio, H2D, PLA, 0.20 mm, tree supports): body 15% default 12h46m/473 g; gyroid 8% 10h15m/334 g;
+lightning 10% 7h11m/192 g; lightning 10% + 3 walls 8h01m/235 g. `slice_variants.py` reproduces these (env DENS, PAT, WALLS, PROC).
