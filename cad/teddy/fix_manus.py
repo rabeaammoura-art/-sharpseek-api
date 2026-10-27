@@ -33,7 +33,10 @@ PIN_R, PIN_TIP_Y = 2.4, 67.5
 BOSS_R, BORE_R, BORE_Y = 5.0, 3.0, 66.0
 WALL = 2.0
 SIDE_CLEAR = 0.30
-H = 0.25
+H = 0.2
+OUTLINE_R = 6.0              # minimum radius of curvature of the heart outline (tip, cleft, lobes)
+SMOOTH_MM = 1.6               # smoothing of the dome surface (removes the faceting of the source mesh)
+EDGE_R = 4.0                 # radius of the rounded edge all around the heart
 t0 = time.time()
 log = lambda *a: print('[%4.0fs]' % (time.time() - t0), *a, flush=True)
 
@@ -71,6 +74,14 @@ def y_cyl(r, y0, y1, x, z, sections=96):
     c.apply_translation([x, (y0 + y1) / 2, z]); return c
 
 
+def rmin(a, b, r):
+    """Intersection of two inside-positive distance fields with a circular fillet of radius r (r<=0: sharp)."""
+    if r <= 0:
+        return np.minimum(a, b)
+    both = (a < r) & (b < r)
+    return np.where(both, r - np.sqrt((r - a) ** 2 + (r - b) ** 2), np.minimum(a, b))
+
+
 def smooth_outline(poly, harmonics=36):
     ring = np.array(poly.exterior.coords)
     d = np.r_[0, np.cumsum(np.linalg.norm(np.diff(ring, axis=0), axis=1))]
@@ -78,7 +89,10 @@ def smooth_outline(poly, harmonics=36):
     z = np.interp(t, d, ring[:, 0]) + 1j * np.interp(t, d, ring[:, 1])
     f = np.fft.fft(z); k = np.fft.fftfreq(len(z), 1 / len(z)); f[np.abs(k) > harmonics] = 0
     s = np.fft.ifft(f); p = Polygon(np.c_[s.real, s.imag]).buffer(0)
-    return p.intersection(sh_scale(p, xfact=-1, origin=(X0, 0))).simplify(0.01)
+    p = p.intersection(sh_scale(p, xfact=-1, origin=(X0, 0)))
+    r = OUTLINE_R                                                  # open + close: every convex AND concave corner gets radius >= r
+    p = p.buffer(-r, resolution=64).buffer(2 * r, resolution=64).buffer(-r, resolution=64)
+    return p.simplify(0.005)
 
 
 orig = trimesh.load(ORIG); F = trimesh.load(LID)
@@ -96,15 +110,18 @@ yf = np.full(XX.size, np.nan); yf[ir] = loc[:, 1]; yf = yf.reshape(XX.shape)
 hole = ~np.isfinite(yf)
 idx = distance_transform_edt(hole, return_distances=False, return_indices=True)
 yf = yf[tuple(idx)]
-yf = gaussian_filter(yf, 1.2)                                   # removes the faint faceting of the source surface
+yf = gaussian_filter(yf, SMOOTH_MM / H)                                   # removes the faint faceting of the source surface
 gx, gz = np.gradient(yf, H)
 sdf = np.where(shapely.contains_xy(P, XX.ravel(), ZZ.ravel()), 1.0, -1.0) * shapely.distance(
     P.exterior, shapely.points(XX.ravel(), ZZ.ravel()))
 sdf = sdf.reshape(XX.shape)
-yi = yf + WALL * np.sqrt(1 + gx ** 2 + gz ** 2)
+sl = np.sqrt(1 + gx ** 2 + gz ** 2)
 Yv = ys[None, :, None]
-L = np.minimum(np.minimum(Yv - yf[:, None, :], FLOOR_Y - Yv), sdf[:, None, :])                 # outer solid
-L = np.minimum(L, -np.minimum(Yv - yi[:, None, :], sdf[:, None, :] - WALL))                    # minus cavity
+a_n = (Yv - yf[:, None, :]) / sl[:, None, :]                        # distance to the front surface (along its normal)
+b_n = sdf[:, None, :]                                                # distance to the heart outline (side wall)
+outer = np.minimum(rmin(a_n, b_n, EDGE_R), FLOOR_Y - Yv)             # rounded edge, flat rim plane
+cavity = rmin(a_n - WALL, b_n - WALL, EDGE_R - WALL)                 # offset of the rounded edge: wall stays 2 mm
+L = np.minimum(outer, -cavity)
 Xg = xs[:, None, None]; Zg = zs[None, None, :]
 for px, pz in PINS:
     r = np.hypot(Xg - px, Zg - pz)

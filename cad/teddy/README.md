@@ -24,3 +24,9 @@ pocket = smooth heart prism (0.3 mm side clearance, flat floor y=78), LED recess
 rim on the floor plane, 2 bosses with 6 mm bores. Files: `teddy_body_chest_led_v3.stl`, `chest_heart_lid_v3.stl`.
 Print weight (Bambu Studio, H2D, PLA, 0.20 mm, tree supports): body 15% default 12h46m/473 g; gyroid 8% 10h15m/334 g;
 lightning 10% 7h11m/192 g; lightning 10% + 3 walls 8h01m/235 g. `slice_variants.py` reproduces these (env DENS, PAT, WALLS, PROC).
+
+Smooth heart edges (fix_manus.py): outline = Manus silhouette, low-pass + morphological open/close (radius >= 6 mm, so tip, cleft and
+lobes are all rounded curves), edge between the dome and the side wall rounded with a 4 mm fillet (wall stays 2 mm around it),
+dome surface smoothed (1.6 mm). Parameters OUTLINE_R, EDGE_R, SMOOTH_MM at the top of the script.
+Final print numbers (Bambu Studio, H2D, PLA, 0.20 mm): body lightning 10% + 3 walls 8h04m / 235 g;
+lid, rim on the bed and dome up, supports on: 2h00m / 46 g (dome down: 1h34m / 40 g but supports would touch the visible face).
