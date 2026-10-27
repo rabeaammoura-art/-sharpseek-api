@@ -1,7 +1,9 @@
 """Rebuild the chest-heart lid + body from Manus' v2 files and the ORIGINAL 200 mm bear.
 
-Fixes: smooth pocket, 7 mm LED recess, uniform 2.0 mm lid shell (front face = Manus' lid front surface), cable channel
-that starts behind the pocket floor, trench to the rear edge, pins + bosses with bores.  Nothing is written over the inputs.
+Fixes: clean geometric heart outline (two round lobes + tangent sides + rounded cleft/tip), smooth pocket, 7 mm LED recess,
+uniform 2.0 mm lid shell (front face = Manus' lid dome, low-passed), cable channel that starts behind the pocket floor,
+trench to the rear edge, pins + bosses with bores, and removal of the feather edges the pocket leaves in the bear's surface.
+Nothing is written over the inputs.
 
 usage: python fix_manus.py <original bear stl> <manus lid stl> <out dir>
 """
@@ -11,9 +13,8 @@ import time
 import numpy as np
 import shapely
 import trimesh
-from scipy.ndimage import distance_transform_edt, gaussian_filter
-from shapely.affinity import scale as sh_scale
-from shapely.geometry import Polygon
+from scipy.ndimage import binary_dilation, distance_transform_edt, gaussian_filter
+from shapely.geometry import Point
 from shapely.ops import unary_union
 from skimage import measure
 import manifold3d as m3d
@@ -34,8 +35,11 @@ BOSS_R, BORE_R, BORE_Y = 5.0, 3.0, 66.0
 WALL = 2.0
 SIDE_CLEAR = 0.30
 H = 0.2
-OUTLINE_R = 6.0              # minimum radius of curvature of the heart outline (tip, cleft, lobes)
-SMOOTH_MM = 1.6               # smoothing of the dome surface (removes the faceting of the source mesh)
+HEART_W, HEART_TOP, HEART_TIP = 85.0, 94.0, 26.5   # outline: width, top of the lobes, tip (z, mm)
+LOBE_R, TIP_R, CLEFT_R = 22.0, 6.0, 5.0            # lobe radius and the fillet radii of the tip and the cleft
+SMOOTH_MM = 3.5               # low-pass of the dome surface (removes the faceting of the source mesh)
+SLIVER_R = 1.3                # material thinner than 2*SLIVER_R next to the pocket is removed (feather edges)
+SLIVER_BAND = 8.0             # ... within this distance of the pocket wall
 EDGE_R = 4.0                 # radius of the rounded edge all around the heart
 t0 = time.time()
 log = lambda *a: print('[%4.0fs]' % (time.time() - t0), *a, flush=True)
@@ -82,24 +86,57 @@ def rmin(a, b, r):
     return np.where(both, r - np.sqrt((r - a) ** 2 + (r - b) ** 2), np.minimum(a, b))
 
 
-def smooth_outline(poly, harmonics=36):
-    ring = np.array(poly.exterior.coords)
-    d = np.r_[0, np.cumsum(np.linalg.norm(np.diff(ring, axis=0), axis=1))]
-    t = np.linspace(0, d[-1], 2048, endpoint=False)
-    z = np.interp(t, d, ring[:, 0]) + 1j * np.interp(t, d, ring[:, 1])
-    f = np.fft.fft(z); k = np.fft.fftfreq(len(z), 1 / len(z)); f[np.abs(k) > harmonics] = 0
-    s = np.fft.ifft(f); p = Polygon(np.c_[s.real, s.imag]).buffer(0)
-    p = p.intersection(sh_scale(p, xfact=-1, origin=(X0, 0)))
-    r = OUTLINE_R                                                  # open + close: every convex AND concave corner gets radius >= r
-    p = p.buffer(-r, resolution=64).buffer(2 * r, resolution=64).buffer(-r, resolution=64)
+def heart_outline():
+    ax, zc = HEART_W / 2 - LOBE_R, HEART_TOP - LOBE_R
+    tip = Point(X0, HEART_TIP)
+    discs = [Point(X0 - ax, zc).buffer(LOBE_R, 256), Point(X0 + ax, zc).buffer(LOBE_R, 256)]
+    p = unary_union([unary_union([d, tip]).convex_hull for d in discs])      # lobes + tangent sides down to the tip
+    p = p.buffer(CLEFT_R, resolution=64).buffer(-CLEFT_R, resolution=64)     # closing: fillet in the cleft
+    p = p.buffer(-TIP_R, resolution=64).buffer(TIP_R, resolution=64)         # opening: rounded tip
     return p.simplify(0.005)
+
+
+def trim_slivers(body, P):
+    """Pocket walls cut the bear's curved surface at grazing angles and leave knife edges and thin skins.  Opening the
+    material with a ball of radius SLIVER_R inside a band around the pocket removes everything thinner than 2*SLIVER_R."""
+    h = 0.25
+    xs = np.arange(38.0, 132.0, h); zs = np.arange(24.0, 100.0, h); ys = np.arange(18.0, 82.0, h)
+    gx_, gz_ = np.meshgrid(xs, zs, indexing='ij')
+    o = np.c_[gx_.ravel(), np.full(gx_.size, 0.0), gz_.ravel()]
+    loc, ir, _ = body.ray.intersects_location(o, np.tile([0, 1.0, 0], (len(o), 1)), multiple_hits=True)
+    order = np.lexsort((loc[:, 1], ir)); ir, ly = ir[order], loc[order, 1]
+    first = np.r_[0, np.flatnonzero(np.diff(ir)) + 1]
+    rank = np.arange(len(ir)) - np.repeat(first, np.diff(np.r_[first, len(ir)]))
+    ev = np.zeros((len(xs), len(ys), len(zs)), np.int8)
+    ij, k = np.divmod(ir, len(zs))
+    np.add.at(ev, (ij, np.clip(np.searchsorted(ys, ly), 0, len(ys) - 1), k), np.where(rank % 2 == 0, 1, -1).astype(np.int8))
+    occ = np.cumsum(ev, axis=1, dtype=np.int8) > 0
+    del ev
+    dist = shapely.distance(P.buffer(SIDE_CLEAR).exterior, shapely.points(gx_.ravel(), gz_.ravel())).reshape(gx_.shape)
+    band = (dist < SLIVER_BAND) & ~shapely.contains_xy(P.buffer(SIDE_CLEAR), gx_.ravel(), gz_.ravel()).reshape(gx_.shape)
+    eroded = distance_transform_edt(occ) > SLIVER_R / h
+    kept = distance_transform_edt(~eroded) <= SLIVER_R / h                       # the opened material
+    rem = occ & ~kept & band[:, None, :]
+    log('sliver material to remove: %.1f mm3' % (rem.sum() * h ** 3))
+    cut = rem | (binary_dilation(rem, iterations=3) & ~occ)                    # reach out into the air so the boolean cuts cleanly
+    cut = np.pad(gaussian_filter(cut.astype(np.float32), 1.0), 1)
+    v, f, _, _ = measure.marching_cubes(cut, 0.5, spacing=(h, h, h))
+    v += np.array([xs[0] - h, ys[0] - h, zs[0] - h])
+    pieces = []
+    for c in trimesh.Trimesh(v, f, process=True).split(only_watertight=False):
+        c.fix_normals()
+        if c.volume < 0: c.invert()
+        if c.is_volume and c.volume > 0.5: pieces.append(c)
+    log('sliver tool: %d pieces, body is_volume %s' % (len(pieces), body.is_volume))
+    return boolean('difference', [body] + pieces)
 
 
 orig = trimesh.load(ORIG); F = trimesh.load(LID)
 # ---------------------------------------------------------------- outline
-sil = unary_union([Polygon(t) for t in F.triangles[:, :, [0, 2]] if Polygon(t).area > 1e-9]).buffer(0.05).buffer(-0.05)
-P = smooth_outline(sil)
-log('lid outline: bounds', np.round(P.bounds, 2).tolist(), 'area %.0f (silhouette %.0f)' % (P.area, sil.area))
+P = heart_outline()
+log('lid outline: bounds', np.round(P.bounds, 2).tolist(), 'area %.0f' % P.area)
+for px, pz in PINS + [LED_C]:
+    log('  clearance of (%.0f, %.0f) to the outline: %.1f mm' % (px, pz, shapely.distance(P.exterior, shapely.points(px, pz))))
 
 # ---------------------------------------------------------------- lid from fields (exact front surface, 2 mm shell)
 xs = np.arange(40.0, 129.0, H); zs = np.arange(22.0, 100.0, H); ys = np.arange(18.0, 80.0, H)
@@ -140,7 +177,7 @@ lid = parts[0]; lid.fix_normals()
 if lid.volume < 0: lid.invert()
 lid = simplify(lid, 0.03)
 log('lid', len(lid.faces), 'watertight', lid.is_watertight, 'volume %.1f cm3' % (lid.volume / 1000), 'components', len(parts))
-save(lid, OUT + 'chest_heart_lid_v3.stl')
+save(lid, OUT + 'chest_heart_lid_v5.stl')
 
 # ---------------------------------------------------------------- body from the original bear
 pocket = prism_xz(P.buffer(SIDE_CLEAR, resolution=32), -12.0, FLOOR_Y)
@@ -150,9 +187,10 @@ chan = trimesh.creation.cylinder(radius=CH_R, height=CH_TOP + 1.0, sections=96,
 trench = trimesh.creation.box(bounds=[[LED_C[0] - TR_W / 2, CH_Y, -1.0], [LED_C[0] + TR_W / 2, 172.0, TR_D]])
 body = boolean('difference', [orig, pocket, recess, chan, trench])
 body = boolean('union', [body] + [y_cyl(PIN_R, PIN_TIP_Y, FLOOR_Y + 2.0, px, pz, 48) for px, pz in PINS])
+body = trim_slivers(body, P)
 body = simplify(body, 0.005)
 parts = [p for p in body.split(only_watertight=False) if abs(p.volume) > 1000.0]          # drop the stray 0.002 cm3 floating fragment found in the source mesh
 body = max(parts, key=lambda p: p.volume)
 log('body', len(body.faces), body.is_watertight)
-save(body, OUT + 'teddy_body_chest_led_v3.stl')
+save(body, OUT + 'teddy_body_chest_led_v5.stl')
 log('done')

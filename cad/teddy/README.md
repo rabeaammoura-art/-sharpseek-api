@@ -25,8 +25,12 @@ rim on the floor plane, 2 bosses with 6 mm bores. Files: `teddy_body_chest_led_v
 Print weight (Bambu Studio, H2D, PLA, 0.20 mm, tree supports): body 15% default 12h46m/473 g; gyroid 8% 10h15m/334 g;
 lightning 10% 7h11m/192 g; lightning 10% + 3 walls 8h01m/235 g. `slice_variants.py` reproduces these (env DENS, PAT, WALLS, PROC).
 
-Smooth heart edges (fix_manus.py): outline = Manus silhouette, low-pass + morphological open/close (radius >= 6 mm, so tip, cleft and
-lobes are all rounded curves), edge between the dome and the side wall rounded with a 4 mm fillet (wall stays 2 mm around it),
-dome surface smoothed (1.6 mm). Parameters OUTLINE_R, EDGE_R, SMOOTH_MM at the top of the script.
-Final print numbers (Bambu Studio, H2D, PLA, 0.20 mm): body lightning 10% + 3 walls 8h04m / 235 g;
-lid, rim on the bed and dome up, supports on: 2h00m / 46 g (dome down: 1h34m / 40 g but supports would touch the visible face).
+Chest-heart version (fix_manus.py, outputs in out/manus_fix/*_v5.stl):
+- outline = geometric heart (two R22 lobes, straight tangent sides, tip fillet 6 mm, cleft fillet 5 mm), 85 mm wide, z 26.5..94;
+  the dome is Manus' front surface, low-passed (3.5 mm), the edge to the side wall is a 4 mm fillet and the shell stays 2 mm;
+- the pocket cuts the bear's surface at grazing angles and leaves knife edges and thin skins; trim_slivers() opens the material
+  with a 1.3 mm ball within 8 mm of the pocket, so nothing thinner than 2.6 mm remains next to it (before: 9 % of the pocket
+  wall was thinner than 1 mm, now 0; thinnest wall around the pocket 2.7 mm);
+- checks: watertight single volume, seated overlap 0, lid pulls out toward -Y with 0 overlap to 25 mm, back of the torso unchanged (0.004 mm).
+Bambu Studio, H2D, PLA, 0.20 mm, supports on, lightning 10 % + 3 walls: body 7h53m / 234 g,
+lid with the rim on the bed 1h56m / 46 g (dome down 1h30m / 41 g, but supports would touch the visible face).
