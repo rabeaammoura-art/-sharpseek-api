@@ -40,6 +40,7 @@ LOBE_R, TIP_R, CLEFT_R = 22.0, 6.0, 5.0            # lobe radius and the fillet 
 SMOOTH_MM = 3.5               # low-pass of the dome surface (removes the faceting of the source mesh)
 SLIVER_R = 1.3                # material thinner than 2*SLIVER_R next to the pocket is removed (feather edges)
 SLIVER_BAND = 8.0             # ... within this distance of the pocket wall
+RIM_SMOOTH = 0.9              # smoothing (mm) of the bear's pebbled surface in that band
 EDGE_R = 4.0                 # radius of the rounded edge all around the heart
 t0 = time.time()
 log = lambda *a: print('[%4.0fs]' % (time.time() - t0), *a, flush=True)
@@ -60,16 +61,46 @@ def snap32(m):
     return r
 
 
+def drop_nonmanifold(c):
+    """Delete the faces on edges shared by more than two faces, then close the (tiny) holes that leaves with triangle fans."""
+    e = np.sort(c.edges, axis=1); _, inv, cn = np.unique(e, axis=0, return_inverse=True, return_counts=True)
+    keep = np.ones(len(c.faces), bool); keep[np.flatnonzero(cn[inv] > 2) // 3] = False
+    f = c.faces[keep]
+    de = np.c_[f[:, 0], f[:, 1], f[:, 1], f[:, 2], f[:, 2], f[:, 0]].reshape(-1, 2)
+    have = set(map(tuple, de))
+    fill = {b: a for a, b in have if (b, a) not in have}                    # needed edge b->a for every boundary edge a->b
+    new = []
+    while fill:
+        v0, v1 = fill.popitem()
+        loop = [v0, v1]
+        while loop[-1] != loop[0]:
+            nxt = fill.pop(loop[-1], None)
+            if nxt is None: break
+            loop.append(nxt)
+        loop = loop[:-1] if loop[-1] == loop[0] else loop
+        new += [(loop[0], loop[i], loop[i + 1]) for i in range(1, len(loop) - 1)]
+    log('dropped %d faces, closed %d holes with %d triangles' % ((~keep).sum(), 0, len(new)))
+    r = trimesh.Trimesh(c.vertices, np.vstack([f, np.array(new, dtype=f.dtype).reshape(-1, 3)]), process=False)
+    return r
+
+
 def save(m, path):
+    """Export, reload and check.  A float32 round trip can collapse the tiny triangles the booleans leave at seams; when the
+    reloaded file is not a clean volume, the mesh is simplified with a small tolerance and the few faces on the bad edges are
+    dropped and their holes closed (a second round trip is exact because the vertices are already float32)."""
     log('before save: watertight', m.is_watertight, 'volume-ok', m.is_volume, 'tiny faces', int((m.area_faces < 1e-6).sum()))
-    m.export(path); c = trimesh.load(path)
-    if not (c.is_watertight and c.is_volume):
-        e = np.sort(c.edges, axis=1); u, cn = np.unique(e, axis=0, return_counts=True)
-        log('reloaded: open edges', int((cn == 1).sum()), 'nonmanifold', int((cn > 2).sum()), 'winding', c.is_winding_consistent)
-    ok = c.is_watertight and c.is_winding_consistent and c.is_volume
-    log('saved', path, len(c.faces), 'faces', 'OK' if ok else 'NOT A CLEAN VOLUME', 'volume %.1f cm3' % (c.volume / 1000))
-    if not ok:
-        raise SystemExit('export check failed')
+    for tol in (None, 0.001, 0.002, 0.004, 0.008, 0.016):
+        cand = m if tol is None else simplify(m, tol)
+        for attempt in range(4):
+            cand.export(path); c = trimesh.load(path)
+            e = np.sort(c.edges, axis=1); u, cn = np.unique(e, axis=0, return_counts=True)
+            ok = c.is_watertight and c.is_winding_consistent and c.is_volume
+            log('saved', path, len(c.faces), 'faces (simplify %s, repair round %d); reloaded open edges' % (tol, attempt), int((cn == 1).sum()),
+                'nonmanifold', int((cn > 2).sum()), 'OK' if ok else 'NOT A CLEAN VOLUME', 'volume %.1f cm3' % (c.volume / 1000))
+            if ok:
+                return
+            cand = drop_nonmanifold(c)
+    raise SystemExit('export check failed')
 
 
 def y_cyl(r, y0, y1, x, z, sections=96):
@@ -96,11 +127,13 @@ def heart_outline():
     return p.simplify(0.005)
 
 
-def trim_slivers(body, P):
-    """Pocket walls cut the bear's curved surface at grazing angles and leave knife edges and thin skins.  Opening the
-    material with a ball of radius SLIVER_R inside a band around the pocket removes everything thinner than 2*SLIVER_R."""
+def rebuild_rim(body, P):
+    """The pocket wall meets the bear's pebbled surface at grazing angles: that leaves knife edges, thin skins and a rim made
+    of beads.  In a band around the pocket the bear's surface is rebuilt: (1) material thinner than 2*SLIVER_R is opened away,
+    (2) the surface profile is carried 2 mm into the pocket so the smoothing sees no wall, (3) the band is smoothed (RIM_SMOOTH)
+    and re-meshed, then swapped in for the old band; the pocket wall plane itself is the cutting plane, so it stays exact."""
     h = 0.25
-    xs = np.arange(38.0, 132.0, h); zs = np.arange(24.0, 100.0, h); ys = np.arange(18.0, 82.0, h)
+    xs = np.arange(26.0, 144.0, h); zs = np.arange(14.0, 112.0, h); ys = np.arange(18.0, 80.0, h)       # covers the whole band
     gx_, gz_ = np.meshgrid(xs, zs, indexing='ij')
     o = np.c_[gx_.ravel(), np.full(gx_.size, 0.0), gz_.ravel()]
     loc, ir, _ = body.ray.intersects_location(o, np.tile([0, 1.0, 0], (len(o), 1)), multiple_hits=True)
@@ -112,23 +145,48 @@ def trim_slivers(body, P):
     np.add.at(ev, (ij, np.clip(np.searchsorted(ys, ly), 0, len(ys) - 1), k), np.where(rank % 2 == 0, 1, -1).astype(np.int8))
     occ = np.cumsum(ev, axis=1, dtype=np.int8) > 0
     del ev
-    dist = shapely.distance(P.buffer(SIDE_CLEAR).exterior, shapely.points(gx_.ravel(), gz_.ravel())).reshape(gx_.shape)
-    band = (dist < SLIVER_BAND) & ~shapely.contains_xy(P.buffer(SIDE_CLEAR), gx_.ravel(), gz_.ravel()).reshape(gx_.shape)
+    Pk = P.buffer(SIDE_CLEAR, resolution=32)
+    dist = shapely.distance(Pk.exterior, shapely.points(gx_.ravel(), gz_.ravel())).reshape(gx_.shape)
+    inside = shapely.contains_xy(Pk, gx_.ravel(), gz_.ravel()).reshape(gx_.shape)
+    band = ~inside & (dist < SLIVER_BAND)
     eroded = distance_transform_edt(occ) > SLIVER_R / h
     kept = distance_transform_edt(~eroded) <= SLIVER_R / h                       # the opened material
+    del eroded
     rem = occ & ~kept & band[:, None, :]
     log('sliver material to remove: %.1f mm3' % (rem.sum() * h ** 3))
-    cut = rem | (binary_dilation(rem, iterations=3) & ~occ)                    # reach out into the air so the boolean cuts cleanly
-    cut = np.pad(gaussian_filter(cut.astype(np.float32), 1.0), 1)
-    v, f, _, _ = measure.marching_cubes(cut, 0.5, spacing=(h, h, h))
+    occ &= ~rem
+    del kept, rem
+    # carry the profile 2 mm into the pocket (nearest column outside the outline), only in front of the floor
+    _, (ix, iz) = distance_transform_edt(inside, return_indices=True)
+    near = inside & (dist < 2.0)
+    front = ys < FLOOR_Y - 0.5
+    ext = occ.copy()
+    sel = np.flatnonzero(near.ravel())
+    ii, kk = np.divmod(sel, near.shape[1])
+    for a0 in range(0, len(sel), 4000):                                          # chunks keep the fancy indexing small
+        i0, k0 = ii[a0:a0 + 4000], kk[a0:a0 + 4000]
+        ext[i0[:, None], np.flatnonzero(front)[None, :], k0[:, None]] = occ[ix[i0, k0][:, None], np.flatnonzero(front)[None, :], iz[i0, k0][:, None]]
+    f = gaussian_filter(ext.astype(np.float32), RIM_SMOOTH / h)
+    zone_m = (~inside & (dist < SLIVER_BAND + 1.5)) | near
+    f *= zone_m[:, None, :]
+    del ext
+    v, f_, _, _ = measure.marching_cubes(np.pad(f, 1), 0.5, spacing=(h, h, h))
     v += np.array([xs[0] - h, ys[0] - h, zs[0] - h])
     pieces = []
-    for c in trimesh.Trimesh(v, f, process=True).split(only_watertight=False):
-        c.fix_normals()
+    for c in trimesh.Trimesh(v, f_, process=False).split(only_watertight=False):
         if c.volume < 0: c.invert()
-        if c.is_volume and c.volume > 0.5: pieces.append(c)
-    log('sliver tool: %d pieces, body is_volume %s' % (len(pieces), body.is_volume))
-    return boolean('difference', [body] + pieces)
+        log('  piece: %d faces, watertight %s, winding %s, volume %.0f mm3' % (len(c.faces), c.is_watertight, c.is_winding_consistent, c.volume))
+        if c.is_volume and c.volume > 5.0: pieces.append(simplify(c, 0.02))
+    log('band surface: %d closed pieces, %d faces' % (len(pieces), sum(len(c.faces) for c in pieces)))
+    zone = prism_xz(Pk.buffer(SLIVER_BAND, resolution=32).difference(Pk.buffer(-0.05)), ys[0], FLOOR_Y - 1.0)   # reaches 0.05 mm into the void: no coplanar faces with the old wall
+    zone_new = prism_xz(Pk.buffer(SLIVER_BAND + 0.3, resolution=32).difference(Pk), ys[0] - 0.3, FLOOR_Y - 0.5)   # overlaps the rest of the body by 0.3 mm
+    zone = boolean('difference', [zone, trimesh.creation.box(bounds=[[0, -10, -5], [200, 100, 21.5]])])             # the base disc is left alone
+    zone_new = boolean('difference', [zone_new, trimesh.creation.box(bounds=[[0, -10, -5], [200, 100, 21.2]])])
+    new_band = [c for c in (boolean('intersection', [c, zone_new]) for c in pieces) if len(c.faces) and c.is_volume]
+    out = boolean('union', [boolean('difference', [body, zone])] + new_band)
+    e = np.sort(out.edges, axis=1); _, cn = np.unique(e, axis=0, return_counts=True)
+    log('rebuilt band: watertight %s, open edges %d, non-manifold %d' % (out.is_watertight, (cn == 1).sum(), (cn > 2).sum()))
+    return out
 
 
 orig = trimesh.load(ORIG); F = trimesh.load(LID)
@@ -187,8 +245,8 @@ chan = trimesh.creation.cylinder(radius=CH_R, height=CH_TOP + 1.0, sections=96,
 trench = trimesh.creation.box(bounds=[[LED_C[0] - TR_W / 2, CH_Y, -1.0], [LED_C[0] + TR_W / 2, 172.0, TR_D]])
 body = boolean('difference', [orig, pocket, recess, chan, trench])
 body = boolean('union', [body] + [y_cyl(PIN_R, PIN_TIP_Y, FLOOR_Y + 2.0, px, pz, 48) for px, pz in PINS])
-body = trim_slivers(body, P)
 body = simplify(body, 0.005)
+body = rebuild_rim(body, P)
 parts = [p for p in body.split(only_watertight=False) if abs(p.volume) > 1000.0]          # drop the stray 0.002 cm3 floating fragment found in the source mesh
 body = max(parts, key=lambda p: p.volume)
 log('body', len(body.faces), body.is_watertight)

@@ -28,9 +28,10 @@ lightning 10% 7h11m/192 g; lightning 10% + 3 walls 8h01m/235 g. `slice_variants.
 Chest-heart version (fix_manus.py, outputs in out/manus_fix/*_v5.stl):
 - outline = geometric heart (two R22 lobes, straight tangent sides, tip fillet 6 mm, cleft fillet 5 mm), 85 mm wide, z 26.5..94;
   the dome is Manus' front surface, low-passed (3.5 mm), the edge to the side wall is a 4 mm fillet and the shell stays 2 mm;
-- the pocket cuts the bear's surface at grazing angles and leaves knife edges and thin skins; trim_slivers() opens the material
-  with a 1.3 mm ball within 8 mm of the pocket, so nothing thinner than 2.6 mm remains next to it (before: 9 % of the pocket
-  wall was thinner than 1 mm, now 0; thinnest wall around the pocket 2.7 mm);
-- checks: watertight single volume, seated overlap 0, lid pulls out toward -Y with 0 overlap to 25 mm, back of the torso unchanged (0.004 mm).
-Bambu Studio, H2D, PLA, 0.20 mm, supports on, lightning 10 % + 3 walls: body 7h53m / 234 g,
-lid with the rim on the bed 1h56m / 46 g (dome down 1h30m / 41 g, but supports would touch the visible face).
+- rebuild_rim(): the pocket wall cuts the bear's pebbled surface at grazing angles (knife edges, thin skins, a rim of beads).
+  In an 8 mm band around the pocket the material thinner than 2.6 mm is opened away, the surface is smoothed (0.9 mm) and
+  re-meshed and swapped in for the old band; the pocket wall plane is the cutting plane, so the wall stays exact and the rim is
+  one clean line (before: 9 % of the pocket wall was thinner than 1 mm, now 0; thinnest wall around the pocket 2.3 mm);
+- save() reloads the STL and repairs the few seam edges that a float32 round trip would break;
+- checks: watertight single volume, seated overlap 0, lid pulls out toward -Y with 0 overlap to 25 mm, back of the torso unchanged.
+Bambu Studio, H2D, PLA, 0.20 mm, supports on, lightning 10 % + 3 walls: body 7h47m / 234 g, lid (rim on the bed) 1h56m / 46 g.
