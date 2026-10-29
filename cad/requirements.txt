@@ -1,3 +1,13 @@
 build123d==0.13.0
 matplotlib
 numpy-stl
+# teddy pipeline (cad/teddy)
+trimesh
+shapely
+scipy
+scikit-image
+manifold3d
+embreex
+rtree
+triangle
+mapbox_earcut
