@@ -1,0 +1,890 @@
+{
+ "checks": [
+  [
+   "tiles do not overlap each other",
+   true,
+   "overlap area 0.000000 mm2"
+  ],
+  [
+   "tiles + 0.2 mm seam gaps reproduce the whole panel (no missing material)",
+   true,
+   "unexplained area 0.000000 mm2"
+  ],
+  [
+   "tiles contain nothing outside the panel",
+   true,
+   "0.000000 mm2"
+  ],
+  [
+   "panel with pads still equals original drawing + pads only",
+   true,
+   "missing original area 0.000000"
+  ],
+  [
+   "assembled size 900 mm wide",
+   true,
+   "900.00 x 570.09 mm"
+  ],
+  [
+   "e30_r0c0: fits plate 340x310",
+   true,
+   "290.0 x 292.0 x 5.0"
+  ],
+  [
+   "e30_r0c0: watertight, outward normals, no degenerate faces",
+   true,
+   "1 shell(s), vol 132.6 cm3"
+  ],
+  [
+   "e30_r0c1: fits plate 340x310",
+   true,
+   "319.9 x 273.2 x 5.0"
+  ],
+  [
+   "e30_r0c1: watertight, outward normals, no degenerate faces",
+   true,
+   "6 shell(s), vol 194.1 cm3"
+  ],
+  [
+   "e30_r0c2: fits plate 340x310",
+   true,
+   "290.0 x 292.0 x 5.0"
+  ],
+  [
+   "e30_r0c2: watertight, outward normals, no degenerate faces",
+   true,
+   "2 shell(s), vol 133.2 cm3"
+  ],
+  [
+   "e30_r1c0: fits plate 340x310",
+   true,
+   "260.9 x 270.6 x 5.0"
+  ],
+  [
+   "e30_r1c0: watertight, outward normals, no degenerate faces",
+   true,
+   "1 shell(s), vol 53.4 cm3"
+  ],
+  [
+   "e30_r1c1: fits plate 340x310",
+   true,
+   "319.9 x 278.0 x 5.0"
+  ],
+  [
+   "e30_r1c1: watertight, outward normals, no degenerate faces",
+   true,
+   "4 shell(s), vol 91.0 cm3"
+  ],
+  [
+   "e30_r1c2: fits plate 340x310",
+   true,
+   "266.5 x 271.3 x 5.0"
+  ],
+  [
+   "e30_r1c2: watertight, outward normals, no degenerate faces",
+   true,
+   "1 shell(s), vol 52.9 cm3"
+  ],
+  [
+   "key 1 (v seam @ 290,161): key fits its pocket, clearance >= 0.19 mm",
+   true,
+   "collision 0.000000 mm2, min clearance 0.200 mm"
+  ],
+  [
+   "key 1: front skin closed behind pocket",
+   true,
+   "open area 0.000000"
+  ],
+  [
+   "key 1: walls around pocket >= 2.5 mm",
+   true,
+   "thin area 0.000000"
+  ],
+  [
+   "key 1: pocket spans both tiles",
+   true,
+   "46 / 46 mm2"
+  ],
+  [
+   "key 2 (v seam @ 290,250): key fits its pocket, clearance >= 0.19 mm",
+   true,
+   "collision 0.000000 mm2, min clearance 0.200 mm"
+  ],
+  [
+   "key 2: front skin closed behind pocket",
+   true,
+   "open area 0.000000"
+  ],
+  [
+   "key 2: walls around pocket >= 2.5 mm",
+   true,
+   "thin area 0.000000"
+  ],
+  [
+   "key 2: pocket spans both tiles",
+   true,
+   "46 / 46 mm2"
+  ],
+  [
+   "key 3 (v seam @ 290,74): key fits its pocket, clearance >= 0.19 mm",
+   true,
+   "collision 0.000000 mm2, min clearance 0.200 mm"
+  ],
+  [
+   "key 3: front skin closed behind pocket",
+   true,
+   "open area 0.000000"
+  ],
+  [
+   "key 3: walls around pocket >= 2.5 mm",
+   true,
+   "thin area 0.000000"
+  ],
+  [
+   "key 3: pocket spans both tiles",
+   true,
+   "46 / 46 mm2"
+  ],
+  [
+   "key 4 (v seam @ 290,408): key fits its pocket, clearance >= 0.19 mm",
+   true,
+   "collision 0.000000 mm2, min clearance 0.200 mm"
+  ],
+  [
+   "key 4: front skin closed behind pocket",
+   true,
+   "open area 0.000000"
+  ],
+  [
+   "key 4: walls around pocket >= 2.5 mm",
+   true,
+   "thin area 0.000000"
+  ],
+  [
+   "key 4: pocket spans both tiles",
+   true,
+   "46 / 46 mm2"
+  ],
+  [
+   "key 5 (v seam @ 290,552): key fits its pocket, clearance >= 0.19 mm",
+   true,
+   "collision 0.000000 mm2, min clearance 0.200 mm"
+  ],
+  [
+   "key 5: front skin closed behind pocket",
+   true,
+   "open area 0.000000"
+  ],
+  [
+   "key 5: walls around pocket >= 2.5 mm",
+   true,
+   "thin area 0.000000"
+  ],
+  [
+   "key 5: pocket spans both tiles",
+   true,
+   "46 / 46 mm2"
+  ],
+  [
+   "key 6 (v seam @ 290,487): key fits its pocket, clearance >= 0.19 mm",
+   true,
+   "collision 0.000000 mm2, min clearance 0.200 mm"
+  ],
+  [
+   "key 6: front skin closed behind pocket",
+   true,
+   "open area 0.000000"
+  ],
+  [
+   "key 6: walls around pocket >= 2.5 mm",
+   true,
+   "thin area 0.000000"
+  ],
+  [
+   "key 6: pocket spans both tiles",
+   true,
+   "46 / 46 mm2"
+  ],
+  [
+   "key 7 (v seam @ 610,161): key fits its pocket, clearance >= 0.19 mm",
+   true,
+   "collision 0.000000 mm2, min clearance 0.200 mm"
+  ],
+  [
+   "key 7: front skin closed behind pocket",
+   true,
+   "open area 0.000000"
+  ],
+  [
+   "key 7: walls around pocket >= 2.5 mm",
+   true,
+   "thin area 0.000000"
+  ],
+  [
+   "key 7: pocket spans both tiles",
+   true,
+   "46 / 46 mm2"
+  ],
+  [
+   "key 8 (v seam @ 610,262): key fits its pocket, clearance >= 0.19 mm",
+   true,
+   "collision 0.000000 mm2, min clearance 0.200 mm"
+  ],
+  [
+   "key 8: front skin closed behind pocket",
+   true,
+   "open area 0.000000"
+  ],
+  [
+   "key 8: walls around pocket >= 2.5 mm",
+   true,
+   "thin area 0.000000"
+  ],
+  [
+   "key 8: pocket spans both tiles",
+   true,
+   "46 / 46 mm2"
+  ],
+  [
+   "key 9 (v seam @ 610,74): key fits its pocket, clearance >= 0.19 mm",
+   true,
+   "collision 0.000000 mm2, min clearance 0.200 mm"
+  ],
+  [
+   "key 9: front skin closed behind pocket",
+   true,
+   "open area 0.000000"
+  ],
+  [
+   "key 9: walls around pocket >= 2.5 mm",
+   true,
+   "thin area 0.000000"
+  ],
+  [
+   "key 9: pocket spans both tiles",
+   true,
+   "46 / 46 mm2"
+  ],
+  [
+   "key 10 (v seam @ 610,406): key fits its pocket, clearance >= 0.19 mm",
+   true,
+   "collision 0.000000 mm2, min clearance 0.200 mm"
+  ],
+  [
+   "key 10: front skin closed behind pocket",
+   true,
+   "open area 0.000000"
+  ],
+  [
+   "key 10: walls around pocket >= 2.5 mm",
+   true,
+   "thin area 0.000000"
+  ],
+  [
+   "key 10: pocket spans both tiles",
+   true,
+   "46 / 46 mm2"
+  ],
+  [
+   "key 11 (v seam @ 610,553): key fits its pocket, clearance >= 0.19 mm",
+   true,
+   "collision 0.000000 mm2, min clearance 0.200 mm"
+  ],
+  [
+   "key 11: front skin closed behind pocket",
+   true,
+   "open area 0.000000"
+  ],
+  [
+   "key 11: walls around pocket >= 2.5 mm",
+   true,
+   "thin area 0.000000"
+  ],
+  [
+   "key 11: pocket spans both tiles",
+   true,
+   "46 / 46 mm2"
+  ],
+  [
+   "key 12 (h seam @ 88,292): key fits its pocket, clearance >= 0.19 mm",
+   true,
+   "collision 0.000000 mm2, min clearance 0.200 mm"
+  ],
+  [
+   "key 12: front skin closed behind pocket",
+   true,
+   "open area 0.000000"
+  ],
+  [
+   "key 12: walls around pocket >= 2.5 mm",
+   true,
+   "thin area 0.000000"
+  ],
+  [
+   "key 12: pocket spans both tiles",
+   true,
+   "46 / 46 mm2"
+  ],
+  [
+   "key 13 (h seam @ 447,292): key fits its pocket, clearance >= 0.19 mm",
+   true,
+   "collision 0.000000 mm2, min clearance 0.200 mm"
+  ],
+  [
+   "key 13: front skin closed behind pocket",
+   true,
+   "open area 0.000000"
+  ],
+  [
+   "key 13: walls around pocket >= 2.5 mm",
+   true,
+   "thin area 0.000000"
+  ],
+  [
+   "key 13: pocket spans both tiles",
+   true,
+   "46 / 46 mm2"
+  ],
+  [
+   "key 14 (h seam @ 530,292): key fits its pocket, clearance >= 0.19 mm",
+   true,
+   "collision 0.000000 mm2, min clearance 0.200 mm"
+  ],
+  [
+   "key 14: front skin closed behind pocket",
+   true,
+   "open area 0.000000"
+  ],
+  [
+   "key 14: walls around pocket >= 2.5 mm",
+   true,
+   "thin area 0.000000"
+  ],
+  [
+   "key 14: pocket spans both tiles",
+   true,
+   "46 / 46 mm2"
+  ],
+  [
+   "key 15 (h seam @ 369,292): key fits its pocket, clearance >= 0.19 mm",
+   true,
+   "collision 0.000000 mm2, min clearance 0.200 mm"
+  ],
+  [
+   "key 15: front skin closed behind pocket",
+   true,
+   "open area 0.000000"
+  ],
+  [
+   "key 15: walls around pocket >= 2.5 mm",
+   true,
+   "thin area 0.000000"
+  ],
+  [
+   "key 15: pocket spans both tiles",
+   true,
+   "46 / 46 mm2"
+  ],
+  [
+   "key 16 (h seam @ 808,292): key fits its pocket, clearance >= 0.19 mm",
+   true,
+   "collision 0.000000 mm2, min clearance 0.200 mm"
+  ],
+  [
+   "key 16: front skin closed behind pocket",
+   true,
+   "open area 0.000000"
+  ],
+  [
+   "key 16: walls around pocket >= 2.5 mm",
+   true,
+   "thin area 0.000000"
+  ],
+  [
+   "key 16: pocket spans both tiles",
+   true,
+   "46 / 46 mm2"
+  ],
+  [
+   "key 17 (h seam @ 869,292): key fits its pocket, clearance >= 0.19 mm",
+   true,
+   "collision 0.000000 mm2, min clearance 0.200 mm"
+  ],
+  [
+   "key 17: front skin closed behind pocket",
+   true,
+   "open area 0.000000"
+  ],
+  [
+   "key 17: walls around pocket >= 2.5 mm",
+   true,
+   "thin area 0.000000"
+  ],
+  [
+   "key 17: pocket spans both tiles",
+   true,
+   "46 / 46 mm2"
+  ],
+  [
+   "key 18 (v seam @ 610,203): key fits its pocket, clearance >= 0.19 mm",
+   true,
+   "collision 0.000000 mm2, min clearance 0.200 mm"
+  ],
+  [
+   "key 18: front skin closed behind pocket",
+   true,
+   "open area 0.000000"
+  ],
+  [
+   "key 18: walls around pocket >= 2.5 mm",
+   true,
+   "thin area 0.000000"
+  ],
+  [
+   "key 18: pocket spans both tiles",
+   true,
+   "46 / 46 mm2"
+  ],
+  [
+   "key 19 (v seam @ 290,202): key fits its pocket, clearance >= 0.19 mm",
+   true,
+   "collision 0.000000 mm2, min clearance 0.200 mm"
+  ],
+  [
+   "key 19: front skin closed behind pocket",
+   true,
+   "open area 0.000000"
+  ],
+  [
+   "key 19: walls around pocket >= 2.5 mm",
+   true,
+   "thin area 0.000000"
+  ],
+  [
+   "key 19: pocket spans both tiles",
+   true,
+   "46 / 46 mm2"
+  ],
+  [
+   "key 20 (v seam @ 610,226): key fits its pocket, clearance >= 0.19 mm",
+   true,
+   "collision 0.000000 mm2, min clearance 0.200 mm"
+  ],
+  [
+   "key 20: front skin closed behind pocket",
+   true,
+   "open area 0.000000"
+  ],
+  [
+   "key 20: walls around pocket >= 2.5 mm",
+   true,
+   "thin area 0.000000"
+  ],
+  [
+   "key 20: pocket spans both tiles",
+   true,
+   "46 / 46 mm2"
+  ],
+  [
+   "key 21 (v seam @ 290,226): key fits its pocket, clearance >= 0.19 mm",
+   true,
+   "collision 0.000000 mm2, min clearance 0.200 mm"
+  ],
+  [
+   "key 21: front skin closed behind pocket",
+   true,
+   "open area 0.000000"
+  ],
+  [
+   "key 21: walls around pocket >= 2.5 mm",
+   true,
+   "thin area 0.000000"
+  ],
+  [
+   "key 21: pocket spans both tiles",
+   true,
+   "46 / 46 mm2"
+  ],
+  [
+   "key 22 (v seam @ 290,273): key fits its pocket, clearance >= 0.19 mm",
+   true,
+   "collision 0.000000 mm2, min clearance 0.200 mm"
+  ],
+  [
+   "key 22: front skin closed behind pocket",
+   true,
+   "open area 0.000000"
+  ],
+  [
+   "key 22: walls around pocket >= 2.5 mm",
+   true,
+   "thin area 0.000000"
+  ],
+  [
+   "key 22: pocket spans both tiles",
+   true,
+   "46 / 46 mm2"
+  ],
+  [
+   "key 23 (v seam @ 290,182): key fits its pocket, clearance >= 0.19 mm",
+   true,
+   "collision 0.000000 mm2, min clearance 0.200 mm"
+  ],
+  [
+   "key 23: front skin closed behind pocket",
+   true,
+   "open area 0.000000"
+  ],
+  [
+   "key 23: walls around pocket >= 2.5 mm",
+   true,
+   "thin area 0.000000"
+  ],
+  [
+   "key 23: pocket spans both tiles",
+   true,
+   "46 / 46 mm2"
+  ],
+  [
+   "key 24 (v seam @ 610,119): key fits its pocket, clearance >= 0.19 mm",
+   true,
+   "collision 0.000000 mm2, min clearance 0.200 mm"
+  ],
+  [
+   "key 24: front skin closed behind pocket",
+   true,
+   "open area 0.000000"
+  ],
+  [
+   "key 24: walls around pocket >= 2.5 mm",
+   true,
+   "thin area 0.000000"
+  ],
+  [
+   "key 24: pocket spans both tiles",
+   true,
+   "46 / 46 mm2"
+  ],
+  [
+   "key 25 (v seam @ 610,27): key fits its pocket, clearance >= 0.19 mm",
+   true,
+   "collision 0.000000 mm2, min clearance 0.200 mm"
+  ],
+  [
+   "key 25: front skin closed behind pocket",
+   true,
+   "open area 0.000000"
+  ],
+  [
+   "key 25: walls around pocket >= 2.5 mm",
+   true,
+   "thin area 0.000000"
+  ],
+  [
+   "key 25: pocket spans both tiles",
+   true,
+   "46 / 46 mm2"
+  ],
+  [
+   "key 26 (v seam @ 290,523): key fits its pocket, clearance >= 0.19 mm",
+   true,
+   "collision 0.000000 mm2, min clearance 0.200 mm"
+  ],
+  [
+   "key 26: front skin closed behind pocket",
+   true,
+   "open area 0.000000"
+  ],
+  [
+   "key 26: walls around pocket >= 2.5 mm",
+   true,
+   "thin area 0.000000"
+  ],
+  [
+   "key 26: pocket spans both tiles",
+   true,
+   "46 / 46 mm2"
+  ],
+  [
+   "key 27 (h seam @ 41,292): key fits its pocket, clearance >= 0.19 mm",
+   true,
+   "collision 0.000000 mm2, min clearance 0.200 mm"
+  ],
+  [
+   "key 27: front skin closed behind pocket",
+   true,
+   "open area 0.000000"
+  ],
+  [
+   "key 27: walls around pocket >= 2.5 mm",
+   true,
+   "thin area 0.000000"
+  ],
+  [
+   "key 27: pocket spans both tiles",
+   true,
+   "46 / 46 mm2"
+  ],
+  [
+   "key 28 (h seam @ 60,292): key fits its pocket, clearance >= 0.19 mm",
+   true,
+   "collision 0.000000 mm2, min clearance 0.200 mm"
+  ],
+  [
+   "key 28: front skin closed behind pocket",
+   true,
+   "open area 0.000000"
+  ],
+  [
+   "key 28: walls around pocket >= 2.5 mm",
+   true,
+   "thin area 0.000000"
+  ],
+  [
+   "key 28: pocket spans both tiles",
+   true,
+   "46 / 46 mm2"
+  ],
+  [
+   "key 29 (h seam @ 839,292): key fits its pocket, clearance >= 0.19 mm",
+   true,
+   "collision 0.000000 mm2, min clearance 0.200 mm"
+  ],
+  [
+   "key 29: front skin closed behind pocket",
+   true,
+   "open area 0.000000"
+  ],
+  [
+   "key 29: walls around pocket >= 2.5 mm",
+   true,
+   "thin area 0.000000"
+  ],
+  [
+   "key 29: pocket spans both tiles",
+   true,
+   "46 / 46 mm2"
+  ],
+  [
+   "every printed line >= 2.5 mm (opening test)",
+   true,
+   "0 regions >2 mm2 fail; corner rounding area 229 mm2"
+  ],
+  [
+   "every key has material on both sides of its seam",
+   true,
+   "0 unresolved"
+  ],
+  [
+   "assembled panel is ONE connected body through the keyed joints",
+   true,
+   "15 islands -> 1 group(s)"
+  ]
+ ],
+ "keys": [
+  {
+   "o": "v",
+   "p": [
+    290.0,
+    161.5
+   ]
+  },
+  {
+   "o": "v",
+   "p": [
+    290.0,
+    249.8
+   ]
+  },
+  {
+   "o": "v",
+   "p": [
+    290.0,
+    74.2
+   ]
+  },
+  {
+   "o": "v",
+   "p": [
+    290.0,
+    407.7
+   ]
+  },
+  {
+   "o": "v",
+   "p": [
+    290.0,
+    552.5
+   ]
+  },
+  {
+   "o": "v",
+   "p": [
+    290.0,
+    486.9
+   ]
+  },
+  {
+   "o": "v",
+   "p": [
+    610.0,
+    161.4
+   ]
+  },
+  {
+   "o": "v",
+   "p": [
+    610.0,
+    261.5
+   ]
+  },
+  {
+   "o": "v",
+   "p": [
+    610.0,
+    74.2
+   ]
+  },
+  {
+   "o": "v",
+   "p": [
+    610.0,
+    405.9
+   ]
+  },
+  {
+   "o": "v",
+   "p": [
+    610.0,
+    553.2
+   ]
+  },
+  {
+   "o": "h",
+   "p": [
+    88.1,
+    292.0
+   ]
+  },
+  {
+   "o": "h",
+   "p": [
+    446.5,
+    292.0
+   ]
+  },
+  {
+   "o": "h",
+   "p": [
+    530.4,
+    292.0
+   ]
+  },
+  {
+   "o": "h",
+   "p": [
+    369.1,
+    292.0
+   ]
+  },
+  {
+   "o": "h",
+   "p": [
+    808.4,
+    292.0
+   ]
+  },
+  {
+   "o": "h",
+   "p": [
+    868.5,
+    292.0
+   ]
+  },
+  {
+   "o": "v",
+   "p": [
+    610.0,
+    202.6
+   ]
+  },
+  {
+   "o": "v",
+   "p": [
+    290.0,
+    202.4
+   ]
+  },
+  {
+   "o": "v",
+   "p": [
+    610.0,
+    226.1
+   ]
+  },
+  {
+   "o": "v",
+   "p": [
+    290.0,
+    226.0
+   ]
+  },
+  {
+   "o": "v",
+   "p": [
+    290.0,
+    273.2
+   ]
+  },
+  {
+   "o": "v",
+   "p": [
+    290.0,
+    181.6
+   ]
+  },
+  {
+   "o": "v",
+   "p": [
+    610.0,
+    118.9
+   ]
+  },
+  {
+   "o": "v",
+   "p": [
+    610.0,
+    26.7
+   ]
+  },
+  {
+   "o": "v",
+   "p": [
+    290.0,
+    523.5
+   ]
+  },
+  {
+   "o": "h",
+   "p": [
+    41.4,
+    292.0
+   ]
+  },
+  {
+   "o": "h",
+   "p": [
+    59.7,
+    292.0
+   ]
+  },
+  {
+   "o": "h",
+   "p": [
+    839.4,
+    292.0
+   ]
+  }
+ ],
+ "all_ok": true
+}
