@@ -1,890 +1,914 @@
 {
+ "all_ok": true,
  "checks": [
   [
-   "tiles do not overlap each other",
+   "no two tiles occupy the same space (3D overlap volume)",
    true,
-   "overlap area 0.000000 mm2"
+   "0.000000 mm3"
   ],
   [
-   "tiles + 0.2 mm seam gaps reproduce the whole panel (no missing material)",
+   "assembled tiles contain nothing outside the panel + pads",
    true,
-   "unexplained area 0.000000 mm2"
+   "0.000002 mm3"
   ],
   [
-   "tiles contain nothing outside the panel",
+   "assembled tiles + 0.2 mm seam gaps + 0.2 mm joint clearance reproduce the whole panel",
+   true,
+   "unexplained 0.000000 mm3"
+  ],
+  [
+   "panel with pads contains the original drawing completely",
    true,
    "0.000000 mm2"
   ],
   [
-   "panel with pads still equals original drawing + pads only",
+   "assembled width 900 mm, thickness 5 mm",
    true,
-   "missing original area 0.000000"
+   "900.00 x 570.09 x 5.0"
   ],
   [
-   "assembled size 900 mm wide",
+   "e30_r0c0: fits plate 325x310",
    true,
-   "900.00 x 570.09 mm"
-  ],
-  [
-   "e30_r0c0: fits plate 340x310",
-   true,
-   "290.0 x 292.0 x 5.0"
+   "307.0 x 307.0 x 5.0"
   ],
   [
    "e30_r0c0: watertight, outward normals, no degenerate faces",
    true,
-   "1 shell(s), vol 132.6 cm3"
+   "2 shell(s), vol 136.2 cm3"
   ],
   [
-   "e30_r0c1: fits plate 340x310",
+   "e30_r0c1: fits plate 325x310",
    true,
-   "319.9 x 273.2 x 5.0"
+   "322.0 x 289.5 x 5.0"
   ],
   [
    "e30_r0c1: watertight, outward normals, no degenerate faces",
    true,
-   "6 shell(s), vol 194.1 cm3"
+   "18 shell(s), vol 182.3 cm3"
   ],
   [
-   "e30_r0c2: fits plate 340x310",
+   "e30_r0c2: fits plate 325x310",
    true,
-   "290.0 x 292.0 x 5.0"
+   "307.0 x 307.0 x 5.0"
   ],
   [
    "e30_r0c2: watertight, outward normals, no degenerate faces",
    true,
-   "2 shell(s), vol 133.2 cm3"
+   "2 shell(s), vol 137.2 cm3"
   ],
   [
-   "e30_r1c0: fits plate 340x310",
+   "e30_r1c0: fits plate 325x310",
    true,
-   "260.9 x 270.6 x 5.0"
+   "270.6 x 274.6 x 5.0"
   ],
   [
    "e30_r1c0: watertight, outward normals, no degenerate faces",
    true,
-   "1 shell(s), vol 53.4 cm3"
+   "1 shell(s), vol 53.6 cm3"
   ],
   [
-   "e30_r1c1: fits plate 340x310",
+   "e30_r1c1: fits plate 325x310",
    true,
-   "319.9 x 278.0 x 5.0"
+   "322.0 x 281.1 x 5.0"
   ],
   [
    "e30_r1c1: watertight, outward normals, no degenerate faces",
    true,
-   "4 shell(s), vol 91.0 cm3"
+   "4 shell(s), vol 86.1 cm3"
   ],
   [
-   "e30_r1c2: fits plate 340x310",
+   "e30_r1c2: fits plate 325x310",
    true,
-   "266.5 x 271.3 x 5.0"
+   "270.5 x 275.2 x 5.0"
   ],
   [
    "e30_r1c2: watertight, outward normals, no degenerate faces",
    true,
-   "1 shell(s), vol 52.9 cm3"
+   "1 shell(s), vol 54.3 cm3"
   ],
   [
-   "key 1 (v seam @ 290,161): key fits its pocket, clearance >= 0.19 mm",
+   "joint 1 (v seam, 298,176, tongue (0, 1)->(0, 0)): tongue fits recess, clearance >= 0.19 mm",
    true,
-   "collision 0.000000 mm2, min clearance 0.200 mm"
+   "collision 0.000000 mm2, min clearance 0.200"
   ],
   [
-   "key 1: front skin closed behind pocket",
+   "joint 1 (v seam, 298,176, tongue (0, 1)->(0, 0)): front skin closed over the recess",
    true,
-   "open area 0.000000"
+   "open area 0.000000 mm2"
   ],
   [
-   "key 1: walls around pocket >= 2.5 mm",
+   "joint 1 (v seam, 298,176, tongue (0, 1)->(0, 0)): walls around recess >= 2.5 mm",
    true,
-   "thin area 0.000000"
+   "thin area 0.000000 mm2"
   ],
   [
-   "key 1: pocket spans both tiles",
+   "joint 1 (v seam, 298,176, tongue (0, 1)->(0, 0)): dovetail locks (cannot slide out in the panel plane)",
    true,
-   "46 / 46 mm2"
+   "blocked by 6.34 mm2"
   ],
   [
-   "key 2 (v seam @ 290,250): key fits its pocket, clearance >= 0.19 mm",
+   "joint 2 (v seam, 298,64, tongue (0, 0)->(0, 1)): tongue fits recess, clearance >= 0.19 mm",
    true,
-   "collision 0.000000 mm2, min clearance 0.200 mm"
+   "collision 0.000000 mm2, min clearance 0.200"
   ],
   [
-   "key 2: front skin closed behind pocket",
+   "joint 2 (v seam, 298,64, tongue (0, 0)->(0, 1)): front skin closed over the recess",
    true,
-   "open area 0.000000"
+   "open area 0.000000 mm2"
   ],
   [
-   "key 2: walls around pocket >= 2.5 mm",
+   "joint 2 (v seam, 298,64, tongue (0, 0)->(0, 1)): walls around recess >= 2.5 mm",
    true,
-   "thin area 0.000000"
+   "thin area 0.000000 mm2"
   ],
   [
-   "key 2: pocket spans both tiles",
+   "joint 2 (v seam, 298,64, tongue (0, 0)->(0, 1)): dovetail locks (cannot slide out in the panel plane)",
    true,
-   "46 / 46 mm2"
+   "blocked by 6.34 mm2"
   ],
   [
-   "key 3 (v seam @ 290,74): key fits its pocket, clearance >= 0.19 mm",
+   "joint 3 (v seam, 298,408, tongue (1, 1)->(1, 0)): tongue fits recess, clearance >= 0.19 mm",
    true,
-   "collision 0.000000 mm2, min clearance 0.200 mm"
+   "collision 0.000000 mm2, min clearance 0.200"
   ],
   [
-   "key 3: front skin closed behind pocket",
+   "joint 3 (v seam, 298,408, tongue (1, 1)->(1, 0)): front skin closed over the recess",
    true,
-   "open area 0.000000"
+   "open area 0.000000 mm2"
   ],
   [
-   "key 3: walls around pocket >= 2.5 mm",
+   "joint 3 (v seam, 298,408, tongue (1, 1)->(1, 0)): walls around recess >= 2.5 mm",
    true,
-   "thin area 0.000000"
+   "thin area 0.000000 mm2"
   ],
   [
-   "key 3: pocket spans both tiles",
+   "joint 3 (v seam, 298,408, tongue (1, 1)->(1, 0)): dovetail locks (cannot slide out in the panel plane)",
    true,
-   "46 / 46 mm2"
+   "blocked by 6.34 mm2"
   ],
   [
-   "key 4 (v seam @ 290,408): key fits its pocket, clearance >= 0.19 mm",
+   "joint 4 (v seam, 298,553, tongue (1, 1)->(1, 0)): tongue fits recess, clearance >= 0.19 mm",
    true,
-   "collision 0.000000 mm2, min clearance 0.200 mm"
+   "collision 0.000000 mm2, min clearance 0.200"
   ],
   [
-   "key 4: front skin closed behind pocket",
+   "joint 4 (v seam, 298,553, tongue (1, 1)->(1, 0)): front skin closed over the recess",
    true,
-   "open area 0.000000"
+   "open area 0.000000 mm2"
   ],
   [
-   "key 4: walls around pocket >= 2.5 mm",
+   "joint 4 (v seam, 298,553, tongue (1, 1)->(1, 0)): walls around recess >= 2.5 mm",
    true,
-   "thin area 0.000000"
+   "thin area 0.000000 mm2"
   ],
   [
-   "key 4: pocket spans both tiles",
+   "joint 4 (v seam, 298,553, tongue (1, 1)->(1, 0)): dovetail locks (cannot slide out in the panel plane)",
    true,
-   "46 / 46 mm2"
+   "blocked by 6.34 mm2"
   ],
   [
-   "key 5 (v seam @ 290,552): key fits its pocket, clearance >= 0.19 mm",
+   "joint 5 (v seam, 602,161, tongue (0, 1)->(0, 2)): tongue fits recess, clearance >= 0.19 mm",
    true,
-   "collision 0.000000 mm2, min clearance 0.200 mm"
+   "collision 0.000000 mm2, min clearance 0.200"
   ],
   [
-   "key 5: front skin closed behind pocket",
+   "joint 5 (v seam, 602,161, tongue (0, 1)->(0, 2)): front skin closed over the recess",
    true,
-   "open area 0.000000"
+   "open area 0.000000 mm2"
   ],
   [
-   "key 5: walls around pocket >= 2.5 mm",
+   "joint 5 (v seam, 602,161, tongue (0, 1)->(0, 2)): walls around recess >= 2.5 mm",
    true,
-   "thin area 0.000000"
+   "thin area 0.000000 mm2"
   ],
   [
-   "key 5: pocket spans both tiles",
+   "joint 5 (v seam, 602,161, tongue (0, 1)->(0, 2)): dovetail locks (cannot slide out in the panel plane)",
    true,
-   "46 / 46 mm2"
+   "blocked by 6.34 mm2"
   ],
   [
-   "key 6 (v seam @ 290,487): key fits its pocket, clearance >= 0.19 mm",
+   "joint 6 (v seam, 602,64, tongue (0, 2)->(0, 1)): tongue fits recess, clearance >= 0.19 mm",
    true,
-   "collision 0.000000 mm2, min clearance 0.200 mm"
+   "collision 0.000000 mm2, min clearance 0.200"
   ],
   [
-   "key 6: front skin closed behind pocket",
+   "joint 6 (v seam, 602,64, tongue (0, 2)->(0, 1)): front skin closed over the recess",
    true,
-   "open area 0.000000"
+   "open area 0.000000 mm2"
   ],
   [
-   "key 6: walls around pocket >= 2.5 mm",
+   "joint 6 (v seam, 602,64, tongue (0, 2)->(0, 1)): walls around recess >= 2.5 mm",
    true,
-   "thin area 0.000000"
+   "thin area 0.000000 mm2"
   ],
   [
-   "key 6: pocket spans both tiles",
+   "joint 6 (v seam, 602,64, tongue (0, 2)->(0, 1)): dovetail locks (cannot slide out in the panel plane)",
    true,
-   "46 / 46 mm2"
+   "blocked by 6.34 mm2"
   ],
   [
-   "key 7 (v seam @ 610,161): key fits its pocket, clearance >= 0.19 mm",
+   "joint 7 (v seam, 602,407, tongue (1, 1)->(1, 2)): tongue fits recess, clearance >= 0.19 mm",
    true,
-   "collision 0.000000 mm2, min clearance 0.200 mm"
+   "collision 0.000000 mm2, min clearance 0.200"
   ],
   [
-   "key 7: front skin closed behind pocket",
+   "joint 7 (v seam, 602,407, tongue (1, 1)->(1, 2)): front skin closed over the recess",
    true,
-   "open area 0.000000"
+   "open area 0.000000 mm2"
   ],
   [
-   "key 7: walls around pocket >= 2.5 mm",
+   "joint 7 (v seam, 602,407, tongue (1, 1)->(1, 2)): walls around recess >= 2.5 mm",
    true,
-   "thin area 0.000000"
+   "thin area 0.000000 mm2"
   ],
   [
-   "key 7: pocket spans both tiles",
+   "joint 7 (v seam, 602,407, tongue (1, 1)->(1, 2)): dovetail locks (cannot slide out in the panel plane)",
    true,
-   "46 / 46 mm2"
+   "blocked by 6.34 mm2"
   ],
   [
-   "key 8 (v seam @ 610,262): key fits its pocket, clearance >= 0.19 mm",
+   "joint 8 (v seam, 602,554, tongue (1, 1)->(1, 2)): tongue fits recess, clearance >= 0.19 mm",
    true,
-   "collision 0.000000 mm2, min clearance 0.200 mm"
+   "collision 0.000000 mm2, min clearance 0.200"
   ],
   [
-   "key 8: front skin closed behind pocket",
+   "joint 8 (v seam, 602,554, tongue (1, 1)->(1, 2)): front skin closed over the recess",
    true,
-   "open area 0.000000"
+   "open area 0.000000 mm2"
   ],
   [
-   "key 8: walls around pocket >= 2.5 mm",
+   "joint 8 (v seam, 602,554, tongue (1, 1)->(1, 2)): walls around recess >= 2.5 mm",
    true,
-   "thin area 0.000000"
+   "thin area 0.000000 mm2"
   ],
   [
-   "key 8: pocket spans both tiles",
+   "joint 8 (v seam, 602,554, tongue (1, 1)->(1, 2)): dovetail locks (cannot slide out in the panel plane)",
    true,
-   "46 / 46 mm2"
+   "blocked by 6.34 mm2"
   ],
   [
-   "key 9 (v seam @ 610,74): key fits its pocket, clearance >= 0.19 mm",
+   "joint 9 (h seam, 36,298, tongue (1, 0)->(0, 0)): tongue fits recess, clearance >= 0.19 mm",
    true,
-   "collision 0.000000 mm2, min clearance 0.200 mm"
+   "collision 0.000000 mm2, min clearance 0.200"
   ],
   [
-   "key 9: front skin closed behind pocket",
+   "joint 9 (h seam, 36,298, tongue (1, 0)->(0, 0)): front skin closed over the recess",
    true,
-   "open area 0.000000"
+   "open area 0.000000 mm2"
   ],
   [
-   "key 9: walls around pocket >= 2.5 mm",
+   "joint 9 (h seam, 36,298, tongue (1, 0)->(0, 0)): walls around recess >= 2.5 mm",
    true,
-   "thin area 0.000000"
+   "thin area 0.000000 mm2"
   ],
   [
-   "key 9: pocket spans both tiles",
+   "joint 9 (h seam, 36,298, tongue (1, 0)->(0, 0)): dovetail locks (cannot slide out in the panel plane)",
    true,
-   "46 / 46 mm2"
+   "blocked by 6.34 mm2"
   ],
   [
-   "key 10 (v seam @ 610,406): key fits its pocket, clearance >= 0.19 mm",
+   "joint 10 (h seam, 61,298, tongue (0, 0)->(1, 0)): tongue fits recess, clearance >= 0.19 mm",
    true,
-   "collision 0.000000 mm2, min clearance 0.200 mm"
+   "collision 0.000000 mm2, min clearance 0.200"
   ],
   [
-   "key 10: front skin closed behind pocket",
+   "joint 10 (h seam, 61,298, tongue (0, 0)->(1, 0)): front skin closed over the recess",
    true,
-   "open area 0.000000"
+   "open area 0.000000 mm2"
   ],
   [
-   "key 10: walls around pocket >= 2.5 mm",
+   "joint 10 (h seam, 61,298, tongue (0, 0)->(1, 0)): walls around recess >= 2.5 mm",
    true,
-   "thin area 0.000000"
+   "thin area 0.000000 mm2"
   ],
   [
-   "key 10: pocket spans both tiles",
+   "joint 10 (h seam, 61,298, tongue (0, 0)->(1, 0)): dovetail locks (cannot slide out in the panel plane)",
    true,
-   "46 / 46 mm2"
+   "blocked by 6.34 mm2"
   ],
   [
-   "key 11 (v seam @ 610,553): key fits its pocket, clearance >= 0.19 mm",
+   "joint 11 (h seam, 447,298, tongue (1, 1)->(0, 1)): tongue fits recess, clearance >= 0.19 mm",
    true,
-   "collision 0.000000 mm2, min clearance 0.200 mm"
+   "collision 0.000000 mm2, min clearance 0.200"
   ],
   [
-   "key 11: front skin closed behind pocket",
+   "joint 11 (h seam, 447,298, tongue (1, 1)->(0, 1)): front skin closed over the recess",
    true,
-   "open area 0.000000"
+   "open area 0.000000 mm2"
   ],
   [
-   "key 11: walls around pocket >= 2.5 mm",
+   "joint 11 (h seam, 447,298, tongue (1, 1)->(0, 1)): walls around recess >= 2.5 mm",
    true,
-   "thin area 0.000000"
+   "thin area 0.000000 mm2"
   ],
   [
-   "key 11: pocket spans both tiles",
+   "joint 11 (h seam, 447,298, tongue (1, 1)->(0, 1)): dovetail locks (cannot slide out in the panel plane)",
    true,
-   "46 / 46 mm2"
+   "blocked by 6.34 mm2"
   ],
   [
-   "key 12 (h seam @ 88,292): key fits its pocket, clearance >= 0.19 mm",
+   "joint 12 (h seam, 367,298, tongue (0, 1)->(1, 1)): tongue fits recess, clearance >= 0.19 mm",
    true,
-   "collision 0.000000 mm2, min clearance 0.200 mm"
+   "collision 0.000000 mm2, min clearance 0.200"
   ],
   [
-   "key 12: front skin closed behind pocket",
+   "joint 12 (h seam, 367,298, tongue (0, 1)->(1, 1)): front skin closed over the recess",
    true,
-   "open area 0.000000"
+   "open area 0.000000 mm2"
   ],
   [
-   "key 12: walls around pocket >= 2.5 mm",
+   "joint 12 (h seam, 367,298, tongue (0, 1)->(1, 1)): walls around recess >= 2.5 mm",
    true,
-   "thin area 0.000000"
+   "thin area 0.000000 mm2"
   ],
   [
-   "key 12: pocket spans both tiles",
+   "joint 12 (h seam, 367,298, tongue (0, 1)->(1, 1)): dovetail locks (cannot slide out in the panel plane)",
    true,
-   "46 / 46 mm2"
+   "blocked by 6.34 mm2"
   ],
   [
-   "key 13 (h seam @ 447,292): key fits its pocket, clearance >= 0.19 mm",
+   "joint 13 (h seam, 838,298, tongue (0, 2)->(1, 2)): tongue fits recess, clearance >= 0.19 mm",
    true,
-   "collision 0.000000 mm2, min clearance 0.200 mm"
+   "collision 0.000000 mm2, min clearance 0.200"
   ],
   [
-   "key 13: front skin closed behind pocket",
+   "joint 13 (h seam, 838,298, tongue (0, 2)->(1, 2)): front skin closed over the recess",
    true,
-   "open area 0.000000"
+   "open area 0.000000 mm2"
   ],
   [
-   "key 13: walls around pocket >= 2.5 mm",
+   "joint 13 (h seam, 838,298, tongue (0, 2)->(1, 2)): walls around recess >= 2.5 mm",
    true,
-   "thin area 0.000000"
+   "thin area 0.000000 mm2"
   ],
   [
-   "key 13: pocket spans both tiles",
+   "joint 13 (h seam, 838,298, tongue (0, 2)->(1, 2)): dovetail locks (cannot slide out in the panel plane)",
    true,
-   "46 / 46 mm2"
+   "blocked by 6.34 mm2"
   ],
   [
-   "key 14 (h seam @ 530,292): key fits its pocket, clearance >= 0.19 mm",
+   "joint 14 (h seam, 864,298, tongue (1, 2)->(0, 2)): tongue fits recess, clearance >= 0.19 mm",
    true,
-   "collision 0.000000 mm2, min clearance 0.200 mm"
+   "collision 0.000000 mm2, min clearance 0.200"
   ],
   [
-   "key 14: front skin closed behind pocket",
+   "joint 14 (h seam, 864,298, tongue (1, 2)->(0, 2)): front skin closed over the recess",
    true,
-   "open area 0.000000"
+   "open area 0.000000 mm2"
   ],
   [
-   "key 14: walls around pocket >= 2.5 mm",
+   "joint 14 (h seam, 864,298, tongue (1, 2)->(0, 2)): walls around recess >= 2.5 mm",
    true,
-   "thin area 0.000000"
+   "thin area 0.000000 mm2"
   ],
   [
-   "key 14: pocket spans both tiles",
+   "joint 14 (h seam, 864,298, tongue (1, 2)->(0, 2)): dovetail locks (cannot slide out in the panel plane)",
    true,
-   "46 / 46 mm2"
+   "blocked by 6.34 mm2"
   ],
   [
-   "key 15 (h seam @ 369,292): key fits its pocket, clearance >= 0.19 mm",
+   "joint 15 (v seam, 602,26, tongue (0, 2)->(0, 1)): tongue fits recess, clearance >= 0.19 mm",
    true,
-   "collision 0.000000 mm2, min clearance 0.200 mm"
+   "collision 0.000000 mm2, min clearance 0.200"
   ],
   [
-   "key 15: front skin closed behind pocket",
+   "joint 15 (v seam, 602,26, tongue (0, 2)->(0, 1)): front skin closed over the recess",
    true,
-   "open area 0.000000"
+   "open area 0.000000 mm2"
   ],
   [
-   "key 15: walls around pocket >= 2.5 mm",
+   "joint 15 (v seam, 602,26, tongue (0, 2)->(0, 1)): walls around recess >= 2.5 mm",
    true,
-   "thin area 0.000000"
+   "thin area 0.000000 mm2"
   ],
   [
-   "key 15: pocket spans both tiles",
+   "joint 15 (v seam, 602,26, tongue (0, 2)->(0, 1)): dovetail locks (cannot slide out in the panel plane)",
    true,
-   "46 / 46 mm2"
+   "blocked by 6.34 mm2"
   ],
   [
-   "key 16 (h seam @ 808,292): key fits its pocket, clearance >= 0.19 mm",
+   "every printed line and tongue >= 2.5 mm (opening test)",
    true,
-   "collision 0.000000 mm2, min clearance 0.200 mm"
+   "0 regions >2 mm2 fail, corner rounding 266 mm2"
   ],
   [
-   "key 16: front skin closed behind pocket",
-   true,
-   "open area 0.000000"
-  ],
-  [
-   "key 16: walls around pocket >= 2.5 mm",
-   true,
-   "thin area 0.000000"
-  ],
-  [
-   "key 16: pocket spans both tiles",
-   true,
-   "46 / 46 mm2"
-  ],
-  [
-   "key 17 (h seam @ 869,292): key fits its pocket, clearance >= 0.19 mm",
-   true,
-   "collision 0.000000 mm2, min clearance 0.200 mm"
-  ],
-  [
-   "key 17: front skin closed behind pocket",
-   true,
-   "open area 0.000000"
-  ],
-  [
-   "key 17: walls around pocket >= 2.5 mm",
-   true,
-   "thin area 0.000000"
-  ],
-  [
-   "key 17: pocket spans both tiles",
-   true,
-   "46 / 46 mm2"
-  ],
-  [
-   "key 18 (v seam @ 610,203): key fits its pocket, clearance >= 0.19 mm",
-   true,
-   "collision 0.000000 mm2, min clearance 0.200 mm"
-  ],
-  [
-   "key 18: front skin closed behind pocket",
-   true,
-   "open area 0.000000"
-  ],
-  [
-   "key 18: walls around pocket >= 2.5 mm",
-   true,
-   "thin area 0.000000"
-  ],
-  [
-   "key 18: pocket spans both tiles",
-   true,
-   "46 / 46 mm2"
-  ],
-  [
-   "key 19 (v seam @ 290,202): key fits its pocket, clearance >= 0.19 mm",
-   true,
-   "collision 0.000000 mm2, min clearance 0.200 mm"
-  ],
-  [
-   "key 19: front skin closed behind pocket",
-   true,
-   "open area 0.000000"
-  ],
-  [
-   "key 19: walls around pocket >= 2.5 mm",
-   true,
-   "thin area 0.000000"
-  ],
-  [
-   "key 19: pocket spans both tiles",
-   true,
-   "46 / 46 mm2"
-  ],
-  [
-   "key 20 (v seam @ 610,226): key fits its pocket, clearance >= 0.19 mm",
-   true,
-   "collision 0.000000 mm2, min clearance 0.200 mm"
-  ],
-  [
-   "key 20: front skin closed behind pocket",
-   true,
-   "open area 0.000000"
-  ],
-  [
-   "key 20: walls around pocket >= 2.5 mm",
-   true,
-   "thin area 0.000000"
-  ],
-  [
-   "key 20: pocket spans both tiles",
-   true,
-   "46 / 46 mm2"
-  ],
-  [
-   "key 21 (v seam @ 290,226): key fits its pocket, clearance >= 0.19 mm",
-   true,
-   "collision 0.000000 mm2, min clearance 0.200 mm"
-  ],
-  [
-   "key 21: front skin closed behind pocket",
-   true,
-   "open area 0.000000"
-  ],
-  [
-   "key 21: walls around pocket >= 2.5 mm",
-   true,
-   "thin area 0.000000"
-  ],
-  [
-   "key 21: pocket spans both tiles",
-   true,
-   "46 / 46 mm2"
-  ],
-  [
-   "key 22 (v seam @ 290,273): key fits its pocket, clearance >= 0.19 mm",
-   true,
-   "collision 0.000000 mm2, min clearance 0.200 mm"
-  ],
-  [
-   "key 22: front skin closed behind pocket",
-   true,
-   "open area 0.000000"
-  ],
-  [
-   "key 22: walls around pocket >= 2.5 mm",
-   true,
-   "thin area 0.000000"
-  ],
-  [
-   "key 22: pocket spans both tiles",
-   true,
-   "46 / 46 mm2"
-  ],
-  [
-   "key 23 (v seam @ 290,182): key fits its pocket, clearance >= 0.19 mm",
-   true,
-   "collision 0.000000 mm2, min clearance 0.200 mm"
-  ],
-  [
-   "key 23: front skin closed behind pocket",
-   true,
-   "open area 0.000000"
-  ],
-  [
-   "key 23: walls around pocket >= 2.5 mm",
-   true,
-   "thin area 0.000000"
-  ],
-  [
-   "key 23: pocket spans both tiles",
-   true,
-   "46 / 46 mm2"
-  ],
-  [
-   "key 24 (v seam @ 610,119): key fits its pocket, clearance >= 0.19 mm",
-   true,
-   "collision 0.000000 mm2, min clearance 0.200 mm"
-  ],
-  [
-   "key 24: front skin closed behind pocket",
-   true,
-   "open area 0.000000"
-  ],
-  [
-   "key 24: walls around pocket >= 2.5 mm",
-   true,
-   "thin area 0.000000"
-  ],
-  [
-   "key 24: pocket spans both tiles",
-   true,
-   "46 / 46 mm2"
-  ],
-  [
-   "key 25 (v seam @ 610,27): key fits its pocket, clearance >= 0.19 mm",
-   true,
-   "collision 0.000000 mm2, min clearance 0.200 mm"
-  ],
-  [
-   "key 25: front skin closed behind pocket",
-   true,
-   "open area 0.000000"
-  ],
-  [
-   "key 25: walls around pocket >= 2.5 mm",
-   true,
-   "thin area 0.000000"
-  ],
-  [
-   "key 25: pocket spans both tiles",
-   true,
-   "46 / 46 mm2"
-  ],
-  [
-   "key 26 (v seam @ 290,523): key fits its pocket, clearance >= 0.19 mm",
-   true,
-   "collision 0.000000 mm2, min clearance 0.200 mm"
-  ],
-  [
-   "key 26: front skin closed behind pocket",
-   true,
-   "open area 0.000000"
-  ],
-  [
-   "key 26: walls around pocket >= 2.5 mm",
-   true,
-   "thin area 0.000000"
-  ],
-  [
-   "key 26: pocket spans both tiles",
-   true,
-   "46 / 46 mm2"
-  ],
-  [
-   "key 27 (h seam @ 41,292): key fits its pocket, clearance >= 0.19 mm",
-   true,
-   "collision 0.000000 mm2, min clearance 0.200 mm"
-  ],
-  [
-   "key 27: front skin closed behind pocket",
-   true,
-   "open area 0.000000"
-  ],
-  [
-   "key 27: walls around pocket >= 2.5 mm",
-   true,
-   "thin area 0.000000"
-  ],
-  [
-   "key 27: pocket spans both tiles",
-   true,
-   "46 / 46 mm2"
-  ],
-  [
-   "key 28 (h seam @ 60,292): key fits its pocket, clearance >= 0.19 mm",
-   true,
-   "collision 0.000000 mm2, min clearance 0.200 mm"
-  ],
-  [
-   "key 28: front skin closed behind pocket",
-   true,
-   "open area 0.000000"
-  ],
-  [
-   "key 28: walls around pocket >= 2.5 mm",
-   true,
-   "thin area 0.000000"
-  ],
-  [
-   "key 28: pocket spans both tiles",
-   true,
-   "46 / 46 mm2"
-  ],
-  [
-   "key 29 (h seam @ 839,292): key fits its pocket, clearance >= 0.19 mm",
-   true,
-   "collision 0.000000 mm2, min clearance 0.200 mm"
-  ],
-  [
-   "key 29: front skin closed behind pocket",
-   true,
-   "open area 0.000000"
-  ],
-  [
-   "key 29: walls around pocket >= 2.5 mm",
-   true,
-   "thin area 0.000000"
-  ],
-  [
-   "key 29: pocket spans both tiles",
-   true,
-   "46 / 46 mm2"
-  ],
-  [
-   "every printed line >= 2.5 mm (opening test)",
-   true,
-   "0 regions >2 mm2 fail; corner rounding area 229 mm2"
-  ],
-  [
-   "every key has material on both sides of its seam",
+   "every joint has material on both sides",
    true,
    "0 unresolved"
   ],
   [
-   "assembled panel is ONE connected body through the keyed joints",
+   "every seam segment has >= 2 joints (alignment)",
    true,
-   "15 islands -> 1 group(s)"
+   "per seam [2, 2, 3, 2, 2, 2, 2]"
+  ],
+  [
+   "joint count = 15",
+   true,
+   "15"
+  ],
+  [
+   "INFO assembled panel: 28 separate line islands, 16 joint-connected group(s); the rest are glued on the cut face",
+   true,
+   ""
   ]
  ],
- "keys": [
+ "joints": [
   {
    "o": "v",
    "p": [
-    290.0,
-    161.5
+    298.0,
+    176.1
+   ],
+   "owner": [
+    0,
+    1
+   ],
+   "recv": [
+    0,
+    0
    ]
   },
   {
    "o": "v",
    "p": [
-    290.0,
-    249.8
+    298.0,
+    64.3
+   ],
+   "owner": [
+    0,
+    0
+   ],
+   "recv": [
+    0,
+    1
    ]
   },
   {
    "o": "v",
    "p": [
-    290.0,
-    74.2
+    298.0,
+    408.0
+   ],
+   "owner": [
+    1,
+    1
+   ],
+   "recv": [
+    1,
+    0
    ]
   },
   {
    "o": "v",
    "p": [
-    290.0,
-    407.7
-   ]
-  },
-  {
-   "o": "v",
-   "p": [
-    290.0,
-    552.5
-   ]
-  },
-  {
-   "o": "v",
-   "p": [
-    290.0,
-    486.9
-   ]
-  },
-  {
-   "o": "v",
-   "p": [
-    610.0,
-    161.4
-   ]
-  },
-  {
-   "o": "v",
-   "p": [
-    610.0,
-    261.5
-   ]
-  },
-  {
-   "o": "v",
-   "p": [
-    610.0,
-    74.2
-   ]
-  },
-  {
-   "o": "v",
-   "p": [
-    610.0,
-    405.9
-   ]
-  },
-  {
-   "o": "v",
-   "p": [
-    610.0,
+    298.0,
     553.2
+   ],
+   "owner": [
+    1,
+    1
+   ],
+   "recv": [
+    1,
+    0
+   ]
+  },
+  {
+   "o": "v",
+   "p": [
+    602.0,
+    161.2
+   ],
+   "owner": [
+    0,
+    1
+   ],
+   "recv": [
+    0,
+    2
+   ]
+  },
+  {
+   "o": "v",
+   "p": [
+    602.0,
+    64.2
+   ],
+   "owner": [
+    0,
+    2
+   ],
+   "recv": [
+    0,
+    1
+   ]
+  },
+  {
+   "o": "v",
+   "p": [
+    602.0,
+    406.7
+   ],
+   "owner": [
+    1,
+    1
+   ],
+   "recv": [
+    1,
+    2
+   ]
+  },
+  {
+   "o": "v",
+   "p": [
+    602.0,
+    553.8
+   ],
+   "owner": [
+    1,
+    1
+   ],
+   "recv": [
+    1,
+    2
    ]
   },
   {
    "o": "h",
    "p": [
-    88.1,
-    292.0
+    36.4,
+    298.0
+   ],
+   "owner": [
+    1,
+    0
+   ],
+   "recv": [
+    0,
+    0
+   ]
+  },
+  {
+   "o": "h",
+   "p": [
+    61.0,
+    298.0
+   ],
+   "owner": [
+    0,
+    0
+   ],
+   "recv": [
+    1,
+    0
    ]
   },
   {
    "o": "h",
    "p": [
     446.5,
-    292.0
+    298.0
+   ],
+   "owner": [
+    1,
+    1
+   ],
+   "recv": [
+    0,
+    1
    ]
   },
   {
    "o": "h",
    "p": [
-    530.4,
-    292.0
+    367.1,
+    298.0
+   ],
+   "owner": [
+    0,
+    1
+   ],
+   "recv": [
+    1,
+    1
    ]
   },
   {
    "o": "h",
    "p": [
-    369.1,
-    292.0
+    837.7,
+    298.0
+   ],
+   "owner": [
+    0,
+    2
+   ],
+   "recv": [
+    1,
+    2
    ]
   },
   {
    "o": "h",
    "p": [
-    808.4,
-    292.0
-   ]
-  },
-  {
-   "o": "h",
-   "p": [
-    868.5,
-    292.0
-   ]
-  },
-  {
-   "o": "v",
-   "p": [
-    610.0,
-    202.6
+    863.5,
+    298.0
+   ],
+   "owner": [
+    1,
+    2
+   ],
+   "recv": [
+    0,
+    2
    ]
   },
   {
    "o": "v",
    "p": [
-    290.0,
-    202.4
-   ]
-  },
-  {
-   "o": "v",
-   "p": [
-    610.0,
-    226.1
-   ]
-  },
-  {
-   "o": "v",
-   "p": [
-    290.0,
-    226.0
-   ]
-  },
-  {
-   "o": "v",
-   "p": [
-    290.0,
-    273.2
-   ]
-  },
-  {
-   "o": "v",
-   "p": [
-    290.0,
-    181.6
-   ]
-  },
-  {
-   "o": "v",
-   "p": [
-    610.0,
-    118.9
-   ]
-  },
-  {
-   "o": "v",
-   "p": [
-    610.0,
-    26.7
-   ]
-  },
-  {
-   "o": "v",
-   "p": [
-    290.0,
-    523.5
-   ]
-  },
-  {
-   "o": "h",
-   "p": [
-    41.4,
-    292.0
-   ]
-  },
-  {
-   "o": "h",
-   "p": [
-    59.7,
-    292.0
-   ]
-  },
-  {
-   "o": "h",
-   "p": [
-    839.4,
-    292.0
+    602.0,
+    26.5
+   ],
+   "owner": [
+    0,
+    2
+   ],
+   "recv": [
+    0,
+    1
    ]
   }
  ],
- "all_ok": true
+ "not_jointed": [
+  [
+   [
+    [
+     [
+      1,
+      1
+     ],
+     2
+    ],
+    2547,
+    [
+     298,
+     494,
+     602,
+     550
+    ]
+   ]
+  ],
+  [
+   [
+    [
+     [
+      0,
+      1
+     ],
+     4
+    ],
+    1005,
+    [
+     298,
+     115,
+     602,
+     121
+    ]
+   ]
+  ],
+  [
+   [
+    [
+     [
+      0,
+      1
+     ],
+     5
+    ],
+    889,
+    [
+     298,
+     121,
+     602,
+     127
+    ]
+   ]
+  ],
+  [
+   [
+    [
+     [
+      0,
+      1
+     ],
+     6
+    ],
+    600,
+    [
+     298,
+     209,
+     372,
+     218
+    ]
+   ]
+  ],
+  [
+   [
+    [
+     [
+      0,
+      1
+     ],
+     7
+    ],
+    598,
+    [
+     528,
+     209,
+     602,
+     218
+    ]
+   ]
+  ],
+  [
+   [
+    [
+     [
+      0,
+      1
+     ],
+     8
+    ],
+    580,
+    [
+     298,
+     221,
+     370,
+     230
+    ]
+   ]
+  ],
+  [
+   [
+    [
+     [
+      0,
+      1
+     ],
+     9
+    ],
+    579,
+    [
+     530,
+     221,
+     602,
+     230
+    ]
+   ]
+  ],
+  [
+   [
+    [
+     [
+      0,
+      1
+     ],
+     10
+    ],
+    573,
+    [
+     298,
+     233,
+     370,
+     242
+    ]
+   ]
+  ],
+  [
+   [
+    [
+     [
+      0,
+      1
+     ],
+     11
+    ],
+    559,
+    [
+     531,
+     233,
+     602,
+     242
+    ]
+   ]
+  ],
+  [
+   [
+    [
+     [
+      0,
+      1
+     ],
+     12
+    ],
+    543,
+    [
+     298,
+     269,
+     369,
+     277
+    ]
+   ]
+  ],
+  [
+   [
+    [
+     [
+      0,
+      1
+     ],
+     13
+    ],
+    542,
+    [
+     298,
+     245,
+     369,
+     254
+    ]
+   ]
+  ],
+  [
+   [
+    [
+     [
+      0,
+      1
+     ],
+     14
+    ],
+    535,
+    [
+     532,
+     245,
+     602,
+     254
+    ]
+   ]
+  ],
+  [
+   [
+    [
+     [
+      0,
+      1
+     ],
+     15
+    ],
+    535,
+    [
+     532,
+     269,
+     602,
+     277
+    ]
+   ]
+  ],
+  [
+   [
+    [
+     [
+      0,
+      1
+     ],
+     16
+    ],
+    534,
+    [
+     298,
+     257,
+     369,
+     265
+    ]
+   ]
+  ],
+  [
+   [
+    [
+     [
+      0,
+      1
+     ],
+     17
+    ],
+    526,
+    [
+     532,
+     257,
+     602,
+     265
+    ]
+   ]
+  ]
+ ]
 }
