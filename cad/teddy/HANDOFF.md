@@ -23,6 +23,9 @@ No paint or marker on the product, no magnets (light leakage), no hollow lattice
 - Bambu Studio numbers (PLA, 0.20 mm, tree supports, lightning 10 % + 3 walls): body 7h47m / 234 g, lid rim-on-bed 1h56m / 46 g.
   Slicing wrapper: `cad/teddy/slice_variants.py` (env DENS, PAT, WALLS, PROC) over `cad/bambu_slice.py` (needs Bambu Studio via flatpak, Linux only).
 
+## v7 (done, latest): lithophane on the lid
+`fix_manus.py ... input/heart_sketch_mm.dxf input/family_photo.jpg` -> `*_v7.stl` (see README). v7 is the current deliverable. Pins moved to (52,70) and (116,70).
+
 ## v6 (done)
 The user sent `heart_sketch_mm.dxf` (in `cad/teddy/input/`); `fix_manus.py ... input/heart_sketch_mm.dxf` builds `*_v6.stl` from it (see README). v6 is the current deliverable; v5 used my geometric heart.
 

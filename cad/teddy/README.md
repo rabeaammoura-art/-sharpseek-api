@@ -41,3 +41,11 @@ v6 (the user's own heart): `python fix_manus.py <bear> <manus lid v2> out/manus_
 instead of the geometric heart. Same checks as v5 pass (single watertight volume, overlap 0, pulls out to 25 mm, back unchanged,
 thinnest wall next to the pocket 2.4 mm). Bambu Studio, PLA, 0.20 mm, lightning 10 % + 3 walls: body 8h03m / 237 g,
 lid rim on the bed 1h49m / 44 g.
+
+v7 (lithophane): `python fix_manus.py <bear> <manus lid v2> out/manus_fix/ input/heart_sketch_mm.dxf input/family_photo.jpg` builds `*_v7.stl`.
+The photo (autocontrast, mapped to the outline's bounding box) becomes the wall thickness: 0.8 mm (bright) .. 3.2 mm (dark), fading into the plain
+2 mm wall within 2..5 mm of the outline. The relief is on the OUTSIDE of the front wall (the lid is printed rim down, so the relief faces up and
+needs no supports); the inner ceiling is a smooth dome. The pins moved to the rim, (52,70) and (116,70), with bosses that start at y = 62 and
+never touch the front wall, so they cast no dark spots on the picture. `lithophane_backlit_preview.png` simulates the back-lit look.
+Bambu Studio, PLA, 0.20 mm, lightning 10 % + 3 walls: body 7h57m / 235 g, lid (rim down, supports on) 2h03m / 40 g.
+Print the lid in WHITE or natural PLA; the LED must be diffuse (warm white) and the picture must be test-printed once before the final lid.

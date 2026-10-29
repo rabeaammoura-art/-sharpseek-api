@@ -5,7 +5,7 @@ uniform 2.0 mm lid shell (front face = Manus' lid dome, low-passed), cable chann
 trench to the rear edge, pins + bosses with bores, and removal of the feather edges the pocket leaves in the bear's surface.
 Nothing is written over the inputs.
 
-usage: python fix_manus.py <original bear stl> <manus lid stl> <out dir> [heart outline .dxf, mm, x = bear x, y = bear z]
+usage: python fix_manus.py <original bear stl> <manus lid stl> <out dir> [heart outline .dxf (mm; sketch x,y = bear x,z) or - ] [photo for the lithophane]
 """
 import sys
 import time
@@ -13,7 +13,8 @@ import time
 import numpy as np
 import shapely
 import trimesh
-from scipy.ndimage import binary_dilation, distance_transform_edt, gaussian_filter
+from PIL import Image, ImageFilter, ImageOps
+from scipy.ndimage import binary_dilation, distance_transform_edt, gaussian_filter, map_coordinates
 from shapely.geometry import Point, Polygon
 from shapely.ops import unary_union
 from skimage import measure
@@ -23,17 +24,22 @@ sys.path.insert(0, '.')
 from teddy_edit import boolean, prism_xz   # noqa: E402
 
 ORIG, LID, OUT = sys.argv[1], sys.argv[2], sys.argv[3]
-DXF = sys.argv[4] if len(sys.argv) > 4 else None    # your own heart outline replaces the geometric one
-TAG = 'v6' if DXF else 'v5'
+DXF = sys.argv[4] if len(sys.argv) > 4 and sys.argv[4] != '-' else None    # your own heart outline replaces the geometric one
+PHOTO = sys.argv[5] if len(sys.argv) > 5 else None                         # photo: relief on the inside of the front wall
+TAG = 'v7' if PHOTO else ('v6' if DXF else 'v5')
 X0 = 84.5                    # heart centre line
 LED_C = (84.6, 63.6)         # LED recess centre (x, z)
 FLOOR_Y = 78.0               # pocket floor
 RECESS_R, RECESS_D = 16.5, 7.0
 CH_R, CH_Y, CH_TOP = 6.0, 87.0, 60.0
 TR_W, TR_D = 12.0, 5.0
-PINS = [(68.0, 74.0), (101.0, 74.0)]
+PINS = [(52.0, 70.0), (116.0, 70.0)] if PHOTO else [(68.0, 74.0), (101.0, 74.0)]   # with a photo the pins sit at the rim, away from the picture
 PIN_R, PIN_TIP_Y = 2.4, 67.5
-BOSS_R, BORE_R, BORE_Y = 5.0, 3.0, 66.0
+BOSS_R, BORE_R, BORE_Y = (4.5 if PHOTO else 5.0), 3.0, 66.0
+BOSS_FRONT_Y = 62.0           # with a photo the boss stubs start here, so they never touch the front wall (no dark spots)
+T_MIN, T_MAX, GAMMA = 0.8, 3.2, 1.0           # lithophane thickness: bright pixel = thin
+PHOTO_BOX = (8, 295, 712, 995)                # the heart inside the photo (px)
+RIM_OUT, RIM_IN = 2.0, 5.0                    # photo fades into the plain 2 mm wall within this distance of the outline
 WALL = 2.0
 SIDE_CLEAR = 0.30
 H = 0.2
@@ -228,15 +234,31 @@ sdf = np.where(shapely.contains_xy(P, XX.ravel(), ZZ.ravel()), 1.0, -1.0) * shap
 sdf = sdf.reshape(XX.shape)
 sl = np.sqrt(1 + gx ** 2 + gz ** 2)
 Yv = ys[None, :, None]
-a_n = (Yv - yf[:, None, :]) / sl[:, None, :]                        # distance to the front surface (along its normal)
 b_n = sdf[:, None, :]                                                # distance to the heart outline (side wall)
-outer = np.minimum(rmin(a_n, b_n, EDGE_R), FLOOR_Y - Yv)             # rounded edge, flat rim plane
-cavity = rmin(a_n - WALL, b_n - WALL, EDGE_R - WALL)                 # offset of the rounded edge: wall stays 2 mm
+T = np.full(XX.shape, WALL)                                          # wall thickness at every (x, z)
+if PHOTO:                                                            # lithophane: bright pixel = thin wall
+    ph = ImageOps.autocontrast(Image.open(PHOTO).convert('L'), cutoff=1.5).crop(PHOTO_BOX).filter(ImageFilter.GaussianBlur(1.1))
+    ph = np.asarray(ph, dtype=float) / 255.0
+    x0, z0, x1, z1 = P.bounds
+    lum = map_coordinates(ph, [(z1 - ZZ) / (z1 - z0) * (ph.shape[0] - 1), (XX - x0) / (x1 - x0) * (ph.shape[1] - 1)], order=1, mode='nearest')
+    t_photo = T_MIN + (1 - lum) ** GAMMA * (T_MAX - T_MIN)
+    wgt = np.clip((sdf - RIM_OUT) / (RIM_IN - RIM_OUT), 0, 1); wgt = wgt * wgt * (3 - 2 * wgt)
+    T = WALL + wgt * (t_photo - WALL)
+    plt_img = np.clip(np.exp(-0.75 * (T - T_MIN)), 0, 1) * (sdf > 0)    # back-lit look: thin = bright
+    Image.fromarray((255 * plt_img.T[::-1]).astype(np.uint8)).save(OUT + 'lithophane_backlit_preview.png')
+# The relief is on the OUTSIDE of the front wall (printed facing up, no supports on it); the inner ceiling is a smooth dome
+# T_MAX behind the original dome, so the wall thickness is T at every point.
+yf_out = yf + (T_MAX - T) if PHOTO else yf
+yf_in = yf + T_MAX if PHOTO else yf + WALL
+a_out = (Yv - yf_out[:, None, :]) / sl[:, None, :]                   # distance to the outer front surface (along its normal)
+a_in = (Yv - yf_in[:, None, :]) / sl[:, None, :]                     # ... and to the smooth inner ceiling
+outer = np.minimum(rmin(a_out, b_n, EDGE_R), FLOOR_Y - Yv)           # rounded edge, flat rim plane
+cavity = rmin(a_in, b_n - WALL, EDGE_R - WALL)                       # offset of the rounded edge: side wall stays 2 mm
 L = np.minimum(outer, -cavity)
 Xg = xs[:, None, None]; Zg = zs[None, None, :]
 for px, pz in PINS:
     r = np.hypot(Xg - px, Zg - pz)
-    boss = np.minimum(np.minimum(BOSS_R - r, Yv - (yf[:, None, :] + 0.8)), FLOOR_Y - Yv)
+    boss = np.minimum(np.minimum(BOSS_R - r, Yv - (BOSS_FRONT_Y if PHOTO else yf[:, None, :] + 0.8)), FLOOR_Y - Yv)
     L = np.maximum(L, boss)
 for px, pz in PINS:
     r = np.hypot(Xg - px, Zg - pz)
