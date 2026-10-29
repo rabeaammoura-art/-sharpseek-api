@@ -1,0 +1,7 @@
+{
+  "type": "filament",
+  "name": "Keychain PLA black @H2D",
+  "inherits": "Bambu PLA Basic @BBL H2D",
+  "from": "User",
+  "filament_colour": ["#1C1C1C"]
+}

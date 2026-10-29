@@ -1,0 +1,7 @@
+{
+  "type": "filament",
+  "name": "W115 PETG Translucent clear @H2D 0.4",
+  "inherits": "Bambu PETG Translucent @BBL H2D 0.4 nozzle",
+  "from": "User",
+  "filament_colour": ["#F2F2F2"]
+}
