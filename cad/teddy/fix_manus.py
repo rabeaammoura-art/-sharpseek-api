@@ -5,7 +5,7 @@ uniform 2.0 mm lid shell (front face = Manus' lid dome, low-passed), cable chann
 trench to the rear edge, pins + bosses with bores, and removal of the feather edges the pocket leaves in the bear's surface.
 Nothing is written over the inputs.
 
-usage: python fix_manus.py <original bear stl> <manus lid stl> <out dir>
+usage: python fix_manus.py <original bear stl> <manus lid stl> <out dir> [heart outline .dxf, mm, x = bear x, y = bear z]
 """
 import sys
 import time
@@ -14,7 +14,7 @@ import numpy as np
 import shapely
 import trimesh
 from scipy.ndimage import binary_dilation, distance_transform_edt, gaussian_filter
-from shapely.geometry import Point
+from shapely.geometry import Point, Polygon
 from shapely.ops import unary_union
 from skimage import measure
 import manifold3d as m3d
@@ -23,6 +23,8 @@ sys.path.insert(0, '.')
 from teddy_edit import boolean, prism_xz   # noqa: E402
 
 ORIG, LID, OUT = sys.argv[1], sys.argv[2], sys.argv[3]
+DXF = sys.argv[4] if len(sys.argv) > 4 else None    # your own heart outline replaces the geometric one
+TAG = 'v6' if DXF else 'v5'
 X0 = 84.5                    # heart centre line
 LED_C = (84.6, 63.6)         # LED recess centre (x, z)
 FLOOR_Y = 78.0               # pocket floor
@@ -117,6 +119,20 @@ def rmin(a, b, r):
     return np.where(both, r - np.sqrt((r - a) ** 2 + (r - b) ** 2), np.minimum(a, b))
 
 
+def load_dxf_outline(path):
+    """First closed LWPOLYLINE of an ASCII DXF as a shapely polygon (x, y of the sketch = x, z of the bear), lightly cleaned."""
+    t = [l.strip() for l in open(path, errors='ignore').read().splitlines()]
+    i = t.index('LWPOLYLINE'); j = next(k for k in range(i + 1, len(t) - 1) if t[k] == '0' and t[k + 1] in ('ENDSEC', 'LWPOLYLINE', 'LINE', 'SPLINE', 'CIRCLE'))
+    xs, ys_ = [], []
+    for k in range(i + 1, j, 2):
+        if t[k] == '10': xs.append(float(t[k + 1]))
+        elif t[k] == '20': ys_.append(float(t[k + 1]))
+    p = Polygon(np.c_[xs, ys_]).buffer(0)
+    r = 2.0                                                                    # remove polyline kinks: every corner gets radius >= r
+    p = p.buffer(r, resolution=32).buffer(-2 * r, resolution=32).buffer(r, resolution=32)
+    return p.simplify(0.005)
+
+
 def heart_outline():
     ax, zc = HEART_W / 2 - LOBE_R, HEART_TOP - LOBE_R
     tip = Point(X0, HEART_TIP)
@@ -191,7 +207,7 @@ def rebuild_rim(body, P):
 
 orig = trimesh.load(ORIG); F = trimesh.load(LID)
 # ---------------------------------------------------------------- outline
-P = heart_outline()
+P = load_dxf_outline(DXF) if DXF else heart_outline()
 log('lid outline: bounds', np.round(P.bounds, 2).tolist(), 'area %.0f' % P.area)
 for px, pz in PINS + [LED_C]:
     log('  clearance of (%.0f, %.0f) to the outline: %.1f mm' % (px, pz, shapely.distance(P.exterior, shapely.points(px, pz))))
@@ -235,7 +251,7 @@ lid = parts[0]; lid.fix_normals()
 if lid.volume < 0: lid.invert()
 lid = simplify(lid, 0.03)
 log('lid', len(lid.faces), 'watertight', lid.is_watertight, 'volume %.1f cm3' % (lid.volume / 1000), 'components', len(parts))
-save(lid, OUT + 'chest_heart_lid_v5.stl')
+save(lid, OUT + 'chest_heart_lid_' + TAG + '.stl')
 
 # ---------------------------------------------------------------- body from the original bear
 pocket = prism_xz(P.buffer(SIDE_CLEAR, resolution=32), -12.0, FLOOR_Y)
@@ -250,5 +266,5 @@ body = rebuild_rim(body, P)
 parts = [p for p in body.split(only_watertight=False) if abs(p.volume) > 1000.0]          # drop the stray 0.002 cm3 floating fragment found in the source mesh
 body = max(parts, key=lambda p: p.volume)
 log('body', len(body.faces), body.is_watertight)
-save(body, OUT + 'teddy_body_chest_led_v5.stl')
+save(body, OUT + 'teddy_body_chest_led_' + TAG + '.stl')
 log('done')

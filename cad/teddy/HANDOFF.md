@@ -23,12 +23,15 @@ No paint or marker on the product, no magnets (light leakage), no hollow lattice
 - Bambu Studio numbers (PLA, 0.20 mm, tree supports, lightning 10 % + 3 walls): body 7h47m / 234 g, lid rim-on-bed 1h56m / 46 g.
   Slicing wrapper: `cad/teddy/slice_variants.py` (env DENS, PAT, WALLS, PROC) over `cad/bambu_slice.py` (needs Bambu Studio via flatpak, Linux only).
 
-## What the user just did
+## v6 (done)
+The user sent `heart_sketch_mm.dxf` (in `cad/teddy/input/`); `fix_manus.py ... input/heart_sketch_mm.dxf` builds `*_v6.stl` from it (see README). v6 is the current deliverable; v5 used my geometric heart.
+
+## What the user did before
 The user cut a clean heart pocket themselves in Fusion 360 (file `173488c4-teddy_no_ams_200mm_scaled_master.stl`). Findings: exported 10x too big
 (1672 mm; Fusion unit mistake), mesh not closed (1242 components, 1272 non-manifold edges around the rim), blade-thin skin remnants at the lower rim,
 no LED recess/channel/pins, pocket floor at about y = 65-70 instead of 78. The outline itself is smooth and the user prefers it.
 
-## Next step
+## Next step (superseded by v6; remaining: user review, test print of the lid first)
 Take the user's heart from Fusion and feed it to `fix_manus.py` as the outline `P` (replace `heart_outline()`), then rebuild body and lid.
 Needed from Fusion, in millimetres: the heart sketch as DXF (1:1) and the heart as a body exported as STL (Unit: Millimeter), plus heart width/height and pocket depth.
 If the Fusion script below is used: Utilities, Scripts and Add-Ins (Shift+S), new script, paste, Run. It exports every sketch as DXF and every body as STL,

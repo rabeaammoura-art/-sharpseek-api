@@ -35,3 +35,9 @@ Chest-heart version (fix_manus.py, outputs in out/manus_fix/*_v5.stl):
 - save() reloads the STL and repairs the few seam edges that a float32 round trip would break;
 - checks: watertight single volume, seated overlap 0, lid pulls out toward -Y with 0 overlap to 25 mm, back of the torso unchanged.
 Bambu Studio, H2D, PLA, 0.20 mm, supports on, lightning 10 % + 3 walls: body 7h47m / 234 g, lid (rim on the bed) 1h56m / 46 g.
+
+v6 (the user's own heart): `python fix_manus.py <bear> <manus lid v2> out/manus_fix/ input/heart_sketch_mm.dxf` builds
+`*_v6.stl` with the outline from the user's Fusion sketch (input/heart_sketch_mm.dxf, 75.9 x 65.2 mm, x 46.1..122.0, z 27.3..92.5)
+instead of the geometric heart. Same checks as v5 pass (single watertight volume, overlap 0, pulls out to 25 mm, back unchanged,
+thinnest wall next to the pocket 2.4 mm). Bambu Studio, PLA, 0.20 mm, lightning 10 % + 3 walls: body 8h03m / 237 g,
+lid rim on the bed 1h49m / 44 g.
