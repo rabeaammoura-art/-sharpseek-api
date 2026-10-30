@@ -34,6 +34,10 @@ Arguments: $ARGUMENTS
 2. Collect the models. If a zip was uploaded or given, extract it into a new empty
    directory in the scratchpad. Use every `.stl` (also inside the zip). If no file was
    given, use the most recent upload.
+   A multi-colour `.3mf` from `cad/newborn_plaque.py` is sliced as one plate: pass `--filament`
+   once per colour slot (4 for the plaque: base, main, accent, animal), all with the chosen
+   filament unless the user names different ones. Plates also include a pair of stand feet
+   (`stand_foot_<size>.stl`, print x2) — slice one and double it.
 3. Slice them all in one call, with supports unless the user said `--no-support`:
    ```bash
    .venv-cad/bin/python cad/bambu_slice.py --support <extra args> file1.stl file2.stl ...

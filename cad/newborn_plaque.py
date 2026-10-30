@@ -17,6 +17,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import trimesh
 import uharfbuzz as hb
+from threemf import write_bambu_3mf
 from fontTools.pens.basePen import BasePen
 from fontTools.ttLib import TTFont
 from matplotlib.patches import PathPatch
@@ -541,11 +542,16 @@ def main():
     size = int(data.get("size", 300))
     stem = f"{Path(args.data).stem}_{size}"
     theme = data.get("theme", "blue")
-    for role, items in layers.items():
-        m = to_mesh(items)
+    parts = []
+    for slot, role in enumerate(("base", "main", "accent", "animal"), start=1):
+        m = to_mesh(layers[role])
         if m is not None:
             m.export(out / f"{stem}_{role}.stl")
             print(f"{role}: {len(m.faces)} faces, volume {m.volume:.0f} mm^3")
+            parts.append((role, m, slot))
+    write_bambu_3mf(out / f"{stem}.3mf", parts, center=(162.5, 160.0), name=stem,
+                    project_settings=(Path(__file__).parent / "config" / "bambu_project_settings.config").read_bytes())
+    print("wrote", out / f"{stem}.3mf")
     preview(layers, theme, out / f"{stem}.png", size / 2)
     if data.get("stand", "feet") == "feet":
         foot, info = make_foot(size)
