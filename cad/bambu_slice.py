@@ -15,6 +15,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).parent
+sys.path.insert(0, str(ROOT))
+from prices import DEFAULT_FILE, load_prices, price_for  # noqa: E402
 OUT = ROOT / "out" / "bambu"
 CLI = str(ROOT / "bambu-studio")
 
@@ -99,7 +101,10 @@ def main():
                          "(default: Bambu ASA @BBL H2D 0.4 nozzle)")
     ap.add_argument("--plate", default="Textured PEI Plate")
     ap.add_argument("--support", action="store_true", help="enable tree(auto) supports")
-    ap.add_argument("--price-kg", type=float, default=8.0, help="filament price per kg (JOD)")
+    ap.add_argument("--price-kg", type=float, default=None,
+                    help="override: one filament price per kg (JOD) for every slot; "
+                         "default: landed prices from config/filament_prices.xlsx")
+    ap.add_argument("--prices-file", default=str(DEFAULT_FILE))
     ap.add_argument("--kwh-price", type=float, default=0.10, help="electricity price per kWh (JOD)")
     ap.add_argument("--watts", type=float, default=350.0, help="average printer power draw")
     a = ap.parse_args()
@@ -111,6 +116,14 @@ def main():
     if a.support:
         process.update(enable_support="1", support_type="tree(auto)")
     filaments = a.filament or ["Bambu ASA @BBL H2D 0.4 nozzle"]
+    if a.price_kg is not None:
+        slot_prices = [a.price_kg] * len(filaments)
+        print(f"prices: {a.price_kg:.3f} JOD/kg (--price-kg)")
+    else:
+        sheet = load_prices(a.prices_file)
+        resolved = [price_for(f, sheet) for f in filaments]
+        slot_prices = [p for _, p in resolved]
+        print("prices (landed, from stock sheet): " + ", ".join(sorted({f"{t} {p:.3f} JOD/kg" for t, p in resolved})))
     for name, d in (("machine", machine), ("process", process)):
         json.dump(d, open(OUT / f"{name}.json", "w"), indent=1)
     filament_files = []
@@ -119,7 +132,7 @@ def main():
         json.dump(flatten("filament", fname), open(f, "w"), indent=1)
         filament_files.append(str(f))
     cx, cy = plate_center(machine)
-    total_s = total_g = 0.0
+    total_s = total_g = total_fil = 0.0
 
     for stl in map(Path, a.stl):
         part_dir = OUT / stl.stem
@@ -147,15 +160,19 @@ def main():
         plate = res["sliced_plates"][0]
         s = int(plate["total_predication"])
         grams = sum(f["total_used_g"] for f in plate["filaments"])
+        fil_cost = sum(f["total_used_g"] / 1000 * slot_prices[min(int(f.get("id", i + 1)) - 1, len(slot_prices) - 1)]
+                       for i, f in enumerate(plate["filaments"]))
         total_s += s
         total_g += grams
-        print(f"{stl.stem}: {hm(s)}  {grams:.1f} g  {cost(s, grams, a):.2f}  -> {part_dir / 'out.3mf'}")
+        total_fil += fil_cost
+        print(f"{stl.stem}: {hm(s)}  {grams:.1f} g  {fil_cost + s / 3600 * a.watts / 1000 * a.kwh_price:.2f}"
+              f"  -> {part_dir / 'out.3mf'}")
         if len(plate["filaments"]) > 1:
             print("  per filament: " + ", ".join(f"#{f.get('filament_id', i)} {f['total_used_g']:.1f} g"
                                                  for i, f in enumerate(plate["filaments"])))
         if plate["warning_message"]:
             print(f"  warning: {plate['warning_message']}")
-    filament = total_g / 1000 * a.price_kg
+    filament = total_fil
     power = total_s / 3600 * a.watts / 1000 * a.kwh_price
     print(f"TOTAL: {hm(total_s)}  {total_g:.1f} g  filament {filament:.2f} + electricity {power:.2f}"
           f" = {filament + power:.2f}")
@@ -164,10 +181,6 @@ def main():
 def hm(seconds) -> str:
     seconds = int(seconds)
     return f"{seconds // 3600}h{seconds % 3600 // 60:02d}m"
-
-
-def cost(seconds, grams, a) -> float:
-    return grams / 1000 * a.price_kg + seconds / 3600 * a.watts / 1000 * a.kwh_price
 
 
 if __name__ == "__main__":

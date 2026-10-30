@@ -28,8 +28,13 @@ Arguments: $ARGUMENTS
 
      For anything else, list the matching names from the Bambu profiles
      (`find` in the flatpak `profiles/BBL/filament` for `H2D`) and ask which one.
-   - Prices differ per filament: if the user has not given `--price-kg` for this filament,
-     use 8 JOD/kg, say so in the reply, and invite them to correct it.
+   - **Prices always come from the stock sheet** `cad/config/filament_prices.xlsx`
+     (3D ZONE TECH landed prices in JOD/kg, incl. shipping & customs). `bambu_slice.py` reads it
+     itself and prices each filament slot by type: PLA/PLA Basic/Matte -> PLA+, PLA Silk -> Silk PLA,
+     PETG -> PETG, PETG Translucent -> AD-PETG, ASA, ASA-CF, TPU -> TPU 95A. Do not pass
+     `--price-kg` unless the user gives a price for this run. If the sheet is missing (it is
+     git-ignored because the repo is public, so a fresh session may not have it), ask the user to
+     upload `3D_ZONE_TECH_Filament.xlsx` and copy it there. Quote the prices the script prints.
 1. Make sure the toolchain is installed: `cad/setup.sh` (skips what is already there).
 2. Collect the models. If a zip was uploaded or given, extract it into a new empty
    directory in the scratchpad. Use every `.stl` (also inside the zip). If no file was
@@ -44,11 +49,12 @@ Arguments: $ARGUMENTS
    ```
    Pass through any `--printer`, `--process`, `--filament`, `--plate`, `--price-kg`,
    `--kwh-price`, `--watts` the user gave. Defaults: H2D 0.4 nozzle, 0.20mm Standard,
-   the filament chosen in step 0, 8 JOD per kg, 0.10 JOD per kWh, 350 W. Report costs in JOD (دينار).
+   the filament chosen in step 0, landed prices from the stock sheet, 0.10 JOD per kWh, 350 W.
+   Report costs in JOD (دينار).
 4. If a part reports a "floating regions" warning without supports, re-run it with `--support`.
    If a part FAILS because it does not fit the plate, say so (give its size from
    `prusa-slicer --info`) instead of guessing numbers.
 5. Reply in the user's language with a short table: part, time, grams, cost; then the
    total line, and how many copies the user needs (e.g. screw caps x4, left + right side)
-   if the file names or notes make that clear. State the filament used and the assumed prices so the user can
-   correct them, and list the `out.3mf` paths.
+   if the file names or notes make that clear. State the filament used and the prices read from the sheet so the user can
+   check them, and list the `out.3mf` paths.
