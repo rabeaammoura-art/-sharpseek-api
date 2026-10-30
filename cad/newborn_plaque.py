@@ -410,6 +410,78 @@ def make_foot(size):
     return m, {"depth": depth, "width": width, "height": height, "x": 0.27 * size, "margin": margin}
 
 
+OPEN = 45.0       # degrees the easel leg opens from the plaque's back
+
+
+def make_easel(size):
+    """Folding easel leg like a photo frame: a bracket glued to the back (two ears) and a
+    leg that pivots on an M3 bolt, folds flat and stops at OPEN degrees.
+    Both parts are printed on their side (profile on the bed, hole vertical).
+    Returns (bracket_mesh, leg_mesh, info, world polygons for the side view)."""
+    k = size / SIZE
+    t, th = math.radians(TILT), math.radians(OPEN)
+    beta = th - t                       # leg angle from vertical
+    vp, pad_t, bar, hole, boss = 9.0, 3.0, 4.0, 1.75, 5.0
+    w_leg, ear, slack = 14 + 10 * k, 4.0, 0.6
+    pad_l, pad_w = 36 * max(k, 0.7), w_leg + 2 * (slack + ear) + 8
+    s = 0.62 * size                     # pivot line, measured up the plaque from its bottom edge
+    q = (s * math.sin(t), s * math.cos(t))          # point on the back surface (world y, z)
+    vx = (math.cos(t), -math.sin(t))                # out of the back
+    ux = (-math.sin(t), -math.cos(t))               # down the plaque
+    pivot = (q[0] + vp * vx[0], q[1] + vp * vx[1])
+    tail = (vp - pad_t - bar / 2 * math.cos(th)) / math.sin(th)   # tail touches the pad at OPEN degrees
+
+    def a_end(b):                       # leg end cut flat on the table
+        return (pivot[1] + b * math.sin(beta)) / math.cos(beta)
+
+    leg2d = Polygon([(-tail, -bar / 2), (a_end(-bar / 2), -bar / 2), (a_end(bar / 2), bar / 2), (-tail, bar / 2)])
+    leg2d = leg2d.union(circle(0, 0, boss)).difference(circle(0, 0, hole))
+    leg = trimesh.creation.extrude_polygon(leg2d, w_leg)
+
+    pad2d = box(-pad_l / 2, 0, pad_l / 2, pad_t)
+    ear2d = circle(0, vp, 6).union(box(-6, pad_t - 0.1, 6, vp)).difference(circle(0, vp, hole))
+    zc = pad_w / 2
+    parts = [trimesh.creation.extrude_polygon(pad2d, pad_w)]
+    for z0 in (zc - w_leg / 2 - slack - ear, zc + w_leg / 2 + slack):
+        e = trimesh.creation.extrude_polygon(ear2d, ear)
+        e.apply_translation([0, 0, z0])
+        parts.append(e)
+    bracket = trimesh.util.concatenate(parts)
+
+    length = a_end(0)
+    foot_y = pivot[0] + length * math.sin(beta)
+    com_y = size / 2 * math.sin(t)
+
+    def world_uv(u, v):                 # (u,v) measured from q -> world (y,z)
+        return (q[0] + u * ux[0] + v * vx[0], q[1] + u * ux[1] + v * vx[1])
+
+    def leg_world(g):
+        return Polygon([world_uv(a * math.cos(th) - b * math.sin(th), vp + a * math.sin(th) + b * math.cos(th))
+                        for a, b in g.exterior.coords])
+
+    world = {
+        "plate": Polygon([world_uv(u, v) for u, v in [(s, 0), (s, -PLATE_EDGE), (-(size - s), -PLATE_EDGE), (-(size - s), 0)]]),
+        "bracket": unary_union([Polygon([world_uv(u, v) for u, v in g.exterior.coords]) for g in (pad2d, ear2d)]),
+        "leg": leg_world(leg2d),
+    }
+    info = {"length": length, "width": w_leg, "pad": (pad_l, pad_w), "pivot_from_bottom": s,
+            "foot_y": foot_y, "margin": foot_y - com_y, "tail": tail}
+    return bracket, leg, info, world
+
+
+def easel_view(world, path, size):
+    fig, ax = plt.subplots(figsize=(7, 7), dpi=100)
+    for name, fc in (("plate", "#3e628a"), ("bracket", "#c8a078"), ("leg", "#d9808c")):
+        g = world[name]
+        ax.fill(*g.exterior.xy, fc=fc, ec="#222", lw=0.6)
+    ax.axhline(0, color="#555", lw=1)
+    ax.set_aspect("equal")
+    ax.set_xlabel("mm (front -> back)")
+    ax.set_title("side view: easel open")
+    fig.savefig(path, bbox_inches="tight")
+    plt.close(fig)
+
+
 # ---------------------------------------------------------------- output ----
 def extrude(geom, z0, z1):
     polys = list(geom.geoms) if hasattr(geom, "geoms") else [geom]
@@ -475,10 +547,19 @@ def main():
             m.export(out / f"{stem}_{role}.stl")
             print(f"{role}: {len(m.faces)} faces, volume {m.volume:.0f} mm^3")
     preview(layers, theme, out / f"{stem}.png", size / 2)
-    foot, info = make_foot(size)
-    foot.export(out / f"stand_foot_{size}.stl")
-    print(f"stand foot x2: {info['width']:.0f}x{info['depth']:.0f}x{info['height']:.0f} mm, "
-          f"place at x=+/-{info['x']:.0f} mm, stability margin {info['margin']:.0f} mm")
+    if data.get("stand", "easel") == "feet":
+        foot, info = make_foot(size)
+        foot.export(out / f"stand_foot_{size}.stl")
+        print(f"stand foot x2: {info['width']:.0f}x{info['depth']:.0f}x{info['height']:.0f} mm, "
+              f"place at x=+/-{info['x']:.0f} mm, stability margin {info['margin']:.0f} mm")
+    else:
+        bracket, leg, info, world = make_easel(size)
+        bracket.export(out / f"easel_bracket_{size}.stl")
+        leg.export(out / f"easel_leg_{size}.stl")
+        easel_view(world, out / f"easel_side_{size}.png", size)
+        print(f"easel: leg {info['length']:.0f}x{info['width']:.0f} mm, bracket pad {info['pad'][0]:.0f}x{info['pad'][1]:.0f} mm "
+              f"glued with pivot {info['pivot_from_bottom']:.0f} mm from the bottom edge; "
+              f"foot {info['foot_y']:.0f} mm behind the plaque, stability margin {info['margin']:.0f} mm")
     print("wrote", out / f"{stem}.png")
 
 
