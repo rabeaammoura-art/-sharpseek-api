@@ -3,3 +3,6 @@ __pycache__/
 
 # third-party design file and derivatives (licensed, personal use only)
 concept/e30_ref/
+
+# derived from a third-party model (BY-SA); large scaled test meshes, not needed in the repo
+concept/porsche_ref/
