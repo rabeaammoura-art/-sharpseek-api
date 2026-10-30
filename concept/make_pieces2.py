@@ -45,7 +45,7 @@ for i,(th,d) in enumerate(LINES):
     lab+=((U_>np.interp(S_,sg_,dl)).astype(np.int8)<<i)
 mm2=np.bincount(lab[mat].ravel(),minlength=1<<len(LINES))/PXMM**2          # merge tiny regions (< 15 cm2) into their neighbour
 for r_ in range(len(mm2)):
-    if 0<mm2[r_]<1500:
+    if 0<mm2[r_]<1500 and os.environ.get("NOMERGE","0")!="1":
         reg=(lab==r_); dil=ndi.binary_dilation(reg,iterations=int(8*PXMM))&~reg
         nb=np.bincount(lab[dil&mat].ravel(),minlength=len(mm2)); nb[r_]=0
         if nb.sum()>0: lab[reg]=int(np.argmax(nb)); print("merged tiny region",r_,"->",int(np.argmax(nb)),"(%.0f mm2)"%mm2[r_])
