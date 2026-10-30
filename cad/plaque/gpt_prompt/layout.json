@@ -1,0 +1,176 @@
+{
+ "plaque_mm": 300,
+ "corner_radius_mm": 30,
+ "frame_border_mm": 12,
+ "coordinates": "mm, origin = plaque centre, x right, y up",
+ "name_cloud": {
+  "pill_center": [
+   0,
+   58
+  ],
+  "pill_size": [
+   196,
+   38
+  ],
+  "scallops": [
+   [
+    0,
+    79,
+    17
+   ],
+   [
+    -38,
+    77,
+    13
+   ],
+   [
+    38,
+    77,
+    13
+   ],
+   [
+    -72,
+    72,
+    10
+   ],
+   [
+    72,
+    72,
+    10
+   ]
+  ],
+  "outline_mm": 1.4
+ },
+ "bear": {
+  "head_center": [
+   0,
+   111
+  ],
+  "head_r": 20,
+  "ears": [
+   [
+    -15.5,
+    127,
+    8
+   ],
+   [
+    15.5,
+    127,
+    8
+   ]
+  ],
+  "paws": [
+   [
+    -13,
+    97,
+    6
+   ],
+   [
+    13,
+    97,
+    6
+   ]
+  ]
+ },
+ "moon": {
+  "center": [
+   -98,
+   110
+  ],
+  "r": 19
+ },
+ "stars": [
+  [
+   -70,
+   122,
+   8
+  ],
+  [
+   96,
+   112,
+   11
+  ],
+  [
+   74,
+   126,
+   6.5
+  ],
+  [
+   112,
+   88,
+   6
+  ],
+  [
+   -116,
+   70,
+   6,
+   "blue"
+  ]
+ ],
+ "badges": {
+  "size": [
+   124,
+   40
+  ],
+  "corner_r": 10,
+  "outline_mm": 1.2,
+  "centres_arabic": {
+   "weight": [
+    66,
+    14
+   ],
+   "length": [
+    -66,
+    14
+   ],
+   "date": [
+    66,
+    -34
+   ],
+   "time": [
+    -66,
+    -34
+   ]
+  },
+  "centres_english": {
+   "weight": [
+    -66,
+    14
+   ],
+   "length": [
+    66,
+    14
+   ],
+   "date": [
+    -66,
+    -34
+   ],
+   "time": [
+    66,
+    -34
+   ]
+  }
+ },
+ "footprint_pad": {
+  "center": [
+   0,
+   -97
+  ],
+  "size": [
+   124,
+   62
+  ],
+  "corner_r": 12,
+  "heart_center": [
+   0,
+   -97
+  ],
+  "heart_size": 12
+ },
+ "colours": {
+  "cream_base": "#F5ECD7",
+  "dark_blue": "#3E628A",
+  "yellow": "#F0C446",
+  "bear_tan": "#C8A078"
+ }
+}
