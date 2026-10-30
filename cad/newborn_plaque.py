@@ -206,6 +206,14 @@ def put_text(segments, lang, rtl, cx, y, anchor="center", max_width=None):
 
 
 # -------------------------------------------------------------- shapes ----
+_K = 1.0  # xy scale of the current build (size / 300); used to keep printable line widths
+
+
+def rw(w):
+    """Line width in design units that is still >= 1.2 mm after scaling by _K."""
+    return max(w, 1.2 / _K)
+
+
 def circle(cx, cy, r):
     return Point(cx, cy).buffer(r, 24)
 
@@ -283,8 +291,8 @@ def animal_bear(cx, cy, cover):
     paws = unary_union([circle(cx - 13, cy - 14, 6), circle(cx + 13, cy - 14, 6)])
     inner_ears = unary_union([circle(cx - 15.5, cy + 16, 4), circle(cx + 15.5, cy + 16, 4)])
     muzzle = affinity.scale(circle(cx, cy - 6, 9.5), 1.15, 0.85, origin=(cx, cy - 6))
-    eyes = unary_union([ring(circle(cx - 8, cy + 3.5, 3.8), 1.4).intersection(box(cx - 12, cy - 1, cx - 3, cy + 4)),
-                        ring(circle(cx + 8, cy + 3.5, 3.8), 1.4).intersection(box(cx + 3, cy - 1, cx + 12, cy + 4))])
+    eyes = unary_union([ring(circle(cx - 8, cy + 3.5, 3.8), rw(1.4)).intersection(box(cx - 12, cy - 1, cx - 3, cy + 4)),
+                        ring(circle(cx + 8, cy + 3.5, 3.8), rw(1.4)).intersection(box(cx + 3, cy - 1, cx + 12, cy + 4))])
     nose = affinity.scale(circle(cx, cy - 3.5, 3), 1.15, 0.8, origin=(cx, cy - 3.5))
     mouth = box(cx - 0.55, cy - 7.5, cx + 0.55, cy - 3.5)
     body = unary_union([head, ears]).difference(cover)
@@ -301,6 +309,9 @@ ANIMALS = {"bear": animal_bear}
 
 # --------------------------------------------------------------- layout ----
 def build(data):
+    global _K
+    size = float(data.get("size", 300))
+    _K = k = size / SIZE
     lang = data.get("lang", "ar")
     rtl = lang == "ar"
     layers = {"base": [], "main": [], "accent": [], "animal": []}
@@ -322,7 +333,7 @@ def build(data):
         for g, z0, z1 in items:
             add(role, g, z0, z1)
     add("base", banner.difference(paws), BASE_H, TOP)  # cream fill hides animal parts behind the cloud
-    add("main", ring(banner, 1.4).difference(paws.buffer(1.0)), BASE_H, TOP)
+    add("main", ring(banner, rw(1.4)).difference(paws.buffer(1.0)), BASE_H, TOP)
     name = data["name"]
     add("main", put_text([(name, 25 if lang == "ar" else 21, "word")], lang, rtl, 0, 49.5, max_width=160), BASE_H, TOP + 0.4)
 
@@ -348,24 +359,55 @@ def build(data):
     order = ["weight", "length", "date", "time"]
     slots = [(66, 14), (-66, 14), (66, -34), (-66, -34)] if rtl else [(-66, 14), (66, 14), (-66, -34), (66, -34)]
     for key, (bx, by) in zip(order, slots):
-        add("main", ring(rrect(bx, by, 124, 40, 10), 1.2), BASE_H, TOP)
+        add("main", ring(rrect(bx, by, 124, 40, 10), rw(1.2)), BASE_H, TOP)
         add("main", affinity.translate(ICONS[key](1.0), bx - 39, by), BASE_H, TOP)
         tx_right, tx_left = bx + 55, bx - 19
         label_font = "ar_label" if rtl else "en_label"
-        lab, _ = text_line([(LABELS[lang][key], 7.5, "word")], lang, rtl)
-        lw = max(lab.bounds[2], 1)
-        scale = min(1, 70 / lw)
-        lab = affinity.scale(lab, scale, scale, origin=(0, 0))
-        x0 = (tx_right - lw * scale) if rtl else tx_left
-        add("main", affinity.translate(lab, x0, by + 6.5), BASE_H, TOP)
-        g = put_text(values[key], lang, rtl, tx_right if rtl else tx_left, by - 13, "right" if rtl else "left", 72)
+        if k >= 0.6:  # labels are too small to print on the S size
+            lab, _ = text_line([(LABELS[lang][key], 7.5, "word")], lang, rtl)
+            lw = max(lab.bounds[2], 1)
+            scale = min(1, 70 / lw)
+            lab = affinity.scale(lab, scale, scale, origin=(0, 0))
+            x0 = (tx_right - lw * scale) if rtl else tx_left
+            add("main", affinity.translate(lab, x0, by + 6.5), BASE_H, TOP)
+        vy = by - 13 if k >= 0.6 else by - 7
+        g = put_text(values[key], lang, rtl, tx_right if rtl else tx_left, vy, "right" if rtl else "left", 72)
         add("main", g, BASE_H, TOP)
 
     # footprint area: raised rim, flat inside for a sticker / ink print
     pad = rrect(0, -97, 124, 62, 12)
-    add("main", ring(pad, 1.2), BASE_H, TOP)
+    add("main", ring(pad, rw(1.2)), BASE_H, TOP)
     add("accent", heart(0, -97, 12), BASE_H, TOP)
-    return layers
+    return {role: [(affinity.scale(g, k, k, origin=(0, 0)), z0, z1) for g, z0, z1 in its]
+            for role, its in layers.items()}
+
+
+# ----------------------------------------------------------------- stand ----
+TILT = 12.0       # degrees the plaque leans back
+SLOT_DEPTH = 14.0
+PLATE_EDGE = BASE_H + FRAME_RAISE   # plaque thickness at the frame
+CLEARANCE = 0.6   # total slot slack
+
+
+def make_foot(size):
+    """One of two feet: a block with a tilted slot the plaque's bottom edge slides into.
+    Returns (mesh, info). Print two. Profile is in YZ (Y = depth, Z up), extruded along X."""
+    k = size / SIZE
+    depth, width, height = 40 + 30 * k, 50 + 20 * k, SLOT_DEPTH + 8
+    t = math.radians(TILT)
+    w = PLATE_EDGE + CLEARANCE
+    y0 = 12 + 8 * k   # slot top-centre, measured from the front of the foot
+    half = w / (2 * math.cos(t))
+    shift = SLOT_DEPTH * math.tan(t)
+    slot = Polygon([(y0 - half, height), (y0 + half, height),
+                    (y0 + half - shift, height - SLOT_DEPTH), (y0 - half - shift, height - SLOT_DEPTH)])
+    profile = box(0, 0, depth, height).difference(slot)
+    m = trimesh.creation.extrude_polygon(profile, width)  # profile x->Y (depth), y->Z (up), extrusion z->X (width)
+    m.apply_transform([[0, 0, 1, -width / 2], [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1]])
+    # stability: plaque centre of mass sits (size/2)*sin(tilt) behind the slot's bottom front edge
+    com_back = size / 2 * math.sin(t)
+    margin = depth - (y0 - shift) - com_back
+    return m, {"depth": depth, "width": width, "height": height, "x": 0.27 * size, "margin": margin}
 
 
 # ---------------------------------------------------------------- output ----
@@ -391,7 +433,7 @@ def to_mesh(items):
     return trimesh.util.concatenate(meshes) if meshes else None
 
 
-def preview(layers, theme, path):
+def preview(layers, theme, path, half=HALF):
     fig, ax = plt.subplots(figsize=(9, 9), dpi=110)
     levels = sorted({(z0, role) for role, its in layers.items() for _, z0, _ in its})
     for z0, role in sorted(levels):
@@ -407,8 +449,8 @@ def preview(layers, theme, path):
                     verts += c
                     codes += [MPath.MOVETO] + [MPath.LINETO] * (len(c) - 2) + [MPath.CLOSEPOLY]
                 ax.add_patch(PathPatch(MPath(verts, codes), fc=THEMES[theme][role], ec="none"))
-    ax.set_xlim(-HALF - 5, HALF + 5)
-    ax.set_ylim(-HALF - 5, HALF + 5)
+    ax.set_xlim(-half - 5, half + 5)
+    ax.set_ylim(-half - 5, half + 5)
     ax.set_aspect("equal")
     ax.axis("off")
     fig.savefig(path, facecolor="#dddddd", bbox_inches="tight")
@@ -424,14 +466,19 @@ def main():
     layers = build(data)
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
-    stem = Path(args.data).stem
+    size = int(data.get("size", 300))
+    stem = f"{Path(args.data).stem}_{size}"
     theme = data.get("theme", "blue")
     for role, items in layers.items():
         m = to_mesh(items)
         if m is not None:
             m.export(out / f"{stem}_{role}.stl")
             print(f"{role}: {len(m.faces)} faces, volume {m.volume:.0f} mm^3")
-    preview(layers, theme, out / f"{stem}.png")
+    preview(layers, theme, out / f"{stem}.png", size / 2)
+    foot, info = make_foot(size)
+    foot.export(out / f"stand_foot_{size}.stl")
+    print(f"stand foot x2: {info['width']:.0f}x{info['depth']:.0f}x{info['height']:.0f} mm, "
+          f"place at x=+/-{info['x']:.0f} mm, stability margin {info['margin']:.0f} mm")
     print("wrote", out / f"{stem}.png")
 
 
