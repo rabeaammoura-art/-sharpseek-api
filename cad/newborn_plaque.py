@@ -31,6 +31,7 @@ HALF = SIZE / 2
 BASE_H = 2.4          # cream base plate
 RAISE = 1.2           # raised detail on the base
 FRAME_RAISE = 1.8
+LIT_BASE_H = 1.2      # thin translucent front plate of the backlit version
 TOP = BASE_H + RAISE  # second-level detail (eyes, muzzle) sits on top of level-1 detail
 FONT_DIR = Path("/usr/share/fonts/truetype/noto")
 FONTS = {
@@ -47,6 +48,7 @@ THEMES = {
     "green":  {"base": "#f5ecd7", "main": "#5b8a72", "accent": "#f0c446", "animal": "#b9c3cc"},
     "pink":   {"base": "#f8ece4", "main": "#d9808c", "accent": "#f4d28a", "animal": "#f3e6d8"},
     "purple": {"base": "#f5ecd7", "main": "#8e739f", "accent": "#f0c446", "animal": "#e8b8c4"},
+    "lit":    {"base": "#ffe9a8", "main": "#2b4666", "accent": "#d9a92e", "animal": "#7a5a3a"},  # simulated glow
 }
 
 ARABIC_DIGITS = str.maketrans("0123456789.", "٠١٢٣٤٥٦٧٨٩٫")
@@ -310,9 +312,12 @@ ANIMALS = {"bear": animal_bear}
 
 # --------------------------------------------------------------- layout ----
 def build(data):
-    global _K
+    global _K, BASE_H, TOP
     size = float(data.get("size", 300))
     _K = k = size / SIZE
+    lit = bool(data.get("lit"))
+    BASE_H = LIT_BASE_H if lit else 2.4
+    TOP = BASE_H + RAISE
     lang = data.get("lang", "ar")
     rtl = lang == "ar"
     layers = {"base": [], "main": [], "accent": [], "animal": []}
@@ -379,8 +384,59 @@ def build(data):
     pad = rrect(0, -97, 124, 62, 12)
     add("main", ring(pad, rw(1.2)), BASE_H, TOP)
     add("accent", heart(0, -97, 12), BASE_H, TOP)
+    if lit:
+        # backlit: coloured parts run through the thin translucent base (so they block the light),
+        # the base keeps holes where they sit
+        inlay = lambda z0: z0 <= BASE_H + 1e-6
+        foot = unary_union([g for role in ("main", "accent", "animal") for g, z0, _ in layers[role] if inlay(z0)])
+        layers["base"] = [(g.difference(foot) if z0 == 0 else g, z0, z1) for g, z0, z1 in layers["base"]]
+        for role in ("main", "accent", "animal"):
+            layers[role] = [(g, 0 if inlay(z0) else z0, z1) for g, z0, z1 in layers[role]]
+    # parts must not share volume: a later colour slot wins where z-ranges overlap
+    order = ["base", "main", "accent", "animal"]
+    for i, role in enumerate(order):
+        resolved = []
+        for g, z0, z1 in layers[role]:
+            for later in order[i + 1:]:
+                for g2, a0, a1 in layers[later]:
+                    if a0 < z1 and a1 > z0:
+                        g = g.difference(g2)
+            resolved.append((g, z0, z1))
+        layers[role] = resolved
     return {role: [(affinity.scale(g, k, k, origin=(0, 0)), z0, z1) for g, z0, z1 in its]
             for role, its in layers.items()}
+
+
+# ------------------------------------------------------------ lit box ----
+BOX_DEPTH, BOX_WALL, BOX_BACK = 25.0, 2.6, 1.2
+
+
+def make_lit_box(size):
+    """Shallow white tray behind the backlit plate: LED strip stuck on its back panel, USB-C slot in the
+    bottom wall, 12 small ledges hold the plate whose front face ends flush with the rim.
+    Printed back panel down. Returns (mesh, info)."""
+    k = size / SIZE
+    half = size / 2 + 0.2                     # plate half-size + clearance
+    r = 30 * k + 0.2
+    outer = rrect(0, 0, 2 * (half + BOX_WALL), 2 * (half + BOX_WALL), r + BOX_WALL)
+    ring = outer.difference(rrect(0, 0, 2 * half, 2 * half, r))
+    plate_t = LIT_BASE_H + FRAME_RAISE
+    ledge_top = BOX_DEPTH - plate_t
+    slot = box(-5, -half - BOX_WALL - 1, 5, -half + 1)
+    z0, z1 = 10.0, 14.5                       # USB-C slot height band
+    tabs = unary_union([t for off in (-0.33 * size, 0, 0.33 * size) for t in (
+        box(off - 15, -half - 0.1, off + 15, -half + 2.5), box(off - 15, half - 2.5, off + 15, half + 0.1),
+        box(-half - 0.1, off - 15, -half + 2.5, off + 15), box(half - 2.5, off - 15, half + 0.1, off + 15))])
+    cuts = sorted({0, BOX_BACK, z0, z1, ledge_top - 2.0, ledge_top, BOX_DEPTH})
+    meshes = []
+    for a, b in zip(cuts, cuts[1:]):       # one extrusion per slab, so no part overlaps another
+        mid = (a + b) / 2
+        g = outer if mid < BOX_BACK else (ring.difference(slot) if z0 < mid < z1 else ring)
+        if ledge_top - 2.0 < mid < ledge_top:
+            g = g.union(tabs)
+        meshes += extrude(g, a, b)
+    mesh = trimesh.util.concatenate(meshes)
+    return mesh, {"outer": 2 * (half + BOX_WALL), "depth": BOX_DEPTH}
 
 
 # ----------------------------------------------------------------- stand ----
@@ -618,6 +674,9 @@ def main():
     size = int(data.get("size", 300))
     stem = f"{Path(args.data).stem}_{size}"
     theme = data.get("theme", "blue")
+    if data.get("lit"):
+        stem += "_lit"
+        theme = "lit"
     parts = []
     for slot, role in enumerate(("base", "main", "accent", "animal"), start=1):
         m = to_mesh(layers[role])
@@ -629,7 +688,11 @@ def main():
                     project_settings=(Path(__file__).parent / "config" / "bambu_project_settings.config").read_bytes())
     print("wrote", out / f"{stem}.3mf")
     preview(layers, theme, out / f"{stem}.png", size / 2)
-    if data.get("stand", "feet") == "clip":
+    if data.get("lit"):
+        box_mesh, info = make_lit_box(size)
+        box_mesh.export(out / f"lit_box_{size}.stl")
+        print(f"lit box: {info['outer']:.0f}x{info['outer']:.0f}x{info['depth']:.0f} mm; LED strip on its back panel, USB-C slot in the bottom wall")
+    elif data.get("stand", "feet") == "clip":
         clip, leg, info, world = make_clip_stand(size)
         clip.export(out / f"clip_{size}.stl")
         leg.export(out / f"clip_leg_{size}.stl")

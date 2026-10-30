@@ -115,13 +115,25 @@ def main():
     process["curr_bed_type"] = a.plate
     if a.support:
         process.update(enable_support="1", support_type="tree(auto)")
-    filaments = a.filament or ["Bambu ASA @BBL H2D 0.4 nozzle"]
+    # "profile name=Sheet type" prices a slot with another stock-sheet type, e.g.
+    # "Bambu PLA Basic @BBL H2D=Walnut PLA" (printed with the PLA profile, priced as Walnut PLA)
+    parsed = [(f.partition("=")[0].strip(), f.partition("=")[2].strip() or None)
+              for f in (a.filament or ["Bambu ASA @BBL H2D 0.4 nozzle"])]
+    filaments = [p for p, _ in parsed]
+    overrides = [t for _, t in parsed]
     if a.price_kg is not None:
         slot_prices = [a.price_kg] * len(filaments)
         print(f"prices: {a.price_kg:.3f} JOD/kg (--price-kg)")
     else:
         sheet = load_prices(a.prices_file)
-        resolved = [price_for(f, sheet) for f in filaments]
+        resolved = []
+        for fname, override in zip(filaments, overrides):
+            if override is None:
+                resolved.append(price_for(fname, sheet))
+            elif override in sheet:
+                resolved.append((override, sheet[override]))
+            else:
+                raise SystemExit(f"'{override}' is not in the price sheet (have: {', '.join(sheet)})")
         slot_prices = [p for _, p in resolved]
         print("prices (landed, from stock sheet): " + ", ".join(sorted({f"{t} {p:.3f} JOD/kg" for t, p in resolved})))
     for name, d in (("machine", machine), ("process", process)):
