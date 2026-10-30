@@ -13,7 +13,7 @@ LINES=[(math.radians(float(a)),float(b)) for a,b in (s.split(",") for s in sys.a
 PXMM=5.0                                                   # 5 px per mm  (0.2 mm / px)
 param=int(round(LEN_CM*10*PXMM))                           # stl_to_mask scales to this many px
 subprocess.run(["python3","stl_to_mask.py",str(param)],check=True,capture_output=True)
-mat=np.load(f"e30_ref/mask_{param}.npy"); H,W=mat.shape
+mat=np.load(f"e30_ref/{os.environ.get('MASKPFX','')}mask_{param}.npy"); H,W=mat.shape
 T=4.0; CLR=0.2; TW,TH=32.0,31.5; MAXJ=3; MINSP=6.0     # thickness, clearance (mm), bed (cm), joints per seam, min spacing (cm)
 xs=(np.arange(W)+0.5)/(PXMM*10); ys=(H-0.5-np.arange(H))/(PXMM*10)            # cm
 from scipy import ndimage as ndi
