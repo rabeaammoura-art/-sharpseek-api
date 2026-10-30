@@ -470,6 +470,82 @@ def make_easel(size):
     return bracket, leg, info, world
 
 
+CLIP_OPEN = 30.0  # leg opens less than the glued easel so the folded leg barely overhangs the bottom edge
+CLIP_PIVOT = 0.75  # pivot height as a fraction of the plaque, measured from the bottom edge
+
+
+def make_clip_stand(size):
+    """Side clip + folding leg. The C-shaped clip snaps onto the plaque's right edge (over the 12 mm
+    frame band, 4.2 mm thick); two ears carry an M3 bolt; the leg folds flat along the back and stops
+    at CLIP_OPEN degrees. Clip is printed with its C profile on the bed; the leg lies flat.
+    Returns (clip_mesh, leg_mesh, info, world polygons for the side view)."""
+    k = size / SIZE
+    t, th = math.radians(TILT), math.radians(CLIP_OPEN)
+    beta = th - t
+    vp, jaw, bar, hole, boss = 8.0, 3.0, 3.5, 1.75, 4.0
+    w_leg, ear, slack = 10.0, 3.0, 0.6
+    gap = PLATE_EDGE + 0.3              # slot between the jaws
+    front_t, clip_len = 1.6, 30.0
+    xc = -4.0                           # leg centre across the band (edge at x=0, plate interior x<0)
+    s = CLIP_PIVOT * size
+    q = (s * math.sin(t), s * math.cos(t))
+    vx = (math.cos(t), -math.sin(t))
+    ux = (-math.sin(t), -math.cos(t))
+    pivot = (q[0] + vp * vx[0], q[1] + vp * vx[1])
+    tail = (vp - jaw - bar / 2 * math.cos(th)) / math.sin(th)
+
+    def a_end(b):
+        return (pivot[1] + b * math.sin(beta)) / math.cos(beta)
+
+    leg2d = Polygon([(-tail, -bar / 2), (a_end(-bar / 2), -bar / 2), (a_end(bar / 2), bar / 2), (-tail, bar / 2)])
+    leg2d = leg2d.union(circle(0, 0, boss)).difference(circle(0, 0, hole))
+    leg = trimesh.creation.extrude_polygon(leg2d, w_leg)
+
+    # clip, in (x across the plaque, y along the edge, v out of the back); built then permuted to print frame
+    xmax = xc + w_leg / 2 + slack + ear
+    profile = unary_union([
+        box(-13, 0, xmax, jaw),                       # back jaw (covers the whole 12 mm band)
+        box(-5, -gap - front_t, xmax, -gap),          # front lip
+        box(0, -gap - front_t, xmax, jaw),            # spine
+        box(-10.5, -0.25, -8.5, 0), box(-4, -gap, -2, -gap + 0.25)])  # grip ridges
+    body = trimesh.creation.extrude_polygon(profile, clip_len)       # (x, v) extruded along +z' = y
+    body.apply_translation([0, 0, -clip_len / 2])
+    ear2d = circle(0, vp, 4.5).union(box(-4.5, jaw - 0.1, 4.5, vp)).difference(circle(0, vp, hole))
+    parts = [body]
+    for x0 in (xc - w_leg / 2 - slack - ear, xc + w_leg / 2 + slack):
+        e = trimesh.creation.extrude_polygon(ear2d, ear)             # (y, v) extruded along z' = x
+        e.apply_transform([[0, 0, 1, x0], [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1]])
+        parts.append(e)
+    # body is (X=x, Y=v, Z=y); bring the ears into the same frame: ears are (X=x, Y=v, Z=y)
+    for e in parts[1:]:
+        e.apply_transform([[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]])
+        e.invert()
+    clip = trimesh.util.concatenate(parts)
+    clip.apply_translation([-clip.bounds[0][0], -clip.bounds[0][1], -clip.bounds[0][2]])
+
+    length = a_end(0)
+    foot_y = pivot[0] + length * math.sin(beta)
+    com_y = size / 2 * math.sin(t)
+
+    def world_uv(u, v):
+        return (q[0] + u * ux[0] + v * vx[0], q[1] + u * ux[1] + v * vx[1])
+
+    def leg_world(g):
+        return Polygon([world_uv(a * math.cos(th) - b * math.sin(th), vp + a * math.sin(th) + b * math.cos(th))
+                        for a, b in g.exterior.coords])
+
+    world = {
+        "plate": Polygon([world_uv(u, v) for u, v in [(s, 0), (s, -PLATE_EDGE), (-(size - s), -PLATE_EDGE), (-(size - s), 0)]]),
+        "bracket": unary_union([Polygon([world_uv(u, v) for u, v in g.exterior.coords])
+                                for g in (box(-clip_len / 2, -gap - front_t, clip_len / 2, jaw), ear2d)]),
+        "leg": leg_world(leg2d),
+    }
+    info = {"length": length, "width": w_leg, "clip": (clip_len, xmax + 13, jaw + gap + front_t),
+            "pivot_from_bottom": s, "foot_y": foot_y, "margin": foot_y - com_y,
+            "overhang": length + tail * 0 - s, "xc": xc, "tail": tail}
+    return clip, leg, info, world
+
+
 def easel_view(world, path, size):
     fig, ax = plt.subplots(figsize=(7, 7), dpi=100)
     for name, fc in (("plate", "#3e628a"), ("bracket", "#c8a078"), ("leg", "#d9808c")):
@@ -553,7 +629,16 @@ def main():
                     project_settings=(Path(__file__).parent / "config" / "bambu_project_settings.config").read_bytes())
     print("wrote", out / f"{stem}.3mf")
     preview(layers, theme, out / f"{stem}.png", size / 2)
-    if data.get("stand", "feet") == "feet":
+    if data.get("stand", "feet") == "clip":
+        clip, leg, info, world = make_clip_stand(size)
+        clip.export(out / f"clip_{size}.stl")
+        leg.export(out / f"clip_leg_{size}.stl")
+        easel_view(world, out / f"clip_side_{size}.png", size)
+        print(f"clip stand: clip {info['clip'][0]:.0f}x{info['clip'][1]:.0f}x{info['clip'][2]:.0f} mm on the right edge, "
+              f"pivot {info['pivot_from_bottom']:.0f} mm from the bottom; leg {info['length']:.0f}x{info['width']:.0f} mm "
+              f"(folded it overhangs the bottom edge by {info['overhang']:.0f} mm); foot {info['foot_y']:.0f} mm behind, "
+              f"stability margin {info['margin']:.0f} mm; needs an M3 bolt + nut")
+    elif data.get("stand", "feet") == "feet":
         foot, info = make_foot(size)
         foot.export(out / f"stand_foot_{size}.stl")
         print(f"stand foot x2: {info['width']:.0f}x{info['depth']:.0f}x{info['height']:.0f} mm, "
