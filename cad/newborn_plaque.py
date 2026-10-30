@@ -547,7 +547,7 @@ def main():
             m.export(out / f"{stem}_{role}.stl")
             print(f"{role}: {len(m.faces)} faces, volume {m.volume:.0f} mm^3")
     preview(layers, theme, out / f"{stem}.png", size / 2)
-    if data.get("stand", "easel") == "feet":
+    if data.get("stand", "feet") == "feet":
         foot, info = make_foot(size)
         foot.export(out / f"stand_foot_{size}.stl")
         print(f"stand foot x2: {info['width']:.0f}x{info['depth']:.0f}x{info['height']:.0f} mm, "
