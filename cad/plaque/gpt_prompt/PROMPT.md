@@ -171,7 +171,7 @@ yellow AD-PETG Translucent Yellow; bear AD-PETG Translucent Orange.
 
 ---
 
-## Real render from the 3MF file (glow_cap), several angles
+## Real render from the 3MF file (glow_cap), 3 angles
 
 Attach `glowcap_plaque_en_300.3mf` (or the Arabic one), then paste:
 
@@ -186,16 +186,13 @@ accent (moon, stars, heart) = translucent yellow; animal (bear) = translucent or
 Scene: the plaque stands upright on a light wooden shelf, leaning back about 12 degrees, a slim matte white box about 14 mm deep
 behind it with a thin white USB-C cable, a blurred cosy nursery in the background (crib, small plant), soft daylight.
 
-Give me 6 separate images of the same plaque, all in the same scene:
+Give me 3 separate images of the same plaque, all in the same scene:
 1. Front view, straight on, switched OFF in daylight.
 2. Front view, straight on, switched ON in a dark room: only the translucent parts glow in their own colour (the frame stays unlit),
    the cream base stays dark, with a soft colour halo on the wall and shelf.
-3. Three-quarter view from the left (about 45 degrees), switched ON.
-4. Three-quarter view from the right (about 45 degrees), switched ON.
-5. Close-up of the name cloud, text and the first two badges, switched ON, showing the raised edges and the glow.
-6. Side view from the right showing the thickness of the plaque, the raised parts and the box behind, switched OFF.
+3. Three-quarter view from the left (about 45 degrees), switched ON, so the raised edges and the box behind are visible.
 
 Keep the same camera distance, lighting and background style across the images. No hands, no logo, no watermark.
 ```
 
-Tip: if GPT returns only one image, send "continue with image 2", then 3, 4, 5, 6.
+Tip: if GPT returns only one image, send "continue with image 2", then 3.
