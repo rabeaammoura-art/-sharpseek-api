@@ -11,3 +11,5 @@
   all colours on one nozzle (Manual map), skirt off, brim off (they leave the bed beside a big plate), tower brim 0.
 - JSON keys of the generator: `plate_x`, `plate_y` position the plate on the bed (default 162.5, 160).
 - The GUI may place the tower differently from the CLI: re-check in Bambu Studio when the printer arrives.
+
+- **Decision: largest size is now 280 mm** (300 + tower does not fit). Sizes 150 / 200 / 280. Rails need a frame band >= ~11 mm (280+).

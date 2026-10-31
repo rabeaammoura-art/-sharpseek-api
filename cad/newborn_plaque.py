@@ -253,6 +253,11 @@ def add_ribs(poly, k, max_span=20.0, pitch=14.0, width=1.4):
     return poly.difference(unary_union(ribs))
 
 
+def fix(g):
+    """A valid polygon geometry (scaling and boolean operations can leave self-touching rings)."""
+    return g if g.is_valid else only_polygons(shapely.make_valid(g))
+
+
 def ring(geom, width):
     """Outline of width `width` hugging the inside of geom."""
     return geom.difference(geom.buffer(-width, 12))
@@ -506,7 +511,7 @@ def build(data):
                         g = g.difference(g2)
             resolved.append((g, z0, z1))
         layers[role] = resolved
-    return {role: [(affinity.scale(g, k, k, origin=(0, 0)), z0, z1) for g, z0, z1 in its]
+    return {role: [(fix(affinity.scale(g, k, k, origin=(0, 0))), z0, z1) for g, z0, z1 in its]
             for role, its in layers.items()}
 
 
@@ -644,18 +649,24 @@ TAB_LEN = 14.0                 # = bridge height, so the tabs reach down to the 
 
 
 def rail_cutters(size):
-    """(opening, cavity) polygons of the two rails in plaque coordinates."""
-    if abs(size - SIZE) > 1e-6:
-        raise ValueError("rails need the 300 mm plaque (the frame band is only 12 mm wide)")
-    y_top = -SIZE / 2 + RAIL_PIVOT * size + TAB_LEN / 2 + 0.3
-    return (unary_union([box(sx * RAIL_X - RAIL_OPEN_W / 2, -SIZE, sx * RAIL_X + RAIL_OPEN_W / 2, y_top) for sx in (-1, 1)]),
-            unary_union([box(sx * RAIL_X - RAIL_CAV_W / 2, -SIZE, sx * RAIL_X + RAIL_CAV_W / 2, y_top) for sx in (-1, 1)]))
+    """(opening, cavity) polygons of the two rails, in the plaque's design space (it is scaled by size/300 afterwards).
+    Positions scale with the plaque; widths and clearances stay in real millimetres."""
+    k = size / SIZE
+    if 12 * k < 10.9:
+        raise ValueError("rails need a frame band of at least ~11 mm, i.e. a plaque of 275 mm or more")
+    y_top = -SIZE / 2 + RAIL_PIVOT * SIZE + (TAB_LEN / 2 + 0.3) / k
+    def rails(width):
+        w = width / k
+        return unary_union([box(sx * RAIL_X - w / 2, -SIZE, sx * RAIL_X + w / 2, y_top) for sx in (-1, 1)])
+    return rails(RAIL_OPEN_W), rails(RAIL_CAV_W)
 
 
 def make_bridge(size):
     """Bridge with a T-tab at each end (slides up the rails from the bottom) and the hinge ears of a folding leg
     in the middle. Printed standing on its 3 mm edge (no overhangs, no supports). Returns (bridge, leg, info, world)."""
     rail_cutters(size)  # size check
+    k = size / SIZE
+    rail_x = RAIL_X * k
     _, leg, info, world = make_easel(size, CLIP_OPEN, RAIL_PIVOT)
     vp, jaw, hole = 9.0, 3.0, 1.75
     half_u = 7.0
@@ -666,10 +677,10 @@ def make_bridge(size):
     def block(sx, sy, sz, cx, cy):
         return trimesh.creation.box((sx, sy, sz), transform=trimesh.transformations.translation_matrix((cx, cy, zc)))
 
-    parts = [block(2 * RAIL_X + 6, jaw, 2 * half_u, 0, jaw / 2)]
+    parts = [block(2 * rail_x + 6, jaw, 2 * half_u, 0, jaw / 2)]
     for sx in (-1, 1):
-        parts.append(block(neck_w, neck_h, TAB_LEN, sx * RAIL_X, -neck_h / 2))
-        parts.append(block(head_w, head_top - neck_h, TAB_LEN, sx * RAIL_X, -(neck_h + head_top) / 2))
+        parts.append(block(neck_w, neck_h, TAB_LEN, sx * rail_x, -neck_h / 2))
+        parts.append(block(head_w, head_top - neck_h, TAB_LEN, sx * rail_x, -(neck_h + head_top) / 2))
     ear2d = circle(0, vp, 6).union(box(-half_u, jaw - 0.1, half_u, vp)).difference(circle(0, vp, hole))   # reaches the bed
     w_leg, ear, slack = info["width"], 3.0, 0.6
     for x0 in (-(w_leg / 2 + slack + ear), w_leg / 2 + slack):
@@ -679,7 +690,7 @@ def make_bridge(size):
             e.invert()
         parts.append(e)
     bridge = merge_solids(parts)
-    info = dict(info, tab_clearance=RAIL_TOL, bridge=(2 * RAIL_X + 6, 2 * half_u, jaw))
+    info = dict(info, tab_clearance=RAIL_TOL, bridge=(2 * rail_x + 6, 2 * half_u, jaw))
     return bridge, leg, info, world
 
 
@@ -906,7 +917,7 @@ def main():
             m.export(out / f"{stem}_{role}.stl")
             print(f"{role}: {len(m.faces)} faces, volume {m.volume:.0f} mm^3")
             parts.append((role, m, slot))
-    write_bambu_3mf(out / f"{stem}.3mf", parts, center=(data.get("plate_x", 162.5), data.get("plate_y", 160.0)), name=stem,
+    write_bambu_3mf(out / f"{stem}.3mf", parts, center=(data.get("plate_x", 4 + size / 2), data.get("plate_y", 160.0)), name=stem,
                     project_settings=(Path(__file__).parent / "config" / "bambu_project_settings.config").read_bytes())
     print("wrote", out / f"{stem}.3mf")
     preview(layers, theme, out / f"{stem}.png", size / 2)
