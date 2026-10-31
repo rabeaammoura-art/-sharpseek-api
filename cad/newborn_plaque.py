@@ -33,14 +33,14 @@ RAISE = 1.2           # raised detail on the base
 FRAME_RAISE = 1.8
 LIT_BASE_H = 1.2      # thin translucent front plate of the backlit version
 TOP = BASE_H + RAISE  # second-level detail (eyes, muzzle) sits on top of level-1 detail
-FONT_DIR = Path("/usr/share/fonts/truetype/noto")
+FONT_DIR = Path(__file__).parent / "fonts"   # bundled, so it works on Windows/macOS/Linux
 FONTS = {
     "ar": FONT_DIR / "NotoKufiArabic-Bold.ttf",
     "ar_label": FONT_DIR / "NotoKufiArabic-Regular.ttf",
     "en": FONT_DIR / "NotoSans-Bold.ttf",
     "en_label": FONT_DIR / "NotoSans-Regular.ttf",
 }
-FALLBACK_EN = Path("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf")
+FALLBACK_EN = Path("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf")  # only used if a bundled font is missing
 
 # preview colours only -- the real filament is chosen in the slicer
 THEMES = {
@@ -667,7 +667,7 @@ def main():
     ap.add_argument("data")
     ap.add_argument("--out", default="out/plaque")
     args = ap.parse_args()
-    data = json.load(open(args.data))
+    data = json.load(open(args.data, encoding="utf-8"))
     layers = build(data)
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
