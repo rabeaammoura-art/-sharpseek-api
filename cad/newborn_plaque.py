@@ -442,6 +442,12 @@ def build(data):
     pad = rrect(0, -97, 124, 62, 12)
     add("main", ring(pad, rw(1.2)), BASE_H, TOP)
     add("accent", heart(0, -97, 12), BASE_H, TOP)
+    if data.get("stand") == "rails":
+        # T-shaped rails recessed in the two side frame bands (see STANDS.md): cut the base and the frame ring
+        opening, cavity = rail_cutters(size)
+        (plate0, p0, p1), (ring0, r0, r1) = layers["base"][0], layers["main"][0]
+        layers["base"][0:1] = [(plate0.difference(opening), p0, RAIL_OPEN_H), (plate0.difference(cavity), RAIL_OPEN_H, p1)]
+        layers["main"][0:1] = [(ring0.difference(cavity), r0, RAIL_CAV_TOP), (ring0, RAIL_CAV_TOP, r1)]
     if data.get("glow_cap"):
         # backlit, cheap in colour changes: the opaque base (one colour) only gets openings; each translucent part
         # is printed on top of its opening, resting on the rim of the base around it. The frame band stays
@@ -569,18 +575,18 @@ def make_foot(size):
 OPEN = 45.0       # degrees the easel leg opens from the plaque's back
 
 
-def make_easel(size):
+def make_easel(size, open_deg=None, pivot_frac=0.62):
     """Folding easel leg like a photo frame: a bracket glued to the back (two ears) and a
     leg that pivots on an M3 bolt, folds flat and stops at OPEN degrees.
     Both parts are printed on their side (profile on the bed, hole vertical).
     Returns (bracket_mesh, leg_mesh, info, world polygons for the side view)."""
     k = size / SIZE
-    t, th = math.radians(TILT), math.radians(OPEN)
+    t, th = math.radians(TILT), math.radians(OPEN if open_deg is None else open_deg)
     beta = th - t                       # leg angle from vertical
     vp, pad_t, bar, hole, boss = 9.0, 3.0, 4.0, 1.75, 5.0
     w_leg, ear, slack = 14 + 10 * k, 4.0, 0.6
     pad_l, pad_w = 36 * max(k, 0.7), w_leg + 2 * (slack + ear) + 8
-    s = 0.62 * size                     # pivot line, measured up the plaque from its bottom edge
+    s = pivot_frac * size               # pivot line, measured up the plaque from its bottom edge
     q = (s * math.sin(t), s * math.cos(t))          # point on the back surface (world y, z)
     vx = (math.cos(t), -math.sin(t))                # out of the back
     ux = (-math.sin(t), -math.cos(t))               # down the plaque
@@ -623,6 +629,58 @@ def make_easel(size):
     info = {"length": length, "width": w_leg, "pad": (pad_l, pad_w), "pivot_from_bottom": s,
             "foot_y": foot_y, "margin": foot_y - com_y, "tail": tail}
     return bracket, leg, info, world
+
+
+# ------------------------------------------------------------- rails ----
+# Two T-shaped rails recessed in the frame bands (open at the bottom end) take the ends of a separate bridge that
+# carries a folding leg in the middle. The frame band is 4.2 mm thick: opening 5 mm for z 0-1.0 (back face on the bed),
+# cavity 8 mm for z 1.0-2.8, 1.4 mm ceiling skin. RAIL_TOL is the clearance per side: change it after the first print.
+RAIL_TOL = 0.2
+RAIL_X = 144.0                 # rail centre line (middle of the 12 mm band)
+RAIL_OPEN_W, RAIL_OPEN_H = 5.0, 1.0
+RAIL_CAV_W, RAIL_CAV_TOP = 8.0, 2.8
+RAIL_PIVOT = 0.75              # bridge (hinge) height as a fraction of the plaque, from the bottom edge
+TAB_LEN = 14.0                 # = bridge height, so the tabs reach down to the bed when printed standing on its edge
+
+
+def rail_cutters(size):
+    """(opening, cavity) polygons of the two rails in plaque coordinates."""
+    if abs(size - SIZE) > 1e-6:
+        raise ValueError("rails need the 300 mm plaque (the frame band is only 12 mm wide)")
+    y_top = -SIZE / 2 + RAIL_PIVOT * size + TAB_LEN / 2 + 0.3
+    return (unary_union([box(sx * RAIL_X - RAIL_OPEN_W / 2, -SIZE, sx * RAIL_X + RAIL_OPEN_W / 2, y_top) for sx in (-1, 1)]),
+            unary_union([box(sx * RAIL_X - RAIL_CAV_W / 2, -SIZE, sx * RAIL_X + RAIL_CAV_W / 2, y_top) for sx in (-1, 1)]))
+
+
+def make_bridge(size):
+    """Bridge with a T-tab at each end (slides up the rails from the bottom) and the hinge ears of a folding leg
+    in the middle. Printed standing on its 3 mm edge (no overhangs, no supports). Returns (bridge, leg, info, world)."""
+    rail_cutters(size)  # size check
+    _, leg, info, world = make_easel(size, CLIP_OPEN, RAIL_PIVOT)
+    vp, jaw, hole = 9.0, 3.0, 1.75
+    half_u = 7.0
+    neck_w, neck_h = RAIL_OPEN_W - 2 * RAIL_TOL, RAIL_OPEN_H + RAIL_TOL
+    head_w, head_top = RAIL_CAV_W - 2 * RAIL_TOL, RAIL_CAV_TOP - RAIL_TOL
+    zc = half_u                                   # print frame: X across, Y out of the back (tabs are -Y), Z = u + 7
+
+    def block(sx, sy, sz, cx, cy):
+        return trimesh.creation.box((sx, sy, sz), transform=trimesh.transformations.translation_matrix((cx, cy, zc)))
+
+    parts = [block(2 * RAIL_X + 6, jaw, 2 * half_u, 0, jaw / 2)]
+    for sx in (-1, 1):
+        parts.append(block(neck_w, neck_h, TAB_LEN, sx * RAIL_X, -neck_h / 2))
+        parts.append(block(head_w, head_top - neck_h, TAB_LEN, sx * RAIL_X, -(neck_h + head_top) / 2))
+    ear2d = circle(0, vp, 6).union(box(-half_u, jaw - 0.1, half_u, vp)).difference(circle(0, vp, hole))   # reaches the bed
+    w_leg, ear, slack = info["width"], 3.0, 0.6
+    for x0 in (-(w_leg / 2 + slack + ear), w_leg / 2 + slack):
+        e = merge_solids(extrude(ear2d, 0, ear))                       # (u, v) extruded along z' = x
+        e.apply_transform([[0, 0, 1, x0], [0, 1, 0, 0], [1, 0, 0, zc], [0, 0, 0, 1]])
+        if e.volume < 0:                                               # the axis swap flips the winding
+            e.invert()
+        parts.append(e)
+    bridge = merge_solids(parts)
+    info = dict(info, tab_clearance=RAIL_TOL, bridge=(2 * RAIL_X + 6, 2 * half_u, jaw))
+    return bridge, leg, info, world
 
 
 CLIP_OPEN = 30.0  # leg opens less than the glued easel so the folded leg barely overhangs the bottom edge
@@ -857,6 +915,15 @@ def main():
         box_mesh, info = make_lit_box(size, glow=is_glow)
         box_mesh.export(out / (f"glow_box_{size}.stl" if is_glow else f"lit_box_{size}.stl"))
         print(f"lit box: {info['outer']:.0f}x{info['outer']:.0f}x{info['depth']:.0f} mm; LED strip on its back panel, USB-C slot in the bottom wall")
+    elif data.get("stand") == "rails":
+        bridge, leg, info, world = make_bridge(size)
+        bridge.export(out / f"bridge_{size}.stl")
+        leg.export(out / f"bridge_leg_{size}.stl")
+        easel_view(world, out / f"bridge_side_{size}.png", size)
+        print(f"rails: bridge {info['bridge'][0]:.0f}x{info['bridge'][1]:.0f}x{info['bridge'][2]:.0f} mm (print standing on its edge), "
+              f"leg {info['length']:.0f}x{info['width']:.0f} mm, hinge {info['pivot_from_bottom']:.0f} mm above the bottom edge, "
+              f"foot {info['foot_y']:.0f} mm behind, stability margin {info['margin']:.0f} mm, tab clearance {info['tab_clearance']} mm; "
+              f"needs an M3 bolt + nut")
     elif data.get("stand", "feet") == "clip":
         clip, leg, info, world = make_clip_stand(size)
         clip.export(out / f"clip_{size}.stl")

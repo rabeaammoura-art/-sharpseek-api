@@ -30,7 +30,7 @@ Update it whenever an idea is built, tested, accepted or rejected. Code lives in
 | T-slot in plate back | dovetail recess in the back, bracket slides in | no glue | needs base ~4 mm thick (+~100 g at 300) | rejected (cost) |
 | heat-set inserts in frame band | M2.5x3 brass inserts in 4.2 mm band, bracket screwed on | strong, removable, no glue | needs soldering iron + tips (Temu kit), only 3 mm inserts fit, 1.2 mm front skin may mark, labour per plaque | discussed; user said do the plaque only, stand later |
 | `slots` (user idea) | two long pockets in the frame bands, each with a **print-in-place folding leg** | no glue, one piece, symmetric, ~0 extra cost/time (legs in base colour, no colour change), folds flat inside the pocket | PIP hinge pin ~2 mm between thin 1.4 mm walls (weakest point), 0.4 mm gaps may fuse, ceiling skin bridges ~9 mm over the leg, band walls thin (maybe widen frame 12 -> 14 mm), 24 deg open angle needed so the 240 mm leg fits | **not built**; numbers in the chat: pivot 240 mm up, leg 240x8x2.4, foot ~100 mm behind, margin ~69 mm |
-| `rails` (user idea, newest) | two **long T/dovetail rails** recessed in the frame bands (one per side, open at the bottom end); a separate printed **bridge** spans the back from side to side with a T-tab at each end that slides into the rails; the leg is on the bridge | no glue, no thicker base (uses the existing 4.2 mm band), bridge+leg is one accessory printed in any orientation (hinge can be M3 bolt or print-in-place), **central leg = symmetric**, **height/angle adjustable** by sliding, removable, ships flat | 2 pieces (plaque + bridge), rail walls thin (cavity ~8 mm in a 12 mm band, opening ~5 mm), retention is friction only unless a detent is added, bar ~300 mm long (flexible), unknown tolerances | **not built**; idea to evaluate |
+| `rails` (user idea, newest) | two **long T/dovetail rails** recessed in the frame bands (one per side, open at the bottom end); a separate printed **bridge** spans the back from side to side with a T-tab at each end that slides into the rails; the leg is on the bridge | no glue, no thicker base (uses the existing 4.2 mm band), bridge+leg is one accessory printed in any orientation (hinge can be M3 bolt or print-in-place), **central leg = symmetric**, **height/angle adjustable** by sliding, removable, ships flat | 2 pieces (plaque + bridge), rail walls thin (cavity ~8 mm in a 12 mm band, opening ~5 mm), retention is friction only unless a detent is added, bar ~300 mm long (flexible), unknown tolerances | **BUILT** (`"stand": "rails"`, 300 mm only): exact clearance 0.200 mm, zero interference (measured on cross-sections); bridge 14x294x3 mm standing on its edge 19 min 12 g + leg 25 min 18 g (PLA, single colour, reliable); the rails add 0 time to the plaque. Not print-tested (no printer). M3 bolt + nut for the hinge |
 
 ## Notes on `rails` (to design next)
 
@@ -44,6 +44,13 @@ Update it whenever an idea is built, tested, accepted or rejected. Code lives in
   open angle 24-30 deg like `clip`). Overhang of the folded leg below the plate bottom is ~5 mm at 30 deg.
 - Open questions: detent design, rail tolerance (0.3-0.4 mm?) — only the printer can answer. Keep tolerance a parameter.
 
+## Estimation warning (important)
+
+Multi-colour slices **without a prime tower are unreliable**: on a re-run the standard 300 mm plaque gave 21 million g
+for one colour (meshes were fine). Earlier 300 mm multi-colour times/costs (4h47 etc.) must not be quoted as facts.
+With the tower enabled (`--tower-x`) the 150/200 mm numbers look sane, but a 300 mm plate + tower conflicts on the H2D
+bed. Single-colour parts (stands, boxes) are reliable.
+
 ## Decision log
 
 - Feet first (no glue). User: "not suitable at all" (separate pieces, shape, not folding, cost/time).
@@ -53,6 +60,6 @@ Update it whenever an idea is built, tested, accepted or rejected. Code lives in
 
 ## Next actions (when the user says go)
 
-1. Implement `stand: "rails"` (rails in the frame band + bridge + leg), software-checked like `check_plaque.py`.
+1. ~~Implement `stand: "rails"`~~ done (see table). Next: a detent/stop for the bridge if friction is not enough (after the first print).
 2. Implement `stand: "slots"` only if `rails` fails.
 3. Generate small test coupons (frame-band piece + tab) so the first print is cheap, **after the printer arrives**.
