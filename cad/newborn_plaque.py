@@ -32,6 +32,7 @@ HALF = SIZE / 2
 BASE_H = 2.4          # cream base plate
 RAISE = 1.2           # raised detail on the base
 FRAME_RAISE = 1.8
+CAP_OVERLAP = 0.4     # mm: each part rests on this much of base around its (smaller) opening
 LIT_BASE_H = 1.2      # thin translucent front plate of the backlit version
 TOP = BASE_H + RAISE  # second-level detail (eyes, muzzle) sits on top of level-1 detail
 FONT_DIR = Path(__file__).parent / "fonts"   # bundled, so it works on Windows/macOS/Linux
@@ -393,6 +394,26 @@ def build(data):
     pad = rrect(0, -97, 124, 62, 12)
     add("main", ring(pad, rw(1.2)), BASE_H, TOP)
     add("accent", heart(0, -97, 12), BASE_H, TOP)
+    if data.get("glow_cap"):
+        # backlit, cheap in colour changes: the opaque base (one colour) only gets openings; each translucent part
+        # is printed on top of its opening, resting on the rim of the base around it. The frame band stays
+        # a plain raised band (nothing could hold it up over an opening).
+        plate_g = layers["base"][0][0]
+        openings = []
+        for role in ("main", "accent", "animal"):
+            capped = []
+            for i, (g, z0, z1) in enumerate(layers[role]):
+                if role == "main" and i == 0:
+                    capped.append((g, z0, z1))
+                elif abs(z0 - BASE_H) < 1e-6:
+                    hole = g.buffer(-CAP_OVERLAP / k, join_style=1)   # opening a bit smaller than the part itself
+                    if not hole.is_empty:
+                        openings.append(hole)
+                    capped.append((g, z0, z1))
+                else:
+                    capped.append((g, z0, z1))
+            layers[role] = capped
+        layers["base"][0] = (only_polygons(plate_g.difference(unary_union(openings))), 0, BASE_H)
     if glow:
         # backlit coloured glass: opaque base, every coloured part flush with it and through its full thickness
         plate_g = layers["base"][0][0]                 # the first base item is the plate itself
@@ -734,8 +755,8 @@ def main():
     if data.get("lit"):
         stem += "_lit"
         theme = "lit"
-    elif data.get("glow"):
-        stem += "_glow"
+    elif data.get("glow") or data.get("glow_cap"):
+        stem += "_glow" if data.get("glow") else "_glowcap"
         theme = "glow"
     parts = []
     for slot, role in enumerate(("base", "main", "accent", "animal"), start=1):
@@ -748,9 +769,10 @@ def main():
                     project_settings=(Path(__file__).parent / "config" / "bambu_project_settings.config").read_bytes())
     print("wrote", out / f"{stem}.3mf")
     preview(layers, theme, out / f"{stem}.png", size / 2)
-    if data.get("lit") or data.get("glow"):
-        box_mesh, info = make_lit_box(size, glow=bool(data.get("glow")))
-        box_mesh.export(out / (f"glow_box_{size}.stl" if data.get("glow") else f"lit_box_{size}.stl"))
+    if data.get("lit") or data.get("glow") or data.get("glow_cap"):
+        is_glow = bool(data.get("glow") or data.get("glow_cap"))
+        box_mesh, info = make_lit_box(size, glow=is_glow)
+        box_mesh.export(out / (f"glow_box_{size}.stl" if is_glow else f"lit_box_{size}.stl"))
         print(f"lit box: {info['outer']:.0f}x{info['outer']:.0f}x{info['depth']:.0f} mm; LED strip on its back panel, USB-C slot in the bottom wall")
     elif data.get("stand", "feet") == "clip":
         clip, leg, info, world = make_clip_stand(size)
