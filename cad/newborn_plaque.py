@@ -234,6 +234,23 @@ def only_polygons(g):
     return unary_union([x for x in parts if x.geom_type == "Polygon"])
 
 
+def add_ribs(poly, k, max_span=20.0, pitch=14.0, width=1.4):
+    """Leave thin base ribs across an opening that is too wide to bridge cleanly (spans in final mm)."""
+    if poly.area < 1 or 2 * shapely.maximum_inscribed_circle(poly, 0.05).length * k <= max_span:
+        return poly
+    minx, miny, maxx, maxy = poly.bounds
+    p, w, ribs = pitch / k, width / k, []
+    x = minx + p / 2
+    while x < maxx:
+        ribs.append(box(x - w / 2, miny - 1, x + w / 2, maxy + 1))
+        x += p
+    y = miny + p / 2
+    while y < maxy:
+        ribs.append(box(minx - 1, y - w / 2, maxx + 1, y + w / 2))
+        y += p
+    return poly.difference(unary_union(ribs))
+
+
 def ring(geom, width):
     """Outline of width `width` hugging the inside of geom."""
     return geom.difference(geom.buffer(-width, 12))
@@ -407,8 +424,9 @@ def build(data):
                     capped.append((g, z0, z1))
                 elif abs(z0 - BASE_H) < 1e-6:
                     hole = g.buffer(-CAP_OVERLAP / k, join_style=1)   # opening a bit smaller than the part itself
-                    if not hole.is_empty:
-                        openings.append(hole)
+                    for part in (hole.geoms if hasattr(hole, "geoms") else [hole]):
+                        if not part.is_empty:
+                            openings.append(add_ribs(part, k))
                     capped.append((g, z0, z1))
                 else:
                     capped.append((g, z0, z1))
@@ -684,6 +702,35 @@ def merge_solids(meshes):
         return trimesh.util.concatenate(meshes)
 
 
+def _extrude_gridded(poly, height, spacing=8.0):
+    """Extrude a large polygon with a regular grid of interior points, so no triangle is long and thin."""
+    import numpy as np
+    verts, segs, holes = [], [], []
+
+    def add_ring(coords):
+        pts = list(coords)[:-1]
+        start = len(verts)
+        verts.extend(pts)
+        segs.extend((start + i, start + (i + 1) % len(pts)) for i in range(len(pts)))
+
+    add_ring(poly.exterior.coords)
+    for r in poly.interiors:
+        add_ring(r.coords)
+        holes.append(shapely.Polygon(r).representative_point().coords[0])
+    inner = poly.buffer(-spacing / 4)
+    minx, miny, maxx, maxy = poly.bounds
+    for x in np.arange(minx + spacing / 2, maxx, spacing):
+        for y in np.arange(miny + spacing / 2, maxy, spacing):
+            if inner.contains(shapely.Point(x, y)):
+                verts.append((x, y))
+    spec = {"vertices": np.array(verts), "segments": np.array(segs)}
+    if holes:
+        spec["holes"] = np.array(holes)
+    import triangle as _tr
+    t = _tr.triangulate(spec, "p")
+    return trimesh.creation.extrude_triangulation(t["vertices"], t["triangles"], height)
+
+
 def extrude(geom, z0, z1):
     polys = list(geom.geoms) if hasattr(geom, "geoms") else [geom]
     meshes = []
@@ -693,7 +740,12 @@ def extrude(geom, z0, z1):
         # split long edges first and forbid new points on the boundary, so side walls and caps share vertices
         poly = shapely.segmentize(p.simplify(0.02), 8.0)
         try:
-            m = trimesh.creation.extrude_polygon(poly, z1 - z0, **TRI_KW)
+            if TRI_KW and poly.area > 400:
+                m = _extrude_gridded(poly, z1 - z0)
+                if not m.is_watertight or abs(m.volume - poly.area * (z1 - z0)) > 0.01 * poly.area * (z1 - z0):
+                    raise ValueError("gridded mesh not valid")
+            else:
+                m = trimesh.creation.extrude_polygon(poly, z1 - z0, **TRI_KW)
         except Exception:
             # near-tangent edges (e.g. cloud vs paw) can defeat the mesher: round off 0.03 mm slivers and retry
             clean = shapely.segmentize(poly.buffer(-0.03).buffer(0.06).buffer(-0.03).simplify(0.02), 8.0)
