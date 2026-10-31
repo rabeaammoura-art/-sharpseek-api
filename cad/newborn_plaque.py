@@ -325,7 +325,7 @@ def build(data):
     _K = k = size / SIZE
     lit = bool(data.get("lit"))
     glow = bool(data.get("glow"))
-    BASE_H = LIT_BASE_H if lit else 2.4
+    BASE_H = float(data["base_h"]) if "base_h" in data else (LIT_BASE_H if lit else 2.4)
     TOP = BASE_H + RAISE
     lang = data.get("lang", "ar")
     rtl = lang == "ar"
