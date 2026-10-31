@@ -379,6 +379,7 @@ def build(data):
     _K = k = size / SIZE
     lit = bool(data.get("lit"))
     glow = bool(data.get("glow"))
+    boxes = data.get("boxes", True)      # False: no outline rectangles around the badges and the footprint pad
     BASE_H = float(data["base_h"]) if "base_h" in data else (LIT_BASE_H if lit else 2.4)
     TOP = BASE_H + RAISE
     lang = data.get("lang", "ar")
@@ -428,7 +429,8 @@ def build(data):
     order = ["weight", "length", "date", "time"]
     slots = [(66, 14), (-66, 14), (66, -34), (-66, -34)] if rtl else [(-66, 14), (66, 14), (-66, -34), (66, -34)]
     for key, (bx, by) in zip(order, slots):
-        add("main", ring(rrect(bx, by, 124, 40, 10), rw(1.2)), BASE_H, TOP)
+        if boxes:
+            add("main", ring(rrect(bx, by, 124, 40, 10), rw(1.2)), BASE_H, TOP)
         add("main", affinity.translate(ICONS[key](1.0), bx - 39, by), BASE_H, TOP)
         tx_right, tx_left = bx + 55, bx - 19
         label_font = "ar_label" if rtl else "en_label"
@@ -445,7 +447,8 @@ def build(data):
 
     # footprint area: raised rim, flat inside for a sticker / ink print
     pad = rrect(0, -97, 124, 62, 12)
-    add("main", ring(pad, rw(1.2)), BASE_H, TOP)
+    if boxes:
+        add("main", ring(pad, rw(1.2)), BASE_H, TOP)
     add("accent", heart(0, -97, 12), BASE_H, TOP)
     if data.get("stand") == "rails":
         # T-shaped rails recessed in the two side frame bands (see STANDS.md): cut the base and the frame ring
