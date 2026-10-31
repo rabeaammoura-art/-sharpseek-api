@@ -138,3 +138,33 @@ Show it as a realistic product photo: the plaque stands upright on a light woode
 The artwork must stay exactly the same (layout, colours, text). The shapes are slightly raised from the
 cream base, matte plastic (PLA). No hands, no extra objects except a small plant in the blurred background.
 ```
+
+---
+
+## Backlit — coloured parts glow (thick opaque base, translucent PETG parts)
+
+Attach the approved flat design as the only image, then paste:
+
+```
+Use the attached flat design as the exact artwork of a real BACKLIT 3D-printed newborn keepsake plaque (300 x 300 mm).
+Show it as a realistic product photo in a dark cosy nursery at night: the plaque stands upright on a light wooden shelf,
+leaning back about 12 degrees, seen from the front and slightly from the left. The only light in the room is the plaque.
+
+How it is built and how it must look (very important):
+- The cream background is a THICK, OPAQUE, matte white-cream plastic plate. It does NOT glow and does not let any light through:
+  it stays plain cream, only faintly lit by the glow of the coloured parts next to it.
+- ALL the coloured parts are made of TRANSLUCENT coloured plastic (PETG) set through the thick plate, and an LED behind the plate
+  makes them glow in their own colour, like stained glass or neon: the frame, the cloud outline, the name text, the badge outlines,
+  the icons, and the numbers glow deep saturated blue; the crescent moon, the stars and the heart glow warm yellow;
+  the bear glows soft amber-orange. The glow is bright and even inside each shape, with a soft colour halo bleeding slightly
+  onto the cream plate and onto the wall and shelf around the plaque.
+- The cream-coloured details (bear muzzle and inner ears) are opaque and stay unlit.
+- The coloured parts are raised about 1 mm above the plate, with crisp clean edges. A slim matte white box about 25 mm deep is visible
+  behind and under the plaque with a thin white USB-C cable going to the shelf.
+
+The artwork must stay exactly the same: layout, shapes, and all text (do not change any letter or digit).
+Shallow depth of field, a blurred crib and a small plant in the background. No hands, no logo, no watermark.
+```
+
+Filaments from stock (all PETG, so the layers bond): base AD-PETG Opaque White; blue AD-PETG Translucent Blue;
+yellow AD-PETG Translucent Yellow; bear AD-PETG Translucent Orange.
