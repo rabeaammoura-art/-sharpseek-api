@@ -63,7 +63,7 @@ PER_FILAMENT_SINGLES = ("filament_colour", "filament_map", "filament_map_2", "fi
                         "default_filament_profile")
 
 
-def prepare_3mf(src: Path, filament_files: list, part_dir: Path, base_cmd: list) -> Path:
+def prepare_3mf(src: Path, filament_files: list, part_dir: Path, base_cmd: list, tower=None) -> Path:
     """Give a multi-colour 3MF a project_settings.config that matches the loaded filaments.
 
     The CLI expands most per-filament arrays when --load-filaments is used, but leaves a few
@@ -81,6 +81,10 @@ def prepare_3mf(src: Path, filament_files: list, part_dir: Path, base_cmd: list)
     for k in PER_FILAMENT_SINGLES:
         if isinstance(cfg.get(k), list) and len(cfg[k]) == 1:
             cfg[k] = cfg[k] * n
+    # prime tower: explicit either way (the Bambu default adds one for multi-colour prints)
+    cfg["enable_prime_tower"] = "1" if tower else "0"
+    if tower:
+        cfg["wipe_tower_x"], cfg["wipe_tower_y"], cfg["prime_tower_width"] = [str(tower[0])], [str(tower[1])], str(tower[2])
     out = part_dir / "input.3mf"
     with zipfile.ZipFile(src) as zin, zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as zout:
         for item in zin.infolist():
@@ -100,6 +104,10 @@ def main():
                     help="filament profile name; repeat once per filament slot of a multi-colour 3MF "
                          "(default: Bambu ASA @BBL H2D 0.4 nozzle)")
     ap.add_argument("--plate", default="Textured PEI Plate")
+    ap.add_argument("--tower-x", type=float, help="enable the prime tower at this x (mm) for multi-colour 3MF files; "
+                    "without it NO tower is used, which under-estimates time and filament")
+    ap.add_argument("--tower-y", type=float, default=140.0)
+    ap.add_argument("--tower-width", type=float, default=40.0)
     ap.add_argument("--support", action="store_true", help="enable tree(auto) supports")
     ap.add_argument("--price-kg", type=float, default=None,
                     help="override: one filament price per kg (JOD) for every slot; "
@@ -153,8 +161,10 @@ def main():
                     "--load-filaments", ";".join(filament_files)]
         if stl.suffix.lower() == ".3mf":
             # already positioned, parts carry their filament slots
-            centred = prepare_3mf(stl.resolve(), filament_files, part_dir, base_cmd) if len(filament_files) > 2 \
+            tower = (a.tower_x, a.tower_y, a.tower_width) if a.tower_x is not None else None
+            centred = prepare_3mf(stl.resolve(), filament_files, part_dir, base_cmd, tower) if len(filament_files) > 2 \
                 else stl.resolve()
+            print("prime tower: " + (f"ON at x={tower[0]:.0f} y={tower[1]:.0f} width={tower[2]:.0f}" if tower else "OFF (estimate excludes purge)"))
         else:
             centred = part_dir / "centred.stl"
             # The CLI does not move objects onto the plate; put the model at the nozzle-area centre.

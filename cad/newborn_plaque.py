@@ -49,6 +49,7 @@ THEMES = {
     "green":  {"base": "#f5ecd7", "main": "#5b8a72", "accent": "#f0c446", "animal": "#b9c3cc"},
     "pink":   {"base": "#f8ece4", "main": "#d9808c", "accent": "#f4d28a", "animal": "#f3e6d8"},
     "purple": {"base": "#f5ecd7", "main": "#8e739f", "accent": "#f0c446", "animal": "#e8b8c4"},
+    "glow":   {"base": "#f5ecd7", "main": "#2f6bff", "accent": "#ffd23a", "animal": "#ff8a1f"},  # simulated glow
     "lit":    {"base": "#ffe9a8", "main": "#2b4666", "accent": "#d9a92e", "animal": "#7a5a3a"},  # simulated glow
 }
 
@@ -226,6 +227,12 @@ def rrect(cx, cy, w, h, r):
     return box(cx - w / 2 + r, cy - h / 2 + r, cx + w / 2 - r, cy + h / 2 - r).buffer(r, 12)
 
 
+def only_polygons(g):
+    """Drop stray lines/points that boolean operations can leave in a geometry collection."""
+    parts = g.geoms if hasattr(g, "geoms") else [g]
+    return unary_union([x for x in parts if x.geom_type == "Polygon"])
+
+
 def ring(geom, width):
     """Outline of width `width` hugging the inside of geom."""
     return geom.difference(geom.buffer(-width, 12))
@@ -317,6 +324,7 @@ def build(data):
     size = float(data.get("size", 300))
     _K = k = size / SIZE
     lit = bool(data.get("lit"))
+    glow = bool(data.get("glow"))
     BASE_H = LIT_BASE_H if lit else 2.4
     TOP = BASE_H + RAISE
     lang = data.get("lang", "ar")
@@ -385,6 +393,24 @@ def build(data):
     pad = rrect(0, -97, 124, 62, 12)
     add("main", ring(pad, rw(1.2)), BASE_H, TOP)
     add("accent", heart(0, -97, 12), BASE_H, TOP)
+    if glow:
+        # backlit coloured glass: opaque base, every coloured part flush with it and through its full thickness
+        plate_g = layers["base"][0][0]                 # the first base item is the plate itself
+        ontop = unary_union([g for r in layers for g, z0, _ in layers[r] if z0 >= TOP - 1e-6])
+        flush = {r: [] for r in layers}
+        for role, its in layers.items():
+            for g, z0, z1 in its:
+                if g is plate_g:
+                    continue
+                if z0 >= TOP - 1e-6:                   # eyes, nose, muzzle, inner ears
+                    flush[role].append((g, 0, BASE_H))
+                elif z0 >= BASE_H - 1e-6:              # raised parts become flush inlays
+                    if role == "base":
+                        continue                       # the raised cream cloud fill is not needed
+                    flush[role].append((only_polygons(g.difference(ontop)) if role == "animal" else g, 0, BASE_H))
+        holes = unary_union([g for its in flush.values() for g, _, _ in its])
+        flush["base"].insert(0, (only_polygons(plate_g.difference(holes)), 0, BASE_H))
+        layers = flush
     if lit:
         # backlit: coloured parts run through the thin translucent base (so they block the light),
         # the base keeps holes where they sit
@@ -412,32 +438,34 @@ def build(data):
 BOX_DEPTH, BOX_WALL, BOX_BACK = 25.0, 2.6, 1.2
 
 
-def make_lit_box(size):
+def make_lit_box(size, glow=False):
     """Shallow white tray behind the backlit plate: LED strip stuck on its back panel, USB-C slot in the
     bottom wall, 12 small ledges hold the plate whose front face ends flush with the rim.
     Printed back panel down. Returns (mesh, info)."""
     k = size / SIZE
+    depth = 14.0 if glow else BOX_DEPTH            # glow: opaque base hides uneven light, so a shallow tray is enough
+    back = 1.0 if glow else BOX_BACK
     half = size / 2 + 0.2                     # plate half-size + clearance
     r = 30 * k + 0.2
     outer = rrect(0, 0, 2 * (half + BOX_WALL), 2 * (half + BOX_WALL), r + BOX_WALL)
     ring = outer.difference(rrect(0, 0, 2 * half, 2 * half, r))
-    plate_t = LIT_BASE_H + FRAME_RAISE
-    ledge_top = BOX_DEPTH - plate_t
+    plate_t = 2.4 if glow else LIT_BASE_H + FRAME_RAISE
+    ledge_top = depth - plate_t
     slot = box(-5, -half - BOX_WALL - 1, 5, -half + 1)
-    z0, z1 = 10.0, 14.5                       # USB-C slot height band
+    z0, z1 = (4.0, 8.5) if glow else (10.0, 14.5)   # USB-C slot height band
     tabs = unary_union([t for off in (-0.33 * size, 0, 0.33 * size) for t in (
         box(off - 15, -half - 0.1, off + 15, -half + 2.5), box(off - 15, half - 2.5, off + 15, half + 0.1),
         box(-half - 0.1, off - 15, -half + 2.5, off + 15), box(half - 2.5, off - 15, half + 0.1, off + 15))])
-    cuts = sorted({0, BOX_BACK, z0, z1, ledge_top - 2.0, ledge_top, BOX_DEPTH})
+    cuts = sorted({0, back, z0, z1, ledge_top - 2.0, ledge_top, depth})
     meshes = []
     for a, b in zip(cuts, cuts[1:]):       # one extrusion per slab, so no part overlaps another
         mid = (a + b) / 2
-        g = outer if mid < BOX_BACK else (ring.difference(slot) if z0 < mid < z1 else ring)
+        g = outer if mid < back else (ring.difference(slot) if z0 < mid < z1 else ring)
         if ledge_top - 2.0 < mid < ledge_top:
             g = g.union(tabs)
         meshes += extrude(g, a, b)
     mesh = merge_solids(meshes)
-    return mesh, {"outer": 2 * (half + BOX_WALL), "depth": BOX_DEPTH}
+    return mesh, {"outer": 2 * (half + BOX_WALL), "depth": depth}
 
 
 # ----------------------------------------------------------------- stand ----
@@ -706,6 +734,9 @@ def main():
     if data.get("lit"):
         stem += "_lit"
         theme = "lit"
+    elif data.get("glow"):
+        stem += "_glow"
+        theme = "glow"
     parts = []
     for slot, role in enumerate(("base", "main", "accent", "animal"), start=1):
         m = to_mesh(layers[role])
@@ -717,9 +748,9 @@ def main():
                     project_settings=(Path(__file__).parent / "config" / "bambu_project_settings.config").read_bytes())
     print("wrote", out / f"{stem}.3mf")
     preview(layers, theme, out / f"{stem}.png", size / 2)
-    if data.get("lit"):
-        box_mesh, info = make_lit_box(size)
-        box_mesh.export(out / f"lit_box_{size}.stl")
+    if data.get("lit") or data.get("glow"):
+        box_mesh, info = make_lit_box(size, glow=bool(data.get("glow")))
+        box_mesh.export(out / (f"glow_box_{size}.stl" if data.get("glow") else f"lit_box_{size}.stl"))
         print(f"lit box: {info['outer']:.0f}x{info['outer']:.0f}x{info['depth']:.0f} mm; LED strip on its back panel, USB-C slot in the bottom wall")
     elif data.get("stand", "feet") == "clip":
         clip, leg, info, world = make_clip_stand(size)
