@@ -5,7 +5,7 @@ if not exist .venv-cad py -3 -m venv .venv-cad
 .venv-cad\Scripts\python -m pip install --upgrade pip
 .venv-cad\Scripts\pip install -r cad\requirements-plaque.txt
 REM optional: better mesh quality (if this line fails, everything still works)
-.venv-cad\Scripts\pip install triangle
+.venv-cad\Scripts\pip install triangle manifold3d
 echo.
 echo Setup done. Now drag a plaque .json file onto make_plaque.bat
 pause

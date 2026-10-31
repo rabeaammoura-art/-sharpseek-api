@@ -12,6 +12,7 @@ import math
 from pathlib import Path
 
 import matplotlib
+import shapely
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -435,7 +436,7 @@ def make_lit_box(size):
         if ledge_top - 2.0 < mid < ledge_top:
             g = g.union(tabs)
         meshes += extrude(g, a, b)
-    mesh = trimesh.util.concatenate(meshes)
+    mesh = merge_solids(meshes)
     return mesh, {"outer": 2 * (half + BOX_WALL), "depth": BOX_DEPTH}
 
 
@@ -618,9 +619,20 @@ def easel_view(world, path, size):
 # ---------------------------------------------------------------- output ----
 try:  # well-shaped triangles with interior points (viewers smooth normals across big triangles otherwise)
     import triangle  # noqa: F401
-    TRI_KW = {"engine": "triangle", "triangle_args": "pa40"}
+    TRI_KW = {"engine": "triangle", "triangle_args": "pYa40"}
 except ImportError:  # falls back to ear clipping: valid for printing, but long thin triangles
     TRI_KW = {}
+
+
+def merge_solids(meshes):
+    """One closed solid from stacked/touching extrusions (needs manifold3d; otherwise plain concatenation,
+    which slices fine but leaves shared edges that some viewers flag as non-manifold)."""
+    if len(meshes) == 1:
+        return meshes[0]
+    try:
+        return trimesh.boolean.union(meshes, engine="manifold")
+    except Exception:
+        return trimesh.util.concatenate(meshes)
 
 
 def extrude(geom, z0, z1):
@@ -629,12 +641,13 @@ def extrude(geom, z0, z1):
     for p in polys:
         if p.is_empty or p.area < 0.05:
             continue
-        poly = p.simplify(0.02)
+        # split long edges first and forbid new points on the boundary, so side walls and caps share vertices
+        poly = shapely.segmentize(p.simplify(0.02), 8.0)
         try:
             m = trimesh.creation.extrude_polygon(poly, z1 - z0, **TRI_KW)
         except Exception:
             # near-tangent edges (e.g. cloud vs paw) can defeat the mesher: round off 0.03 mm slivers and retry
-            clean = poly.buffer(-0.03).buffer(0.06).buffer(-0.03).simplify(0.02)
+            clean = shapely.segmentize(poly.buffer(-0.03).buffer(0.06).buffer(-0.03).simplify(0.02), 8.0)
             try:
                 m = trimesh.creation.extrude_polygon(clean, z1 - z0, **TRI_KW)
             except Exception:  # last resort: ear clipping always works
@@ -651,7 +664,7 @@ def to_mesh(items):
     meshes = []
     for (z0, z1), gs in by_z.items():
         meshes += extrude(unary_union(gs), z0, z1)
-    return trimesh.util.concatenate(meshes) if meshes else None
+    return merge_solids(meshes) if meshes else None
 
 
 def preview(layers, theme, path, half=HALF):
