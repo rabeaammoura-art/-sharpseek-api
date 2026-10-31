@@ -906,7 +906,7 @@ def main():
             m.export(out / f"{stem}_{role}.stl")
             print(f"{role}: {len(m.faces)} faces, volume {m.volume:.0f} mm^3")
             parts.append((role, m, slot))
-    write_bambu_3mf(out / f"{stem}.3mf", parts, center=(162.5, 160.0), name=stem,
+    write_bambu_3mf(out / f"{stem}.3mf", parts, center=(data.get("plate_x", 162.5), data.get("plate_y", 160.0)), name=stem,
                     project_settings=(Path(__file__).parent / "config" / "bambu_project_settings.config").read_bytes())
     print("wrote", out / f"{stem}.3mf")
     preview(layers, theme, out / f"{stem}.png", size / 2)

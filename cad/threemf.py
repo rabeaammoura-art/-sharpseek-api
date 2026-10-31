@@ -5,6 +5,7 @@ write_bambu_3mf(path, parts, center, name, project_settings)
   center:           (x, y) plate position of the object's origin
   project_settings: bytes of a Bambu `project_settings.config` (the CLI crashes without one)
 """
+import json
 import uuid
 import zipfile
 from xml.sax.saxutils import quoteattr
@@ -85,13 +86,19 @@ def write_bambu_3mf(path, parts, center, name, project_settings):
     <metadata key="plater_id" value="1"/>
     <metadata key="plater_name" value=""/>
     <metadata key="locked" value="false"/>
-    <metadata key="filament_map_mode" value="Auto For Flush"/>
+    <metadata key="filament_map_mode" value="Manual"/>
     <metadata key="filament_maps" value="{' '.join('1' for _ in range(max(s for _, _, s in parts)))}"/>
     <metadata key="filament_volume_maps" value="{' '.join('0' for _ in range(max(s for _, _, s in parts)))}"/>
   </plate>
   <assemble>
   </assemble>
 </config>"""
+    # all colours on the first (left) nozzle: the right nozzle cannot reach the first 25 mm of the bed, so a 300 mm plate
+    # would be "unprintable" for it
+    cfg = json.loads(project_settings)
+    cfg["filament_map_mode"] = "Manual"
+    cfg["filament_map"] = ["1"] * max(s for _, _, s in parts)
+    project_settings = json.dumps(cfg, indent=4)
     with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as z:
         z.writestr("[Content_Types].xml", CONTENT_TYPES)
         z.writestr("_rels/.rels", RELS)
