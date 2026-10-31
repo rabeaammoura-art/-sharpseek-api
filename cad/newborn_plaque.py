@@ -51,6 +51,8 @@ THEMES = {
     "pink":   {"base": "#f8ece4", "main": "#d9808c", "accent": "#f4d28a", "animal": "#f3e6d8"},
     "purple": {"base": "#f5ecd7", "main": "#8e739f", "accent": "#f0c446", "animal": "#e8b8c4"},
     "glow":   {"base": "#f5ecd7", "main": "#2f6bff", "accent": "#ffd23a", "animal": "#ff8a1f"},  # simulated glow
+    "boy":    {"base": "#f5ecd7", "main": "#3e628a", "accent": "#f0c446", "animal": "#8a5a36"},
+    "girl":   {"base": "#f8ece4", "main": "#d9808c", "accent": "#f4c95d", "animal": "#8a5a36"},
     "lit":    {"base": "#ffe9a8", "main": "#2b4666", "accent": "#d9a92e", "animal": "#7a5a3a"},  # simulated glow
 }
 
@@ -333,7 +335,36 @@ def animal_bear(cx, cy, cover):
     }
 
 
-ANIMALS = {"bear": animal_bear}
+
+def animal_baby(cx, cy, cover, girl=False):
+    """A sleeping baby's head tucked in a blanket, peeking over the cloud. The face is the base colour
+    (outline + features in the main colour), hair = animal colour, blanket = accent colour, girl's bow = main."""
+    head = circle(cx, cy, 19)
+    outline = ring(head, rw(1.6))
+    ears = unary_union([ring(circle(cx + sx * 19.5, cy - 1, 4.2), rw(1.4)).difference(head) for sx in (-1, 1)])
+    def lower_arc(x, y, r, w):
+        return ring(circle(x, y, r), rw(w)).intersection(box(x - r - 1, y - r - 1, x + r + 1, y))
+    eyes = unary_union([lower_arc(cx - 7, cy + 3, 3.6, 1.3), lower_arc(cx + 7, cy + 3, 3.6, 1.3)])
+    nose = circle(cx, cy - 2.5, 1.2)
+    mouth = lower_arc(cx, cy - 5.0, 2.8, 1.2)
+    hair = unary_union([circle(cx, cy + 19.2, 3.4), circle(cx - 3.8, cy + 18.6, 2.7), circle(cx + 3.8, cy + 18.6, 2.7)])
+    blanket = rrect(cx, 99.5, 46, 15, 7.5)
+    main = unary_union([outline, ears, eyes, nose, mouth])
+    if girl:
+        bx, by = cx + 11, cy + 17
+        bow = unary_union([Polygon([(bx, by), (bx + 8.5, by + 6.5), (bx + 8.5, by - 6.5)]),
+                           Polygon([(bx, by), (bx - 8.5, by + 6.5), (bx - 8.5, by - 6.5)]), circle(bx, by, 2.4)])
+        main = unary_union([main, bow])
+    return {
+        "main": [(main.difference(cover).difference(blanket), BASE_H, TOP)],
+        "animal": [(hair.difference(cover), BASE_H, TOP)],
+        "accent": [(blanket.difference(cover), BASE_H, TOP)],
+        "_paws": Polygon(),
+    }
+
+
+ANIMALS = {"bear": animal_bear, "baby_boy": animal_baby, "baby_girl": lambda cx, cy, cover: animal_baby(cx, cy, cover, True)}
+
 
 
 # --------------------------------------------------------------- layout ----
