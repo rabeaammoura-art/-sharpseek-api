@@ -616,13 +616,29 @@ def easel_view(world, path, size):
 
 
 # ---------------------------------------------------------------- output ----
+try:  # well-shaped triangles with interior points (viewers smooth normals across big triangles otherwise)
+    import triangle  # noqa: F401
+    TRI_KW = {"engine": "triangle", "triangle_args": "pa40"}
+except ImportError:  # falls back to ear clipping: valid for printing, but long thin triangles
+    TRI_KW = {}
+
+
 def extrude(geom, z0, z1):
     polys = list(geom.geoms) if hasattr(geom, "geoms") else [geom]
     meshes = []
     for p in polys:
         if p.is_empty or p.area < 0.05:
             continue
-        m = trimesh.creation.extrude_polygon(p.simplify(0.02), z1 - z0)
+        poly = p.simplify(0.02)
+        try:
+            m = trimesh.creation.extrude_polygon(poly, z1 - z0, **TRI_KW)
+        except Exception:
+            # near-tangent edges (e.g. cloud vs paw) can defeat the mesher: round off 0.03 mm slivers and retry
+            clean = poly.buffer(-0.03).buffer(0.06).buffer(-0.03).simplify(0.02)
+            try:
+                m = trimesh.creation.extrude_polygon(clean, z1 - z0, **TRI_KW)
+            except Exception:  # last resort: ear clipping always works
+                m = trimesh.creation.extrude_polygon(poly, z1 - z0)
         m.apply_translation([0, 0, z0])
         meshes.append(m)
     return meshes
