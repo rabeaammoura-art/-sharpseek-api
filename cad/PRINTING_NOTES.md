@@ -13,3 +13,11 @@
 - The GUI may place the tower differently from the CLI: re-check in Bambu Studio when the printer arrives.
 
 - **Decision: largest size is now 280 mm** (300 + tower does not fit). Sizes 150 / 200 / 280. Rails need a frame band >= ~11 mm (280+).
+
+## Estimates are noisy (measured)
+- The same multi-colour 3MF sliced twice with identical flags gave 2h47m/62.0 g and 2h36m/59.8 g; an earlier run of the same
+  geometry gave 2h02m/56.7 g. Treat multi-colour times as **ranges of about +-20 %**, not exact numbers. Single-colour parts are stable.
+- Bambu Studio (GUI) is the reference once the printer is there.
+- The generated 3MF now carries 4 filaments + slot colours + prime tower (templates `config/bambu_project_4fil_{pla,petg}.config`).
+  Sliced directly with only its embedded settings (CLI): 150 mm standard, PLA, 1h49m / 62.5 g, no warnings.
+- Windows: `bambu_slice.py` works with the installed Bambu Studio (commit eef8ef5 from the laptop session): 150 mm test 2h07m / 60.6 g vs ~2h09m on Linux.
