@@ -18,7 +18,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import trimesh
 import uharfbuzz as hb
-from threemf import write_bambu_3mf
+from threemf import build_project_settings, write_bambu_3mf
 from fontTools.pens.basePen import BasePen
 from fontTools.ttLib import TTFont
 from matplotlib.patches import PathPatch
@@ -920,8 +920,13 @@ def main():
             m.export(out / f"{stem}_{role}.stl")
             print(f"{role}: {len(m.faces)} faces, volume {m.volume:.0f} mm^3")
             parts.append((role, m, slot))
-    write_bambu_3mf(out / f"{stem}.3mf", parts, center=(data.get("plate_x", 4 + size / 2), data.get("plate_y", 160.0)), name=stem,
-                    project_settings=(Path(__file__).parent / "config" / "bambu_project_settings.config").read_bytes())
+    plate_x = data.get("plate_x", 4 + size / 2)
+    material = data.get("material", "petg" if (data.get("lit") or data.get("glow") or data.get("glow_cap")) else "pla")
+    template = (Path(__file__).parent / "config" / f"bambu_project_4fil_{material}.config").read_bytes()
+    colours = [THEMES[theme][r].upper() for r in ("base", "main", "accent", "animal")]
+    tower = (round(plate_x + size / 2 + 6, 1), 120, 14)     # narrow tower right of the plaque (see PRINTING_NOTES.md)
+    write_bambu_3mf(out / f"{stem}.3mf", parts, center=(plate_x, data.get("plate_y", 160.0)), name=stem,
+                    project_settings=build_project_settings(template, colours, tower))
     print("wrote", out / f"{stem}.3mf")
     preview(layers, theme, out / f"{stem}.png", size / 2)
     if data.get("lit") or data.get("glow") or data.get("glow_cap"):

@@ -1,13 +1,15 @@
 # Print files — newborn plaque (example name: يوسف / YOUSEF)
 
-Open the `.3mf` files in Bambu Studio (H2D). Each plaque = 4 parts = 4 filament slots (colours of the PETG set):
+Open the `.3mf` files in Bambu Studio (H2D). Each plaque = 4 parts = 4 filament slots. The 3MF now carries the 4 filaments,
+the slot colours and the prime tower (narrow, 6 mm right of the plaque), so Studio opens it ready; only swap in your real spools.
+`standard/`, `rails_280/` default to **PLA** (PLA Basic profile); `glow_cap/` and `lit_280/` default to **PETG**.
 
-| slot | part | filament |
-|---|---|---|
-| 1 | base | AD-PETG opaque white (PLA+ white also works for the standard plaque) |
-| 2 | main (frame, text, icons, outlines) | blue (translucent AD-PETG for `glow_cap`) |
-| 3 | accent (moon, stars, heart) | yellow |
-| 4 | animal (bear) | Walnut PLA (standard) / translucent orange (`glow_cap`) |
+| slot | part | standard (PLA) | glow_cap / lit (PETG) |
+|---|---|---|---|
+| 1 | base | PLA+ white | AD-PETG opaque white |
+| 2 | main (frame, text, icons, outlines) | PLA+ blue | AD-PETG translucent blue |
+| 3 | accent (moon, stars, heart) | PLA+ yellow | AD-PETG translucent yellow |
+| 4 | animal (bear) | Walnut PLA | AD-PETG translucent orange |
 
 Sizes: **150, 200, 280 mm**. 300 mm was dropped: with a prime tower it does not fit the H2D (see `cad/PRINTING_NOTES.md`).
 In Bambu Studio keep the prime tower **narrow (about 14 mm) and to the right of the plaque**; the 3MF puts the plaque
@@ -20,7 +22,7 @@ In Bambu Studio keep the prime tower **narrow (about 14 mm) and to the right of 
 | `rails_280/` | plaque with T-rails in the frame + `bridge` (print standing on its edge) + `bridge_leg` | needs an M3 bolt + nut; 280 mm only |
 | `lit_280/` | thin translucent-base plaque + `lit_box_280` | older concept |
 
-Measured with the Bambu Studio CLI (PETG, 14 mm tower, H2D, filament prices from the stock sheet), plaque only:
+Measured with the Bambu Studio CLI (PETG, 14 mm tower, H2D, filament prices from the stock sheet), plaque only. PLA is faster: the 150 mm standard plaque takes 1h43m / 60 g in PLA vs 2h04m / 60 g in PETG.
 
 | size | standard | glow_cap |
 |---|---|---|

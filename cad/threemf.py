@@ -43,6 +43,22 @@ def _mesh_xml(mesh):
     return f"   <mesh>\n    <vertices>\n{v}\n    </vertices>\n    <triangles>\n{t}\n    </triangles>\n   </mesh>"
 
 
+def build_project_settings(template_bytes, colours, tower=None, nozzle=1):
+    """Project settings for the 3MF: a 4-filament template (so Bambu Studio opens it with all colours), the slot colours,
+    one nozzle for every colour, no skirt/brim (they leave the bed beside a big plate) and, if given, the prime tower
+    tower = (x, y, width) in mm."""
+    cfg = json.loads(template_bytes)
+    cfg["filament_colour"] = [c.upper() for c in colours]
+    cfg["filament_map_mode"] = "Manual"
+    cfg["filament_map"] = [str(nozzle)] * len(colours)
+    cfg["skirt_loops"], cfg["brim_type"] = "0", "no_brim"
+    cfg["enable_prime_tower"] = "1" if tower else "0"
+    if tower:
+        cfg["wipe_tower_x"], cfg["wipe_tower_y"], cfg["prime_tower_width"] = [str(tower[0])], [str(tower[1])], str(tower[2])
+        cfg["prime_tower_brim_width"] = "0"
+    return json.dumps(cfg, indent=4)
+
+
 def write_bambu_3mf(path, parts, center, name, project_settings):
     n = len(parts)
     obj_id = n + 1
