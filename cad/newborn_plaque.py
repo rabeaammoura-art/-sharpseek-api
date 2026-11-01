@@ -937,7 +937,7 @@ def main():
     material = data.get("material", "petg" if (data.get("lit") or data.get("glow") or data.get("glow_cap")) else "pla")
     template = (Path(__file__).parent / "config" / f"bambu_project_4fil_{material}.config").read_bytes()
     colours = [THEMES[theme][r].upper() for r in ("base", "main", "accent", "animal")]
-    tower = (round(plate_x + size / 2 + 6, 1), 120, 14)     # narrow tower right of the plaque (see PRINTING_NOTES.md)
+    tower = (data.get("tower_x", round(plate_x + size / 2 + 6, 1)), 120, data.get("tower_w", 14))   # narrow tower right of the plaque (see PRINTING_NOTES.md)
     write_bambu_3mf(out / f"{stem}.3mf", parts, center=(plate_x, data.get("plate_y", 160.0)), name=stem,
                     project_settings=build_project_settings(template, colours, tower))
     print("wrote", out / f"{stem}.3mf")
