@@ -7,3 +7,6 @@ mapbox-earcut
 uharfbuzz
 fonttools
 lxml
+networkx
+rtree
+scipy
