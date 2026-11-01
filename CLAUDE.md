@@ -8,7 +8,7 @@ The repo is **public** — never commit purchase prices, the price sheet, produc
 - `cad/`: everything for the **newborn keepsake plaque** (bilingual Arabic/English, bear or baby, multi-colour, 4 filament slots).
   - `cad/newborn_plaque.py` — generator: `python cad/newborn_plaque.py cad/plaque/example_ar.json` -> 3MF (+ STL, PNG preview).
     JSON keys: `size` (any up to 290; 150/200/250/280 proven), `lang`, `name`, `weight`, `length`, `date`, `time`, `ampm`, `animal`
-    (`bear`/`baby_boy`/`baby_girl`), `theme`, `stand` (`feet`/`rails`/`easel`/`clip`), `lit`, `glow`, `glow_cap`, `boxes`, `plate_x`.
+    (`bear`/`baby_boy`/`baby_girl`), `theme`, `stand` (`feet`/`rails`/`easel`/`clip`), `lit`, `glow`, `glow_cap`, `boxes`, `plate_x`, `layout` (`"night"` = round plaque + moon + baby + hanging tags + pedestal, theme `night`, feet stand only).
   - `cad/print_files/` — ready files (see its README). `cad/plaque/gpt_prompt/` — prompts to get images from GPT.
   - `cad/STANDS.md` — all stand ideas, pros/cons, decisions. `cad/PRINTING_NOTES.md` — H2D/slicer findings. **Read both before changing stands or sizes.**
   - `cad/bambu_slice.py` (Linux only) slices with the Bambu Studio CLI and prices with the stock sheet; `/3d-cost*` skills use it.

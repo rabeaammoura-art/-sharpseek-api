@@ -57,6 +57,7 @@ THEMES = {
     "gold_dark": {"base": "#26262a", "main": "#d4af37", "accent": "#c98b7b", "animal": "#a0703a"},
     "boy":       {"base": "#f2f0ea", "main": "#3e628a", "accent": "#f0c446", "animal": "#8a5a36"},
     "girl":      {"base": "#f2f0ea", "main": "#d9808c", "accent": "#f4c95d", "animal": "#8a5a36"},
+    "night":     {"base": "#1f3a6e", "main": "#f2f0ea", "accent": "#f0c446", "animal": "#e8b48c"},
     "glow":      {"base": "#f5ecd7", "main": "#2f6bff", "accent": "#ffd23a", "animal": "#ff8a1f"},  # simulated glow
     "lit":       {"base": "#ffe9a8", "main": "#2b4666", "accent": "#d9a92e", "animal": "#7a5a3a"},  # simulated glow
 }
@@ -67,6 +68,7 @@ THEME_FILAMENTS = {
     "purple":    ["PLA+ White", "PLA+ Purple", "Silk PLA Gold", "Silk PLA Bronze"],
     "sky":       ["PLA+ White", "PLA+ Cyan", "PLA+ Yellow", "PLA+ Grey"],
     "gold_dark": ["PLA+ Black", "Silk PLA Gold", "Silk PLA Rose Gold", "Silk PLA Bronze"],
+    "night":     ["PLA+ Navy Blue", "PLA+ White", "PLA+ Yellow", "PLA+ Beige (skin)"],
 }
 THEME_FILAMENTS["boy"], THEME_FILAMENTS["girl"] = THEME_FILAMENTS["blue"], THEME_FILAMENTS["pink"]
 
@@ -246,8 +248,15 @@ def rrect(cx, cy, w, h, r):
 
 def only_polygons(g):
     """Drop stray lines/points that boolean operations can leave in a geometry collection."""
-    parts = g.geoms if hasattr(g, "geoms") else [g]
-    return unary_union([x for x in parts if x.geom_type == "Polygon"])
+    polys = []
+    def walk(x):
+        if x.geom_type == "Polygon":
+            polys.append(x)
+        elif hasattr(x, "geoms"):
+            for y in x.geoms:
+                walk(y)
+    walk(g)
+    return unary_union(polys)
 
 
 def add_ribs(poly, k, max_span=20.0, pitch=14.0, width=1.4):
@@ -386,6 +395,112 @@ ANIMALS = {"bear": animal_bear, "baby_boy": animal_baby, "baby_girl": lambda cx,
 
 
 
+
+# ------------------------------------------------------- "night" layout ----
+NIGHT_CENTER = (0.0, 10.0)
+NIGHT_R = 140.0
+
+
+def night_outline():
+    """Round plaque (r 140) standing on a flat stadium-shaped pedestal; 300 x 300 overall, flat bottom edge."""
+    shape = unary_union([circle(*NIGHT_CENTER, NIGHT_R), rrect(0, -128, 300, 44, 22)])
+    return shape.buffer(16, 24).buffer(-16, 24)    # rounds the notch where the circle meets the pedestal
+
+
+def tag_shape(cx, cy, w=33, h=50):
+    """Hanging tag: rounded rectangle with a small peak on top where the string ties on."""
+    peak = Polygon([(cx - 7, cy + h / 2 - 3), (cx, cy + h / 2 + 5), (cx + 7, cy + h / 2 - 3)]).buffer(1.5, 6)
+    return unary_union([rrect(cx, cy, w, h, 11), peak])
+
+
+def sleeping_baby(cx, cy):
+    """Baby asleep in a night cap under a starry blanket, resting on the cloud row.
+    Returns dict role -> [(geom, z0, z1)] (the blanket is drawn first, the head wins where they overlap)."""
+    head = circle(cx, cy, 16)
+    cap = unary_union([head.intersection(box(cx - 20, cy + 5, cx + 20, cy + 20)),
+                       Polygon([(cx - 15, cy + 9), (cx + 14, cy + 9), (cx + 10, cy + 24), (cx - 4, cy + 30)]).buffer(1.5, 6)])
+    cap_dots = unary_union([star(cx - 6, cy + 15, 2.6), star(cx + 5, cy + 20, 2.2)])
+    pompom = circle(cx - 4, cy + 31, 4.2)
+    blanket = rrect(cx + 44, cy - 3, 72, 32, 13)
+    b_dots = unary_union([star(cx + 28 + 17 * i, cy - 3 + (4 if i % 2 else -4), 3.4) for i in range(3)])
+    def lower_arc(x, y, r, w):
+        return ring(circle(x, y, r), rw(w)).intersection(box(x - r - 1, y - r - 1, x + r + 1, y))
+    eyes = unary_union([lower_arc(cx - 6.2, cy - 0.5, 3.2, 1.2), lower_arc(cx + 6.2, cy - 0.5, 3.2, 1.2)])
+    face = unary_union([eyes, circle(cx, cy - 4, 1.1), lower_arc(cx, cy - 6.5, 2.6, 1.1)])
+    hug_star = star(cx + 22, cy - 3, 8.5)
+    skin = head.difference(cap)
+    grow = lambda g: affinity.scale(g, 1.15, 1.15, origin=(cx, cy))
+    return {
+        "main": [(grow(ring(blanket, rw(1.2)).difference(head)), BASE_H, TOP),
+                 (grow(b_dots.difference(head)), BASE_H, TOP),
+                 (grow(cap.difference(cap_dots)), BASE_H, TOP)],
+        "accent": [(grow(pompom), BASE_H, TOP), (grow(hug_star), TOP, TOP + 0.6)],
+        "animal": [(grow(skin), BASE_H, TOP)],
+        "base": [(grow(blanket.difference(head)), BASE_H, TOP), (grow(face.intersection(head)), TOP, TOP + 0.6)],
+    }
+
+
+def layout_night(data, add, layers, k, lang, rtl):
+    outline = night_outline()
+    inner = outline.buffer(-12)
+    add("base", outline, 0, BASE_H)
+    add("main", ring(outline, 12), BASE_H, BASE_H + FRAME_RAISE)
+
+    def put(role, g, z0=BASE_H, z1=TOP):
+        add(role, only_polygons(g.intersection(inner)), z0, z1)
+
+    # crescent moon (accent), hugging the left edge
+    moon = circle(-70, 50, 62).difference(circle(-46, 62, 52))
+    put("accent", moon)
+
+    # clouds standing on the pedestal (main), with the footprint area in them
+    clouds = unary_union([circle(x, -97, r) for x, r in [(-100, 17), (-70, 22), (-35, 18), (0, 23), (35, 18), (70, 22), (105, 16)]]
+                         + [box(-125, -140, 125, -97)]).intersection(box(-200, -118, 200, 0))
+    pad = affinity.scale(circle(62, -99, 1), 40, 17, origin=(62, -99))
+    put("main", clouds.difference(pad))
+    put("base", pad)
+    put("accent", ring(pad, rw(1.2)))
+    put("accent", heart(62, -99, 11))
+
+    # name cloud with the name
+    banner = unary_union([rrect(42, 80, 120, 34, 17), circle(14, 98, 14), circle(46, 102, 19), circle(80, 96, 13)])
+    put("base", banner)
+    put("main", ring(banner, rw(1.4)))
+    put("main", put_text([(data["name"], 22 if lang == "ar" else 19, "word")], lang, rtl, 42, 72, max_width=100), BASE_H, TOP + 0.4)
+
+    # four hanging tags: weight, length, time, date (as in the reference picture, left to right)
+    conv = (lambda s: s.translate(ARABIC_DIGITS)) if lang == "ar" else (lambda s: s)
+    ampm = AMPM[lang][data.get("ampm", "AM").upper()]
+    items = [("weight", [(conv(data["weight"]), 9, "num"), (UNITS[lang]["weight"], 5.5, "word")]),
+             ("length", [(conv(data["length"]), 9, "num"), (UNITS[lang]["length"], 5.5, "word")]),
+             ("time", [(conv(data["time"]), 8, "num"), (ampm, 5.5, "word")]),
+             ("date", [(conv(data["date"]), 6, "num")])]
+    label_font = "ar_label" if rtl else "en_label"
+    for (key, vals), tx in zip(items, (-12, 24, 60, 96)):
+        ty = 5
+        tag = tag_shape(tx, ty)
+        string = box(tx - 0.8, ty + 25, tx + 0.8, 78).difference(banner)
+        put("main", string)
+        put("base", tag)
+        put("main", ring(tag, rw(1.2)))
+        put("main", affinity.translate(ICONS[key](0.42), tx, ty + 12))
+        if k >= 0.6:
+            lab, _ = text_line([(LABELS[lang][key], 5.2, "word")], lang, rtl)
+            lw = max(lab.bounds[2], 1)
+            sc = min(1, 28 / lw)
+            lab = affinity.scale(lab, sc, sc, origin=(0, 0))
+            put("main", affinity.translate(lab, tx - lw * sc / 2 if not rtl else tx + lw * sc / 2 - lw * sc * 0 - lw * sc, ty - 1.5), BASE_H, TOP)
+        put("main", put_text(vals, lang, rtl, tx, ty - 12.5, "center", 28), BASE_H, TOP)
+
+    # stars
+    for (x, y, r) in [(-5, 112, 6), (108, 52, 6), (32, -52, 7), (96, -50, 6.5), (66, -38, 4.5)]:
+        put("accent", star(x, y, r))
+
+    baby = sleeping_baby(-84, -60)
+    for role, its in baby.items():
+        for g, z0, z1 in its:
+            put(role, g, z0, z1)
+
 # --------------------------------------------------------------- layout ----
 def build(data):
     global _K, BASE_H, TOP
@@ -404,67 +519,70 @@ def build(data):
         if geom is not None and not geom.is_empty:
             layers[role].append((geom, z0, z1))
 
-    plate = rrect(0, 0, SIZE, SIZE, 30)
-    add("base", plate, 0, BASE_H)
-    add("main", ring(plate, 12), BASE_H, BASE_H + FRAME_RAISE)
+    if data.get("layout") == "night":
+        layout_night(data, add, layers, k, lang, rtl)
+    else:
+        plate = rrect(0, 0, SIZE, SIZE, 30)
+        add("base", plate, 0, BASE_H)
+        add("main", ring(plate, 12), BASE_H, BASE_H + FRAME_RAISE)
 
-    # name banner (cloud) + animal peeking over it
-    banner = unary_union([rrect(0, 58, 196, 38, 19), circle(0, 79, 17), circle(-38, 77, 13), circle(38, 77, 13),
-                          circle(-72, 72, 10), circle(72, 72, 10)])
-    animal = ANIMALS[data.get("animal", "bear")](0, 111, banner)
-    paws = animal.pop("_paws")
-    for role, items in animal.items():
-        for g, z0, z1 in items:
-            add(role, g, z0, z1)
-    add("base", banner.difference(paws), BASE_H, TOP)  # cream fill hides animal parts behind the cloud
-    add("main", ring(banner, rw(1.4)).difference(paws.buffer(1.0)), BASE_H, TOP)
-    name = data["name"]
-    add("main", put_text([(name, 25 if lang == "ar" else 21, "word")], lang, rtl, 0, 49.5, max_width=160), BASE_H, TOP + 0.4)
+        # name banner (cloud) + animal peeking over it
+        banner = unary_union([rrect(0, 58, 196, 38, 19), circle(0, 79, 17), circle(-38, 77, 13), circle(38, 77, 13),
+                              circle(-72, 72, 10), circle(72, 72, 10)])
+        animal = ANIMALS[data.get("animal", "bear")](0, 111, banner)
+        paws = animal.pop("_paws")
+        for role, items in animal.items():
+            for g, z0, z1 in items:
+                add(role, g, z0, z1)
+        add("base", banner.difference(paws), BASE_H, TOP)  # cream fill hides animal parts behind the cloud
+        add("main", ring(banner, rw(1.4)).difference(paws.buffer(1.0)), BASE_H, TOP)
+        name = data["name"]
+        add("main", put_text([(name, 25 if lang == "ar" else 21, "word")], lang, rtl, 0, 49.5, max_width=160), BASE_H, TOP + 0.4)
 
-    # sky decoration
-    add("accent", crescent(-98, 110, 19), BASE_H, TOP)
-    for (x, y, r) in [(-70, 122, 8), (96, 112, 11), (74, 126, 6.5), (112, 88, 6)]:
-        add("accent", star(x, y, r), BASE_H, TOP)
-    add("main", star(-116, 70, 6), BASE_H, TOP)
+        # sky decoration
+        add("accent", crescent(-98, 110, 19), BASE_H, TOP)
+        for (x, y, r) in [(-70, 122, 8), (96, 112, 11), (74, 126, 6.5), (112, 88, 6)]:
+            add("accent", star(x, y, r), BASE_H, TOP)
+        add("main", star(-116, 70, 6), BASE_H, TOP)
 
-    # info badges
-    weight = data["weight"]
-    length = data["length"]
-    time = data["time"]
-    ampm = AMPM[lang][data.get("ampm", "AM").upper()]
-    date = data["date"]
-    conv = (lambda s: s.translate(ARABIC_DIGITS)) if lang == "ar" else (lambda s: s)
-    values = {
-        "weight": [(conv(weight), 17, "num"), (UNITS[lang]["weight"], 9, "word")],
-        "length": [(conv(length), 17, "num"), (UNITS[lang]["length"], 9, "word")],
-        "date": [(conv(date), 14.5, "num")],
-        "time": [(conv(time), 17, "num"), (ampm, 9, "word")],
-    }
-    order = ["weight", "length", "date", "time"]
-    slots = [(66, 14), (-66, 14), (66, -34), (-66, -34)] if rtl else [(-66, 14), (66, 14), (-66, -34), (66, -34)]
-    for key, (bx, by) in zip(order, slots):
+        # info badges
+        weight = data["weight"]
+        length = data["length"]
+        time = data["time"]
+        ampm = AMPM[lang][data.get("ampm", "AM").upper()]
+        date = data["date"]
+        conv = (lambda s: s.translate(ARABIC_DIGITS)) if lang == "ar" else (lambda s: s)
+        values = {
+            "weight": [(conv(weight), 17, "num"), (UNITS[lang]["weight"], 9, "word")],
+            "length": [(conv(length), 17, "num"), (UNITS[lang]["length"], 9, "word")],
+            "date": [(conv(date), 14.5, "num")],
+            "time": [(conv(time), 17, "num"), (ampm, 9, "word")],
+        }
+        order = ["weight", "length", "date", "time"]
+        slots = [(66, 14), (-66, 14), (66, -34), (-66, -34)] if rtl else [(-66, 14), (66, 14), (-66, -34), (66, -34)]
+        for key, (bx, by) in zip(order, slots):
+            if boxes:
+                add("main", ring(rrect(bx, by, 124, 40, 10), rw(1.2)), BASE_H, TOP)
+            add("main", affinity.translate(ICONS[key](1.0), bx - 39, by), BASE_H, TOP)
+            tx_right, tx_left = bx + 55, bx - 19
+            label_font = "ar_label" if rtl else "en_label"
+            if k >= 0.6:  # labels are too small to print on the S size
+                lab, _ = text_line([(LABELS[lang][key], 7.5, "word")], lang, rtl)
+                lw = max(lab.bounds[2], 1)
+                scale = min(1, 70 / lw)
+                lab = affinity.scale(lab, scale, scale, origin=(0, 0))
+                x0 = (tx_right - lw * scale) if rtl else tx_left
+                add("main", affinity.translate(lab, x0, by + 6.5), BASE_H, TOP)
+            vy = by - 13 if k >= 0.6 else by - 7
+            g = put_text(values[key], lang, rtl, tx_right if rtl else tx_left, vy, "right" if rtl else "left", 72)
+            add("main", g, BASE_H, TOP)
+
+        # footprint area: raised rim, flat inside for a sticker / ink print
+        pad = rrect(0, -97, 124, 62, 12)
         if boxes:
-            add("main", ring(rrect(bx, by, 124, 40, 10), rw(1.2)), BASE_H, TOP)
-        add("main", affinity.translate(ICONS[key](1.0), bx - 39, by), BASE_H, TOP)
-        tx_right, tx_left = bx + 55, bx - 19
-        label_font = "ar_label" if rtl else "en_label"
-        if k >= 0.6:  # labels are too small to print on the S size
-            lab, _ = text_line([(LABELS[lang][key], 7.5, "word")], lang, rtl)
-            lw = max(lab.bounds[2], 1)
-            scale = min(1, 70 / lw)
-            lab = affinity.scale(lab, scale, scale, origin=(0, 0))
-            x0 = (tx_right - lw * scale) if rtl else tx_left
-            add("main", affinity.translate(lab, x0, by + 6.5), BASE_H, TOP)
-        vy = by - 13 if k >= 0.6 else by - 7
-        g = put_text(values[key], lang, rtl, tx_right if rtl else tx_left, vy, "right" if rtl else "left", 72)
-        add("main", g, BASE_H, TOP)
-
-    # footprint area: raised rim, flat inside for a sticker / ink print
-    pad = rrect(0, -97, 124, 62, 12)
-    if boxes:
-        add("main", ring(pad, rw(1.2)), BASE_H, TOP)
-    add("accent", heart(0, -97, 12), BASE_H, TOP)
-    if data.get("stand") == "rails":
+            add("main", ring(pad, rw(1.2)), BASE_H, TOP)
+        add("accent", heart(0, -97, 12), BASE_H, TOP)
+    if data.get("stand") == "rails" and data.get("layout") != "night":
         # T-shaped rails recessed in the two side frame bands (see STANDS.md): cut the base and the frame ring
         opening, cavity = rail_cutters(size)
         (plate0, p0, p1), (ring0, r0, r1) = layers["base"][0], layers["main"][0]
@@ -915,6 +1033,9 @@ def main():
     ap.add_argument("--out", default="out/plaque")
     args = ap.parse_args()
     data = json.load(open(args.data, encoding="utf-8"))
+    if data.get("layout") == "night" and data.get("stand") == "rails":
+        print("NOTE: the round 'night' layout has no straight side bands, so the rails stand is not possible; using feet")
+        data["stand"] = "feet"
     layers = build(data)
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
