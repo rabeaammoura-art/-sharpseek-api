@@ -27,3 +27,5 @@ The repo is **public** — never commit purchase prices, the price sheet, produc
 - The owner's laptop is **Windows**. Remote Control (cloud session working on the laptop) supports only Mac/Linux, so the laptop and the cloud sync **through GitHub** (pull/push).
 - Claude Code installed locally on the laptop reads this same file, so it starts with the same context.
 - The price sheet and any private file must be copied by hand to each machine.
+- There is **no SessionStart hook** any more (it printed an error on the Windows laptop). In a **cloud (Linux) session** run `cad/setup.sh`
+  yourself before using the Python/Bambu Studio tools (it installs `.venv-cad` and the Bambu Studio CLI; takes a few minutes).
