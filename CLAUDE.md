@@ -22,6 +22,9 @@ The repo is **public** — never commit purchase prices, the price sheet, produc
 - Plaque is printed front face up (relief on top, back on the bed). A 300 mm multi-colour plate + prime tower does not fit the H2D: **max coloured size is about 290 mm** (the generator warns above that; recommended ladder 150/200/250/280).
 - Multi-colour estimates are only trustworthy **with** the prime tower (`--tower-x`). Single-colour estimates are reliable.
 - Work directly on `main`, commit and push every change. Do not open PRs unless asked.
+- **Shared memory between sessions:** a cloud session and a laptop session cannot see each other's chats. At the end of every task,
+  append a short entry to `cad/WORKLOG.md` (date, cloud/laptop, what was done, what is left) and commit it. At the start of a
+  session, read the top of `cad/WORKLOG.md`.
 
 ## Laptop / sessions
 - The owner's laptop is **Windows**. Remote Control (cloud session working on the laptop) supports only Mac/Linux, so the laptop and the cloud sync **through GitHub** (pull/push).
