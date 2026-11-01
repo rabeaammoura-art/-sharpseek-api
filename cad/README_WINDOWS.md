@@ -14,5 +14,14 @@
 
 ## ملاحظات
 - في ملف الـ json: `"size"` هو 150 أو 200 أو 300، و`"lit": true` للنسخة المضيئة، و`"stand": "feet"` أو `"clip"` أو `"easel"`.
-- حساب الوقت والكلفة بالسكربت `bambu_slice.py` يعمل في لينكس فقط. على ويندوز اقرأ الوقت والوزن من Bambu Studio نفسه.
 - ملفات الطباعة الجاهزة للأمثلة موجودة في `cad\print_files\`.
+
+## التقطيع وحساب الوقت والكلفة على ويندوز
+`bambu_slice.py` يعمل الآن على ويندوز مع Bambu Studio المثبّت (يقطّع بالـ CLI ويحسب الكلفة من ملف الأسعار).
+- يبحث عن `bambu-studio.exe` تلقائياً: المتغير `BAMBU_STUDIO_DIR`، ثم PATH، ثم `C:\Program Files\Bambu Studio`، ثم السجل. ويقرأ الملفات الشخصية من `resources\profiles\BBL` داخل التثبيت.
+- شغّله من جذر المشروع:
+  ```
+  .venv-cad\Scripts\python.exe cad\bambu_slice.py --filament "Bambu PETG Basic @BBL H2D 0.4 nozzle" cad\print_files\standard\plaque_ar_150.3mf
+  ```
+- للتقطيع متعدد الألوان أعد `--filament` لكل خانة، وأضف `--tower-x` و`--tower-y` و`--tower-width` لبرج التنظيف (بدونه التقدير ناقص).
+- ملفات STL تُوسَّط عبر `trimesh` (لا يحتاج PrusaSlicer). النتائج تُكتب في `cad\out\bambu`.

@@ -8,8 +8,8 @@ Defaults: Bambu Lab H2D 0.4 nozzle, 0.20mm Standard, Bambu ASA, Textured PEI Pla
 Each part is sliced on its own plate; prints time, filament weight and cost per part and in total.
 """
 import argparse
-import glob
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -18,21 +18,62 @@ ROOT = Path(__file__).parent
 sys.path.insert(0, str(ROOT))
 from prices import DEFAULT_FILE, load_prices, price_for  # noqa: E402
 OUT = ROOT / "out" / "bambu"
-CLI = str(ROOT / "bambu-studio")
+WINDOWS = os.name == "nt"
+
+
+def windows_install() -> Path:
+    """Folder of the installed Bambu Studio on Windows: $BAMBU_STUDIO_DIR, PATH, common folders, registry."""
+    import shutil
+    cands = []
+    if os.environ.get("BAMBU_STUDIO_DIR"):
+        cands.append(Path(os.environ["BAMBU_STUDIO_DIR"]))
+    on_path = shutil.which("bambu-studio.exe")
+    if on_path:
+        cands.append(Path(on_path).parent)
+    for var in ("ProgramFiles", "ProgramFiles(x86)", "LOCALAPPDATA"):
+        if os.environ.get(var):
+            cands.append(Path(os.environ[var]) / "Bambu Studio")
+    try:
+        import winreg
+        uninstall = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
+        for hive in (winreg.HKEY_LOCAL_MACHINE, winreg.HKEY_CURRENT_USER):
+            for sub in (uninstall, uninstall.replace("SOFTWARE\\", "SOFTWARE\\WOW6432Node\\")):
+                try:
+                    with winreg.OpenKey(hive, sub) as k:
+                        for i in range(winreg.QueryInfoKey(k)[0]):
+                            with winreg.OpenKey(k, winreg.EnumKey(k, i)) as app:
+                                try:
+                                    if "bambu studio" in winreg.QueryValueEx(app, "DisplayName")[0].lower():
+                                        cands.append(Path(winreg.QueryValueEx(app, "InstallLocation")[0]))
+                                except OSError:
+                                    pass
+                except OSError:
+                    pass
+    except ImportError:
+        pass
+    for c in cands:
+        if (c / "bambu-studio.exe").exists():
+            return c
+    raise SystemExit("bambu-studio.exe not found; install Bambu Studio or set BAMBU_STUDIO_DIR")
+
+
+INSTALL = windows_install() if WINDOWS else None
+CLI = str(INSTALL / "bambu-studio.exe") if WINDOWS else str(ROOT / "bambu-studio")
 
 
 def profiles_dir() -> Path:
+    if WINDOWS:
+        return INSTALL / "resources" / "profiles" / "BBL"
     loc = subprocess.check_output(
         ["flatpak", "info", "--user", "--show-location", "com.bambulab.BambuStudio"], text=True).strip()
     return Path(loc) / "files/share/BambuStudio/profiles/BBL"
 
-
 def flatten(kind: str, name: str) -> dict:
     """Resolve the `inherits` chain; the CLI does not do it for loaded files."""
     index = {}
-    for f in glob.glob(str(profiles_dir() / kind / "**/*.json"), recursive=True):
+    for f in (profiles_dir() / kind).rglob("*.json"):
         try:
-            d = json.load(open(f))
+            d = json.loads(f.read_text(encoding="utf-8"))
         except ValueError:
             continue
         if "name" in d:
@@ -74,10 +115,10 @@ def prepare_3mf(src: Path, filament_files: list, part_dir: Path, base_cmd: list,
     n = len(filament_files)
     cube = part_dir / "cube.stl"
     trimesh.creation.box((10, 10, 10)).export(cube)
-    with open(part_dir / "prep.log", "w") as log:
+    with open(part_dir / "prep.log", "w", encoding="utf-8") as log:
         subprocess.run(base_cmd + ["--arrange", "1", "--orient", "0", "--slice", "0", "--outputdir", str(part_dir),
                                    "--export-3mf", "prep.3mf", str(cube)], stdout=log, stderr=log)
-    cfg = json.loads(zipfile.ZipFile(part_dir / "prep.3mf").read("Metadata/project_settings.config"))
+    cfg = json.loads(zipfile.ZipFile(part_dir / "prep.3mf").read("Metadata/project_settings.config").decode("utf-8"))
     for k in PER_FILAMENT_SINGLES:
         if isinstance(cfg.get(k), list) and len(cfg[k]) == 1:
             cfg[k] = cfg[k] * n
@@ -93,7 +134,7 @@ def prepare_3mf(src: Path, filament_files: list, part_dir: Path, base_cmd: list,
         for item in zin.infolist():
             data = zin.read(item.filename)
             if item.filename == "Metadata/project_settings.config":
-                data = json.dumps(cfg, indent=4).encode()
+                data = json.dumps(cfg, indent=4, ensure_ascii=False).encode("utf-8")
             zout.writestr(item, data)
     return out
 
@@ -149,11 +190,11 @@ def main():
         slot_prices = [p for _, p in resolved]
         print("prices (landed, from stock sheet): " + ", ".join(sorted({f"{t} {p:.3f} JOD/kg" for t, p in resolved})))
     for name, d in (("machine", machine), ("process", process)):
-        json.dump(d, open(OUT / f"{name}.json", "w"), indent=1)
+        (OUT / f"{name}.json").write_text(json.dumps(d, indent=1, ensure_ascii=False), encoding="utf-8")
     filament_files = []
     for i, fname in enumerate(filaments):
         f = OUT / f"filament{i}.json"
-        json.dump(flatten("filament", fname), open(f, "w"), indent=1)
+        f.write_text(json.dumps(flatten("filament", fname), indent=1, ensure_ascii=False), encoding="utf-8")
         filament_files.append(str(f))
     cx, cy = plate_center(machine)
     total_s = total_g = total_fil = 0.0
@@ -172,14 +213,17 @@ def main():
         else:
             centred = part_dir / "centred.stl"
             # The CLI does not move objects onto the plate; put the model at the nozzle-area centre.
-            subprocess.run(["prusa-slicer", "--center", f"{cx},{cy}", "--export-stl", "-o", str(centred),
-                            str(stl.resolve())], check=True, capture_output=True)
-        with open(part_dir / "log.txt", "w") as log:
+            import trimesh
+            mesh = trimesh.load(stl.resolve(), force="mesh")
+            lo, hi = mesh.bounds
+            mesh.apply_translation([cx - (lo[0] + hi[0]) / 2, cy - (lo[1] + hi[1]) / 2, -lo[2]])
+            mesh.export(centred)
+        with open(part_dir / "log.txt", "w", encoding="utf-8") as log:
             subprocess.run([CLI, "--load-settings", f"{OUT / 'machine.json'};{OUT / 'process.json'}",
                             "--load-filaments", ";".join(filament_files), "--arrange", "0", "--orient", "0",
                             "--slice", "0", "--outputdir", str(part_dir), "--export-3mf", "out.3mf",
                             str(centred)], stdout=log, stderr=log)
-        res = json.load(open(part_dir / "result.json"))
+        res = json.loads((part_dir / "result.json").read_text(encoding="utf-8"))
         if res["return_code"] != 0:
             print(f"{stl.stem}: FAILED - {res['error_string']} (see {part_dir / 'log.txt'})")
             continue
