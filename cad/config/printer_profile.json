@@ -1,0 +1,23 @@
+{
+  "_note": "ESTIMATES from public forum reports, NOT measured on this printer. Replace after printing a test piece and measuring it with calipers; then set calibrated=true.",
+  "calibrated": false,
+  "outer_growth": [
+    -0.05,
+    0.08
+  ],
+  "hole_growth": [
+    -0.05,
+    0.15
+  ],
+  "z_growth": [
+    0.0,
+    0.15
+  ],
+  "elephant_foot": 0.1,
+  "elephant_z": 0.8,
+  "free_gap": 0.15,
+  "fuse_gap": 0.05,
+  "loose_gap": 1.5,
+  "pair_distance": 3.0,
+  "min_volume": 50.0
+}
