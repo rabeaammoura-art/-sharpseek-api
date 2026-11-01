@@ -97,8 +97,8 @@ def polygonize_parity(path):
         return None
     pts = shapely.points(np.array([[c.representative_point().x, c.representative_point().y] for c in cells]))
     tree = shapely.STRtree([r for r in rings if not r.is_empty])
-    _, ci = tree.query(pts, predicate="within")                 # (point, ring) pairs
-    cnt = np.bincount(ci, minlength=len(cells)) if False else np.bincount(tree.query(pts, predicate="within")[0], minlength=len(cells))
+    ci = tree.query(pts, predicate="within")[0]                 # indices of the points inside each ring
+    cnt = np.bincount(ci, minlength=len(cells))
     keep = [c for c, k in zip(cells, cnt) if k % 2 == 1]
     return unary_union(keep) if keep else None
 
@@ -116,12 +116,9 @@ def slice_layers(meshes, step):
         for k, p in enumerate(paths):
             if p is None:
                 continue
-            try:
-                per_layer[k] += [pg for pg in p.polygons_full if pg.is_valid and pg.area > 1e-6]
-            except Exception:                          # non-manifold edges (touching colour shells): rebuild by parity
-                g = polygonize_parity(p)
-                if g is not None:
-                    per_layer[k].append(g)
+            g = polygonize_parity(p)           # trimesh's polygons_full is O(n^2) and fails on non-manifold edges
+            if g is not None:
+                per_layer[k].append(g)
     return zs, [unary_union(l) if l else Polygon() for l in per_layer]
 
 
