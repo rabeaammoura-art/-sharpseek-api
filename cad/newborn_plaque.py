@@ -33,6 +33,7 @@ BASE_H = 2.4          # cream base plate
 RAISE = 1.2           # raised detail on the base
 FRAME_RAISE = 1.8
 CAP_OVERLAP = 0.4     # mm: each part rests on this much of base around its (smaller) opening
+TOWER_LIMIT = 305.0   # mm: right-most x a prime tower can reach on the left nozzle (measured with the CLI)
 LIT_BASE_H = 1.2      # thin translucent front plate of the backlit version
 TOP = BASE_H + RAISE  # second-level detail (eyes, muzzle) sits on top of level-1 detail
 FONT_DIR = Path(__file__).parent / "fonts"   # bundled, so it works on Windows/macOS/Linux
@@ -937,7 +938,14 @@ def main():
     material = data.get("material", "petg" if (data.get("lit") or data.get("glow") or data.get("glow_cap")) else "pla")
     template = (Path(__file__).parent / "config" / f"bambu_project_4fil_{material}.config").read_bytes()
     colours = [THEMES[theme][r].upper() for r in ("base", "main", "accent", "animal")]
-    tower = (data.get("tower_x", round(plate_x + size / 2 + 6, 1)), 120, data.get("tower_w", 14))   # narrow tower right of the plaque (see PRINTING_NOTES.md)
+    # prime tower right of the plaque: it must end before x ~305 (reach of one nozzle, see PRINTING_NOTES.md), so it gets
+    # as wide as the room allows (8-14 mm). Above ~290 mm there is no room for a coloured plaque.
+    right = plate_x + size / 2
+    tower_x = data.get("tower_x", round(right + 3, 1))
+    tower_w = data.get("tower_w", max(min(14, round(TOWER_LIMIT - tower_x, 1)), 0))
+    if tower_x + tower_w > TOWER_LIMIT + 0.01 or tower_w < 8:
+        print(f"WARNING: no room for the prime tower next to a {size:.0f} mm plaque (max about 290 mm for 4 colours)")
+    tower = (tower_x, 120, tower_w)
     write_bambu_3mf(out / f"{stem}.3mf", parts, center=(plate_x, data.get("plate_y", 160.0)), name=stem,
                     project_settings=build_project_settings(template, colours, tower))
     print("wrote", out / f"{stem}.3mf")

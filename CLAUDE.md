@@ -7,7 +7,7 @@ The repo is **public** — never commit purchase prices, the price sheet, produc
 - `worker.js`, `wrangler.toml`: the original "SharpSeek price search API" (Cloudflare worker). Unrelated to the 3D work.
 - `cad/`: everything for the **newborn keepsake plaque** (bilingual Arabic/English, bear or baby, multi-colour, 4 filament slots).
   - `cad/newborn_plaque.py` — generator: `python cad/newborn_plaque.py cad/plaque/example_ar.json` -> 3MF (+ STL, PNG preview).
-    JSON keys: `size` (150/200/280), `lang`, `name`, `weight`, `length`, `date`, `time`, `ampm`, `animal`
+    JSON keys: `size` (any up to 290; 150/200/250/280 proven), `lang`, `name`, `weight`, `length`, `date`, `time`, `ampm`, `animal`
     (`bear`/`baby_boy`/`baby_girl`), `theme`, `stand` (`feet`/`rails`/`easel`/`clip`), `lit`, `glow`, `glow_cap`, `boxes`, `plate_x`.
   - `cad/print_files/` — ready files (see its README). `cad/plaque/gpt_prompt/` — prompts to get images from GPT.
   - `cad/STANDS.md` — all stand ideas, pros/cons, decisions. `cad/PRINTING_NOTES.md` — H2D/slicer findings. **Read both before changing stands or sizes.**
@@ -19,7 +19,7 @@ The repo is **public** — never commit purchase prices, the price sheet, produc
 - **The printer (Bambu Lab H2D) has not arrived yet.** Nothing is print-tested. Never say "print a test" as if they could; prepare files and software checks.
 - Priorities: **print time matters more than cost**; no glue; no thicker base; avoid loose separate pieces; the owner likes things shown as images.
 - Prices come only from `cad/config/filament_prices.xlsx` (git-ignored; ask the owner to upload `3D_ZONE_TECH_Filament.xlsx` if missing). PLA = PLA+.
-- Plaque is printed front face up (relief on top, back on the bed). A 300 mm multi-colour plate + prime tower does not fit the H2D: **sizes are 150/200/280 mm**.
+- Plaque is printed front face up (relief on top, back on the bed). A 300 mm multi-colour plate + prime tower does not fit the H2D: **max coloured size is about 290 mm** (the generator warns above that; recommended ladder 150/200/250/280).
 - Multi-colour estimates are only trustworthy **with** the prime tower (`--tower-x`). Single-colour estimates are reliable.
 - Work directly on `main`, commit and push every change. Do not open PRs unless asked.
 

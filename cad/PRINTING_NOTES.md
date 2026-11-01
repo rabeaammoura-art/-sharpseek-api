@@ -21,3 +21,9 @@
 - The generated 3MF now carries 4 filaments + slot colours + prime tower (templates `config/bambu_project_4fil_{pla,petg}.config`).
   Sliced directly with only its embedded settings (CLI): 150 mm standard, PLA, 1h49m / 62.5 g, no warnings.
 - Windows: `bambu_slice.py` works with the installed Bambu Studio (commit eef8ef5 from the laptop session): 150 mm test 2h07m / 60.6 g vs ~2h09m on Linux.
+
+## Largest coloured plaque (measured, CLI)
+- One nozzle reaches about x=305 for the prime tower. The generator now places the plaque 4 mm from the left edge and the
+  tower 3 mm right of it, as wide as the room allows (8-14 mm). `TOWER_LIMIT = 305` in `newborn_plaque.py`.
+- 285 mm (tower 12 mm): 4h24m / 199.5 g (PLA). 290 mm (tower 8 mm): 4h37m / 207.6 g (PLA). 300 mm: no room (tried in Bambu Studio, failed).
+- Bigger coloured plaques would need: two half-plates joined, or a single-colour print (no tower).
