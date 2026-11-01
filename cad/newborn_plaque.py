@@ -58,6 +58,7 @@ THEMES = {
     "boy":       {"base": "#f2f0ea", "main": "#3e628a", "accent": "#f0c446", "animal": "#8a5a36"},
     "girl":      {"base": "#f2f0ea", "main": "#d9808c", "accent": "#f4c95d", "animal": "#8a5a36"},
     "night":     {"base": "#1f3a6e", "main": "#f2f0ea", "accent": "#f0c446", "animal": "#e8b48c"},
+    "train":     {"base": "#1f3a6e", "main": "#f6ecd2", "accent": "#f2c230", "animal": "#e0b07a"},
     "glow":      {"base": "#f5ecd7", "main": "#2f6bff", "accent": "#ffd23a", "animal": "#ff8a1f"},  # simulated glow
     "lit":       {"base": "#ffe9a8", "main": "#2b4666", "accent": "#d9a92e", "animal": "#7a5a3a"},  # simulated glow
 }
@@ -69,6 +70,7 @@ THEME_FILAMENTS = {
     "sky":       ["PLA+ White", "PLA+ Cyan", "PLA+ Yellow", "PLA+ Grey"],
     "gold_dark": ["PLA+ Black", "Silk PLA Gold", "Silk PLA Rose Gold", "Silk PLA Bronze"],
     "night":     ["PLA+ Navy Blue", "PLA+ White", "PLA+ Yellow", "PLA+ Beige (skin)"],
+    "train":     ["PLA+ Navy Blue", "PLA+ Cream / Ivory", "PLA+ Yellow", "PLA+ Beige / Tan"],
 }
 THEME_FILAMENTS["boy"], THEME_FILAMENTS["girl"] = THEME_FILAMENTS["blue"], THEME_FILAMENTS["pink"]
 
@@ -501,6 +503,97 @@ def layout_night(data, add, layers, k, lang, rtl):
         for g, z0, z1 in its:
             put(role, g, z0, z1)
 
+
+# ------------------------------------------------------- "train" layout ----
+def layout_train(data, add, layers, k, lang, rtl):
+    """Wide plaque (about 300 x 190 design units): a steam engine pulling four wagons that carry the weight, length, time
+    and date cards, a dome behind them with the name, a sleeping bear on the dome, a moon and stars. Flat shapes only."""
+    put = lambda role, g, z0=BASE_H, z1=TOP: add(role, only_polygons(g), z0, z1)
+
+    def disc_ring(cx, cy, r, w):
+        return ring(circle(cx, cy, r), w)
+
+    # --- body parts (all navy = the base plate silhouette) ---
+    slab = rrect(0, -80, 300, 20, 10)
+    dome = affinity.scale(circle(0, 0, 1), 78, 56, origin=(0, 0))
+    dome = affinity.translate(dome, 72, 30).intersection(box(-200, 30, 300, 200))
+    wagons = rrect(64, -3, 176, 66, 10)
+    boiler = rrect(-100, -4, 100, 52, 14)
+    chimney = unary_union([box(-128, 20, -108, 60), rrect(-118, 60, 30, 9, 4)])
+    cab = unary_union([rrect(-43, 6, 40, 64, 5), rrect(-43, 40, 48, 11, 4)])
+    smoke = unary_union([circle(-140, 76, 10), circle(-124, 82, 12), circle(-107, 77, 10), circle(-94, 71, 8),
+                         rrect(-116, 72, 50, 10, 5)])
+    cow = Polygon([(-152, -48), (-122, -30), (-122, -72), (-148, -72)]).buffer(1.5, 6)
+    wheels = [(-80, -54, 18), (-118, -60, 13), (0, -57, 13.5), (43, -57, 13.5), (86, -57, 13.5), (129, -57, 13.5)]
+    bear_sil = affinity.scale(unary_union([circle(40, 84, 19), circle(25, 99, 8), circle(55, 99, 8),
+                                          affinity.translate(affinity.scale(circle(0, 0, 1), 8.5, 6.5), 28, 67),
+                                          affinity.translate(affinity.scale(circle(0, 0, 1), 8.5, 6.5), 52, 67)]),
+                              1.15, 1.15, origin=(40, 84))
+    body = unary_union([bear_sil.buffer(3, 12), slab, dome, wagons, boiler, chimney, cab, cow, smoke.buffer(3, 12)] +
+                       [circle(x, y, r + 1) for x, y, r in wheels])
+    outline = body.buffer(2, 12).buffer(-2, 12)
+    add("base", outline, 0, BASE_H)
+    add("main", ring(outline, 2.6), BASE_H, BASE_H + FRAME_RAISE)
+
+    # --- cream (main) details ---
+    texts = []        # recessed: the navy plate shows through
+    label_font = "ar_label" if rtl else "en_label"
+    conv = (lambda t: t.translate(ARABIC_DIGITS)) if lang == "ar" else (lambda t: t)
+    ampm = AMPM[lang][data.get("ampm", "AM").upper()]
+    items = {"weight": [(conv(data["weight"]), 9, "num"), (UNITS[lang]["weight"], 6, "word")],
+             "length": [(conv(data["length"]), 9, "num"), (UNITS[lang]["length"], 6, "word")],
+             "time": [(conv(data["time"]), 8, "num"), (ampm, 6, "word")],
+             "date": [(conv(data["date"]), 6.4, "num")]}
+    order = ["date", "time", "length", "weight"] if rtl else ["weight", "length", "time", "date"]
+    cards, card_marks = [], []
+    for key, cx in zip(order, (0, 43, 86, 129)):
+        card = rrect(cx, -3, 37, 52, 8)
+        cards.append(card)
+        mark = [affinity.translate(ICONS[key](0.5), cx, 10)]
+        if k >= 0.6:
+            lab, _ = text_line([(LABELS[lang][key], 5.4, "word")], lang, rtl)
+            lw = max(lab.bounds[2], 1)
+            sc = min(1, 30 / lw)
+            lab = affinity.scale(lab, sc, sc, origin=(0, 0))
+            mark.append(affinity.translate(lab, cx - lw * sc / 2 + (0 if not rtl else 0), -6))
+        mark.append(put_text(items[key], lang, rtl, cx, -19, "center", 32))
+        card_marks += mark
+    dome_cream = affinity.translate(affinity.scale(circle(0, 0, 1), 52, 34, origin=(0, 0)), 62, 30).intersection(box(-200, 30, 300, 200))
+    name = put_text([(data["name"], 19 if lang == "ar" else 16, "word")], lang, rtl, 62, 38, max_width=70)
+    window = rrect(-43, 10, 17, 26, 3)
+    stripes = unary_union([box(x, -80, x + 3, -20) for x in (-146, -140, -134, -128)]).intersection(cow.buffer(-1.5))
+    marks = unary_union(card_marks + [name])
+    put("main", unary_union(cards + [dome_cream, smoke, window]).difference(marks))
+    put("main", stripes)
+
+    # --- yellow (accent) ---
+    moon = circle(121, 56, 17).difference(circle(128, 60, 14))
+    stars = [star(8, 50, 7), star(100, 78, 6), star(138, 36, 5), star(14, 72, 4.5)]
+    front = circle(-130, -6, 19)
+    put("accent", unary_union([moon] + stars))
+    put("accent", front.difference(star(-130, -6, 10.5)))
+    put("accent", unary_union([box(-128, 36, -108, 42), box(-65, 38, -21, 42)]))
+    for x, y, r in wheels:
+        put("accent", disc_ring(x, y, r * 0.8, r * 0.3))
+
+    # --- the bear (animal colour), resting on the dome ---
+    hx, hy = 40, 84
+    head = circle(hx, hy, 19)
+    ears = unary_union([circle(hx - 15, hy + 15, 8), circle(hx + 15, hy + 15, 8)])
+    inner = unary_union([circle(hx - 15, hy + 15, 4), circle(hx + 15, hy + 15, 4)])
+    paws = unary_union([affinity.scale(circle(hx - 12, hy - 17, 1), 8.5, 6.5, origin=(hx - 12, hy - 17)),
+                        affinity.scale(circle(hx + 12, hy - 17, 1), 8.5, 6.5, origin=(hx + 12, hy - 17))])
+    def lower_arc(x, y, r, w):
+        return ring(circle(x, y, r), rw(w)).intersection(box(x - r - 1, y - r - 1, x + r + 1, y))
+    feat = unary_union([lower_arc(hx - 7.5, hy + 3, 3.8, 1.5), lower_arc(hx + 7.5, hy + 3, 3.8, 1.5),
+                        affinity.scale(circle(hx, hy - 3.5, 1), 3.2, 2.3, origin=(hx, hy - 3.5)),
+                        box(hx - 0.7, hy - 8.5, hx + 0.7, hy - 4), lower_arc(hx - 2.8, hy - 8, 2.8, 1.2), lower_arc(hx + 2.8, hy - 8, 2.8, 1.2)])
+    grow = lambda g: affinity.scale(g, 1.15, 1.15, origin=(hx, hy))
+    bear = grow(unary_union([head, ears, paws]))
+    put("animal", bear.difference(grow(feat)).difference(grow(inner)))
+    put("main", grow(inner))
+    return outline
+
 # --------------------------------------------------------------- layout ----
 def build(data):
     global _K, BASE_H, TOP
@@ -521,6 +614,8 @@ def build(data):
 
     if data.get("layout") == "night":
         layout_night(data, add, layers, k, lang, rtl)
+    elif data.get("layout") == "train":
+        layout_train(data, add, layers, k, lang, rtl)
     else:
         plate = rrect(0, 0, SIZE, SIZE, 30)
         add("base", plate, 0, BASE_H)
@@ -582,7 +677,7 @@ def build(data):
         if boxes:
             add("main", ring(pad, rw(1.2)), BASE_H, TOP)
         add("accent", heart(0, -97, 12), BASE_H, TOP)
-    if data.get("stand") == "rails" and data.get("layout") != "night":
+    if data.get("stand") == "rails" and data.get("layout") not in ("night", "train"):
         # T-shaped rails recessed in the two side frame bands (see STANDS.md): cut the base and the frame ring
         opening, cavity = rail_cutters(size)
         (plate0, p0, p1), (ring0, r0, r1) = layers["base"][0], layers["main"][0]
@@ -1033,8 +1128,8 @@ def main():
     ap.add_argument("--out", default="out/plaque")
     args = ap.parse_args()
     data = json.load(open(args.data, encoding="utf-8"))
-    if data.get("layout") == "night" and data.get("stand") == "rails":
-        print("NOTE: the round 'night' layout has no straight side bands, so the rails stand is not possible; using feet")
+    if data.get("layout") in ("night", "train") and data.get("stand") == "rails":
+        print("NOTE: this layout has no straight side bands, so the rails stand is not possible; using feet")
         data["stand"] = "feet"
     layers = build(data)
     out = Path(args.out)
