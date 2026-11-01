@@ -45,16 +45,29 @@ FONTS = {
 FALLBACK_EN = Path("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf")  # only used if a bundled font is missing
 
 # preview colours only -- the real filament is chosen in the slicer
+# Slot colours (base, main, accent, animal) = what the stock filaments look like; used for the preview and as the
+# filament colours inside the 3MF. THEME_FILAMENTS lists the real stock spools per slot (price type in the stock sheet).
 THEMES = {
-    "blue":   {"base": "#f5ecd7", "main": "#3e628a", "accent": "#f0c446", "animal": "#c8a078"},
-    "green":  {"base": "#f5ecd7", "main": "#5b8a72", "accent": "#f0c446", "animal": "#b9c3cc"},
-    "pink":   {"base": "#f8ece4", "main": "#d9808c", "accent": "#f4d28a", "animal": "#f3e6d8"},
-    "purple": {"base": "#f5ecd7", "main": "#8e739f", "accent": "#f0c446", "animal": "#e8b8c4"},
-    "glow":   {"base": "#f5ecd7", "main": "#2f6bff", "accent": "#ffd23a", "animal": "#ff8a1f"},  # simulated glow
-    "boy":    {"base": "#f5ecd7", "main": "#3e628a", "accent": "#f0c446", "animal": "#8a5a36"},
-    "girl":   {"base": "#f8ece4", "main": "#d9808c", "accent": "#f4c95d", "animal": "#8a5a36"},
-    "lit":    {"base": "#ffe9a8", "main": "#2b4666", "accent": "#d9a92e", "animal": "#7a5a3a"},  # simulated glow
+    "blue":      {"base": "#f2f0ea", "main": "#3e628a", "accent": "#f0c446", "animal": "#8a5a36"},
+    "pink":      {"base": "#f2f0ea", "main": "#d9808c", "accent": "#f4c95d", "animal": "#8a5a36"},
+    "green":     {"base": "#f2f0ea", "main": "#5b8a72", "accent": "#e58a2b", "animal": "#8a5a36"},
+    "purple":    {"base": "#f2f0ea", "main": "#8e739f", "accent": "#e8c24a", "animal": "#9a6a3a"},
+    "sky":       {"base": "#f2f0ea", "main": "#3aa8c8", "accent": "#f0c446", "animal": "#8c96a0"},
+    "gold_dark": {"base": "#26262a", "main": "#d4af37", "accent": "#c98b7b", "animal": "#a0703a"},
+    "boy":       {"base": "#f2f0ea", "main": "#3e628a", "accent": "#f0c446", "animal": "#8a5a36"},
+    "girl":      {"base": "#f2f0ea", "main": "#d9808c", "accent": "#f4c95d", "animal": "#8a5a36"},
+    "glow":      {"base": "#f5ecd7", "main": "#2f6bff", "accent": "#ffd23a", "animal": "#ff8a1f"},  # simulated glow
+    "lit":       {"base": "#ffe9a8", "main": "#2b4666", "accent": "#d9a92e", "animal": "#7a5a3a"},  # simulated glow
 }
+THEME_FILAMENTS = {
+    "blue":      ["PLA+ White", "PLA+ Blue", "PLA+ Yellow", "Walnut PLA"],
+    "pink":      ["PLA+ White", "PLA+ Pink", "PLA+ Yellow", "Walnut PLA"],
+    "green":     ["PLA+ White", "PLA+ Green", "PLA+ Orange", "Walnut PLA"],
+    "purple":    ["PLA+ White", "PLA+ Purple", "Silk PLA Gold", "Silk PLA Bronze"],
+    "sky":       ["PLA+ White", "PLA+ Cyan", "PLA+ Yellow", "PLA+ Grey"],
+    "gold_dark": ["PLA+ Black", "Silk PLA Gold", "Silk PLA Rose Gold", "Silk PLA Bronze"],
+}
+THEME_FILAMENTS["boy"], THEME_FILAMENTS["girl"] = THEME_FILAMENTS["blue"], THEME_FILAMENTS["pink"]
 
 ARABIC_DIGITS = str.maketrans("0123456789.", "٠١٢٣٤٥٦٧٨٩٫")
 LABELS = {
