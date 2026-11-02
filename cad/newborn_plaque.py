@@ -702,7 +702,7 @@ def layout_train(data, add, layers, k, lang, rtl):
     # light tray can hold, and the wheels sit on something
     bx0, by0, bx1, by1 = geo["base"].bounds
     track = rrect((bx0 + bx1) / 2, by0 + 1.0, (bx1 - bx0) - 14, 9.0, 4.0)
-    body = unary_union([geo["base"], track])
+    body = unary_union([geo["base"], track]) if data.get("track", True) else geo["base"]   # track false = the wavy traced bottom edge of the picture
     ymin = body.bounds[1]
     key_mm = lock_x((bx1 - bx0) * k)
     ymin_mm = ymin * k
@@ -953,8 +953,8 @@ def make_lit_tray(outline_mm, glow=True, key_x=60.0, tabs=False):
     ledge_top = depth - plate_t
     ytb = outer.bounds[1]
     cx = (outer.bounds[0] + outer.bounds[2]) / 2
-    slot = box(cx - 5, ytb - 1, cx + 5, ytb + wall + 1)
-    z0, z1 = 4.0, 8.5
+    slot = box(cx - 7, ytb - 1, cx + 7, ytb + wall + 1)      # USB-C plug housing 14 x 8 mm (owner approved)
+    z0, z1 = 3.0, 11.0
     x0, y0, x1, y1 = outer.bounds
     TAB_T = 3.0
     tab_cut = back_tabs = None

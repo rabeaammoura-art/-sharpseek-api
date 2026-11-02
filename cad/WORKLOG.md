@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-02 (cloud) — owner's explainer picture matched to the build; USB-C slot 14x8; wavy edge option
+- Owner's picture = the same lit train design. Checked: "كغم" already correct, date is only an example, hooks/slide-left as built, body stays PETG blue (owner choice), LED layout left for later. Picture has a wavy (cloud) bottom edge, the build has a flat track strip.
+- Done: tray USB-C slot enlarged to 14 x 8 mm (z 3-11). New JSON key `"track": false` removes the flat strip (wavy traced edge), default stays true.
+- PROBLEM with `track: false`: the two hook tongues (at +-lock_x) are not under wheels, so they float free of the plaque. Needs the owner's choice (move locks under wheels / small bridge piece / keep the strip). Not decided, strip stays for now.
+- Printer still at customs (owner, 2 Nov). Nothing print-tested.
+
 ## 2026-11-02 (cloud) — hook locking: Γ pins into L-shaped keyhole slots, slide 8 mm left
 - Owner's spec (drew an upside-down L): four hooks, each on a long rail only; they ENTER holes in the plaque and the tray; lower the parts, then slide left/right. Built: base = ladder (two rails, six even sleepers + tail) with 4 hooks (stem + 3 mm pin + 6 mm head); plaque: two 18 mm tongues, 10.3 mm below the plaque, with an L-shaped keyhole slot (wide entry leg 6.8, narrow leg 3.4, slide 8 mm); tray: two back tabs (3 mm thick) with the same slots, and cut-outs in the lowest wall for the tongues. Everything is defined in a tray frame and mapped with `pin_frame()` (tilt 12 degrees, tray hangs on the pins).
 - Software fit (`scratchpad/fit2.py`): zero interference at entry / halfway / locked, collision at the ends of the slot and for lift/pull/push. Base 280: 0h40m / 19 g; 200: 0h35m / 15 g. Totals about 6h34m (280) and 4h22m (200). Plaque not re-sliced after the slots (should be about the same).
