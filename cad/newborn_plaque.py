@@ -960,6 +960,10 @@ def make_foot(size, thickness=None, length=None, plate_h=None, arches=False, key
     slot = Polygon([(y0 - half, height), (y0 + half, height),
                     (y0 + half - shift, height - SLOT_DEPTH), (y0 - half - shift, height - SLOT_DEPTH)])
     profile = box(0, 0, depth, height).difference(slot)
+    if length:        # railway track: a thin slab (the slot floor) with two rails, the walls of the slot, standing on it
+        floor_z = height - SLOT_DEPTH
+        rails = slot.buffer(8.0, join_style=2).intersection(box(0, floor_z, depth, height))
+        profile = unary_union([box(0, 0, depth, floor_z), rails]).difference(slot)
     m = trimesh.creation.extrude_polygon(profile, width)  # profile x->Y (depth), y->Z (up), extrusion z->X (width)
     m.apply_transform([[0, 0, 1, -width / 2], [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1]])
     if length:        # railway track: sleepers (cross grooves) on the whole top and two rails on the rear deck; two pegs for the tray's holes
@@ -967,7 +971,7 @@ def make_foot(size, thickness=None, length=None, plate_h=None, arches=False, key
         grooves = [trimesh.creation.box(extents=[4.0, depth + 2, 1.6], transform=trimesh.transformations.translation_matrix([x, depth / 2, height - 0.8 + 0.01])) for x in tx]
         for gm in (grooves if sleepers else []):
             m = trimesh.boolean.difference([m, gm], engine="manifold")
-        for ry in (depth - 8.0, depth - 21.0):
+        for ry in ((depth - 8.0, depth - 21.0) if sleepers else ()):
             rail = trimesh.creation.box(extents=[width - 6, 5.0, 2.0], transform=trimesh.transformations.translation_matrix([0, ry, height + 0.99]))
             m = trimesh.boolean.union([m, rail], engine="manifold")
         keyx = key_x

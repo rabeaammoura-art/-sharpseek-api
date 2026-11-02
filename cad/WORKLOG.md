@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-02 (cloud) — base = slab + two rails (as in the owner's explainer picture)
+- Owner sent a product explainer (front plaque + LED + hollow back; plaque slides into the rails of a track base; one colour is enough). Base profile is now a thin slab (8 mm) with two rails that are the walls of the slot; sleepers off. Base 280: 1h00m / 51 g, 200: 0h42m / 33 g. Totals about 6h52m (280) and 4h27m (200).
+- Tray + base lock with two 6 mm pegs. Not print-tested.
+
 ## 2026-11-02 (cloud) — railway-track base with locking pegs
 - Owner's idea: base shaped like a railway track and locked to the tray. Done: two rails on the rear deck + two 6 mm pegs in the slot floor that enter two holes in the tray's lowest wall (`key_x`). Sleepers (cross grooves) measured +12 min -> optional (`sleepers=True`). Base 280: 1h11m / 62 g (plain was 1h04m). Totals about 6h57m (280) and 4h32m (200).
 - Not print-tested; peg/hole fit (6.0 vs 6.6 mm) to be checked on the printer.
