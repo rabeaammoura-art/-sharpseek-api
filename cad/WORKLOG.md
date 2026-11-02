@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-02 (cloud) — hook locking: Γ pins into L-shaped keyhole slots, slide 8 mm left
+- Owner's spec (drew an upside-down L): four hooks, each on a long rail only; they ENTER holes in the plaque and the tray; lower the parts, then slide left/right. Built: base = ladder (two rails, six even sleepers + tail) with 4 hooks (stem + 3 mm pin + 6 mm head); plaque: two 18 mm tongues, 10.3 mm below the plaque, with an L-shaped keyhole slot (wide entry leg 6.8, narrow leg 3.4, slide 8 mm); tray: two back tabs (3 mm thick) with the same slots, and cut-outs in the lowest wall for the tongues. Everything is defined in a tray frame and mapped with `pin_frame()` (tilt 12 degrees, tray hangs on the pins).
+- Software fit (`scratchpad/fit2.py`): zero interference at entry / halfway / locked, collision at the ends of the slot and for lift/pull/push. Base 280: 0h40m / 19 g; 200: 0h35m / 15 g. Totals about 6h34m (280) and 4h22m (200). Plaque not re-sliced after the slots (should be about the same).
+- Not print-tested; pin 3 mm in PETG and the 0.2 mm slot play to be checked on the printer.
+- Owner rule learned: do NOT edit before the owner confirms a drawing/understanding when they say so; they draw what they mean.
+
 ## 2026-11-02 (cloud) — base: posts clear of the rails, peg in the rear half
 - Owner: the locking nubs must be 2 in front + 2 behind at equal places (not one on a sleeper and one on a rail), one holding the plaque, one the back. Slot moved 8 mm back so the posts stand between the rails; peg now in the rear half of the slot floor (tray hole at tray depth 1.4-8.0), the plaque's tongue pocket in the front half. Base depth 62 mm. Base 280: 0h46m / 24 g, 200: 0h40m / 20 g. Totals about 6h38m / 4h26m. Fit check: no interference.
 - Also: `scratchpad/render` (three.js in headless Chromium) can make clean renders of any STL; not photoreal.
