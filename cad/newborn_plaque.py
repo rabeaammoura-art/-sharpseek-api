@@ -904,7 +904,7 @@ def make_lit_box(size, glow=False):
 
 
 
-def make_lit_tray(outline_mm, glow=True):
+def make_lit_tray(outline_mm, glow=True, key_x=60.0):
     """Light tray that follows the plaque outline (for traced layouts): back panel for the LED strip, a wall around the plaque, a ledge the
     plaque rests on, flush front, USB-C slot in the lowest wall. Printed back panel down. Returns (mesh, info)."""
     depth, back, wall, c = 14.0, 1.2, 2.0, 0.3     # slim walls and an open back with LED bars = much less plastic and print time
@@ -920,13 +920,18 @@ def make_lit_tray(outline_mm, glow=True):
     slot = box(cx - 5, x_low - 1, cx + 5, x_low + wall + 1)
     z0, z1 = 4.0, 8.5
     x0, y0, x1, y1 = outer.bounds
+    KEY_X, KEY_W = key_x, 6.6     # base pegs enter these holes in the lowest wall (depth middle)
+    key_holes = unary_union([box(cx0 - KEY_W / 2, y0 - 1, cx0 + KEY_W / 2, y0 + wall + 1) for cx0 in (cx - KEY_X, cx + KEY_X)])
+    k0, k1 = depth / 2 - KEY_W / 2, depth / 2 + KEY_W / 2
     bars = unary_union([box(x0 - 1, y0 + f * (y1 - y0) - 8, x1 + 1, y0 + f * (y1 - y0) + 8) for f in (0.2, 0.5, 0.8)])
     back_panel = only_polygons(outer.difference(inner.buffer(-1.5, 8).difference(bars)))   # LED strips stick on the three bars, the rest of the back is open
-    cuts = sorted({0, back, z0, z1, ledge_top - 2.0, ledge_top, depth})
+    cuts = sorted({0, back, z0, z1, k0, k1, ledge_top - 2.0, ledge_top, depth})
     meshes = []
     for a, b in zip(cuts, cuts[1:]):
         mid = (a + b) / 2
         g = back_panel if mid < back else (walls.difference(slot) if z0 < mid < z1 else walls)
+        if k0 < mid < k1 and mid >= back:
+            g = g.difference(key_holes)
         if ledge_top - 2.0 < mid < ledge_top:
             g = g.union(ledge)
         meshes += extrude(only_polygons(g), a, b)
@@ -939,7 +944,7 @@ PLATE_EDGE = BASE_H + FRAME_RAISE   # plaque thickness at the frame
 CLEARANCE = 0.6   # total slot slack
 
 
-def make_foot(size, thickness=None, length=None, plate_h=None, arches=False):
+def make_foot(size, thickness=None, length=None, plate_h=None, arches=False, key_x=60.0, sleepers=False):
     """One of two feet: a block with a tilted slot the plaque's bottom edge slides into.
     Returns (mesh, info). Print two. Profile is in YZ (Y = depth, Z up), extruded along X."""
     k = size / SIZE
@@ -957,6 +962,21 @@ def make_foot(size, thickness=None, length=None, plate_h=None, arches=False):
     profile = box(0, 0, depth, height).difference(slot)
     m = trimesh.creation.extrude_polygon(profile, width)  # profile x->Y (depth), y->Z (up), extrusion z->X (width)
     m.apply_transform([[0, 0, 1, -width / 2], [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1]])
+    if length:        # railway track: sleepers (cross grooves) on the whole top and two rails on the rear deck; two pegs for the tray's holes
+        tx = np.arange(-width / 2 + 10, width / 2 - 8, 14.0)
+        grooves = [trimesh.creation.box(extents=[4.0, depth + 2, 1.6], transform=trimesh.transformations.translation_matrix([x, depth / 2, height - 0.8 + 0.01])) for x in tx]
+        for gm in (grooves if sleepers else []):
+            m = trimesh.boolean.difference([m, gm], engine="manifold")
+        for ry in (depth - 8.0, depth - 21.0):
+            rail = trimesh.creation.box(extents=[width - 6, 5.0, 2.0], transform=trimesh.transformations.translation_matrix([0, ry, height + 0.99]))
+            m = trimesh.boolean.union([m, rail], engine="manifold")
+        keyx = key_x
+        for sx in (-1, 1):
+            peg = trimesh.creation.box(extents=[6.0, 6.0, 3.0])
+            peg.apply_transform(trimesh.transformations.rotation_matrix(-t, [1, 0, 0]))
+            fy, fz = y0 - shift, height - SLOT_DEPTH                    # centre of the slot floor
+            peg.apply_translation([sx * keyx, fy + 1.0 * math.sin(t), fz + 1.0 * math.cos(t)])
+            m = trimesh.boolean.union([m, peg], engine="manifold")
     if length and arches:   # (measured: saves only ~4 g and costs +7 min, so off by default) lightening arches behind the slot: trapezoid windows open to the rear face, 45 degree sides (printable without supports)
         wy0 = y0 + half + 6.0
         n_win = max(2, int(width // 75))
@@ -1351,10 +1371,11 @@ def main():
         if data.get("layout") in ("train", "horse"):
             allg = unary_union([g for its in layers.values() for g, _, _ in its])      # the plaque's full silhouette (the base has openings)
             sil = unary_union([Polygon(pp.exterior) for pp in (allg.geoms if hasattr(allg, "geoms") else [allg])])
-            tray, info = make_lit_tray(sil)
+            kx = round(60.0 * size / 280.0, 1)
+            tray, info = make_lit_tray(sil, key_x=kx)
             tray.export(out / f"light_tray_{size}.stl")
             bx0, by0, bx1, by1 = info["outer"]
-            foot, finfo = make_foot(size, thickness=info["depth"], length=0.6 * (bx1 - bx0), plate_h=by1 - by0)
+            foot, finfo = make_foot(size, thickness=info["depth"], length=0.6 * (bx1 - bx0), plate_h=by1 - by0, key_x=kx)
             foot.export(out / f"stand_base_{size}.stl")
             print(f"light tray: {bx1 - bx0:.0f}x{by1 - by0:.0f}x{info['depth']:.0f} mm, follows the plaque outline; LED strip on its back panel, "
                   f"USB-C slot in the bottom wall; ONE long base {finfo['width']:.0f}x{finfo['depth']:.0f}x{finfo['height']:.0f} mm "
