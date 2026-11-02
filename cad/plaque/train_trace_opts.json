@@ -1,0 +1,4 @@
+{"glow": 0, "solid_only": false, "inner_bg": "cream", "sigma": 1.2, "simplify": 0.35,
+ "palette": {"navy": [[34,60,105], "base"], "navy2": [[27,46,86], "base"], "navy3": [[18,29,57], "base"],
+             "cream": [[249,237,204], "main"], "yellow": [[252,194,61], "accent"],
+             "tan": [[221,180,126], "animal"], "tan2": [[186,138,84], "animal2"], "bg": [[254,254,254], null]}}

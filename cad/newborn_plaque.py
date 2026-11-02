@@ -509,7 +509,7 @@ def layout_night(data, add, layers, k, lang, rtl):
 
 
 # ------------------------------------------------------- "train" layout ----
-def layout_train(data, add, layers, k, lang, rtl):
+def layout_train_drawn(data, add, layers, k, lang, rtl):
     """Wide plaque (about 300 x 190 design units): a steam engine pulling four wagons that carry the weight, length, time
     and date cards, a dome behind them with the name, a sleeping bear on the dome, a moon and stars. Flat shapes only."""
     put = lambda role, g, z0=BASE_H, z1=TOP: add(role, only_polygons(g), z0, z1)
@@ -635,6 +635,42 @@ def layout_horse(data, add, layers, k, lang, rtl):
         add("main", put_text(items[key], lang, rtl, cx, -89, "center", 40), BASE_H, TOP)
     for x in (-52, 0, 52):
         add("main", box(x - 0.6, -95, x + 0.6, -64), BASE_H, TOP)
+
+
+def layout_train(data, add, layers, k, lang, rtl):
+    """Train traced from the owner's flat picture (cad/trace_layers.py -> cad/plaque/train_layers.json, options in
+    train_trace_opts.json). Name and the four values are cut out of the cream and re-drawn with the real fonts
+    (recessed, like the picture); labels and icons stay as traced."""
+    from shapely.geometry import shape
+    d = json.load(open(Path(__file__).parent / "plaque" / "train_layers.json"))
+    m = d["meta"]
+    S_, CX, CY = m["s"], m["cx"], m["cy"]
+    to_d = lambda px, py: ((px - CX) * S_, -(py - CY) * S_)
+    def pxbox(x0, y0, x1, y1):
+        a, b = to_d(x0, y0)
+        c, e = to_d(x1, y1)
+        return box(min(a, c), min(b, e), max(a, c), max(b, e))
+    geo = {r: only_polygons(shape(d[r])) for r in ("base", "main", "accent", "animal", "animal2")}
+    # text areas (pixels of the original 2576 x 1438 picture): name (+ the hamza above it) and the four values
+    areas = [pxbox(1090, 554, 1860, 805), pxbox(1661, 457, 1800, 567), pxbox(900, 1060, 1260, 1178),
+             pxbox(1340, 1060, 1625, 1178), pxbox(1750, 1060, 2000, 1178), pxbox(2130, 1060, 2410, 1178)]
+    cream = only_polygons(geo["main"].union(unary_union(areas)))
+    conv = (lambda t: t.translate(ARABIC_DIGITS)) if lang == "ar" else (lambda t: t)
+    ampm = AMPM[lang][data.get("ampm", "AM").upper()]
+    vals = {"date": ([(conv(data["date"]), 13, "num")], to_d(1082, 1159)[0], 38),
+            "time": ([(conv(data["time"]), 17, "num"), (ampm, 11, "word")], to_d(1481, 1159)[0], 38),
+            "length": ([(conv(data["length"]), 17, "num"), (UNITS[lang]["length"], 11, "word")], to_d(1874, 1159)[0], 32),
+            "weight": ([(conv(data["weight"]), 17, "num"), (UNITS[lang]["weight"], 11, "word")], to_d(2269, 1159)[0], 38)}
+    marks = [put_text([(data["name"], 46 if lang == "ar" else 38, "word")], lang, rtl, to_d(1468, 773)[0], to_d(1468, 773)[1], max_width=82)]
+    vy = to_d(0, 1159)[1]
+    for key, (segs, cx, mw) in vals.items():
+        marks.append(put_text(segs, lang, rtl, cx, vy, "center", mw))
+    cream = only_polygons(cream.difference(unary_union(marks)))
+    add("base", geo["base"], 0, BASE_H)
+    add("main", cream, BASE_H, TOP)
+    add("accent", geo["accent"], BASE_H, TOP)
+    add("animal", geo["animal"], BASE_H, TOP + 0.6)      # the bear stands a little proud of the rest
+    add("animal", geo["animal2"], BASE_H, TOP)           # its darker details (inner ears, toes) are lower
 
 # --------------------------------------------------------------- layout ----
 def build(data):
