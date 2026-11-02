@@ -12,10 +12,12 @@ import math
 from pathlib import Path
 
 import matplotlib
+import numpy as np
 import shapely
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from scipy import ndimage as ndi
 import trimesh
 import uharfbuzz as hb
 from threemf import build_project_settings, write_bambu_3mf
@@ -24,7 +26,7 @@ from fontTools.ttLib import TTFont
 from matplotlib.patches import PathPatch
 from matplotlib.path import Path as MPath
 from shapely import affinity
-from shapely.geometry import Point, Polygon, box
+from shapely.geometry import LineString, Point, Polygon, box
 from shapely.ops import unary_union
 
 SIZE = 300.0
@@ -624,13 +626,13 @@ def layout_horse(data, add, layers, k, lang, rtl):
              "date": [(conv(data["date"]), 6.2, "num")]}
     order = ["date", "time", "length", "weight"] if rtl else ["weight", "length", "time", "date"]
     for key, cx in zip(order, (-78, -26, 26, 78)):
-        add("main", affinity.translate(ICONS[key](0.36), cx, -68), BASE_H, TOP)
+        add("main", affinity.translate(ICONS[key](0.36), cx, -66), BASE_H, TOP)
         if k >= 0.6:
             lab, _ = text_line([(LABELS[lang][key], 5.0, "word")], lang, rtl)
             lw = max(lab.bounds[2], 1)
             sc = min(1, 36 / lw)
-            add("main", affinity.translate(affinity.scale(lab, sc, sc, origin=(0, 0)), cx - lw * sc / 2, -79), BASE_H, TOP)
-        add("main", put_text(items[key], lang, rtl, cx, -91, "center", 40), BASE_H, TOP)
+            add("main", affinity.translate(affinity.scale(lab, sc, sc, origin=(0, 0)), cx - lw * sc / 2, -77), BASE_H, TOP)
+        add("main", put_text(items[key], lang, rtl, cx, -89, "center", 40), BASE_H, TOP)
     for x in (-52, 0, 52):
         add("main", box(x - 0.6, -95, x + 0.6, -64), BASE_H, TOP)
 
@@ -786,6 +788,39 @@ def build(data):
     return {role: [(fix(affinity.scale(g, k, k, origin=(0, 0))), z0, z1) for g, z0, z1 in its]
             for role, its in layers.items()}
 
+
+
+# ------------------------------------------------------- rocker runner ----
+RUNNER_DEPTH = 50.0    # mm, front-to-back width of the runner (stability sideways)
+RUNNER_BELOW = 14.0    # mm of runner under the plate's bottom edge
+RUNNER_GRIP = 8.0      # mm of the plate that sits inside the slot
+
+
+def make_rocker_runner(base_mm, plate_thick, half_span=110.0, clearance=0.6):
+    """A curved runner (a banana seen from the side) with a slot along its top; the plaque's curved bottom edge slides into the slot
+    and the whole thing rocks like a rocking horse. base_mm: the plaque silhouette in mm. Printed lying on its side (arc flat on the bed).
+    Returns (mesh, polygon_in_plaque_coordinates, info)."""
+    xs = np.arange(-half_span, half_span + 0.1, 2.0)
+    low = []
+    for x in xs:
+        ys = base_mm.intersection(LineString([(x, -1000), (x, 1000)]))
+        low.append(ys.bounds[1] if not ys.is_empty else np.nan)
+    low = np.array(low)
+    low = ndi.gaussian_filter1d(low, 1.5, mode="nearest")
+    top = [(x, y + RUNNER_GRIP) for x, y in zip(xs, low)]
+    bot = [(x, y - RUNNER_BELOW) for x, y in zip(xs, low)]
+    region = Polygon(top + bot[::-1]).buffer(3, 8).buffer(-3, 8)      # rounded ends
+    slot_xy = only_polygons(base_mm.intersection(region))
+    w = plate_thick + clearance
+    mid = RUNNER_DEPTH / 2
+    parts = []
+    parts += extrude(region, 0, mid - w / 2)
+    parts += extrude(region, mid + w / 2, RUNNER_DEPTH)
+    floor = only_polygons(region.difference(slot_xy.buffer(0.01)))
+    parts += extrude(floor, mid - w / 2, mid + w / 2)
+    mesh = merge_solids(parts)
+    length = xs[-1] - xs[0]
+    return mesh, region, {"length": length, "depth": RUNNER_DEPTH, "slot": w}
 
 # ------------------------------------------------------------ lit box ----
 BOX_DEPTH, BOX_WALL, BOX_BACK = 25.0, 2.6, 1.2
@@ -1208,7 +1243,16 @@ def main():
                     project_settings=build_project_settings(template, colours, tower))
     print("wrote", out / f"{stem}.3mf")
     preview(layers, theme, out / f"{stem}.png", size / 2)
-    if data.get("lit") or data.get("glow") or data.get("glow_cap"):
+    if data.get("layout") == "horse":
+        runner, region, info = make_rocker_runner(layers["base"][0][0], BASE_H + RAISE)
+        runner.export(out / f"rocker_runner_{size}.stl")
+        THEMES["horse_runner"] = {**THEMES["horse"], "animal": "#9a9a9a"}   # runner drawn grey (animal role) behind the plaque
+        layers_view = {r: list(v) for r, v in layers.items()}
+        layers_view["animal"] = [(region, -1, -0.5)] + layers["animal"]
+        preview(layers_view, "horse_runner", out / f"{stem}_with_runner.png", size / 2)
+        print(f"rocker runner: {info['length']:.0f} mm long x {info['depth']:.0f} mm deep, slot {info['slot']:.1f} mm; "
+              f"print lying on its side (the arc flat on the bed); the plaque slides into the slot and rocks")
+    elif data.get("lit") or data.get("glow") or data.get("glow_cap"):
         is_glow = bool(data.get("glow") or data.get("glow_cap"))
         box_mesh, info = make_lit_box(size, glow=is_glow)
         box_mesh.export(out / (f"glow_box_{size}.stl" if is_glow else f"lit_box_{size}.stl"))
