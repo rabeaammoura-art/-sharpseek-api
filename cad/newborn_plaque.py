@@ -936,12 +936,15 @@ PLATE_EDGE = BASE_H + FRAME_RAISE   # plaque thickness at the frame
 CLEARANCE = 0.6   # total slot slack
 
 
-def make_foot(size, thickness=None):
+def make_foot(size, thickness=None, length=None, plate_h=None):
     """One of two feet: a block with a tilted slot the plaque's bottom edge slides into.
     Returns (mesh, info). Print two. Profile is in YZ (Y = depth, Z up), extruded along X."""
     k = size / SIZE
     depth, width, height = 40 + 30 * k, 50 + 20 * k, SLOT_DEPTH + 8
     t = math.radians(TILT)
+    if length:        # one long base instead of two feet: as shallow as the plaque's own height allows (stability margin >= 20 mm)
+        width = length
+        depth = max(45.0, (12 + 8 * k) - SLOT_DEPTH * math.tan(t) + (plate_h or size) / 2 * math.sin(t) + 20.0)
     w = (thickness or PLATE_EDGE) + CLEARANCE
     y0 = 12 + 8 * k   # slot top-centre, measured from the front of the foot
     half = w / (2 * math.cos(t))
@@ -952,7 +955,7 @@ def make_foot(size, thickness=None):
     m = trimesh.creation.extrude_polygon(profile, width)  # profile x->Y (depth), y->Z (up), extrusion z->X (width)
     m.apply_transform([[0, 0, 1, -width / 2], [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1]])
     # stability: plaque centre of mass sits (size/2)*sin(tilt) behind the slot's bottom front edge
-    com_back = size / 2 * math.sin(t)
+    com_back = (plate_h or size) / 2 * math.sin(t)
     margin = depth - (y0 - shift) - com_back
     return m, {"depth": depth, "width": width, "height": height, "x": 0.27 * size, "margin": margin}
 
@@ -1328,13 +1331,16 @@ def main():
     elif data.get("lit") or data.get("glow") or data.get("glow_cap"):
         is_glow = bool(data.get("glow") or data.get("glow_cap"))
         if data.get("layout") in ("train", "horse"):
-            tray, info = make_lit_tray(layers["base"][0][0])
+            allg = unary_union([g for its in layers.values() for g, _, _ in its])      # the plaque's full silhouette (the base has openings)
+            sil = unary_union([Polygon(pp.exterior) for pp in (allg.geoms if hasattr(allg, "geoms") else [allg])])
+            tray, info = make_lit_tray(sil)
             tray.export(out / f"light_tray_{size}.stl")
             bx0, by0, bx1, by1 = info["outer"]
-            foot, finfo = make_foot(size, thickness=info["depth"])
-            foot.export(out / f"stand_foot_{size}.stl")
+            foot, finfo = make_foot(size, thickness=info["depth"], length=0.8 * (bx1 - bx0), plate_h=by1 - by0)
+            foot.export(out / f"stand_base_{size}.stl")
             print(f"light tray: {bx1 - bx0:.0f}x{by1 - by0:.0f}x{info['depth']:.0f} mm, follows the plaque outline; LED strip on its back panel, "
-                  f"USB-C slot in the bottom wall; feet x2 (slot for the {info['depth']:.0f} mm tray) at x=+/-{finfo['x']:.0f}")
+                  f"USB-C slot in the bottom wall; ONE long base {finfo['width']:.0f}x{finfo['depth']:.0f}x{finfo['height']:.0f} mm "
+                  f"(slot for the {info['depth']:.0f} mm tray), stability margin {finfo['margin']:.0f} mm")
         else:
             box_mesh, info = make_lit_box(size, glow=is_glow)
             box_mesh.export(out / (f"glow_box_{size}.stl" if is_glow else f"lit_box_{size}.stl"))
