@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-02 (cloud) — locking for BOTH tray and plaque + even sleepers
+- Owner: locking must hold the back (tray) AND the plaque; sleepers evenly spaced. Done: 6 even sleepers (pitch (L-12)/5), locks at +-1.5 pitch (`lock_x`); tray: 2 key holes + 2 tongue cut-outs; plaque: 2 tongues (12 mm) in its opaque base layer, 5.3 mm below the plaque; base: pegs + pockets. Slot floor made perpendicular to the tilted slot (fixed a 1388 mm3 interference). Assembly check script in scratchpad (tray/plate/base interference < 3 mm3).
+- Base 280: 0h44m / 22 g, 200: 0h37m / 18 g. Totals about 6h36m (280), 4h23m (200). Not print-tested.
+
 ## 2026-11-02 (cloud) — base = ladder (two rails + fused sleepers + locking blocks)
 - Owner's last-try spec: two long beams, cross beams fused with them, locking protrusion on top. `make_track_base`: rails 7 mm wide, 6 sleepers 12 mm, two of them (at +-key_x) carry the slot walls + a 6 mm peg. Floor 5 mm. Base 280: 0h43m / 21 g, 200: 0h36m / 17 g (the slab+rails version was 1h00m / 51 g). Totals about 6h35m (280) and 4h24m (200).
 - Not print-tested; peg/hole fit and rigidity of the ladder to be checked on the printer.

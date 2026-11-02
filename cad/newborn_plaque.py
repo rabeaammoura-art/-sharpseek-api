@@ -642,6 +642,17 @@ def layout_horse(data, add, layers, k, lang, rtl):
         add("main", box(x - 0.6, -95, x + 0.6, -64), BASE_H, TOP)
 
 
+_LAYOUT_INFO = {}
+TAB_W, TAB_BELOW, TAB_UP = 12.0, 5.3, 3.0     # mm: the two tongues at the bottom of the plaque (width, reach below the plaque, overlap with it)
+
+
+def lock_x(plaque_width_mm):
+    """x of the two locking sleepers (tongues, pegs, tray holes): the base has 6 evenly spaced sleepers (pitch p, none at x=0 for the cable),
+    the locks sit on the +-1.5 p ones. The base is 60 % of the tray width."""
+    length = 0.6 * (plaque_width_mm + 4.6)
+    return round(1.5 * (length - 12.0) / 5.0, 1)
+
+
 def layout_train(data, add, layers, k, lang, rtl):
     """Train traced from the owner's flat picture (cad/trace_layers.py -> cad/plaque/train_layers.json, options in
     train_trace_opts.json). Name and the four values are cut out of the cream and re-drawn with the real fonts
@@ -677,7 +688,12 @@ def layout_train(data, add, layers, k, lang, rtl):
     # light tray can hold, and the wheels sit on something
     bx0, by0, bx1, by1 = geo["base"].bounds
     track = rrect((bx0 + bx1) / 2, by0 + 1.0, (bx1 - bx0) - 14, 9.0, 4.0)
-    add("base", unary_union([geo["base"], track]), 0, BASE_H)
+    body = unary_union([geo["base"], track])
+    ymin = body.bounds[1]
+    key_d = lock_x((bx1 - bx0) * k) / k
+    tabs = [box(sx * key_d - TAB_W / 2 / k, ymin - TAB_BELOW / k, sx * key_d + TAB_W / 2 / k, ymin + TAB_UP / k) for sx in (-1, 1)]
+    _LAYOUT_INFO.update({"y_bottom_mm": ymin * k, "key_x": lock_x((bx1 - bx0) * k)})
+    add("base", unary_union([body] + tabs), 0, BASE_H)      # the tongues are part of the opaque base layer
     add("main", cream, BASE_H, TOP)
     add("accent", geo["accent"], BASE_H, TOP)
     add("animal", geo["animal"], BASE_H, TOP + 0.6)      # the bear stands a little proud of the rest
@@ -904,7 +920,7 @@ def make_lit_box(size, glow=False):
 
 
 
-def make_lit_tray(outline_mm, glow=True, key_x=60.0):
+def make_lit_tray(outline_mm, glow=True, key_x=60.0, tabs=False):
     """Light tray that follows the plaque outline (for traced layouts): back panel for the LED strip, a wall around the plaque, a ledge the
     plaque rests on, flush front, USB-C slot in the lowest wall. Printed back panel down. Returns (mesh, info)."""
     depth, back, wall, c = 14.0, 1.2, 2.0, 0.3     # slim walls and an open back with LED bars = much less plastic and print time
@@ -923,6 +939,7 @@ def make_lit_tray(outline_mm, glow=True, key_x=60.0):
     KEY_X, KEY_W = key_x, 6.6     # base pegs enter these holes in the lowest wall (depth middle)
     key_holes = unary_union([box(cx0 - KEY_W / 2, y0 - 1, cx0 + KEY_W / 2, y0 + wall + 1) for cx0 in (cx - KEY_X, cx + KEY_X)])
     k0, k1 = depth / 2 - KEY_W / 2, depth / 2 + KEY_W / 2
+    tab_cut = unary_union([box(cx0 - TAB_W / 2 - 0.5, y0 - 1, cx0 + TAB_W / 2 + 0.5, y0 + wall + 1) for cx0 in (cx - KEY_X, cx + KEY_X)]) if tabs else None
     bars = unary_union([box(x0 - 1, y0 + f * (y1 - y0) - 8, x1 + 1, y0 + f * (y1 - y0) + 8) for f in (0.2, 0.5, 0.8)])
     back_panel = only_polygons(outer.difference(inner.buffer(-1.5, 8).difference(bars)))   # LED strips stick on the three bars, the rest of the back is open
     cuts = sorted({0, back, z0, z1, k0, k1, ledge_top - 2.0, ledge_top, depth})
@@ -932,6 +949,8 @@ def make_lit_tray(outline_mm, glow=True, key_x=60.0):
         g = back_panel if mid < back else (walls.difference(slot) if z0 < mid < z1 else walls)
         if k0 < mid < k1 and mid >= back:
             g = g.difference(key_holes)
+        if tab_cut is not None and mid > ledge_top:
+            g = g.difference(tab_cut)         # the plaque's tongues pass through the bottom wall here
         if ledge_top - 2.0 < mid < ledge_top:
             g = g.union(ledge)
         meshes += extrude(only_polygons(g), a, b)
@@ -1013,9 +1032,17 @@ def make_track_base(size, thickness, length, plate_h, key_x=60.0):
     half = w / (2 * math.cos(t))
     shift = SLOT_DEPTH * math.tan(t)
     depth = max(45.0, y0 - shift + plate_h / 2 * math.sin(t) + 20.0)
-    floor_z = 5.0
+    floor_z = 5.0                 # the lowest point of the slot floor
     height = floor_z + SLOT_DEPTH
-    slot = Polygon([(y0 - half, height), (y0 + half, height), (y0 + half - shift, floor_z), (y0 - half - shift, floor_z)])
+    ca, sa = math.cos(t), math.sin(t)
+    axis = (sa, ca)               # (Y, Z) direction of the slot, tilted back by TILT
+    dvec = (ca, -sa)              # across the slot, front -> back (perpendicular to the axis): the floor follows it, so the tray's bottom lies flat on it
+    zc = floor_z + 0.5 * w * sa
+    cf = (y0 - (height - zc) * math.tan(t), zc)                      # middle of the slot floor
+    F = (cf[0] - 0.5 * w * dvec[0], cf[1] - 0.5 * w * dvec[1])        # front corner of the floor
+    R = (cf[0] + 0.5 * w * dvec[0], cf[1] + 0.5 * w * dvec[1])
+    ext = 40.0
+    slot = Polygon([F, R, (R[0] + ext * axis[0], R[1] + ext * axis[1]), (F[0] + ext * axis[0], F[1] + ext * axis[1])])
     walls = slot.buffer(8.0, join_style=2).intersection(box(0, floor_z, depth, height)).difference(slot)
     prof_block = unary_union([box(0, 0, depth, floor_z), walls])          # sleeper + the two slot walls on it
     to_xyz = lambda x0: [[0, 0, 1, x0], [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1]]
@@ -1023,19 +1050,29 @@ def make_track_base(size, thickness, length, plate_h, key_x=60.0):
     for rail_y in (0.0, depth - 7.0):                                       # the two long rails
         parts.append(trimesh.creation.box(extents=[length, 7.0, floor_z],
                                           transform=trimesh.transformations.translation_matrix([0, rail_y + 3.5, floor_z / 2])))
-    sleeper_w = 12.0
-    for cx in (-0.46 * length, -key_x * 0.5, key_x * 0.5, 0.46 * length, -key_x, key_x):
-        lock = abs(cx) == key_x
+    p = (length - 12.0) / 5.0
+    sleeper_w = 14.0
+    for cx in (-2.5 * p, -1.5 * p, -0.5 * p, 0.5 * p, 1.5 * p, 2.5 * p):          # six evenly spaced sleepers, none at x=0 (cable)
+        lock = abs(abs(cx) - key_x) < 0.5
         poly = prof_block if lock else box(0, 0, depth, floor_z)
-        blk = trimesh.creation.extrude_polygon(poly, sleeper_w)
-        blk.apply_transform(to_xyz(cx - sleeper_w / 2))
+        blk = trimesh.creation.extrude_polygon(poly, sleeper_w if lock else 12.0)
+        blk.apply_transform(to_xyz(cx - (sleeper_w if lock else 12.0) / 2))
         parts.append(blk)
-    for sx in (-1, 1):                                                       # locking pegs on the slot floor above the sleepers at +-key_x
+    for sx in (-1, 1):                                                       # locking pegs on the slot floor (they go into the tray's holes)
         peg = trimesh.creation.box(extents=[6.0, 6.0, 3.0])
         peg.apply_transform(trimesh.transformations.rotation_matrix(-t, [1, 0, 0]))
-        peg.apply_translation([sx * key_x, y0 - shift + 1.0 * math.sin(t), floor_z + 1.0 * math.cos(t)])
+        peg.apply_translation([sx * key_x, cf[0] + 1.0 * axis[0], cf[1] + 1.0 * axis[1]])
         parts.append(peg)
     m = trimesh.boolean.union(parts, engine="manifold")
+    pocket_d = 3.2                                                           # under the plaque's tongue, which stands against the front wall of the slot
+    A = F
+    pocket = Polygon([(A[0] - 0.01 * axis[0], A[1] - 0.01 * axis[1]), (A[0] + 3.0 * dvec[0], A[1] + 3.0 * dvec[1]),
+                      (A[0] + 3.0 * dvec[0] - pocket_d * axis[0], A[1] + 3.0 * dvec[1] - pocket_d * axis[1]),
+                      (A[0] - pocket_d * axis[0], A[1] - pocket_d * axis[1])])
+    for sx in (-1, 1):
+        pk = trimesh.creation.extrude_polygon(pocket, TAB_W + 0.8)
+        pk.apply_transform(to_xyz(sx * key_x - (TAB_W + 0.8) / 2))
+        m = trimesh.boolean.difference([m, pk], engine="manifold")
     margin = depth - (y0 - shift) - plate_h / 2 * math.sin(t)
     return m, {"depth": depth, "width": length, "height": height, "margin": margin}
 
@@ -1414,8 +1451,9 @@ def main():
         if data.get("layout") in ("train", "horse"):
             allg = unary_union([g for its in layers.values() for g, _, _ in its])      # the plaque's full silhouette (the base has openings)
             sil = unary_union([Polygon(pp.exterior) for pp in (allg.geoms if hasattr(allg, "geoms") else [allg])])
-            kx = round(60.0 * size / 280.0, 1)
-            tray, info = make_lit_tray(sil, key_x=kx)
+            sil = sil.intersection(box(-1e4, _LAYOUT_INFO.get("y_bottom_mm", -1e4) - 0.01, 1e4, 1e4))   # without the tongues
+            kx = lock_x(sil.bounds[2] - sil.bounds[0])
+            tray, info = make_lit_tray(sil, key_x=kx, tabs=True)
             tray.export(out / f"light_tray_{size}.stl")
             bx0, by0, bx1, by1 = info["outer"]
             foot, finfo = make_track_base(size, info["depth"], 0.6 * (bx1 - bx0), by1 - by0, key_x=kx)
