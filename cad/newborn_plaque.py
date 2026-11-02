@@ -938,7 +938,7 @@ def make_lit_tray(outline_mm, glow=True, key_x=60.0, tabs=False):
     x0, y0, x1, y1 = outer.bounds
     KEY_X, KEY_W = key_x, 6.6     # base pegs enter these holes in the lowest wall (depth middle)
     key_holes = unary_union([box(cx0 - KEY_W / 2, y0 - 1, cx0 + KEY_W / 2, y0 + wall + 1) for cx0 in (cx - KEY_X, cx + KEY_X)])
-    k0, k1 = depth / 2 - KEY_W / 2, depth / 2 + KEY_W / 2
+    k0, k1 = 1.4, 1.4 + KEY_W          # holes in the rear half of the tray's depth (the plaque's tongues use the front 2.4 mm)
     tab_cut = unary_union([box(cx0 - TAB_W / 2 - 0.5, y0 - 1, cx0 + TAB_W / 2 + 0.5, y0 + wall + 1) for cx0 in (cx - KEY_X, cx + KEY_X)]) if tabs else None
     bars = unary_union([box(x0 - 1, y0 + f * (y1 - y0) - 8, x1 + 1, y0 + f * (y1 - y0) + 8) for f in (0.2, 0.5, 0.8)])
     back_panel = only_polygons(outer.difference(inner.buffer(-1.5, 8).difference(bars)))   # LED strips stick on the three bars, the rest of the back is open
@@ -1028,7 +1028,7 @@ def make_track_base(size, thickness, length, plate_h, key_x=60.0):
     k = size / SIZE
     t = math.radians(TILT)
     w = thickness + CLEARANCE
-    y0 = 12 + 8 * k
+    y0 = 12 + 8 * k + 8.0      # +8: the posts stand clear of the front rail
     half = w / (2 * math.cos(t))
     shift = SLOT_DEPTH * math.tan(t)
     depth = max(45.0, y0 - shift + plate_h / 2 * math.sin(t) + 20.0)
@@ -1061,7 +1061,8 @@ def make_track_base(size, thickness, length, plate_h, key_x=60.0):
     for sx in (-1, 1):                                                       # locking pegs on the slot floor (they go into the tray's holes)
         peg = trimesh.creation.box(extents=[6.0, 6.0, 3.0])
         peg.apply_transform(trimesh.transformations.rotation_matrix(-t, [1, 0, 0]))
-        peg.apply_translation([sx * key_x, cf[0] + 1.0 * axis[0], cf[1] + 1.0 * axis[1]])
+        off = 0.3 + (SLOT_DEPTH - 4.4)          # distance from the front wall to the middle of the rear half (tray depth z = 4.4)
+        peg.apply_translation([sx * key_x, F[0] + off * dvec[0] + 1.0 * axis[0], F[1] + off * dvec[1] + 1.0 * axis[1]])
         parts.append(peg)
     m = trimesh.boolean.union(parts, engine="manifold")
     pocket_d = 3.2                                                           # under the plaque's tongue, which stands against the front wall of the slot
