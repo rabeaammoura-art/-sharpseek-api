@@ -907,7 +907,7 @@ def make_lit_box(size, glow=False):
 def make_lit_tray(outline_mm, glow=True):
     """Light tray that follows the plaque outline (for traced layouts): back panel for the LED strip, a wall around the plaque, a ledge the
     plaque rests on, flush front, USB-C slot in the lowest wall. Printed back panel down. Returns (mesh, info)."""
-    depth, back, wall, c = 14.0, 1.0, BOX_WALL, 0.3
+    depth, back, wall, c = 14.0, 1.2, 2.0, 0.3     # slim walls and an open back with LED bars = much less plastic and print time
     inner = outline_mm.buffer(c, 12)
     outer = inner.buffer(wall, 12)
     walls = outer.difference(inner)
@@ -919,11 +919,14 @@ def make_lit_tray(outline_mm, glow=True):
     cx = (outer.bounds[0] + outer.bounds[2]) / 2
     slot = box(cx - 5, x_low - 1, cx + 5, x_low + wall + 1)
     z0, z1 = 4.0, 8.5
+    x0, y0, x1, y1 = outer.bounds
+    bars = unary_union([box(x0 - 1, y0 + f * (y1 - y0) - 8, x1 + 1, y0 + f * (y1 - y0) + 8) for f in (0.2, 0.5, 0.8)])
+    back_panel = only_polygons(outer.difference(inner.buffer(-1.5, 8).difference(bars)))   # LED strips stick on the three bars, the rest of the back is open
     cuts = sorted({0, back, z0, z1, ledge_top - 2.0, ledge_top, depth})
     meshes = []
     for a, b in zip(cuts, cuts[1:]):
         mid = (a + b) / 2
-        g = outer if mid < back else (walls.difference(slot) if z0 < mid < z1 else walls)
+        g = back_panel if mid < back else (walls.difference(slot) if z0 < mid < z1 else walls)
         if ledge_top - 2.0 < mid < ledge_top:
             g = g.union(ledge)
         meshes += extrude(only_polygons(g), a, b)

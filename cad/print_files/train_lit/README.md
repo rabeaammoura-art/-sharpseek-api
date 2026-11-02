@@ -1,9 +1,10 @@
-# Backlit train plaque (280 mm), PETG
+# Backlit train plaque, PETG (slice with the 0.24mm Standard profile: faster)
 
-| file | what | filament | est. (H2D, +-20 %) |
-|---|---|---|---|
-| `train_lit_plaque_280.3mf` | the plaque, 4 colours + prime tower | slot 1 PETG Blue (opaque), slots 2-4 AD-PETG translucent white / yellow / orange-red (bear) | 4h37m, 81 g |
-| `light_tray_280.stl` | light tray following the outline, 14 mm deep; LED strip on its back panel, USB-C slot in the bottom wall; print back panel down | AD-PETG opaque white | 2h12m, 79 g |
-| `stand_base_280.stl` | ONE long base, slot tilts the tray back 12 degrees | any PETG | 1h29m, 77 g |
+Slots of the plaque 3MF: 1 PETG Blue (opaque), 2 AD-PETG translucent white, 3 translucent yellow, 4 translucent orange-red (bear).
+Tray = AD-PETG opaque white (print back panel down; LED strips stick on its three back bars, USB-C slot in the bottom wall).
+Base = one long base, any PETG. Estimates: H2D, 0.24 mm Standard, prime tower, +-20 %. Nothing print-tested (printer not delivered yet).
 
-Nothing is print-tested (printer not delivered yet). The plaque rests on the tray's inner ledge from the front.
+| size | plaque | tray | base | total |
+|---|---|---|---|---|
+| 280 mm | 4h14m, 85 g | 1h32m, 48 g | 1h24m, 79 g | about 7h10m, 212 g, 1.49 JOD |
+| 200 mm | 2h38m, 45 g | 1h07m, 35 g | 0h56m, 50 g | about 4h41m, 130 g, 0.95 JOD |
