@@ -1002,6 +1002,45 @@ def make_foot(size, thickness=None, length=None, plate_h=None, arches=False, key
     return m, {"depth": depth, "width": width, "height": height, "x": 0.27 * size, "margin": margin}
 
 
+def make_track_base(size, thickness, length, plate_h, key_x=60.0):
+    """Railway-track base: two long rails and cross sleepers fused with them (a ladder, open between the sleepers = little plastic, fast),
+    and on four of the sleepers a locking block: two upright walls forming a short piece of the tilted slot the tray slides into,
+    with a peg on the slot floor that goes into a hole in the tray. One colour, printed flat. Returns (mesh, info)."""
+    k = size / SIZE
+    t = math.radians(TILT)
+    w = thickness + CLEARANCE
+    y0 = 12 + 8 * k
+    half = w / (2 * math.cos(t))
+    shift = SLOT_DEPTH * math.tan(t)
+    depth = max(45.0, y0 - shift + plate_h / 2 * math.sin(t) + 20.0)
+    floor_z = 5.0
+    height = floor_z + SLOT_DEPTH
+    slot = Polygon([(y0 - half, height), (y0 + half, height), (y0 + half - shift, floor_z), (y0 - half - shift, floor_z)])
+    walls = slot.buffer(8.0, join_style=2).intersection(box(0, floor_z, depth, height)).difference(slot)
+    prof_block = unary_union([box(0, 0, depth, floor_z), walls])          # sleeper + the two slot walls on it
+    to_xyz = lambda x0: [[0, 0, 1, x0], [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1]]
+    parts = []
+    for rail_y in (0.0, depth - 7.0):                                       # the two long rails
+        parts.append(trimesh.creation.box(extents=[length, 7.0, floor_z],
+                                          transform=trimesh.transformations.translation_matrix([0, rail_y + 3.5, floor_z / 2])))
+    sleeper_w = 12.0
+    for cx in (-0.46 * length, -key_x * 0.5, key_x * 0.5, 0.46 * length, -key_x, key_x):
+        lock = abs(cx) == key_x
+        poly = prof_block if lock else box(0, 0, depth, floor_z)
+        blk = trimesh.creation.extrude_polygon(poly, sleeper_w)
+        blk.apply_transform(to_xyz(cx - sleeper_w / 2))
+        parts.append(blk)
+    for sx in (-1, 1):                                                       # locking pegs on the slot floor above the sleepers at +-key_x
+        peg = trimesh.creation.box(extents=[6.0, 6.0, 3.0])
+        peg.apply_transform(trimesh.transformations.rotation_matrix(-t, [1, 0, 0]))
+        peg.apply_translation([sx * key_x, y0 - shift + 1.0 * math.sin(t), floor_z + 1.0 * math.cos(t)])
+        parts.append(peg)
+    m = trimesh.boolean.union(parts, engine="manifold")
+    margin = depth - (y0 - shift) - plate_h / 2 * math.sin(t)
+    return m, {"depth": depth, "width": length, "height": height, "margin": margin}
+
+
+
 OPEN = 45.0       # degrees the easel leg opens from the plaque's back
 
 
@@ -1379,7 +1418,7 @@ def main():
             tray, info = make_lit_tray(sil, key_x=kx)
             tray.export(out / f"light_tray_{size}.stl")
             bx0, by0, bx1, by1 = info["outer"]
-            foot, finfo = make_foot(size, thickness=info["depth"], length=0.6 * (bx1 - bx0), plate_h=by1 - by0, key_x=kx)
+            foot, finfo = make_track_base(size, info["depth"], 0.6 * (bx1 - bx0), by1 - by0, key_x=kx)
             foot.export(out / f"stand_base_{size}.stl")
             print(f"light tray: {bx1 - bx0:.0f}x{by1 - by0:.0f}x{info['depth']:.0f} mm, follows the plaque outline; LED strip on its back panel, "
                   f"USB-C slot in the bottom wall; ONE long base {finfo['width']:.0f}x{finfo['depth']:.0f}x{finfo['height']:.0f} mm "

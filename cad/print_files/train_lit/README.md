@@ -6,9 +6,9 @@ Base = one long base, any PETG. Estimates: H2D, 0.24 mm Standard, prime tower, +
 
 | size | plaque | tray | base | total |
 |---|---|---|---|---|
-| 280 mm | 4h14m, 85 g | 1h32m, 48 g | 1h00m, 51 g | about 6h52m, 184 g, 1.33 JOD |
-| 200 mm | 2h38m, 45 g | 1h07m, 35 g | 0h42m, 33 g | about 4h27m, 113 g, 0.83 JOD |
+| 280 mm | 4h14m, 85 g | 1h32m, 48 g | 0h43m, 21 g | about 6h35m, 154 g, 1.2 JOD |
+| 200 mm | 2h38m, 45 g | 1h07m, 35 g | 0h36m, 17 g | about 4h24m, 97 g, 0.76 JOD |
 
 The base is 60 % of the plaque width (one long piece with the tilted slot). Arch windows under it were tried: -4 g but +7 min, so not used.
 
-The base is a railway track in ONE colour: a thin slab with two rails (they are the walls of the tilted slot the tray slides into; the plaque's wheels sit between them) and two pegs that go into two holes in the tray's lowest wall, so tray and base lock together.
+The base is a railway track in ONE colour, printed flat: two long rails and cross sleepers fused with them (a ladder, open between), and on two of the sleepers a locking block (two small upright walls = a piece of the tilted slot the tray slides into) with a peg that goes into a hole in the tray. No glue.
