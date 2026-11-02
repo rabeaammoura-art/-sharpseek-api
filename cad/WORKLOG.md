@@ -8,7 +8,8 @@ Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what wa
 ## 2026-11-02 (cloud) — owner's explainer picture matched to the build; USB-C slot 14x8; wavy edge option
 - Owner's picture = the same lit train design. Checked: "كغم" already correct, date is only an example, hooks/slide-left as built, body stays PETG blue (owner choice), LED layout left for later. Picture has a wavy (cloud) bottom edge, the build has a flat track strip.
 - Done: tray USB-C slot enlarged to 14 x 8 mm (z 3-11). New JSON key `"track": false` removes the flat strip (wavy traced edge), default stays true.
-- PROBLEM with `track: false`: the two hook tongues (at +-lock_x) are not under wheels, so they float free of the plaque. Needs the owner's choice (move locks under wheels / small bridge piece / keep the strip). Not decided, strip stays for now.
+- `track: false` first left the two hook tongues floating (not under wheels). Fixed by owner's choice: tongues/pins moved under two wheels (big engine wheel and 3rd wagon wheel, `WHEELS_LOCK_U`), applied to plaque, tray back tabs and base hooks via `keys=(xL, xR)` (pair no longer exactly symmetric, ~2 mm). Example JSON now has `"track": false`.
+- Left: `cad/print_files/train_lit` NOT regenerated/re-sliced yet; fit check (entry/lock/interference) not re-run for the new positions; sleepers are no longer under the hooks (hooks sit on the rails, fine).
 - Printer still at customs (owner, 2 Nov). Nothing print-tested.
 
 ## 2026-11-02 (cloud) — hook locking: Γ pins into L-shaped keyhole slots, slide 8 mm left

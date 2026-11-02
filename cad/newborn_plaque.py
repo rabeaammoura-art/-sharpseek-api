@@ -645,6 +645,7 @@ def layout_horse(data, add, layers, k, lang, rtl):
 _LAYOUT_INFO = {}
 TAB_BELOW, TAB_UP = 10.3, 3.0     # mm: the two tongues at the bottom of the plaque (reach below the plaque, overlap with it)
 HOOK_SLIDE, PIN, SLOT_H, ENTRY_W, HEAD_W, HEAD_T = 8.0, 3.0, 3.4, 6.8, 6.0, 1.2   # mm: slide distance, pin, slot height, entry leg, head
+WHEELS_LOCK_U = (-68.25, 72.1)    # x (picture units) of the big engine wheel and the third wagon wheel, lowest points of the traced outline
 PIN_Y = -4.0                      # height of the pins below the tray's bottom edge (tray frame)
 
 
@@ -705,14 +706,16 @@ def layout_train(data, add, layers, k, lang, rtl):
     body = unary_union([geo["base"], track]) if data.get("track", True) else geo["base"]   # track false = the wavy traced bottom edge of the picture
     ymin = body.bounds[1]
     key_mm = lock_x((bx1 - bx0) * k)
+    keys = (-key_mm, key_mm)
+    if not data.get("track", True):     # wavy edge: the tongues (centre = pin - 4.85 mm) go under two wheels, measured on the traced outline
+        keys = tuple(round(w * k + 4.85, 1) for w in WHEELS_LOCK_U)
     ymin_mm = ymin * k
     tabs = []
-    for sx in (-1, 1):                                          # tongues with the L-shaped keyhole slot (pins of the base enter here)
-        cxm = sx * key_mm
+    for cxm in keys:                                            # tongues with the L-shaped keyhole slot (pins of the base enter here)
         tongue = affinity.translate(lock_tab_rel(cxm), 0, ymin_mm - 2.3).intersection(box(-1e4, ymin_mm - TAB_BELOW, 1e4, ymin_mm + TAB_UP))
         slot_abs = affinity.translate(lock_slot_rel(cxm), 0, ymin_mm - 2.3)
         tabs.append(affinity.scale(tongue.difference(slot_abs), 1 / k, 1 / k, origin=(0, 0)))
-    _LAYOUT_INFO.update({"y_bottom_mm": ymin_mm, "key_x": key_mm})
+    _LAYOUT_INFO.update({"y_bottom_mm": ymin_mm, "key_x": key_mm, "keys": keys})
     add("base", unary_union([body] + tabs), 0, BASE_H)      # the tongues are part of the opaque base layer
     add("main", cream, BASE_H, TOP)
     add("accent", geo["accent"], BASE_H, TOP)
@@ -940,7 +943,7 @@ def make_lit_box(size, glow=False):
 
 
 
-def make_lit_tray(outline_mm, glow=True, key_x=60.0, tabs=False):
+def make_lit_tray(outline_mm, glow=True, key_x=60.0, tabs=False, keys=None):
     """Light tray that follows the plaque outline (for traced layouts): back panel for the LED strip, a wall around the plaque, a ledge the
     plaque rests on, flush front, USB-C slot in the lowest wall. Two back tabs with L-shaped keyhole slots (the rear pins of the base enter
     them) and two cut-outs in the lowest wall (the plaque's tongues pass through). Printed back panel down. Returns (mesh, info)."""
@@ -957,10 +960,11 @@ def make_lit_tray(outline_mm, glow=True, key_x=60.0, tabs=False):
     z0, z1 = 3.0, 11.0
     x0, y0, x1, y1 = outer.bounds
     TAB_T = 3.0
+    keys = keys or (-key_x, key_x)
     tab_cut = back_tabs = None
     if tabs:
-        tab_cut = unary_union([box(sx * key_x - HOOK_SLIDE - ENTRY_W / 2 - 3.0, ytb - 1, sx * key_x + SLOT_H / 2 + 3.0, ytb + wall + 1) for sx in (-1, 1)])
-        back_tabs = unary_union([affinity.translate(lock_tab_rel(sx * key_x).difference(lock_slot_rel(sx * key_x)), 0, ytb) for sx in (-1, 1)])
+        tab_cut = unary_union([box(kx_ - HOOK_SLIDE - ENTRY_W / 2 - 3.0, ytb - 1, kx_ + SLOT_H / 2 + 3.0, ytb + wall + 1) for kx_ in keys])
+        back_tabs = unary_union([affinity.translate(lock_tab_rel(kx_).difference(lock_slot_rel(kx_)), 0, ytb) for kx_ in keys])
     bars = unary_union([box(x0 - 1, y0 + f * (y1 - y0) - 8, x1 + 1, y0 + f * (y1 - y0) + 8) for f in (0.2, 0.5, 0.8)])
     back_panel = only_polygons(outer)       # closed back: the light stays inside and bounces forward (LED strip in the middle, or a rope light round the inside of the wall)
     cuts = sorted({0, back, TAB_T, z0, z1, ledge_top - 2.0, ledge_top, depth})
@@ -1051,7 +1055,7 @@ def pin_frame(tilt_deg=None):
     return np.array([[1, 0, 0, 0], [0, sa, -ca, fy + 14.3 * ca], [0, ca, sa, fz - 14.3 * sa], [0, 0, 0, 1]], float)
 
 
-def make_track_base(size, length, key_x, plate_h):
+def make_track_base(size, length, key_x, plate_h, keys=None):
     """Railway-track base, one colour, printed flat: two long rails and six evenly spaced cross sleepers fused with them (a ladder; the sleepers
     reach behind the rear rail as a tail so it does not tip back). On each rail, at x = +-key_x, a hook: a vertical stem and a horizontal pin
     with a small head (the shape of an upside-down L). The front pins go through the L-shaped keyhole slots in the plaque's tongues, the rear
@@ -1073,8 +1077,7 @@ def make_track_base(size, length, key_x, plate_h):
     for name, z_c, pin_z0, pin_z1, head_z0 in (("front", 18.6, 11.3, 18.6, 10.2), ("rear", -3.6, -3.6, 3.3, 3.2)):
         yc, zc = (M @ [0, PIN_Y, z_c, 1])[1:3]
         pts[name] = (yc, zc)
-        for sx in (-1, 1):
-            x = sx * key_x
+        for x in (keys or (-key_x, key_x)):
             parts.append(tray_box([PIN, PIN, pin_z1 - pin_z0], [x, PIN_Y, (pin_z0 + pin_z1) / 2]))                     # the pin
             parts.append(tray_box([HEAD_W, 5.0, HEAD_T], [x, PIN_Y, head_z0 + HEAD_T / 2]))                          # its head
             parts.append(trimesh.creation.box(extents=[stem_w, 5.4, zc + 1.5 - rail_h],
@@ -1469,10 +1472,10 @@ def main():
             sil = unary_union([Polygon(pp.exterior) for pp in (allg.geoms if hasattr(allg, "geoms") else [allg])])
             sil = sil.intersection(box(-1e4, _LAYOUT_INFO.get("y_bottom_mm", -1e4) - 0.01, 1e4, 1e4))   # without the tongues
             kx = lock_x(sil.bounds[2] - sil.bounds[0])
-            tray, info = make_lit_tray(sil, key_x=kx, tabs=True)
+            tray, info = make_lit_tray(sil, key_x=kx, tabs=True, keys=_LAYOUT_INFO.get("keys"))
             tray.export(out / f"light_tray_{size}.stl")
             bx0, by0, bx1, by1 = info["outer"]
-            foot, finfo = make_track_base(size, 0.6 * (bx1 - bx0), kx, by1 - by0)
+            foot, finfo = make_track_base(size, 0.6 * (bx1 - bx0), kx, by1 - by0, keys=_LAYOUT_INFO.get("keys"))
             foot.export(out / f"stand_base_{size}.stl")
             print(f"light tray: {bx1 - bx0:.0f}x{by1 - by0:.0f}x{info['depth']:.0f} mm, follows the plaque outline; LED strip on its back panel, "
                   f"USB-C slot in the bottom wall; ONE long base {finfo['width']:.0f}x{finfo['depth']:.0f}x{finfo['height']:.0f} mm "
