@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-02 (cloud) — owner looking for an older plaque: standard bear plaque preview
+- Owner forgot which chat had a plaque designed before the train; likely the standard bear + 4 boxes plaque. Added `cad/plaque/example_ar_preview.png` (from `example_ar.json`, 280). Waiting for the owner's picture to confirm.
+
 ## 2026-11-02 (cloud) — base now a real-looking track, plaque UPRIGHT (no tilt)
 - Owner: the ladder looked like a fence/comb (my invention: wide sleepers + a tail behind the rear rail). Rebuilt `make_track_base`: two thin 5 mm rails on top of 14 narrow close sleepers (6 mm wide, 2.5 mm high, pitch ~12.7), sleepers stick out 12 mm equally beyond both rails (owner: a bit wider), no tail; centre sleepers left out for the USB-C cable. Rails 22 mm apart, base 171 x 51 mm (centre of mass +-25 mm inside).
 - Owner: NO tilt at all -> `LIT_TILT = 0` (feet stands still use TILT 12). Locked fit (tray vs base) 0 mm3 interference; +-1.5 mm lift/push collides (locked). Preview: `cad/plaque/train_lit_assembled_preview.png`.
