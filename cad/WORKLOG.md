@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-02 (cloud) — little-prince lamp (Bambu 3MF from the owner): diffuser to carry name/date/weight/time/length
+- 3MF has 3 plates: light case (~100x100x80), led stand (disc 70x70x5), light diffuser (disc ~79 mm x 1.34 mm, logo relief 0.67 mm). Owner holds the licence to modify. Decided: remove the logo, two versions (full Arabic / full English); layout via GPT prompt `cad/plaque/gpt_prompt/diffuser_layouts_PROMPT.md` (6 options). Waiting for the owner's values + chosen layout image; then show a drawing, get a yes, edit the 3MF.
+
 ## 2026-11-02 (cloud) — plaque fixing in the backlit box (nuts + screws) built; leg hinge found wrong
 - Owner chose option A: two hex nuts planted in the back of the plaque (frame band, left/right) + screws from the back through two posts in the box. `fix_spec/fix_points/hexagon` in `newborn_plaque.py`; M3 for >= 250 mm, M2 below (the frame band scales with the size: 11.2 / 8 / 6 mm). Checked: pockets inside the band (walls 2.7 / 1.85 / 0.85 mm), no light leaks, watertight, zero plaque/box interference; 200 mm plaque 3h42m / 107 g, box + leg 1h40m / 81 g. Regenerated plaque 3MFs (ar/en), `glow_box_*`, `glowcap_box_and_leg_*`.
 - Owner asked "are you sure about the leg motion?": a simulation showed (1) the screw axis is perpendicular to the back -> the leg turns in the back's plane, it cannot prop the plaque; (2) the leg is 2.8 mm too short. Fix proposed (drawing shown, awaiting yes): bracket with two ears + horizontal M3 pin on the boss, M3x5x5 brass insert (owner has 200 pcs, Temu) pressed in with a soldering iron (owner has one), leg +2.8 mm. Lesson: never call a mechanism "right" before simulating it; label claims "simulated" / "tested".
