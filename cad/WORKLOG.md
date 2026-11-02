@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-02 (cloud) — first real Bambu Studio slice (owner, laptop): two nozzles win
+- Owner opened `glowcap_plaque_ar_200.3mf` in Studio: the orange purging warning disappears after opening Purging volumes -> OK (Studio auto-calculates colour-based flush volumes, left extruder 150-625 mm3). Slice: 3h55m / 110.9 g with Studio's auto grouping (1+2 left, 3+4 right); 4h05m / 112.4 g with all colours on the left nozzle. Two nozzles save ~10 min (my CLI test claimed the opposite: trust Studio). CLI estimates are ~5 % low (flush volumes). Open: does a freshly opened regenerated file still warn? (owner to check); does 280 mm get two nozzles (tower position)? Owner still to send a Studio-saved 3MF (`test_fixed.3mf`) as ground truth if the warning persists.
+
 ## 2026-11-02 (cloud) — purging warning really fixed in all 3MFs
 - Owner: no more warning in any file. The earlier "absurd estimate" (5 million hours) was a random CLI glitch, NOT caused by the 32-value flush matrix (re-tested: the doubled matrix slices fine twice, 3h41m / 107 g). Re-applied the `threemf.py` change and regenerated all 18 print 3MFs (standard, glow_cap, rails_280, lit_280, train_lit; ar/en). Verified each: 32 flush values, 4 filaments, tower on. Lesson: a single odd CLI result is not proof; re-run before reverting.
 
