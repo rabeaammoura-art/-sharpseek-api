@@ -939,7 +939,7 @@ PLATE_EDGE = BASE_H + FRAME_RAISE   # plaque thickness at the frame
 CLEARANCE = 0.6   # total slot slack
 
 
-def make_foot(size, thickness=None, length=None, plate_h=None):
+def make_foot(size, thickness=None, length=None, plate_h=None, arches=False):
     """One of two feet: a block with a tilted slot the plaque's bottom edge slides into.
     Returns (mesh, info). Print two. Profile is in YZ (Y = depth, Z up), extruded along X."""
     k = size / SIZE
@@ -957,6 +957,21 @@ def make_foot(size, thickness=None, length=None, plate_h=None):
     profile = box(0, 0, depth, height).difference(slot)
     m = trimesh.creation.extrude_polygon(profile, width)  # profile x->Y (depth), y->Z (up), extrusion z->X (width)
     m.apply_transform([[0, 0, 1, -width / 2], [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1]])
+    if length and arches:   # (measured: saves only ~4 g and costs +7 min, so off by default) lightening arches behind the slot: trapezoid windows open to the rear face, 45 degree sides (printable without supports)
+        wy0 = y0 + half + 6.0
+        n_win = max(2, int(width // 75))
+        pitch = width / (n_win + 1) if False else (width - 36) / n_win
+        for i in range(n_win):
+            cx = -width / 2 + 18 + pitch * (i + 0.5)
+            hh = height - 6.0
+            tri = Polygon([(cx - pitch / 2 + 9, 0), (cx + pitch / 2 - 9, 0), (cx + pitch / 2 - 9 - hh, hh), (cx - pitch / 2 + 9 + hh, hh)])
+            if tri.area < 10:
+                continue
+            w = trimesh.creation.extrude_polygon(tri, depth - wy0 + 1.0)       # u->X, v->Z, extrusion -> Y
+            w.apply_transform([[1, 0, 0, 0], [0, 0, 1, wy0], [0, 1, 0, 0], [0, 0, 0, 1]])
+            if w.volume < 0:
+                w.invert()
+            m = trimesh.boolean.difference([m, w], engine="manifold")
     # stability: plaque centre of mass sits (size/2)*sin(tilt) behind the slot's bottom front edge
     com_back = (plate_h or size) / 2 * math.sin(t)
     margin = depth - (y0 - shift) - com_back
@@ -1339,7 +1354,7 @@ def main():
             tray, info = make_lit_tray(sil)
             tray.export(out / f"light_tray_{size}.stl")
             bx0, by0, bx1, by1 = info["outer"]
-            foot, finfo = make_foot(size, thickness=info["depth"], length=0.8 * (bx1 - bx0), plate_h=by1 - by0)
+            foot, finfo = make_foot(size, thickness=info["depth"], length=0.6 * (bx1 - bx0), plate_h=by1 - by0)
             foot.export(out / f"stand_base_{size}.stl")
             print(f"light tray: {bx1 - bx0:.0f}x{by1 - by0:.0f}x{info['depth']:.0f} mm, follows the plaque outline; LED strip on its back panel, "
                   f"USB-C slot in the bottom wall; ONE long base {finfo['width']:.0f}x{finfo['depth']:.0f}x{finfo['height']:.0f} mm "

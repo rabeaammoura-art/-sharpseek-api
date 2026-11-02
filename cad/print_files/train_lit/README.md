@@ -6,5 +6,7 @@ Base = one long base, any PETG. Estimates: H2D, 0.24 mm Standard, prime tower, +
 
 | size | plaque | tray | base | total |
 |---|---|---|---|---|
-| 280 mm | 4h14m, 85 g | 1h32m, 48 g | 1h24m, 79 g | about 7h10m, 212 g, 1.49 JOD |
-| 200 mm | 2h38m, 45 g | 1h07m, 35 g | 0h56m, 50 g | about 4h41m, 130 g, 0.95 JOD |
+| 280 mm | 4h14m, 85 g | 1h32m, 48 g | 1h04m, 60 g | about 6h50m, 193 g, 1.35 JOD |
+| 200 mm | 2h38m, 45 g | 1h07m, 35 g | 0h43m, 38 g | about 4h28m, 118 g, 0.86 JOD |
+
+The base is 60 % of the plaque width (one long piece with the tilted slot). Arch windows under it were tried: -4 g but +7 min, so not used.
