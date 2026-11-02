@@ -18,7 +18,7 @@ In Bambu Studio keep the prime tower **narrow (about 14 mm) and to the right of 
 | folder | what | note |
 |---|---|---|
 | `standard/` | raised plaque (Arabic/English) + `stand_foot_*` (print 2) | the normal one |
-| `glow_cap/` | backlit plaque + shallow LED tray `glow_box_*` | translucent parts glow; frame does not |
+| `glow_cap/` | backlit plaque + LED box `glow_box_*` + folding leg `back_leg_*` | translucent parts glow; the box has a boss with an M3 nut pocket, the leg (14 x 4 mm) is screwed on with an M3 x 12 screw and opens 24 degrees; closed, it ends flush with the bottom edge; a stop cord goes through the two small holes |
 | `rails_280/` | plaque with T-rails in the frame + `bridge` (print standing on its edge) + `bridge_leg` | needs an M3 bolt + nut; 280 mm only |
 | `lit_280/` | thin translucent-base plaque + `lit_box_280` | older concept |
 
@@ -35,3 +35,5 @@ Nothing here has been print-tested yet (printer not delivered). The 3MF files we
 
 Other names/values: edit `cad/plaque/example_*.json` and run `python cad/newborn_plaque.py <file>.json`
 (Windows: see `cad/README_WINDOWS.md`).
+
+**Backlit stand (final decision, original plaque):** the closed box carries a thick boss high on the back (hex pocket for an M3 nut from the cavity, screw hole through the back panel); the leg `back_leg_<size>` is a flat bar 14 x 4 mm, 0.82 x size long (pivot to foot), printed flat without supports (280: 14 min, 10 g). Hardware: M3 x 12 screw + M3 nut (+ optional nylon washer) + a short cord. The plaque leans back 12 degrees, the foot lands about 96 mm behind (280). Not print-tested.

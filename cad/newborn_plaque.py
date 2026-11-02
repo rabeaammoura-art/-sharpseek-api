@@ -912,7 +912,7 @@ def make_rocker_runner(base_mm, plate_thick, half_span=110.0, clearance=0.6):
 BOX_DEPTH, BOX_WALL, BOX_BACK = 25.0, 2.6, 1.2
 
 
-def make_lit_box(size, glow=False):
+def make_lit_box(size, glow=False, leg=True):
     """Shallow white tray behind the backlit plate: LED strip stuck on its back panel, USB-C slot in the
     bottom wall, 12 small ledges hold the plate whose front face ends flush with the rim.
     Printed back panel down. Returns (mesh, info)."""
@@ -930,16 +930,46 @@ def make_lit_box(size, glow=False):
     tabs = unary_union([t for off in (-0.33 * size, 0, 0.33 * size) for t in (
         box(off - 15, -half - 0.1, off + 15, -half + 2.5), box(off - 15, half - 2.5, off + 15, half + 0.1),
         box(-half - 0.1, off - 15, -half + 2.5, off + 15), box(half - 2.5, off - 15, half + 0.1, off + 15))])
-    cuts = sorted({0, back, z0, z1, ledge_top - 2.0, ledge_top, depth})
+    # boss for the folding leg (see make_back_leg): a thick disc inside the cavity, high on the back panel, with a hex pocket for an M3 nut
+    # (opens to the cavity, so the nut goes in from the front before the plate), a 3.4 mm screw hole through boss and back panel,
+    # and a 2.5 mm cord hole lower down (stop cord)
+    boss_top, pocket_z = 7.0, 4.2
+    yp = -size / 2 + LEG_PIVOT * size
+    screw = circle(0, yp, 1.7)
+    cord = circle(0, yp - LEG_CORD * size, 1.25)
+    hexp = Polygon([(3.41 * math.cos(math.radians(60 * i + 30)), yp + 3.41 * math.sin(math.radians(60 * i + 30))) for i in range(6)])
+    boss = circle(0, yp, 7.0)
+    cuts = sorted({0, back, z0, z1, ledge_top - 2.0, ledge_top, depth} | ({boss_top, pocket_z} if leg else set()))
     meshes = []
     for a, b in zip(cuts, cuts[1:]):       # one extrusion per slab, so no part overlaps another
         mid = (a + b) / 2
         g = outer if mid < back else (ring.difference(slot) if z0 < mid < z1 else ring)
         if ledge_top - 2.0 < mid < ledge_top:
             g = g.union(tabs)
-        meshes += extrude(g, a, b)
+        if leg:
+            if mid < back:
+                g = g.difference(screw).difference(cord)
+            elif mid < boss_top:
+                g = g.union(boss).difference(screw)
+                if mid > pocket_z:
+                    g = g.difference(hexp)
+        meshes += extrude(only_polygons(g), a, b)
     mesh = merge_solids(meshes)
     return mesh, {"outer": 2 * (half + BOX_WALL), "depth": depth}
+
+
+LEG_PIVOT, LEG_CORD, LEG_W, LEG_T = 0.82, 0.357, 14.0, 4.0     # pivot height (x size, from the plaque bottom), cord hole below the pivot (x size), leg width, thickness
+
+
+def make_back_leg(size):
+    """Folding leg for the backlit box of the original plaque: a flat bar 14 x 4 mm, 0.82 x size long from the pivot to the foot (so it
+    ends flush with the bottom edge when folded), round top end with the M3 pivot hole, and a 2.5 mm hole for the stop cord.
+    It stands the plaque by opening 24 degrees (the plaque leans back 12 degrees). Printed flat, no supports. Returns (mesh, info)."""
+    L = LEG_PIVOT * size
+    shape = unary_union([circle(0, 0, LEG_W / 2), box(-LEG_W / 2, -L, LEG_W / 2, 0)])
+    shape = shape.difference(circle(0, 0, 1.7)).difference(circle(0, -LEG_CORD * size, 1.25))
+    mesh = merge_solids(extrude(only_polygons(shape), 0, LEG_T))
+    return mesh, {"length": L + LEG_W / 2, "pivot_to_foot": L, "width": LEG_W, "thickness": LEG_T}
 
 
 
@@ -1488,6 +1518,11 @@ def main():
         else:
             box_mesh, info = make_lit_box(size, glow=is_glow)
             box_mesh.export(out / (f"glow_box_{size}.stl" if is_glow else f"lit_box_{size}.stl"))
+            if is_glow:
+                leg_mesh, linfo = make_back_leg(size)
+                leg_mesh.export(out / f"back_leg_{size}.stl")
+                print(f"back leg: {linfo['length']:.0f} x {linfo['width']:.0f} x {linfo['thickness']:.0f} mm (pivot to foot {linfo['pivot_to_foot']:.0f}); "
+                      f"M3 screw (12 mm) + M3 nut in the hex pocket of the boss, opens 24 degrees; stop cord through the small holes")
             print(f"lit box: {info['outer']:.0f}x{info['outer']:.0f}x{info['depth']:.0f} mm; LED strip on its back panel, USB-C slot in the bottom wall")
     elif data.get("stand") == "rails":
         bridge, leg, info, world = make_bridge(size)

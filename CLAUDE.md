@@ -20,6 +20,10 @@ The repo is **public** — never commit purchase prices, the price sheet, produc
 - Bring ideas and execute the owner's ideas as shown; do not criticise or simplify them unprompted. One short line for a real blocker, then do the work.
 - Print time is the owner's weak point: optimise time first, without asking. Keep answers short, plain Arabic, no tables unless asked.
 
+## Current focus and rules (latest)
+- Work on the **original plaque (name "يوسف", `cad/plaque/example_ar*.json`)**. The train / horse / night layouts are parked: do not bring them up unless the owner does.
+- Backlit stand = closed box + folding leg on an M3 screw and nut (`make_back_leg`, boss in `make_lit_box`). Prefer **guaranteed** solutions (generous clearances, hardware screws), not print-in-place hinges/hooks. Show a perspective drawing and get a "yes" **before** editing files; if unsure what the owner means, **ask**, do not guess.
+
 ## Facts and preferences (decided with the owner)
 - **The printer (Bambu Lab H2D) has not arrived yet.** Nothing is print-tested. Never say "print a test" as if they could; prepare files and software checks.
 - Priorities: **print time matters more than cost**; no glue; no thicker base; avoid loose separate pieces; the owner likes things shown as images.
