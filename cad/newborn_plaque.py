@@ -42,6 +42,7 @@ FONT_DIR = Path(__file__).parent / "fonts"   # bundled, so it works on Windows/m
 FONTS = {
     "ar": FONT_DIR / "NotoKufiArabic-Bold.ttf",
     "ar_label": FONT_DIR / "NotoKufiArabic-Regular.ttf",
+    "ar_name": FONT_DIR / "BalooBhaijaan2-ExtraBold.ttf",   # rounded heavy face used for the child's name (kind "name")
     "en": FONT_DIR / "NotoSans-Bold.ttf",
     "en_label": FONT_DIR / "NotoSans-Regular.ttf",
 }
@@ -60,7 +61,7 @@ THEMES = {
     "boy":       {"base": "#f2f0ea", "main": "#3e628a", "accent": "#f0c446", "animal": "#8a5a36"},
     "girl":      {"base": "#f2f0ea", "main": "#d9808c", "accent": "#f4c95d", "animal": "#8a5a36"},
     "night":     {"base": "#1f3a6e", "main": "#f2f0ea", "accent": "#f0c446", "animal": "#e8b48c"},
-    "train":     {"base": "#1f3a6e", "main": "#f6ecd2", "accent": "#f2c230", "animal": "#e0b07a"},
+    "train":     {"base": "#2a4f9e", "main": "#f2f2f0", "accent": "#f2c230", "animal": "#c9a06a"},
     "horse":     {"base": "#1f3a6e", "main": "#f6ecd2", "accent": "#2d78d7", "animal": "#f2c230"},
     "glow":      {"base": "#f5ecd7", "main": "#2f6bff", "accent": "#ffd23a", "animal": "#ff8a1f"},  # simulated glow
     "lit":       {"base": "#ffe9a8", "main": "#2b4666", "accent": "#d9a92e", "animal": "#7a5a3a"},  # simulated glow
@@ -72,9 +73,9 @@ THEME_FILAMENTS = {
     "purple":    ["PLA+ White", "PLA+ Purple", "Silk PLA Gold", "Silk PLA Bronze"],
     "sky":       ["PLA+ White", "PLA+ Cyan", "PLA+ Yellow", "PLA+ Grey"],
     "gold_dark": ["PLA+ Black", "Silk PLA Gold", "Silk PLA Rose Gold", "Silk PLA Bronze"],
-    "night":     ["PLA+ Navy Blue", "PLA+ White", "PLA+ Yellow", "PLA+ Beige (skin)"],
-    "horse":     ["PLA+ Navy Blue", "PLA+ Cream / Ivory", "PLA+ Blue", "PLA+ Yellow"],
-    "train":     ["PLA+ Navy Blue", "PLA+ Cream / Ivory", "PLA+ Yellow", "PLA+ Beige / Tan"],
+    "night":     ["PLA+ Blue", "PLA+ White", "PLA+ Yellow", "Wood PLA"],
+    "horse":     ["PLA+ Blue", "PLA+ White", "PLA+ Cyan", "PLA+ Yellow"],
+    "train":     ["PLA+ Blue", "PLA+ White", "PLA+ Yellow", "Wood PLA"],
 }
 THEME_FILAMENTS["boy"], THEME_FILAMENTS["girl"] = THEME_FILAMENTS["blue"], THEME_FILAMENTS["pink"]
 
@@ -189,6 +190,8 @@ def _subruns(text, size, kind, lang):
     The Arabic font lacks '/' ':' so those use the Latin font."""
     if lang != "ar":
         return [(text, size, "en", "Latn", "ltr")]
+    if kind == "name":
+        return [(text, size, "ar_name", "Arab", "rtl")]
     if kind == "word":
         return [(text, size, "ar", "Arab", "rtl")]
     out, cur, cur_digit = [], "", None
@@ -663,7 +666,7 @@ def layout_train(data, add, layers, k, lang, rtl):
             "time": ([(conv(data["time"]), 17, "num"), (ampm, 11, "word")], to_d(1481, 1159)[0], 38),
             "length": ([(conv(data["length"]), 17, "num"), (UNITS[lang]["length"], 11, "word")], to_d(1874, 1159)[0], 32),
             "weight": ([(conv(data["weight"]), 17, "num"), (UNITS[lang]["weight"], 11, "word")], to_d(2269, 1159)[0], 38)}
-    marks = [put_text([(data["name"], 46 if lang == "ar" else 38, "word")], lang, rtl, to_d(1468, 773)[0], to_d(1468, 773)[1], max_width=82)]
+    marks = [put_text([(data["name"], 46 if lang == "ar" else 38, "name")], lang, rtl, to_d(1468, 773)[0], to_d(1468, 773)[1], max_width=82)]
     vy = to_d(0, 1159)[1]
     for key, (segs, cx, mw) in vals.items():
         marks.append(put_text(segs, lang, rtl, cx, vy, "center", mw))
