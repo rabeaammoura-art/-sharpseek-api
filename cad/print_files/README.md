@@ -39,3 +39,5 @@ Other names/values: edit `cad/plaque/example_*.json` and run `python cad/newborn
 **Backlit stand (final decision, original plaque):** the closed box carries a thick boss high on the back (hex pocket for an M3 nut from the cavity, screw hole through the back panel); the leg `back_leg_<size>` is a flat bar 14 x 4 mm, 0.82 x size long (pivot to foot), printed flat without supports (280: 14 min, 10 g). Hardware: M3 x 12 screw + M3 nut (+ optional nylon washer) + a short cord. The plaque leans back 12 degrees, the foot lands about 96 mm behind (280). Not print-tested.
 
 Re-verified 2026-11-02 (current generator, glow_cap, ar + en, 150/200/280): all meshes watertight, no light leaks, no base island under 4 mm2; largest bridge 12.6 mm at 200/280 but 16.7 mm at 150 (watch it). Measured with 0.24mm Standard + tower: 200 mm lit plaque = 3h41m / 107 g / 0.83 JOD.
+
+**STATUS (2026-11-02): the backlit original plaque (`glow_cap/`: plaque 3MF + `glow_box_*` + `back_leg_*`) is FINAL.** The 16.7 mm bridge at the bear's head on the 150 mm size is accepted as is (owner's decision). Next: plain plaque stand (no box).
