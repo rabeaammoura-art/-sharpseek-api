@@ -5,9 +5,6 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
-## 2026-11-02 (cloud) — Bambu Studio warning "Partial purging volume set to 0" fixed
-- The owner opened `glowcap_plaque_ar_200.3mf` in Bambu Studio (screenshot): printer H2D, 4 PETG filaments, 0.24mm Standard, tower right of the plaque, all OK, but an orange warning about the purging volume. Cause: the H2D has 2 nozzles and the 3MF carried only one 4x4 flush matrix. `threemf.build_project_settings` now writes the matrix twice (32 values). All plaque 3MFs regenerated (glow_cap + standard, ar/en, 150/200/280). Slice estimate unchanged.
-
 ## 2026-11-02 (cloud) — backlit original plaque marked FINAL
 - Owner: keep the bear-head bridge (16.7 mm at 150 mm) as is. Lit plaque (`cad/print_files/glow_cap/`) is final: plaque 3MF (ar/en, 150/200/280), `glow_box_*`, `back_leg_*` (M3 x 12 screw + M3 nut + cord). Laptop copy: GitHub Desktop -> Fetch/Pull origin in `D:\github\-sharpseek-api` (a cloud session cannot write to the laptop; Remote Control does not support Windows). Next: stand for the plain plaque (no box).
 
