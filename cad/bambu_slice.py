@@ -122,7 +122,9 @@ def prepare_3mf(src: Path, filament_files: list, part_dir: Path, base_cmd: list,
     for k in PER_FILAMENT_SINGLES:
         if isinstance(cfg.get(k), list) and len(cfg[k]) == 1:
             cfg[k] = cfg[k] * n
-    cfg["filament_map_mode"], cfg["filament_map"] = "Manual", [str(nozzle)] * n   # every colour on one nozzle (1 left, 2 right)
+    # nozzle: one number = every colour on that nozzle (1 left, 2 right); a list = one nozzle per filament slot, e.g. [1, 1, 2, 2]
+    nz = [str(v) for v in nozzle] if isinstance(nozzle, (list, tuple)) else [str(nozzle)] * n
+    cfg["filament_map_mode"], cfg["filament_map"] = "Manual", nz
     cfg["skirt_loops"], cfg["brim_type"] = "0", "no_brim"                 # skirt/brim would leave the printable area beside a 300 mm plate
     # prime tower: explicit either way (the Bambu default adds one for multi-colour prints)
     cfg["enable_prime_tower"] = "1" if tower else "0"
@@ -151,6 +153,7 @@ def main():
     ap.add_argument("--tower-x", type=float, help="enable the prime tower at this x (mm) for multi-colour 3MF files; "
                     "without it NO tower is used, which under-estimates time and filament")
     ap.add_argument("--tower-y", type=float, default=140.0)
+    ap.add_argument("--nozzle-map", help="one nozzle per filament slot for a multi-colour 3MF, e.g. 1,1,2,2 (overrides --nozzle; both nozzles then need the plate inside x 25-325)")
     ap.add_argument("--nozzle", type=int, default=1, choices=(1, 2), help="H2D nozzle for every colour: 1 = left (x 0-325), 2 = right (x 25-350)")
     ap.add_argument("--tower-width", type=float, default=40.0)
     ap.add_argument("--support", action="store_true", help="enable tree(auto) supports")
@@ -207,7 +210,7 @@ def main():
         if stl.suffix.lower() == ".3mf":
             # already positioned, parts carry their filament slots
             tower = (a.tower_x, a.tower_y, a.tower_width) if a.tower_x is not None else None
-            centred = prepare_3mf(stl.resolve(), filament_files, part_dir, base_cmd, tower, a.nozzle) if len(filament_files) > 2 \
+            centred = prepare_3mf(stl.resolve(), filament_files, part_dir, base_cmd, tower, [int(v) for v in a.nozzle_map.split(",")] if a.nozzle_map else a.nozzle) if len(filament_files) > 2 \
                 else stl.resolve()
             print("prime tower: " + (f"ON at x={tower[0]:.0f} y={tower[1]:.0f} width={tower[2]:.0f}" if tower else "OFF (estimate excludes purge)"))
         else:

@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-02 (cloud) — two nozzles tested: no gain
+- Owner asked why we do not use both H2D nozzles. Added `--nozzle-map 1,1,2,2` to `cad/bambu_slice.py` and sliced the 200 mm plaques with the plate at x=27..227 (the right nozzle cannot reach x<25). Lit (PETG): one nozzle 3h41m, maps 1,1,2,2 = 3h50m, 1,2,2,1 = 3h46m, 1,1,2,1 = 3h43m. Plain (PLA): one nozzle 2h30m, 1,1,2,2 = 2h29m. The time is dominated by the big base layers, not by colour swaps, so the second nozzle gives nothing (estimates) and costs plate position freedom; keep everything on the left nozzle. Re-test on the real printer (the slicer's estimate of nozzle switching may differ).
+
 ## 2026-11-02 (cloud) — Bambu Studio "Partial purging volume set to 0" warning: left as is
 - The owner opened `glowcap_plaque_ar_200.3mf` in Bambu Studio (screenshot): H2D, 4 PETG filaments, 0.24mm Standard, tower right of the plaque: all OK, plus an orange warning about the purging volume (the 3MF carries one 4x4 flush matrix, the H2D has two nozzles). Doubling the matrix (32 values) made the CLI slice give absurd results (5 million hours), so it was reverted. Keep the 16-value matrix (200 mm lit: 3h42m / 107 g). The warning is harmless while all colours print on the left nozzle (filament map all 1). Do not touch the flush matrix without re-slicing.
 
