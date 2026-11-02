@@ -944,7 +944,7 @@ def make_lit_tray(outline_mm, glow=True, key_x=60.0, tabs=False):
     """Light tray that follows the plaque outline (for traced layouts): back panel for the LED strip, a wall around the plaque, a ledge the
     plaque rests on, flush front, USB-C slot in the lowest wall. Two back tabs with L-shaped keyhole slots (the rear pins of the base enter
     them) and two cut-outs in the lowest wall (the plaque's tongues pass through). Printed back panel down. Returns (mesh, info)."""
-    depth, back, wall, c = 14.0, 1.2, 2.0, 0.3     # slim walls and an open back with LED bars = much less plastic and print time
+    depth, back, wall, c = 14.0, 1.2, 2.0, 0.3     # slim walls, closed back (1.2 mm)
     inner = outline_mm.buffer(c, 12)
     outer = inner.buffer(wall, 12)
     walls = outer.difference(inner)
@@ -962,7 +962,7 @@ def make_lit_tray(outline_mm, glow=True, key_x=60.0, tabs=False):
         tab_cut = unary_union([box(sx * key_x - HOOK_SLIDE - ENTRY_W / 2 - 3.0, ytb - 1, sx * key_x + SLOT_H / 2 + 3.0, ytb + wall + 1) for sx in (-1, 1)])
         back_tabs = unary_union([affinity.translate(lock_tab_rel(sx * key_x).difference(lock_slot_rel(sx * key_x)), 0, ytb) for sx in (-1, 1)])
     bars = unary_union([box(x0 - 1, y0 + f * (y1 - y0) - 8, x1 + 1, y0 + f * (y1 - y0) + 8) for f in (0.2, 0.5, 0.8)])
-    back_panel = only_polygons(outer.difference(inner.buffer(-1.5, 8).difference(bars)))   # LED strips stick on the three bars, the rest of the back is open
+    back_panel = only_polygons(outer)       # closed back: the light stays inside and bounces forward (LED strip in the middle, or a rope light round the inside of the wall)
     cuts = sorted({0, back, TAB_T, z0, z1, ledge_top - 2.0, ledge_top, depth})
     meshes = []
     for a, b in zip(cuts, cuts[1:]):
