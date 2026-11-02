@@ -59,6 +59,7 @@ THEMES = {
     "girl":      {"base": "#f2f0ea", "main": "#d9808c", "accent": "#f4c95d", "animal": "#8a5a36"},
     "night":     {"base": "#1f3a6e", "main": "#f2f0ea", "accent": "#f0c446", "animal": "#e8b48c"},
     "train":     {"base": "#1f3a6e", "main": "#f6ecd2", "accent": "#f2c230", "animal": "#e0b07a"},
+    "horse":     {"base": "#1f3a6e", "main": "#f6ecd2", "accent": "#2d78d7", "animal": "#f2c230"},
     "glow":      {"base": "#f5ecd7", "main": "#2f6bff", "accent": "#ffd23a", "animal": "#ff8a1f"},  # simulated glow
     "lit":       {"base": "#ffe9a8", "main": "#2b4666", "accent": "#d9a92e", "animal": "#7a5a3a"},  # simulated glow
 }
@@ -70,6 +71,7 @@ THEME_FILAMENTS = {
     "sky":       ["PLA+ White", "PLA+ Cyan", "PLA+ Yellow", "PLA+ Grey"],
     "gold_dark": ["PLA+ Black", "Silk PLA Gold", "Silk PLA Rose Gold", "Silk PLA Bronze"],
     "night":     ["PLA+ Navy Blue", "PLA+ White", "PLA+ Yellow", "PLA+ Beige (skin)"],
+    "horse":     ["PLA+ Navy Blue", "PLA+ Cream / Ivory", "PLA+ Blue", "PLA+ Yellow"],
     "train":     ["PLA+ Navy Blue", "PLA+ Cream / Ivory", "PLA+ Yellow", "PLA+ Beige / Tan"],
 }
 THEME_FILAMENTS["boy"], THEME_FILAMENTS["girl"] = THEME_FILAMENTS["blue"], THEME_FILAMENTS["pink"]
@@ -594,6 +596,44 @@ def layout_train(data, add, layers, k, lang, rtl):
     put("main", grow(inner))
     return outline
 
+
+# ------------------------------------------------------ traced layouts ----
+def layout_horse(data, add, layers, k, lang, rtl):
+    """Rocking horse traced from a picture (cad/trace_layers.py -> cad/plaque/horse_layers.json): navy plate = the
+    silhouette, cream / blue / yellow raised on it. The name on the saddle and the four info columns on the rocker are
+    re-drawn with the real fonts (the traced ones are cut out first)."""
+    from shapely.geometry import shape
+    d = json.load(open(Path(__file__).parent / "plaque" / "horse_layers.json"))
+    geo = {r: only_polygons(shape(d[r])) for r in ("base", "main", "accent", "animal")}
+    add("base", geo["base"], 0, BASE_H)
+    zones = [box(-118, -135, 118, -52), box(-26, -16, 54, 30)]   # where the traced text / icons are
+    for role in ("main", "accent", "animal"):
+        g = geo[role]
+        for p in (g.geoms if hasattr(g, "geoms") else [g]):
+            if p.area < 25 or (role == "main" and p.area < 700 and any(p.within(z) for z in zones)):
+                continue      # glow specks and the traced letters / icons
+            if role == "animal" and p.area < 60 and p.centroid.y < -50:
+                continue
+            add(role, p, BASE_H, TOP)
+    add("main", put_text([(data["name"], 30 if lang == "ar" else 24, "word")], lang, rtl, 14, -2, max_width=58), BASE_H, TOP)
+    conv = (lambda t: t.translate(ARABIC_DIGITS)) if lang == "ar" else (lambda t: t)
+    ampm = AMPM[lang][data.get("ampm", "AM").upper()]
+    items = {"weight": [(conv(data["weight"]), 8, "num"), (UNITS[lang]["weight"], 5.5, "word")],
+             "length": [(conv(data["length"]), 8, "num"), (UNITS[lang]["length"], 5.5, "word")],
+             "time": [(conv(data["time"]), 7.5, "num"), (ampm, 5.5, "word")],
+             "date": [(conv(data["date"]), 6.2, "num")]}
+    order = ["date", "time", "length", "weight"] if rtl else ["weight", "length", "time", "date"]
+    for key, cx in zip(order, (-78, -26, 26, 78)):
+        add("main", affinity.translate(ICONS[key](0.36), cx, -68), BASE_H, TOP)
+        if k >= 0.6:
+            lab, _ = text_line([(LABELS[lang][key], 5.0, "word")], lang, rtl)
+            lw = max(lab.bounds[2], 1)
+            sc = min(1, 36 / lw)
+            add("main", affinity.translate(affinity.scale(lab, sc, sc, origin=(0, 0)), cx - lw * sc / 2, -79), BASE_H, TOP)
+        add("main", put_text(items[key], lang, rtl, cx, -91, "center", 40), BASE_H, TOP)
+    for x in (-52, 0, 52):
+        add("main", box(x - 0.6, -95, x + 0.6, -64), BASE_H, TOP)
+
 # --------------------------------------------------------------- layout ----
 def build(data):
     global _K, BASE_H, TOP
@@ -614,6 +654,8 @@ def build(data):
 
     if data.get("layout") == "night":
         layout_night(data, add, layers, k, lang, rtl)
+    elif data.get("layout") == "horse":
+        layout_horse(data, add, layers, k, lang, rtl)
     elif data.get("layout") == "train":
         layout_train(data, add, layers, k, lang, rtl)
     else:
@@ -677,7 +719,7 @@ def build(data):
         if boxes:
             add("main", ring(pad, rw(1.2)), BASE_H, TOP)
         add("accent", heart(0, -97, 12), BASE_H, TOP)
-    if data.get("stand") == "rails" and data.get("layout") not in ("night", "train"):
+    if data.get("stand") == "rails" and data.get("layout") not in ("night", "train", "horse"):
         # T-shaped rails recessed in the two side frame bands (see STANDS.md): cut the base and the frame ring
         opening, cavity = rail_cutters(size)
         (plate0, p0, p1), (ring0, r0, r1) = layers["base"][0], layers["main"][0]
@@ -1128,7 +1170,7 @@ def main():
     ap.add_argument("--out", default="out/plaque")
     args = ap.parse_args()
     data = json.load(open(args.data, encoding="utf-8"))
-    if data.get("layout") in ("night", "train") and data.get("stand") == "rails":
+    if data.get("layout") in ("night", "train", "horse") and data.get("stand") == "rails":
         print("NOTE: this layout has no straight side bands, so the rails stand is not possible; using feet")
         data["stand"] = "feet"
     layers = build(data)
