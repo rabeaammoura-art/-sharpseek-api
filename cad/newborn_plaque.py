@@ -1521,6 +1521,17 @@ def main():
             if is_glow:
                 leg_mesh, linfo = make_back_leg(size)
                 leg_mesh.export(out / f"back_leg_{size}.stl")
+                # one ready 3MF with the box and the leg side by side (one colour, no prime tower): print it as a second plate
+                gap = 14.0
+                lm = leg_mesh.copy()
+                lm.apply_translation([box_mesh.bounds[1][0] + gap - lm.bounds[0][0], -(lm.bounds[0][1] + lm.bounds[1][1]) / 2, 0])   # leg right of the box
+                total_w = lm.bounds[1][0] - box_mesh.bounds[0][0]
+                petg = (Path(__file__).parent / "config" / "bambu_project_4fil_petg.config").read_bytes()
+                cols = [THEMES["glow"][r].upper() for r in ("base", "main", "accent", "animal")]
+                write_bambu_3mf(out / f"glowcap_box_and_leg_{size}.3mf", [("box", box_mesh, 1), ("leg", lm, 1)],
+                                center=(4 - box_mesh.bounds[0][0], 160.0),         # the box's left edge 4 mm from the bed's left edge
+                                name=f"box_and_leg_{size}", project_settings=build_project_settings(petg, cols, None))
+                print(f"wrote {out / f'glowcap_box_and_leg_{size}.3mf'} (box + leg on one plate, slot 1 only, width {total_w:.0f} mm)")
                 print(f"back leg: {linfo['length']:.0f} x {linfo['width']:.0f} x {linfo['thickness']:.0f} mm (pivot to foot {linfo['pivot_to_foot']:.0f}); "
                       f"M3 screw (12 mm) + M3 nut in the hex pocket of the boss, opens 24 degrees; stop cord through the small holes")
             print(f"lit box: {info['outer']:.0f}x{info['outer']:.0f}x{info['depth']:.0f} mm; LED strip on its back panel, USB-C slot in the bottom wall")

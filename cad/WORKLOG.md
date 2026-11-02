@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-02 (cloud) — backlit set: box + leg now also as a ready 3MF
+- Owner: "why is the box not in the file?" The plaque 3MF only had the plaque; box and leg were STL only. `newborn_plaque.py` now also writes `glowcap_box_and_leg_<size>.3mf` (box and leg side by side, one colour, no tower) next to the plaque 3MF; copied to `cad/print_files/glow_cap/` for 150/200/280. CLI: 200 = 1h37m / 80 g, 280 = 2h32m / 135 g. One file with plaque + box would not fit one plate (box ~ plaque size, bed 325 mm).
+
 ## 2026-11-02 (cloud) — first real Bambu Studio slice (owner, laptop): two nozzles win
 - Owner opened `glowcap_plaque_ar_200.3mf` in Studio: the orange purging warning disappears after opening Purging volumes -> OK (Studio auto-calculates colour-based flush volumes, left extruder 150-625 mm3). Slice: 3h55m / 110.9 g with Studio's auto grouping (1+2 left, 3+4 right); 4h05m / 112.4 g with all colours on the left nozzle. Two nozzles save ~10 min (my CLI test claimed the opposite: trust Studio). CLI estimates are ~5 % low (flush volumes). Open: does a freshly opened regenerated file still warn? (owner to check); does 280 mm get two nozzles (tower position)? Owner still to send a Studio-saved 3MF (`test_fixed.3mf`) as ground truth if the warning persists.
 

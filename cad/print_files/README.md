@@ -45,3 +45,8 @@ Re-verified 2026-11-02 (current generator, glow_cap, ar + en, 150/200/280): all 
 All 3MF files (18) were regenerated on 2026-11-02 with the flush-volume matrix for both H2D nozzles, so Bambu Studio no longer shows the orange "Partial purging volume set to 0" warning. Checked: every file has 4 filaments, the prime tower, the 32-value flush matrix; the 200 mm lit plaque (3h41m / 107 g) and the 200 mm plain plaque (2h29m / 111 g) slice normally.
 
 **Measured in Bambu Studio (2026-11-02, owner's screenshots), 200 mm backlit plaque, 0.24 mm Standard:** both nozzles (Studio's own grouping: 1+2 left, 3+4 right) = 3h55m / 110.9 g; all colours on the left nozzle = 4h05m / 112.4 g. So the real slicer saves ~10 min with two nozzles (my CLI test said the opposite, so trust Studio). Leave the grouping on Optimal ("Set to Optimal"). Studio's purge volumes are colour based (150-625 mm3 per change, left nozzle), higher than the 280 assumed by the CLI, so CLI estimates are about 5 % low.
+
+**Backlit set = 2 files per size (each opens ready in Bambu Studio):**
+1. `glowcap_plaque_{ar,en}_<size>.3mf`: the plaque, 4 colours, prime tower (plate 1).
+2. `glowcap_box_and_leg_<size>.3mf`: the LED box and the folding leg side by side, ONE colour (slot 1, AD-PETG opaque white), no tower (plate 2). The box is as big as the plaque, so they cannot share a plate on the H2D bed. Estimates (0.24 mm, CLI): 200 mm = 1h37m / 80 g, 280 mm = 2h32m / 135 g.
+The STL files (`glow_box_*`, `back_leg_*`) are the same parts, kept for reference.
