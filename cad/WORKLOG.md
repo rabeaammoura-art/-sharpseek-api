@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-02 (cloud) — original lit plaque re-verified and regenerated
+- Owner asked if the lit plaque was ready from the start: regenerated `glowcap_plaque_{ar,en}_{150,200,280}.3mf` with the current generator (tower placement, 4-filament settings), `check_plaque.py` OK (no leaks, watertight); bridge 12.6 mm at 200/280, 16.7 mm at 150 (risk). 200 mm slice at 0.24 mm: 3h41m / 107 g / 0.83 JOD (others from the README, 0.20 mm: 150 2h02m, 280 6h14m). Nothing print-tested.
+
 ## 2026-11-02 (cloud) — original plaque, backlit: folding leg on a screw + nut (decision)
 - Owner (said: forget the train, work on the original "Yousef" plaque; guaranteed solutions, no untested mechanisms): stand for the backlit box = a flat leg on an M3 screw. `make_lit_box(..., leg=True)` adds a 14 mm boss high on the back panel (0.82 x size from the bottom) with a hex pocket for an M3 nut (opens to the cavity), a 3.4 mm screw hole through boss + back panel and a 2.5 mm cord hole below it. `make_back_leg(size)`: bar 14 x 4 mm, length 0.82 x size from pivot to foot (flush with the bottom edge when folded), opens 24 degrees, plaque leans 12 degrees, foot about 96 mm behind (280). Sizes 150/200/280 in `cad/print_files/glow_cap/` (`glow_box_*`, `back_leg_*`).
 - Slice (0.24 mm, PETG): box 280 = 2h20m / 125 g; leg 280 = 14 min / 10 g. Fastest of the three stand options (leg ~ +14 min; separate slotted base ~ +45-60 min; wedge box 1-2 h+).
