@@ -1085,7 +1085,7 @@ def make_track_base(size, length, key_x, plate_h, keys=None):
                                               transform=trimesh.transformations.translation_matrix([x, yc, (rail_h + zc + 1.5) / 2])))   # the stem
     yf, yr = pts["front"][0], pts["rear"][0]
     com_y = (M @ [0, plate_h / 2 + 2.3, 7.0, 1])[1]
-    over, slp_w, slp_h = 4.0, 6.0, 2.5                                     # real-track look: sleepers stick out equally beyond both rails, no tail
+    over, slp_w, slp_h = 12.0, 6.0, 2.5                                    # real-track look: sleepers stick out equally beyond both rails, no tail
     y_front, y_back = yf - rail_w / 2 - over, yr + rail_w / 2 + over
     for yc in (yf, yr):                                                     # the two long thin rails, standing on the sleepers
         parts.append(trimesh.creation.box(extents=[length, rail_w, rail_h - slp_h], transform=trimesh.transformations.translation_matrix([0, yc, slp_h + (rail_h - slp_h) / 2])))
