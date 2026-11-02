@@ -63,6 +63,7 @@ THEMES = {
     "night":     {"base": "#1f3a6e", "main": "#f2f0ea", "accent": "#f0c446", "animal": "#e8b48c"},
     "train":     {"base": "#2a4f9e", "main": "#f2f2f0", "accent": "#f2c230", "animal": "#c9a06a"},
     "horse":     {"base": "#1f3a6e", "main": "#f6ecd2", "accent": "#2d78d7", "animal": "#f2c230"},
+    "train_lit": {"base": "#6fa8dc", "main": "#fff3d6", "accent": "#ffd23a", "animal": "#ff9a2e"},   # simulated: sky-blue opaque + glowing parts
     "glow":      {"base": "#f5ecd7", "main": "#2f6bff", "accent": "#ffd23a", "animal": "#ff8a1f"},  # simulated glow
     "lit":       {"base": "#ffe9a8", "main": "#2b4666", "accent": "#d9a92e", "animal": "#7a5a3a"},  # simulated glow
 }
@@ -75,6 +76,7 @@ THEME_FILAMENTS = {
     "gold_dark": ["PLA+ Black", "Silk PLA Gold", "Silk PLA Rose Gold", "Silk PLA Bronze"],
     "night":     ["PLA+ Blue", "PLA+ White", "PLA+ Yellow", "Wood PLA"],
     "horse":     ["PLA+ Blue", "PLA+ White", "PLA+ Cyan", "PLA+ Yellow"],
+    "train_lit": ["PETG Blue", "AD-PETG Translucent White", "AD-PETG Translucent Yellow", "AD-PETG Translucent Orange-Red"],
     "train":     ["PLA+ Blue", "PLA+ White", "PLA+ Yellow", "Wood PLA"],
 }
 THEME_FILAMENTS["boy"], THEME_FILAMENTS["girl"] = THEME_FILAMENTS["blue"], THEME_FILAMENTS["pink"]
@@ -671,7 +673,11 @@ def layout_train(data, add, layers, k, lang, rtl):
     for key, (segs, cx, mw) in vals.items():
         marks.append(put_text(segs, lang, rtl, cx, vy, "center", mw))
     cream = only_polygons(cream.difference(unary_union(marks)))
-    add("base", geo["base"], 0, BASE_H)
+    # a flat track strip under the wheels (as on the product photo): the plaque gets a flat bottom edge that the feet / the
+    # light tray can hold, and the wheels sit on something
+    bx0, by0, bx1, by1 = geo["base"].bounds
+    track = rrect((bx0 + bx1) / 2, by0 + 1.0, (bx1 - bx0) - 14, 9.0, 4.0)
+    add("base", unary_union([geo["base"], track]), 0, BASE_H)
     add("main", cream, BASE_H, TOP)
     add("accent", geo["accent"], BASE_H, TOP)
     add("animal", geo["animal"], BASE_H, TOP + 0.6)      # the bear stands a little proud of the rest
@@ -777,7 +783,7 @@ def build(data):
         for role in ("main", "accent", "animal"):
             capped = []
             for i, (g, z0, z1) in enumerate(layers[role]):
-                if role == "main" and i == 0:
+                if role == "main" and i == 0 and data.get("layout") not in ("train", "horse"):
                     capped.append((g, z0, z1))
                 elif abs(z0 - BASE_H) < 1e-6:
                     hole = g.buffer(-CAP_OVERLAP / k, join_style=1)   # opening a bit smaller than the part itself
@@ -897,6 +903,32 @@ def make_lit_box(size, glow=False):
     return mesh, {"outer": 2 * (half + BOX_WALL), "depth": depth}
 
 
+
+def make_lit_tray(outline_mm, glow=True):
+    """Light tray that follows the plaque outline (for traced layouts): back panel for the LED strip, a wall around the plaque, a ledge the
+    plaque rests on, flush front, USB-C slot in the lowest wall. Printed back panel down. Returns (mesh, info)."""
+    depth, back, wall, c = 14.0, 1.0, BOX_WALL, 0.3
+    inner = outline_mm.buffer(c, 12)
+    outer = inner.buffer(wall, 12)
+    walls = outer.difference(inner)
+    ledge = inner.difference(inner.buffer(-2.5, 12))
+    plate_t = 2.4
+    ledge_top = depth - plate_t
+    x_low = outer.bounds[1]
+    # the lowest point of the outer wall: put the cable slot where the wall is flat (the track strip)
+    cx = (outer.bounds[0] + outer.bounds[2]) / 2
+    slot = box(cx - 5, x_low - 1, cx + 5, x_low + wall + 1)
+    z0, z1 = 4.0, 8.5
+    cuts = sorted({0, back, z0, z1, ledge_top - 2.0, ledge_top, depth})
+    meshes = []
+    for a, b in zip(cuts, cuts[1:]):
+        mid = (a + b) / 2
+        g = outer if mid < back else (walls.difference(slot) if z0 < mid < z1 else walls)
+        if ledge_top - 2.0 < mid < ledge_top:
+            g = g.union(ledge)
+        meshes += extrude(only_polygons(g), a, b)
+    return merge_solids(meshes), {"outer": outer.bounds, "depth": depth}
+
 # ----------------------------------------------------------------- stand ----
 TILT = 12.0       # degrees the plaque leans back
 SLOT_DEPTH = 14.0
@@ -904,13 +936,13 @@ PLATE_EDGE = BASE_H + FRAME_RAISE   # plaque thickness at the frame
 CLEARANCE = 0.6   # total slot slack
 
 
-def make_foot(size):
+def make_foot(size, thickness=None):
     """One of two feet: a block with a tilted slot the plaque's bottom edge slides into.
     Returns (mesh, info). Print two. Profile is in YZ (Y = depth, Z up), extruded along X."""
     k = size / SIZE
     depth, width, height = 40 + 30 * k, 50 + 20 * k, SLOT_DEPTH + 8
     t = math.radians(TILT)
-    w = PLATE_EDGE + CLEARANCE
+    w = (thickness or PLATE_EDGE) + CLEARANCE
     y0 = 12 + 8 * k   # slot top-centre, measured from the front of the foot
     half = w / (2 * math.cos(t))
     shift = SLOT_DEPTH * math.tan(t)
@@ -1260,7 +1292,7 @@ def main():
         theme = "lit"
     elif data.get("glow") or data.get("glow_cap"):
         stem += "_glow" if data.get("glow") else "_glowcap"
-        theme = "glow"
+        theme = theme if theme == "train_lit" else "glow"
     parts = []
     for slot, role in enumerate(("base", "main", "accent", "animal"), start=1):
         m = to_mesh(layers[role])
@@ -1295,9 +1327,18 @@ def main():
               f"print lying on its side (the arc flat on the bed); the plaque slides into the slot and rocks")
     elif data.get("lit") or data.get("glow") or data.get("glow_cap"):
         is_glow = bool(data.get("glow") or data.get("glow_cap"))
-        box_mesh, info = make_lit_box(size, glow=is_glow)
-        box_mesh.export(out / (f"glow_box_{size}.stl" if is_glow else f"lit_box_{size}.stl"))
-        print(f"lit box: {info['outer']:.0f}x{info['outer']:.0f}x{info['depth']:.0f} mm; LED strip on its back panel, USB-C slot in the bottom wall")
+        if data.get("layout") in ("train", "horse"):
+            tray, info = make_lit_tray(layers["base"][0][0])
+            tray.export(out / f"light_tray_{size}.stl")
+            bx0, by0, bx1, by1 = info["outer"]
+            foot, finfo = make_foot(size, thickness=info["depth"])
+            foot.export(out / f"stand_foot_{size}.stl")
+            print(f"light tray: {bx1 - bx0:.0f}x{by1 - by0:.0f}x{info['depth']:.0f} mm, follows the plaque outline; LED strip on its back panel, "
+                  f"USB-C slot in the bottom wall; feet x2 (slot for the {info['depth']:.0f} mm tray) at x=+/-{finfo['x']:.0f}")
+        else:
+            box_mesh, info = make_lit_box(size, glow=is_glow)
+            box_mesh.export(out / (f"glow_box_{size}.stl" if is_glow else f"lit_box_{size}.stl"))
+            print(f"lit box: {info['outer']:.0f}x{info['outer']:.0f}x{info['depth']:.0f} mm; LED strip on its back panel, USB-C slot in the bottom wall")
     elif data.get("stand") == "rails":
         bridge, leg, info, world = make_bridge(size)
         bridge.export(out / f"bridge_{size}.stl")
