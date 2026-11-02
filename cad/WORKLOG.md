@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-02 (cloud) — purging warning really fixed in all 3MFs
+- Owner: no more warning in any file. The earlier "absurd estimate" (5 million hours) was a random CLI glitch, NOT caused by the 32-value flush matrix (re-tested: the doubled matrix slices fine twice, 3h41m / 107 g). Re-applied the `threemf.py` change and regenerated all 18 print 3MFs (standard, glow_cap, rails_280, lit_280, train_lit; ar/en). Verified each: 32 flush values, 4 filaments, tower on. Lesson: a single odd CLI result is not proof; re-run before reverting.
+
 ## 2026-11-02 (cloud) — two nozzles tested: no gain
 - Owner asked why we do not use both H2D nozzles. Added `--nozzle-map 1,1,2,2` to `cad/bambu_slice.py` and sliced the 200 mm plaques with the plate at x=27..227 (the right nozzle cannot reach x<25). Lit (PETG): one nozzle 3h41m, maps 1,1,2,2 = 3h50m, 1,2,2,1 = 3h46m, 1,1,2,1 = 3h43m. Plain (PLA): one nozzle 2h30m, 1,1,2,2 = 2h29m. The time is dominated by the big base layers, not by colour swaps, so the second nozzle gives nothing (estimates) and costs plate position freedom; keep everything on the left nozzle. Re-test on the real printer (the slicer's estimate of nozzle switching may differ).
 
