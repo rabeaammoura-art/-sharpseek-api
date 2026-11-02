@@ -833,7 +833,9 @@ def build(data):
                 else:
                     capped.append((g, z0, z1))
             layers[role] = capped
-        layers["base"][0] = (only_polygons(plate_g.difference(unary_union(openings))), 0, BASE_H)
+        nut_name, nut = fix_spec(size)
+        pockets = unary_union([hexagon(x / k, y / k, (nut["af"] + 0.3) / k) for x, y in fix_points(size)])
+        layers["base"][0] = (only_polygons(plate_g.difference(unary_union(openings)).difference(pockets)), 0, BASE_H)
     if glow:
         # backlit coloured glass: opaque base, every coloured part flush with it and through its full thickness
         plate_g = layers["base"][0][0]                 # the first base item is the plate itself
@@ -912,6 +914,27 @@ def make_rocker_runner(base_mm, plate_thick, half_span=110.0, clearance=0.6):
 BOX_DEPTH, BOX_WALL, BOX_BACK = 25.0, 2.6, 1.2
 
 
+NUTS = {"M3": dict(af=5.5, h=2.4, hole=3.4, post=9.0), "M2": dict(af=4.0, h=1.6, hole=2.4, post=8.0)}   # standard hex nuts (mm)
+
+
+def fix_spec(size):
+    """Plaque fixing in the backlit box: two hex nuts planted in the back of the plaque (in the frame band, left and right, mid height),
+    two screws from the back of the box through short posts. The frame band is 12 x size/300 mm wide: M3 only fits from about 250 mm,
+    smaller sizes use M2."""
+    name = "M3" if size >= 250 else "M2"
+    return name, NUTS[name]
+
+
+def fix_points(size):
+    band = 12.0 * size / SIZE
+    return [(sx * (size / 2 - band / 2), 0.0) for sx in (-1, 1)]
+
+
+def hexagon(cx, cy, af):
+    r = af / math.sqrt(3)
+    return Polygon([(cx + r * math.cos(math.radians(30 + 60 * i)), cy + r * math.sin(math.radians(30 + 60 * i))) for i in range(6)])
+
+
 def make_lit_box(size, glow=False, leg=True):
     """Shallow white tray behind the backlit plate: LED strip stuck on its back panel, USB-C slot in the
     bottom wall, 12 small ledges hold the plate whose front face ends flush with the rim.
@@ -939,6 +962,12 @@ def make_lit_box(size, glow=False, leg=True):
     cord = circle(0, yp - LEG_CORD * size, 1.25)
     hexp = Polygon([(3.41 * math.cos(math.radians(60 * i + 30)), yp + 3.41 * math.sin(math.radians(60 * i + 30))) for i in range(6)])
     boss = circle(0, yp, 7.0)
+    posts = holes = None
+    if glow:
+        nut_name, nut = fix_spec(size)
+        pts = fix_points(size)
+        posts = unary_union([circle(x, y, nut["post"] / 2) for x, y in pts])
+        holes = unary_union([circle(x, y, nut["hole"] / 2) for x, y in pts])
     cuts = sorted({0, back, z0, z1, ledge_top - 2.0, ledge_top, depth} | ({boss_top, pocket_z} if leg else set()))
     meshes = []
     for a, b in zip(cuts, cuts[1:]):       # one extrusion per slab, so no part overlaps another
@@ -946,6 +975,11 @@ def make_lit_box(size, glow=False, leg=True):
         g = outer if mid < back else (ring.difference(slot) if z0 < mid < z1 else ring)
         if ledge_top - 2.0 < mid < ledge_top:
             g = g.union(tabs)
+        if posts is not None:
+            if back <= mid < ledge_top:
+                g = g.union(posts)          # short posts: the plaque rests on them and is pulled onto them by the two screws
+            if mid < ledge_top:
+                g = g.difference(holes)
         if leg:
             if mid < back:
                 g = g.difference(screw).difference(cord)

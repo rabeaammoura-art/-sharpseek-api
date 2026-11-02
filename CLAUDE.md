@@ -22,7 +22,7 @@ The repo is **public** — never commit purchase prices, the price sheet, produc
 
 ## Current focus and rules (latest)
 - Work on the **original plaque (name "يوسف", `cad/plaque/example_ar*.json`)**. The train / horse / night layouts are parked: do not bring them up unless the owner does.
-- Backlit stand = closed box + folding leg on an M3 screw and nut (`make_back_leg`, boss in `make_lit_box`). Prefer **guaranteed** solutions (generous clearances, hardware screws), not print-in-place hinges/hooks. Show a perspective drawing and get a "yes" **before** editing files; if unsure what the owner means, **ask**, do not guess.
+- Backlit stand: closed box + folding leg. **The current `make_back_leg` hinge is WRONG** (screw through the back = leg swings in the plane of the back); the fix is a bracket with a horizontal hinge pin on the boss (M3 brass insert), pending owner approval. Plaque fixing in the box = planted hex nuts in the plaque back + screws from the back through posts (`fix_spec`, `fix_points`). Prefer **guaranteed** solutions (generous clearances, hardware screws), not print-in-place hinges/hooks. Show a perspective drawing and get a "yes" **before** editing files; if unsure what the owner means, **ask**, do not guess.
 
 ## Facts and preferences (decided with the owner)
 - **The printer (Bambu Lab H2D) has not arrived yet.** Nothing is print-tested. Never say "print a test" as if they could; prepare files and software checks.

@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-02 (cloud) — plaque fixing in the backlit box (nuts + screws) built; leg hinge found wrong
+- Owner chose option A: two hex nuts planted in the back of the plaque (frame band, left/right) + screws from the back through two posts in the box. `fix_spec/fix_points/hexagon` in `newborn_plaque.py`; M3 for >= 250 mm, M2 below (the frame band scales with the size: 11.2 / 8 / 6 mm). Checked: pockets inside the band (walls 2.7 / 1.85 / 0.85 mm), no light leaks, watertight, zero plaque/box interference; 200 mm plaque 3h42m / 107 g, box + leg 1h40m / 81 g. Regenerated plaque 3MFs (ar/en), `glow_box_*`, `glowcap_box_and_leg_*`.
+- Owner asked "are you sure about the leg motion?": a simulation showed (1) the screw axis is perpendicular to the back -> the leg turns in the back's plane, it cannot prop the plaque; (2) the leg is 2.8 mm too short. Fix proposed (drawing shown, awaiting yes): bracket with two ears + horizontal M3 pin on the boss, M3x5x5 brass insert (owner has 200 pcs, Temu) pressed in with a soldering iron (owner has one), leg +2.8 mm. Lesson: never call a mechanism "right" before simulating it; label claims "simulated" / "tested".
+- Research (printed screws): printed threads only from about M8 up, PETG, 4-6 walls, 0.3 mm clearance; M3 printed is unreliable; metal nuts/inserts for repeated use. Twist-lock / bayonet printed designs exist (to test later on coupons).
+
 ## 2026-11-02 (cloud) — backlit set: box + leg now also as a ready 3MF
 - Owner: "why is the box not in the file?" The plaque 3MF only had the plaque; box and leg were STL only. `newborn_plaque.py` now also writes `glowcap_box_and_leg_<size>.3mf` (box and leg side by side, one colour, no tower) next to the plaque 3MF; copied to `cad/print_files/glow_cap/` for 150/200/280. CLI: 200 = 1h37m / 80 g, 280 = 2h32m / 135 g. One file with plaque + box would not fit one plate (box ~ plaque size, bed 325 mm).
 
