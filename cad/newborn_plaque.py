@@ -650,7 +650,9 @@ def layout_train(data, add, layers, k, lang, rtl):
         a, b = to_d(x0, y0)
         c, e = to_d(x1, y1)
         return box(min(a, c), min(b, e), max(a, c), max(b, e))
-    geo = {r: only_polygons(shape(d[r])) for r in ("base", "main", "accent", "animal", "animal2")}
+    def specks_out(g, min_area=4.0):      # tiny islands from the tracing are not printable
+        return unary_union([p for p in (g.geoms if hasattr(g, "geoms") else [g]) if p.area >= min_area])
+    geo = {r: specks_out(only_polygons(shape(d[r])), 0 if r == "base" else 4.0) for r in ("base", "main", "accent", "animal", "animal2")}
     # text areas (pixels of the original 2576 x 1438 picture): name (+ the hamza above it) and the four values
     areas = [pxbox(1090, 554, 1860, 805), pxbox(1661, 457, 1800, 567), pxbox(900, 1060, 1260, 1178),
              pxbox(1340, 1060, 1625, 1178), pxbox(1750, 1060, 2000, 1178), pxbox(2130, 1060, 2410, 1178)]
@@ -670,7 +672,7 @@ def layout_train(data, add, layers, k, lang, rtl):
     add("main", cream, BASE_H, TOP)
     add("accent", geo["accent"], BASE_H, TOP)
     add("animal", geo["animal"], BASE_H, TOP + 0.6)      # the bear stands a little proud of the rest
-    add("animal", geo["animal2"], BASE_H, TOP)           # its darker details (inner ears, toes) are lower
+    add("animal", only_polygons(geo["animal2"].buffer(0.08)), BASE_H, TOP)           # its darker details (inner ears, toes) are lower
 
 # --------------------------------------------------------------- layout ----
 def build(data):
