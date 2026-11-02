@@ -982,7 +982,8 @@ def make_lit_tray(outline_mm, glow=True, key_x=60.0, tabs=False, keys=None):
     return merge_solids(meshes), {"outer": outer.bounds, "depth": depth}
 
 # ----------------------------------------------------------------- stand ----
-TILT = 12.0       # degrees the plaque leans back
+TILT = 12.0       # degrees the plaque leans back (feet stands)
+LIT_TILT = 0.0    # lit train on the track base: upright, no lean (owner: no tilt at all)
 SLOT_DEPTH = 14.0
 PLATE_EDGE = BASE_H + FRAME_RAISE   # plaque thickness at the frame
 CLEARANCE = 0.6   # total slot slack
@@ -1049,7 +1050,7 @@ def make_foot(size, thickness=None, length=None, plate_h=None, arches=False, key
 def pin_frame(tilt_deg=None):
     """4x4 matrix from the tray frame (x across, y up in the plaque, z depth: 0 = back panel, 14 = front) to the base frame
     (X along the rails, Y front -> back, Z up): the tray leans back by TILT and hangs on the pins."""
-    t = math.radians(TILT if tilt_deg is None else tilt_deg)
+    t = math.radians(LIT_TILT if tilt_deg is None else tilt_deg)
     ca, sa = math.cos(t), math.sin(t)
     fy, fz = 7.0, 19.3
     return np.array([[1, 0, 0, 0], [0, sa, -ca, fy + 14.3 * ca], [0, ca, sa, fz - 14.3 * sa], [0, 0, 0, 1]], float)
@@ -1063,7 +1064,7 @@ def make_track_base(size, length, key_x, plate_h, keys=None):
     to the left: the pins sit in the narrow legs and the heads hold the parts. Returns (mesh, info)."""
     M = pin_frame()
     ca, sa = M[2, 2], M[1, 1]
-    rail_h, rail_w, stem_w = 5.0, 7.0, 6.4
+    rail_h, rail_w, stem_w = 5.0, 5.0, 6.4
 
     def to_base(m):
         m.apply_transform(M)
@@ -1084,17 +1085,21 @@ def make_track_base(size, length, key_x, plate_h, keys=None):
                                               transform=trimesh.transformations.translation_matrix([x, yc, (rail_h + zc + 1.5) / 2])))   # the stem
     yf, yr = pts["front"][0], pts["rear"][0]
     com_y = (M @ [0, plate_h / 2 + 2.3, 7.0, 1])[1]
-    y_tail = com_y + 18.0
-    y_front = yf - rail_w / 2
-    for yc in (yf, yr):                                                     # the two long rails
-        parts.append(trimesh.creation.box(extents=[length, rail_w, rail_h], transform=trimesh.transformations.translation_matrix([0, yc, rail_h / 2])))
-    p = (length - 12.0) / 5.0
-    for cx in (-2.5 * p, -1.5 * p, -0.5 * p, 0.5 * p, 1.5 * p, 2.5 * p):   # six evenly spaced sleepers, none at x=0 (cable)
-        parts.append(trimesh.creation.box(extents=[12.0, y_tail - y_front, rail_h],
-                                          transform=trimesh.transformations.translation_matrix([cx, (y_front + y_tail) / 2, rail_h / 2])))
+    over, slp_w, slp_h = 4.0, 6.0, 2.5                                     # real-track look: sleepers stick out equally beyond both rails, no tail
+    y_front, y_back = yf - rail_w / 2 - over, yr + rail_w / 2 + over
+    for yc in (yf, yr):                                                     # the two long thin rails, standing on the sleepers
+        parts.append(trimesh.creation.box(extents=[length, rail_w, rail_h - slp_h], transform=trimesh.transformations.translation_matrix([0, yc, slp_h + (rail_h - slp_h) / 2])))
+    n = 14
+    pitch = (length - slp_w) / (n - 1)
+    for i in range(n):                                                      # many narrow, close sleepers; the central ones are left out (USB-C cable)
+        cx = -length / 2 + slp_w / 2 + i * pitch
+        if abs(cx) < 12.0:
+            continue
+        parts.append(trimesh.creation.box(extents=[slp_w, y_back - y_front, slp_h],
+                                          transform=trimesh.transformations.translation_matrix([cx, (y_front + y_back) / 2, slp_h / 2])))
     m = trimesh.boolean.union(parts, engine="manifold")
     m.apply_translation([0, -y_front, 0])
-    return m, {"depth": y_tail - y_front, "width": length, "height": float(m.bounds[1][2]), "margin": 18.0}
+    return m, {"depth": y_back - y_front, "width": length, "height": float(m.bounds[1][2]), "margin": y_back - com_y}
 
 
 OPEN = 45.0       # degrees the easel leg opens from the plaque's back
