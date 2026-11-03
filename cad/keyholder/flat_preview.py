@@ -275,6 +275,12 @@ if __name__ == "__main__":
             L["base"] = Polygon(T["sil"]).buffer(0).buffer(-5).buffer(5).buffer(14).buffer(-14)
             L["base"] = smooth_poly(L["base"], 2.0, 6.0)
             L["panel"] = L["panel"].intersection(L["base"])
+    if len(sys.argv) > 4:        # traced silver hub ring + spokes (with holes) from trace_wheel_inside.py
+        import json
+        from shapely.geometry import Polygon as _P
+        gs = [_P(g["ext"], g["holes"]).buffer(0) for g in json.load(open(sys.argv[4]))]
+        L["wheel_hub"] = unary_union(gs).difference(box(570, 372, 665, 405)).buffer(1.0)   # drop ring highlight, widen thin chrome lines (>= 0.7 mm)
+        L["wheel_pad"] = L["wheel_btn"] = Point(0, 0).buffer(0)
     b = unary_union([L["base"], L["wheel_ring"], L["seat_left"], L["seat_head"], L["hook_lug"]]).bounds
     print("bbox px", [round(v) for v in b], "-> mm", round((b[2]-b[0])*MM_PX, 1), "x", round((b[3]-b[1])*MM_PX, 1))
     draw(L, f"{out}/flat.png")
