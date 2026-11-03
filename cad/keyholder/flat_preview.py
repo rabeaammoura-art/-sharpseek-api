@@ -74,6 +74,29 @@ def text_poly(s, x, y_base, width, height_cap, italic=0.2):
     return affinity.translate(res, x - b[0], y_base)     # y=0 (baseline) -> y_base
 
 
+def dashed(line, dash=13.0, gap=8.0, w=2.4):
+    """Stitch dashes along a line (shapely LineString/LinearRing)."""
+    from shapely.ops import substring
+    out, d, n = [], 0.0, line.length
+    while d < n:
+        seg = substring(line, d, min(d + dash, n))
+        if seg.length > 3:
+            out.append(seg.buffer(w, cap_style=2))
+        d += dash + gap
+    return unary_union(out)
+
+
+def strip_stitches(strip):
+    """Cream dashed stitching like the picture: along the upper and lower edge (inset 12 px) + the fold line."""
+    ring = strip.buffer(-12).exterior
+    edge = ring.intersection(box(650, 440, 1405, 660))
+    lines = list(edge.geoms) if hasattr(edge, "geoms") else [edge]
+    fold = smooth_line([(1378, 482), (1335, 494), (1295, 534), (1262, 588), (1236, 618)])
+    curl = smooth_line([(1300, 572), (1350, 580), (1400, 592)])
+    parts = [dashed(l) for l in lines if l.length > 20] + [dashed(fold), dashed(curl, 11, 8, 2.0)]
+    return unary_union(parts)
+
+
 # ---------------------------------------------------------------- shapes
 def build():
     L = {}
@@ -163,7 +186,7 @@ def build():
                      (1448, 582), (1410, 607), (1345, 618), (1280, 626), (1180, 633),
                      (1060, 633), (940, 624), (800, 616), (660, 611)], 4)
     L["strip"] = strip
-    L["strip_stitch"] = strip.buffer(-9).exterior
+    L["strip_stitch"] = strip_stitches(strip)
 
     # hooks (front view) and screw holes
     hooks = [305, 565, 820, 1075, 1315]
@@ -223,7 +246,7 @@ def draw(L, path, ref=None, alpha=1.0):
     paint(ax, L["swoosh"], **kw(SIL))
     paint(ax, L["machine"], **kw(SIL))
     paint(ax, L["strip"], **kw(RED))
-    paint(ax, L["strip_stitch"].buffer(1.8), **kw("#f0e6d0"))
+    paint(ax, L["strip_stitch"], **kw("#f0e6d0"))
     paint(ax, L["hook_lug"], **kw(BLK2))
     paint(ax, L["hook_knob"], **kw(BLK3))
     for x in L["hooks_x"]:
@@ -242,7 +265,7 @@ if __name__ == "__main__":
         import json
         T = json.load(open(sys.argv[3]))
         L["strip"] = Polygon(T["strip"]).buffer(0).buffer(-4).buffer(4).simplify(1.5)
-        L["strip_stitch"] = L["strip"].buffer(-9).exterior
+        L["strip_stitch"] = strip_stitches(L["strip"])
         sw = Polygon(T["swoosh"]).buffer(0)
         L["swoosh"] = sw
         if "sil" in T:
