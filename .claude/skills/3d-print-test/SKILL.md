@@ -1,6 +1,6 @@
 ---
 name: 3d-print-test
-description: Printability test for a 3D model before printing (FDM, H2D): finds floating islands, overhangs over 45 degrees, features too thin, parts off the bed or too big, open meshes, tiny bed contact, and relays Bambu Studio slicer warnings. Use whenever the owner asks to check/test if a part is printable, "فحص للطباعة", "في مشاكل؟", or before sending any STL/3MF/zip for printing. Runs /3d-cost afterwards if time/cost is wanted.
+description: Printability test for a 3D model before printing (FDM, H2D): finds floating islands, overhangs over 45 degrees, features too thin, parts off the bed or too big, open meshes, tiny bed contact, and relays Bambu Studio slicer warnings. Use whenever the owner asks to check/test if a part is printable, "فحص للطباعة", "في مشاكل؟", or before sending any STL/3MF/zip for printing. If the test finds NO problems it runs /3d-cost on the same files automatically; with problems it stops and reports them.
 argument-hint: "[STL/3MF files of ONE job] [--angle 45] [--min-feature 0.7] [--slice]"
 ---
 
@@ -20,6 +20,11 @@ The printer has not arrived (see CLAUDE.md): this is a **software check**, never
    - Exit code 1 = at least one PROBLEM.
 4. Read the result and answer in short Jordanian Arabic: problems first (with the place: Z range, x/y), then notes, then ONE fix per
    problem, then the next step. Do not edit the model unless the owner agrees (he wants to approve designs first).
+5. **No problems (exit code 0) -> run `/3d-cost` on the same files, automatically** (owner's rule). Follow that skill: use the filament the
+   owner named or the one already agreed for this job (PLA = PLA+ unless told otherwise) and ask only if none was given; multi-colour 3MF needs
+   `--tower-x/--tower-y/--tower-width` (see cad/PRINTING_NOTES.md). If `cad/config/filament_prices.xlsx` is missing, still give time and
+   grams and ask the owner for `3D_ZONE_TECH_Filament.xlsx` for the price. **Problems found -> do NOT run /3d-cost**: report them and the fix first.
+   Then give one summary: test result + time + weight + cost.
 
 ## What each finding means and the usual fix
 | finding | meaning | usual fix |

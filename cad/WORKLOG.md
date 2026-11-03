@@ -44,6 +44,7 @@ Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what wa
 
 ## 2026-11-03 (cloud) — skill `3d-print-test` (printability check), the "سكيل فحص" the owner meant
 - "سكيل" = skill (I first read it as scale and searched the wrong thing; no record of it in the repo or the other sessions I could read). Built `cad/print_test.py` + `.claude/skills/3d-print-test/SKILL.md` (+ line in CLAUDE.md): layer-by-layer (0.4 mm) plate-down check for open mesh, off-bed, too big, tiny bed contact, floating islands, overhangs over 45 deg, features thinner than 0.7 mm; optional `--slice` relays Bambu Studio warnings. Calibrated on the hooks: no slope -> problem, first slope (0.24 mm gap) -> floating island (same as the slicer warning), fixed hook -> clean. Whole v6 piece: 0 problems, 8 s; notes: five 0.4 mm overhangs, thin tapers of the orange line at Z 3. Also `make_3mf.py --scale` (optional, default 1.0).
+- Owner's rule added to the skill: test with no problems -> run `/3d-cost` automatically on the same files; with problems stop and report first.
 
 ## 2026-11-03 (cloud) — little-prince lamp at 150 mm: files built
 - Owner chose size 150 (X/Y x1.5, height unchanged) and the option-4 diffuser. `cad/lamp150.py`: diffuser (white disc 118 mm x 1.34 + black relief 0.67, 2 colours, ar/en) -> `cad/print_files/lamp_150/diffuser_{ar,en}.3mf` (own geometry, committed); case 150x150x80 and stand 105x105x5 from the owner's licensed 3MF are written to a scratch dir only (NOT committed: public repo, third-party design).
