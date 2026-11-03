@@ -5,10 +5,11 @@ The tooth ring is recessed: teeth cut in L0, a round opening in L1.  Length is o
 import argparse, json, math
 from pathlib import Path
 from shapely.geometry import Polygon, Point
+from shapely.ops import unary_union
 from build123d import Face, Wire, Solid, Vector, Compound, Pos, Cylinder, Box, Align, export_step, export_stl
 
 HERE = Path(__file__).resolve().parent
-PARAMS = dict(LENGTH_MM=610.0, BORDER_T=3.0, PLATE_T=7.0, BAND_H=1.4, INSET_MM=3.4, SCREW_R=6.4, SCREW_H=2.0)
+PARAMS = dict(HOOK_T=10.0, HOOK_X0=603.0, HOOK_DX=216.25, HOOK_N=5, HOOK_PILOT_D=2.5, HOOK_HOLE_D=3.4, LENGTH_MM=610.0, BORDER_T=3.0, PLATE_T=7.0, BAND_H=1.4, INSET_MM=3.4, SCREW_R=6.4, SCREW_H=2.0)
 tr = json.loads((HERE / "wrench_trace.json").read_text())
 ox = [p[0] for p in tr["outline"]["outer"]]; oy = [p[1] for p in tr["outline"]["outer"]]
 X0, X1 = min(ox), max(ox)
@@ -40,14 +41,36 @@ def solid(poly, z0, z1):
         s = Solid.extrude(face(p), Vector(0, 0, z1 - z0)); out.append(Pos(0, 0, z0) * s)
     return out
 
+K = tr["image_size"][0] / 2000.0                     # hook measurements below are in a 2000 px wide view
+def md(x, y): return m((x * K, y * K))               # 2000-view coordinates -> mm
+def hook_shape(cx):
+    """Hook profile in the wall plane, measured on a 5x crop of the picture: slot-shaped plate with a rounded top,
+    J curl at the bottom, ball on the tip.  cx = stem centre (2000-view x)."""
+    from shapely.geometry import box
+    from shapely.ops import unary_union
+    def P(x, y): return md(cx + x, y)
+    stem = Polygon([P(-17.5, 348), P(17.5, 348), P(17.5, 450), P(-17.5, 450)])
+    top = Point(P(0, 347.5)).buffer(17.5 * K * S, 32)
+    ux0, uy0 = P(-22, 395); ux1, uy1 = P(38, 484)
+    bottom = box(min(ux0, ux1), min(uy0, uy1), max(ux0, ux1), max(uy0, uy1)).buffer(-21 * K * S).buffer(21 * K * S, 48)
+    arm = Polygon([P(8, 432), P(34, 432), P(34, 470), P(8, 470)])
+    ball = Point(P(24.4, 425)).buffer(17 * K * S, 32)
+    return unary_union([stem, top, bottom, arm, ball]).buffer(1.0).buffer(-1.0)
+
+def hook_holes_xy(cx):
+    return [md(cx, 352), md(cx, 384)]
+
 def build():
     P = PARAMS
     ring = tr["ring"]; rc = m((ring["cx"], ring["cy"]))
     outline = shp(tr["outline"])
     hole_teeth = teeth(rc[0], rc[1], ring["r_tip"] * S, ring["r_root"] * S, ring["teeth"])
     opening = Point(rc).buffer(ring["r_open"] * S, 64)
-    L0 = outline.difference(hole_teeth)
-    plate = outline.buffer(-P["INSET_MM"], join_style=1).difference(opening)
+    xs_h = [P["HOOK_X0"] + i * P["HOOK_DX"] for i in range(P["HOOK_N"])]
+    hole_pts = [pt for cx in xs_h for pt in hook_holes_xy(cx)]
+    holes = unary_union([Point(pt).buffer(P["HOOK_HOLE_D"] / 2, 24) for pt in hole_pts])
+    L0 = outline.difference(hole_teeth).difference(holes)
+    plate = outline.buffer(-P["INSET_MM"], join_style=1).difference(opening).difference(holes)
     band = unary_orange().intersection(plate.buffer(-0.2))
     black = solid(L0, 0, P["BORDER_T"]) + solid(plate, P["BORDER_T"], P["PLATE_T"])
     for sx, sy in tr["screws_px"]:
@@ -57,7 +80,16 @@ def build():
             h = h - Pos(x, y, P["PLATE_T"] + P["SCREW_H"] - 1.0) * Box(bx, by, 1.2, align=(Align.CENTER, Align.CENTER, Align.MIN))
         black.append(h)
     orange = solid(band, P["PLATE_T"], P["PLATE_T"] + P["BAND_H"])
-    return {"wrench_body": {"black": black, "orange": orange}}, dict(L=outline.bounds, S=S)
+    hooks = {}
+    for i, cx in enumerate(xs_h):
+        sh = hook_shape(cx)
+        hs = solid(sh, P["PLATE_T"], P["PLATE_T"] + P["HOOK_T"])[0]
+        for (hx, hy) in hook_holes_xy(cx):
+            hs = hs - Pos(hx, hy, P["PLATE_T"]) * Cylinder(P["HOOK_PILOT_D"] / 2, 8.0, align=(Align.CENTER, Align.CENTER, Align.MIN))
+        hooks[f"hook_{i+1}"] = {"black": [hs]}
+    res = {"wrench_body": {"black": black, "orange": orange}}
+    res.update(hooks)
+    return res, dict(L=outline.bounds, S=S)
 
 def unary_orange():
     from shapely.ops import unary_union
