@@ -17,6 +17,8 @@ from shapely.geometry import Polygon, Point, LineString, box
 from shapely.ops import unary_union
 from shapely import affinity
 from PIL import Image
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from seat_wheel import seat_wheel, draw_seat_wheel
 
 W_MM = 300.0
 X0, X1 = 75.0, 1480.0           # plate left / right edge in the picture
@@ -162,6 +164,8 @@ def build():
     L["stitch"] = unary_union([back.buffer(-12).exterior, head.buffer(-10).exterior,
                                cush.buffer(-12).exterior, L["seat_centre"].buffer(-8).exterior])
 
+    seat_wheel(L)      # measured redraw of seat + wheel (overrides the first sketch above)
+
     # lettering (real font)
     L["text"] = unary_union([text_poly("Car", 770, 366, 262, 80, 0.22),
                              text_poly("Upholstery", 683, 472, 472, 78, 0.22)])
@@ -240,18 +244,7 @@ def draw(L, path, ref=None, alpha=1.0):
     paint(ax, L["base"], **kw(BLK))
     paint(ax, L["panel"], **kw(BLK2))
     paint(ax, L["band"], **kw(BLK3))
-    paint(ax, L["wheel_ring"].buffer(1.5), **kw(BLK))
-    paint(ax, L["wheel_ring"], **kw(BLK3))
-    paint(ax, L["wheel_hub"], **kw(SIL))
-    paint(ax, L["wheel_btn"], **kw(BLK))
-    paint(ax, L["wheel_mark"], **kw(RED))
-    for k in ("seat_back", "seat_cush", "seat_head"):
-        paint(ax, L[k].buffer(1.5), **kw(BLK))
-        paint(ax, L[k], **kw(BLK3))
-    paint(ax, L["seat_centre"], **kw(BLK2))
-    paint(ax, L["diamond_area"], **kw(BLK3))
-    paint(ax, L["stitch"].buffer(1.8), **kw(RED))
-    paint(ax, L["diamond_lines"].buffer(2.2), **kw(RED))
+    draw_seat_wheel(ax, L, paint, kw, (BLK, BLK2, BLK3, RED, SIL))
     paint(ax, L["text"], **kw(SIL))
     paint(ax, L["swoosh"], **kw(SIL))
     paint(ax, L["machine"], **kw(SIL))
@@ -282,15 +275,7 @@ if __name__ == "__main__":
             L["base"] = Polygon(T["sil"]).buffer(0).buffer(-5).buffer(5).buffer(14).buffer(-14)
             L["base"] = smooth_poly(L["base"], 2.0, 6.0)
             L["panel"] = L["panel"].intersection(L["base"])
-            # seat / headrest / wheel follow the traced outer edge (no extra black margin)
-            S_ = L["base"]
-            L["seat_head"] = S_.intersection(L["seat_head"].buffer(16))
-            L["seat_back"] = S_.intersection(L["seat_back"].buffer(16)).difference(L["seat_head"].buffer(-3))
-            L["seat_cush"] = S_.intersection(L["seat_cush"].buffer(14))
-            wo = S_.intersection(ellipse(570, 245, 178, 200, -8))
-            L["wheel_ring"] = wo.difference(ellipse(570, 245, 122, 144, -8))
-            L["wheel_mark"] = L["wheel_ring"].intersection(box(535, 30, 592, 110))
-    b = unary_union([L["base"], L["wheel_ring"], L["seat_back"], L["seat_head"], L["hook_lug"]]).bounds
+    b = unary_union([L["base"], L["wheel_ring"], L["seat_left"], L["seat_head"], L["hook_lug"]]).bounds
     print("bbox px", [round(v) for v in b], "-> mm", round((b[2]-b[0])*MM_PX, 1), "x", round((b[3]-b[1])*MM_PX, 1))
     draw(L, f"{out}/flat.png")
     draw(L, f"{out}/overlay.png", ref=ref, alpha=0.55)

@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-03 (cloud) — key holder flat v4: seat and steering wheel redrawn from a 1.5x crop
+- Owner: overlap between seat and wheel, and the whole seat was wrong. New `cad/keyholder/seat_wheel.py`: separate pieces (headrest, left bolster, plain centre panel, diamond panel with parametric lattice, right bolster, cushion, red piping, dashed red stitching) measured on a 1.5x crop; wheel = measured ellipse ring, dark airbag pad with silver ring, 3 spokes, buttons, red top mark, dashed stitch. Seat drawn over the wheel (as in the picture). Checked on a zoomed overlay: matches. Also earlier today: dashed stitching on the red strip, smoothed jagged outline. Preview `cad/keyholder/preview/flat_v4.png`.
+- Left: owner's marks, then 3D (each piece gets its own relief height), J hooks, print test, cost.
+
 ## 2026-11-03 (cloud) — key holder flat v3: whole outline traced (skill 3d-picture-to-cad re-run)
 - Owner asked to redo the drawing with the skill. Now traced by colour masks: outer silhouette (`trace_silhouette.py`: "not wood" mask, stays local), red strip, car swoosh. Machine/steering hub traced too but the result was ragged/missing the handwheel, so those stay clean parametric drawings. Seat/headrest/wheel inner edges are dark-on-dark (not traceable): measured by eye, checked on zoomed overlays. Lettering re-fitted (Upholstery 472 px wide, cap 78). `flat_preview.py <ref> <out> <trace.json>`; preview `cad/keyholder/preview/flat_v3.png`. Size 301 x 160 mm. Left: owner's marks, then 3D.
 
