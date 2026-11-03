@@ -128,6 +128,11 @@ def build(trace, wheel):
             if not piece.is_empty:
                 bucket += prism(piece, h, h + t)
 
+    # the seat is in front of the wheel: wheel decoration must not run over it
+    seat_cover = unary_union([M[k] for k in ("seat_fill", "seat_left", "seat_right", "seat_centre", "seat_diamond", "seat_cush", "seat_head")])
+    M["wheel_stitch"] = M["wheel_stitch"].difference(seat_cover)
+    M["wheel_mark"] = M["wheel_mark"].difference(seat_cover)
+    M["wheel_hub"] = M["wheel_hub"].difference(seat_cover)
     # red decor
     for key in ("wheel_mark", "wheel_stitch", "seat_stitch", "seat_seam_stitch", "seat_lattice"):
         decor(M[key].intersection(base), T_STITCH, red)
