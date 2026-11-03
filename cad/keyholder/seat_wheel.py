@@ -65,6 +65,7 @@ def seat_wheel(L):
     ])
     slot = Polygon(C([(702, 462), (742, 458), (730, 522), (714, 522)]))
     L["wheel_hub"] = unary_union([ring, spokes]).difference(slot)
+    L["spokes_body"] = spokes.difference(slot)
     L["wheel_pad"] = Point(*hub_c).buffer(61)           # dark airbag cover (slightly raised)
     L["wheel_logo"] = Point(560, 233).buffer(27)
     L["wheel_btn"] = unary_union([
@@ -82,8 +83,8 @@ def seat_wheel(L):
                                (310, 690), (245, 775), (190, 830), (130, 770), (75, 570)]), 3)
     centre_up = Polygon(C([(262, 222), (500, 225), (515, 365), (285, 368)])).buffer(-5).buffer(5)
     diamond = Polygon(C([(262, 368), (515, 368), (575, 760), (300, 780)])).buffer(-5).buffer(5)
-    right_b = _smooth_closed(C([(520, 285), (585, 325), (650, 420), (692, 540), (688, 620),
-                                (670, 720), (560, 760), (520, 366)]), 3).difference(diamond.buffer(2)).difference(centre_up.buffer(1))
+    right_b = _smooth_closed(C([(505, 285), (585, 325), (650, 420), (692, 540), (688, 620),
+                                (670, 720), (575, 760), (556, 665), (540, 500), (520, 366)]), 3).difference(diamond.buffer(2)).difference(centre_up.buffer(1))
     cush = _smooth_closed(C([(300, 700), (450, 676), (600, 676), (700, 722), (742, 790), (722, 852),
                              (600, 882), (430, 882), (300, 872), (190, 852), (184, 792), (232, 745)]), 4)
     L["seat_head"], L["seat_left"], L["seat_centre"] = head, left_b.difference(centre_up.buffer(1)), centre_up
@@ -115,9 +116,9 @@ def seat_wheel(L):
     ]
     L["seat_stitch"] = unary_union([_dash(_smooth_open(s, 3), 11, 7, 1.9) for s in st])
     seam = _smooth_open(C([(490, 232), (520, 360), (540, 500), (556, 665)]), 2)
-    L["seat_piping"] = seam.buffer(4.5)                        # narrow groove (seam channel)
-    L["seat_seam_stitch"] = unary_union([_dash(seam.offset_curve(7.5), 11, 7, 1.8),
-                                         _dash(seam.offset_curve(-7.5), 11, 7, 1.8)])
+    L["seat_piping"] = seam.buffer(2.5)                        # narrow groove (seam channel)
+    L["seat_seam_stitch"] = unary_union([_dash(seam.offset_curve(6.5), 11, 7, 1.8),
+                                         _dash(seam.offset_curve(-6.5), 11, 7, 1.8)])
     return L
 
 
