@@ -114,7 +114,10 @@ def seat_wheel(L):
         C([(200, 777), (330, 757), (440, 787), (480, 842)]),
     ]
     L["seat_stitch"] = unary_union([_dash(_smooth_open(s, 3), 11, 7, 1.9) for s in st])
-    L["seat_piping"] = _smooth_open(C([(490, 232), (520, 360), (540, 500), (556, 665)]), 2).buffer(3.2)
+    seam = _smooth_open(C([(490, 232), (520, 360), (540, 500), (556, 665)]), 2)
+    L["seat_piping"] = seam.buffer(4.5)                        # narrow groove (seam channel)
+    L["seat_seam_stitch"] = unary_union([_dash(seam.offset_curve(7.5), 11, 7, 1.8),
+                                         _dash(seam.offset_curve(-7.5), 11, 7, 1.8)])
     return L
 
 
@@ -135,7 +138,8 @@ def draw_seat_wheel(ax, L, paint, kw, cols):
     paint(ax, L["seat_centre"], **kw(BLK2))
     paint(ax, L["seat_diamond"], **kw(BLK3))
     paint(ax, L["seat_lattice"], **kw(RED))
-    paint(ax, L["seat_piping"], **kw(RED))
+    paint(ax, L["seat_piping"], **kw(BLK))
+    paint(ax, L["seat_seam_stitch"], **kw(RED))
     for k in ("seat_cush", "seat_head"):          # cushion over the bottom of the diamond panel
         paint(ax, L[k].buffer(1.5), **kw(BLK))
         paint(ax, L[k], **kw(BLK3))
