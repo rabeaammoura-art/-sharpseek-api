@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-03 (cloud) — key holder (car upholstery): flat drawing approved ("ابدء") -> 3D v1 built
+- Flat v5f approved by the owner. `cad/keyholder/keyholder3d.py` extrudes the flat layers (flat_preview.load_layers): black structure stepped by height (plate 4, panel 5.5, wheel rim 8, hub 9, seat sides 12, cushion/headrest 14), red raised stitching/strip/wheel mark (+0.8, strip to 9), white lettering (+3.5), swoosh, machine, chrome trim, strip stitching. 5 hooks of my own design (J: stem 28 mm out, 12 wide x 9 thick, 45 deg lip underside, round boss) fused into the black solid; 2 countersunk wall screw holes. Piece 300.2 x 150.8 x 32 mm, back on the bed, no supports. `make_3mf.py` (3 colours + tower).
+- Checks: all 3 colours watertight (black = ONE fused solid; fixed pinch points with a 0.02 mm region overlap); `/3d-print-test` 0 problems (note: thin items near Z 5.8); CLI PLA Basic 0.20 mm, no support: 5h06m, 162.5 g (black 133.8, red 14.2, white 14.5). Cost NOT computed (price sheet missing in this session). Nothing print-tested. STL/3MF/renders stay local (derived from the owner's picture); only the code and the two preview renders are committed.
+- Left: owner's look at the 3D renders (heights, hook shape, colours), time reduction ideas (plate thinner, lower seat), seam groove, price sheet for cost.
+
 ## 2026-11-03 (cloud) — key holder flat v4: seat and steering wheel redrawn from a 1.5x crop
 - Owner: overlap between seat and wheel, and the whole seat was wrong. New `cad/keyholder/seat_wheel.py`: separate pieces (headrest, left bolster, plain centre panel, diamond panel with parametric lattice, right bolster, cushion, red piping, dashed red stitching) measured on a 1.5x crop; wheel = measured ellipse ring, dark airbag pad with silver ring, 3 spokes, buttons, red top mark, dashed stitch. Seat drawn over the wheel (as in the picture). Checked on a zoomed overlay: matches. Also earlier today: dashed stitching on the red strip, smoothed jagged outline. Preview `cad/keyholder/preview/flat_v4.png`.
 - Left: owner's marks, then 3D (each piece gets its own relief height), J hooks, print test, cost.

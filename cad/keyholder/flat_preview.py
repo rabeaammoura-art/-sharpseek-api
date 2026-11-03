@@ -260,13 +260,12 @@ def draw(L, path, ref=None, alpha=1.0):
     plt.close(fig)
 
 
-if __name__ == "__main__":
-    ref, out = sys.argv[1], sys.argv[2]
-    os.makedirs(out, exist_ok=True)
+def load_layers(trace_json=None, wheel_json=None):
+    """All 2D layers (px coordinates); the traced json files are local."""
     L = build()
-    if len(sys.argv) > 3:        # traced big shapes (local json from trace_keyholder.py)
+    if trace_json:        # traced big shapes (local json from trace_keyholder.py)
         import json
-        T = json.load(open(sys.argv[3]))
+        T = json.load(open(trace_json))
         L["strip"] = smooth_poly(Polygon(T["strip"]).buffer(0).buffer(-4).buffer(4), 2.0, 4.0)
         L["strip_stitch"] = strip_stitches(L["strip"])
         sw = Polygon(T["swoosh"]).buffer(0)
@@ -275,16 +274,23 @@ if __name__ == "__main__":
             L["base"] = Polygon(T["sil"]).buffer(0).buffer(-5).buffer(5).buffer(14).buffer(-14)
             L["base"] = smooth_poly(L["base"], 2.0, 6.0)
             L["panel"] = L["panel"].intersection(L["base"])
-    if len(sys.argv) > 4:        # traced silver hub ring + spokes (with holes) from trace_wheel_inside.py
+    if wheel_json:        # traced silver hub ring + spokes (with holes) from trace_wheel_inside.py
         import json
         from shapely.geometry import Polygon as _P
-        gs = [_P(g["ext"], g["holes"]).buffer(0) for g in json.load(open(sys.argv[4]))]
+        gs = [_P(g["ext"], g["holes"]).buffer(0) for g in json.load(open(wheel_json))]
         L["wheel_hub"] = unary_union(gs).difference(box(570, 372, 665, 405)).buffer(1.0)   # drop ring highlight, widen thin chrome lines (>= 0.7 mm)
         # bodies under the chrome trim: hub pad + spokes (closed so the V of the bottom spoke is one body)
         body = unary_union([_P(g.exterior) for g in gs]).buffer(12).buffer(-12)
         slot_v = box(515, 318, 575, 372)
         L["wheel_pad"] = unary_union([body.difference(slot_v), Point(560, 233).buffer(64), L["spokes_body"]]).intersection(ellipse(570, 229, 128, 150))
         L["wheel_btn"] = Point(0, 0).buffer(0)
+    return L
+
+
+if __name__ == "__main__":
+    ref, out = sys.argv[1], sys.argv[2]
+    os.makedirs(out, exist_ok=True)
+    L = load_layers(sys.argv[3] if len(sys.argv) > 3 else None, sys.argv[4] if len(sys.argv) > 4 else None)
     b = unary_union([L["base"], L["wheel_ring"], L["seat_left"], L["seat_head"], L["hook_lug"]]).bounds
     print("bbox px", [round(v) for v in b], "-> mm", round((b[2]-b[0])*MM_PX, 1), "x", round((b[3]-b[1])*MM_PX, 1))
     draw(L, f"{out}/flat.png")
