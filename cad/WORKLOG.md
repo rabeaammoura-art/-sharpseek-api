@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-03 (cloud) — little-prince lamp at 150 mm: files built
+- Owner chose size 150 (X/Y x1.5, height unchanged) and the option-4 diffuser. `cad/lamp150.py`: diffuser (white disc 118 mm x 1.34 + black relief 0.67, 2 colours, ar/en) -> `cad/print_files/lamp_150/diffuser_{ar,en}.3mf` (own geometry, committed); case 150x150x80 and stand 105x105x5 from the owner's licensed 3MF are written to a scratch dir only (NOT committed: public repo, third-party design).
+- CLI estimates (PLA, 0.2 mm, no support, no tower): case 2h52m/95 g, diffuser 0h26m/20 g, stand 0h28m/24 g = about 3h46m / 139 g per lamp. 200 mm (x2 XY): case 4h56m, diffuser 0h42m, stand 0h47m = about 6h25m. Uniform 2x incl. height would be 5.8x the original case time. Nothing print-tested (printer not here). Open: LED choice and fit of the larger case/stand, diffuser fit tolerance in the case opening, real values in the JSONs.
+
 ## 2026-11-02 (cloud) — little-prince lamp (Bambu 3MF from the owner): diffuser to carry name/date/weight/time/length
 - 3MF has 3 plates: light case (~100x100x80), led stand (disc 70x70x5), light diffuser (disc ~79 mm x 1.34 mm, logo relief 0.67 mm). Owner holds the licence to modify. Decided: remove the logo, two versions (full Arabic / full English); layout via GPT prompt `cad/plaque/gpt_prompt/diffuser_layouts_PROMPT.md` (6 options). Owner chose GPT option 4 (bear on top) with the decoration as in the picture, test values (changeable), bigger text. Built `cad/diffuser.py` (+ `cad/plaque/diffuser_ar.json` / `diffuser_en.json`, previews in `cad/plaque/diffuser/`): bear/stars/icons traced from the picture, text from fonts. Left: owner's yes on the preview, then write the relief into the lamp 3MF (diffuser plate, white disc 1.34 + black relief 0.67).
 
