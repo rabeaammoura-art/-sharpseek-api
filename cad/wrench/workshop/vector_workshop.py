@@ -109,11 +109,17 @@ def build(S=1.5, car_trace=None):
         for f in (0.20, 0.56, 0.86):
             yy = ctop + (cbot - ctop) * f; W.append(box(x0, yy, x1, yy + 3.5))
 
-    # ---- lifts (traced, approved) --------------------------------------------------------------------
-    for r in TRACE["house_orange"]:
-        p = tr_poly(r); b = p.bounds
-        if p.area > 2500 and b[2] < 1230 and b[0] > 800:
-            O.append(stretch(p))
+    # ---- two lifts, drawn clean (measured on a 5x crop of the picture): column, base with 2 feet, piston on top,
+    #      outer white cylinder, angled white link arm, lower orange arm toward the car -------------------------
+    def lift(mirror):
+        o = [rrect(867.6, 165, 895.5, 282, 1.2), rrect(851, 283, 913, 291.5, 1.5), box(859, 275, 867.6, 283), box(896, 275, 904.6, 283),
+             box(897.7, 256, 929.5, 264.5), box(897.7, 249, 902.5, 257), box(858, 183, 867.6, 188), box(856, 240, 867.6, 246)]
+        w = [box(879, 141, 886, 161), rrect(877, 159.5, 888, 166, 2), box(858, 187, 867.6, 241),
+             box(895.5, 185, 902.5, 208), LineString([(899, 200), (922, 228)]).buffer(3.6, cap_style=2)]
+        fix = (lambda g: affinity.scale(g, -1, 1, origin=(1034.5, 0))) if mirror else (lambda g: g)
+        for g in o: O.append(stretch(fix(g)))
+        for g in w: W.append(stretch(fix(g)))
+    lift(False); lift(True)
 
     # ---- car: white body, black windscreen/grille/intake cut-outs, orange headlights ---------------
     cx, cb = 1036, sy(268)

@@ -18,10 +18,6 @@ from PIL import ImageDraw
 bridge = Image.new("L", (m.shape[1], m.shape[0]), 0)           # roof arc and A-pillar are one piece in the picture: close the gap
 ImageDraw.Draw(bridge).line([(900, 291), (960, 296), (1000, 326)], fill=255, width=18)
 m |= np.asarray(bridge) > 0
-cxm = 670                                                      # car axis (x of the middle of the traced bounds): the left A-pillar is lost in shadow, mirror the right one
-for x in range(960, 1118):
-    xl = 2 * cxm - x
-    if 0 <= xl < m.shape[1]: m[:470, xl] |= m[:470, x]
 roof = np.zeros_like(m); roof[:470, 340:] = True              # thin roof arc / pillar / mirrors: thicken so they survive printing
 m |= ndi.binary_dilation(m & roof, iterations=4)
 m = ndi.binary_opening(m, iterations=2); m = ndi.binary_closing(m, iterations=2)
@@ -36,7 +32,12 @@ for p in P:
     for i, q in enumerate(res):
         if q.contains(p): res[i] = q.difference(p); break
     else: res.append(p)
-g = unary_union(res).simplify(1.2)
+g = unary_union(res)
+from shapely import affinity
+from shapely.geometry import box as _box
+cxm = (g.bounds[0] + g.bounds[2]) / 2                         # the car is symmetric: right half + its mirror (the left A-pillar is lost in shadow)
+right = g.intersection(_box(cxm, 0, g.bounds[2] + 10, 2000))
+g = unary_union([right, affinity.scale(right, -1, 1, origin=(cxm, 0))]).buffer(0.8).buffer(-0.8).simplify(1.2)
 gs = [g] if g.geom_type == "Polygon" else list(g.geoms)
 json.dump({"bounds": list(g.bounds), "polys": [{"outer": [list(map(float, c_)) for c_ in p.exterior.coords], "holes": [[list(map(float, c_)) for c_ in i.coords] for i in p.interiors]} for p in gs]}, open(out, "w"))
 print("parts", len(gs), "bounds", [round(b) for b in g.bounds], "holes", sum(len(p.interiors) for p in gs))
