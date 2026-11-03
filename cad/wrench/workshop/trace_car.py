@@ -14,6 +14,12 @@ c = im.crop((int(400 * k), int(925 * k), int(650 * k), int(1095 * k))); c = c.re
 a = np.asarray(c).astype(int); mn = a.min(axis=2); mx = a.max(axis=2)
 m = (mn > 170) & (mx - mn < 40)
 m[:240, :] = False                                           # the floating lamp bar above the car is not part of it
+from PIL import ImageDraw
+bridge = Image.new("L", (m.shape[1], m.shape[0]), 0)           # roof arc and A-pillar are one piece in the picture: close the gap
+ImageDraw.Draw(bridge).line([(900, 291), (960, 296), (1000, 326)], fill=255, width=18)
+m |= np.asarray(bridge) > 0
+roof = np.zeros_like(m); roof[:470, 340:] = True              # thin roof arc / pillar / mirrors: thicken so they survive printing
+m |= ndi.binary_dilation(m & roof, iterations=4)
 m = ndi.binary_opening(m, iterations=2); m = ndi.binary_closing(m, iterations=2)
 lab, n = ndi.label(m); sz = ndi.sum(m, lab, range(1, n + 1))
 for i, s in enumerate(sz, 1):
