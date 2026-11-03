@@ -27,7 +27,7 @@ for(const it of items){{let geo=L.parse(b2a(it.b));geo.computeVertexNormals();
 sc.add(g);
 const box=new THREE.Box3().setFromObject(g),c=box.getCenter(new THREE.Vector3());g.position.sub(c);
 const wall=new THREE.Mesh(new THREE.PlaneGeometry(2000,1000),new THREE.MeshStandardMaterial({{color:0xe4e4e6,roughness:1}}));
-wall.position.z=-(box.max.z-box.min.z)/2-0.01-(c.z-box.min.z)+ (c.z-box.min.z)-0.01;wall.position.z=box.min.z-c.z-0.02;wall.receiveShadow=true;sc.add(wall);
+wall.position.z=-(box.max.z-box.min.z)/2-0.01-(c.z-box.min.z)+ (c.z-box.min.z)-0.01;wall.position.z=box.min.z-c.z-0.02;wall.receiveShadow=false;sc.add(wall);
 sc.add(new THREE.HemisphereLight(0xffffff,0x888890,0.75));
 const d=new THREE.DirectionalLight(0xffffff,0.9);d.position.set(-250,350,400);d.castShadow=true;d.shadow.mapSize.set(4096,4096);
 Object.assign(d.shadow.camera,{{left:-400,right:400,top:200,bottom:-200,near:10,far:1500}});d.shadow.radius=4;d.shadow.bias=-0.0004;sc.add(d);
