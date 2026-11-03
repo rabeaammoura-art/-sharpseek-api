@@ -6,12 +6,14 @@ import subprocess
 
 out, variant, js = Path(sys.argv[1]), sys.argv[2], Path(sys.argv[3])
 COL = {"black": "#26262a", "orange": "#ff7a00", "white": "#ececee", "red": "#d01818"}
+PAL = json.loads(sys.argv[4]) if len(sys.argv) > 4 else {}      # optional palette override: {"black": "#hex", "white": "#hex", "orange": "#hex", "metal": ["white", "orange"]}
+COL.update({k: v for k, v in PAL.items() if k in COL}); METAL = PAL.get("metal", [])
 items = []
 for f in sorted((out / "stl").glob("*.stl")):
     n, c = f.stem.split("__")
     if n.startswith("brake_") and n != f"brake_{variant}":
         continue
-    items.append({"c": COL[c], "m": c, "b": base64.b64encode(f.read_bytes()).decode()})
+    items.append({"c": COL[c], "m": c, "met": c in METAL, "b": base64.b64encode(f.read_bytes()).decode()})
 html = f"""<html><body style="margin:0;background:#d9d9dc"><script>{(js/'three.min.js').read_text()}</script>
 <script>{(js/'STLLoader.js').read_text()}</script><script>
 const items={json.dumps(items)};
@@ -22,7 +24,7 @@ const g=new THREE.Group();
 function b2a(b){{const s=atob(b),a=new Uint8Array(s.length);for(let i=0;i<s.length;i++)a[i]=s.charCodeAt(i);return a.buffer}}
 const L=new THREE.STLLoader();
 for(const it of items){{let geo=L.parse(b2a(it.b));geo.computeVertexNormals();
- const m=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({{color:it.c,roughness:it.m=='white'?0.55:0.7,metalness:0.0}}));
+ const m=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({{color:it.c,roughness:it.met?0.45:(it.m=='white'?0.55:0.7),metalness:it.met?0.25:0.0}}));
  m.castShadow=true;m.receiveShadow=true;g.add(m);}}
 sc.add(g);
 const box=new THREE.Box3().setFromObject(g),c=box.getCenter(new THREE.Vector3());g.position.sub(c);
