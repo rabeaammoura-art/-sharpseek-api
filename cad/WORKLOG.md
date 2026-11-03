@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-03 (cloud) — key holder flat v2: red strip + car swoosh traced from the picture
+- Owner: 3 colours for now, J hooks OK; circled the car swoosh and the red strip as wrong, asked to use the tracing method. `cad/keyholder/trace_keyholder.py` (colour masks, smoothed) -> local json (not committed); `flat_preview.py <ref> <out> <trace.json>` uses it. Overlay checked: both now match the picture. Preview `cad/keyholder/preview/flat_v2.png`.
+- Left: owner's OK/marks on v2, then 3D heights, J hooks, print test, cost. Nothing 3D, nothing print-tested.
+
 ## 2026-11-03 (cloud) — car-upholstery key holder (seat + wheel + sewing machine + 5 hooks): flat 2D drawing v1
 - Owner sent a new reference picture (1536x1024, AI render) + a master prompt (ONE printed piece, 300 mm wide, Bambu H2D). `cad/keyholder/flat_preview.py` draws it flat from clean shapes measured on the picture (seat, headrest, diamond quilt, wheel, arch + panel + recessed band, real-font lettering, car swoosh, sewing machine from a 3x crop, red strip, 5 hooks, 2 screw holes). Real size 300 x 156 mm (not 200 tall: the picture's proportions; hooks included). Preview `cad/keyholder/preview/flat_v1.png` (overlay on the reference kept local).
 - Left: owner's marks on the flat drawing, colours (black/red/silver + brown band?), hook type (J printed in the same job), THEN 3D (relief heights), print test, cost. Nothing 3D yet, nothing print-tested.

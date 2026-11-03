@@ -238,6 +238,13 @@ if __name__ == "__main__":
     ref, out = sys.argv[1], sys.argv[2]
     os.makedirs(out, exist_ok=True)
     L = build()
+    if len(sys.argv) > 3:        # traced big shapes (local json from trace_keyholder.py)
+        import json
+        T = json.load(open(sys.argv[3]))
+        L["strip"] = Polygon(T["strip"]).buffer(0).buffer(-4).buffer(4).simplify(1.5)
+        L["strip_stitch"] = L["strip"].buffer(-9).exterior
+        sw = Polygon(T["swoosh"]).buffer(0)
+        L["swoosh"] = sw
     b = unary_union([L["base"], L["wheel_ring"], L["seat_back"], L["seat_head"], L["hook_lug"]]).bounds
     print("bbox px", [round(v) for v in b], "-> mm", round((b[2]-b[0])*MM_PX, 1), "x", round((b[3]-b[1])*MM_PX, 1))
     draw(L, f"{out}/flat.png")
