@@ -74,6 +74,16 @@ def text_poly(s, x, y_base, width, height_cap, italic=0.2):
     return affinity.translate(res, x - b[0], y_base)     # y=0 (baseline) -> y_base
 
 
+def smooth_poly(poly, step=2.0, sigma=5.0):
+    """Resample the outline every `step` px and gaussian-smooth the coordinates (removes jagged/broken edges)."""
+    from scipy.ndimage import gaussian_filter1d
+    ring = poly.exterior
+    n = max(int(ring.length / step), 16)
+    pts = np.array([ring.interpolate(i * ring.length / n).coords[0] for i in range(n)])
+    pts = np.stack([gaussian_filter1d(pts[:, k], sigma, mode="wrap") for k in (0, 1)], axis=1)
+    return Polygon(pts).buffer(0)
+
+
 def dashed(line, dash=13.0, gap=8.0, w=2.4):
     """Stitch dashes along a line (shapely LineString/LinearRing)."""
     from shapely.ops import substring
@@ -264,12 +274,13 @@ if __name__ == "__main__":
     if len(sys.argv) > 3:        # traced big shapes (local json from trace_keyholder.py)
         import json
         T = json.load(open(sys.argv[3]))
-        L["strip"] = Polygon(T["strip"]).buffer(0).buffer(-4).buffer(4).simplify(1.5)
+        L["strip"] = smooth_poly(Polygon(T["strip"]).buffer(0).buffer(-4).buffer(4), 2.0, 4.0)
         L["strip_stitch"] = strip_stitches(L["strip"])
         sw = Polygon(T["swoosh"]).buffer(0)
         L["swoosh"] = sw
         if "sil" in T:
-            L["base"] = Polygon(T["sil"]).buffer(0).buffer(-5).buffer(5).buffer(14).buffer(-14).simplify(1.0)
+            L["base"] = Polygon(T["sil"]).buffer(0).buffer(-5).buffer(5).buffer(14).buffer(-14)
+            L["base"] = smooth_poly(L["base"], 2.0, 6.0)
             L["panel"] = L["panel"].intersection(L["base"])
             # seat / headrest / wheel follow the traced outer edge (no extra black margin)
             S_ = L["base"]
