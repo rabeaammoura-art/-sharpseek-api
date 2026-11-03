@@ -26,7 +26,7 @@ def rrect(x0, y0, x1, y1, r):
     return box(x0 + r, y0 + r, x1 - r, y1 - r).buffer(r, 12)
 
 
-def build(S=1.5, car_trace=None):
+def build(S=1.5, car_trace=None, disc_scale=1.0):
     sy = lambda y: YREF - (YREF - y) * S                      # stretch a y coordinate
     stretch = lambda g: affinity.scale(g, 1, S, origin=(0, YREF))
     sq = S ** 0.5
@@ -154,7 +154,7 @@ def build(S=1.5, car_trace=None):
         W.append(rrect(x0, yb - hh, x0 + 18, yb, 3)); O.append(box(x0 + 3, yb - hh - 5, x0 + 15, yb - hh))
 
     # ---- brake disc (round, fixed place): rotor 14 holes, hub with 5 bolts, orange caliper ----------
-    c = Point(1330, 268); R = 102.0
+    c = Point(1330, 268); R = 102.0 * disc_scale
     rotor = c.buffer(R * 0.94, 64).difference(c.buffer(R * 0.52, 64))
     holes = [Point(1330 + R * 0.73 * math.cos(2 * math.pi * i / 14), 268 + R * 0.73 * math.sin(2 * math.pi * i / 14)).buffer(R * 0.075, 14) for i in range(14)]
     hub = c.buffer(R * 0.42, 48).difference(c.buffer(R * 0.14, 32))
