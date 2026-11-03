@@ -230,13 +230,13 @@ def draw(L, path, ref=None, alpha=1.0):
     paint(ax, L["base"], **kw(BLK))
     paint(ax, L["panel"], **kw(BLK2))
     paint(ax, L["band"], **kw(BLK3))
-    paint(ax, L["wheel_ring"].buffer(3), **kw(BLK))
+    paint(ax, L["wheel_ring"].buffer(1.5), **kw(BLK))
     paint(ax, L["wheel_ring"], **kw(BLK3))
     paint(ax, L["wheel_hub"], **kw(SIL))
     paint(ax, L["wheel_btn"], **kw(BLK))
     paint(ax, L["wheel_mark"], **kw(RED))
     for k in ("seat_back", "seat_cush", "seat_head"):
-        paint(ax, L[k].buffer(4), **kw(BLK))
+        paint(ax, L[k].buffer(1.5), **kw(BLK))
         paint(ax, L[k], **kw(BLK3))
     paint(ax, L["seat_centre"], **kw(BLK2))
     paint(ax, L["diamond_area"], **kw(BLK3))
@@ -269,8 +269,16 @@ if __name__ == "__main__":
         sw = Polygon(T["swoosh"]).buffer(0)
         L["swoosh"] = sw
         if "sil" in T:
-            L["base"] = Polygon(T["sil"]).buffer(0).buffer(-5).buffer(5).buffer(4).buffer(-4).simplify(1.0)
+            L["base"] = Polygon(T["sil"]).buffer(0).buffer(-5).buffer(5).buffer(14).buffer(-14).simplify(1.0)
             L["panel"] = L["panel"].intersection(L["base"])
+            # seat / headrest / wheel follow the traced outer edge (no extra black margin)
+            S_ = L["base"]
+            L["seat_head"] = S_.intersection(L["seat_head"].buffer(16))
+            L["seat_back"] = S_.intersection(L["seat_back"].buffer(16)).difference(L["seat_head"].buffer(-3))
+            L["seat_cush"] = S_.intersection(L["seat_cush"].buffer(14))
+            wo = S_.intersection(ellipse(570, 245, 178, 200, -8))
+            L["wheel_ring"] = wo.difference(ellipse(570, 245, 122, 144, -8))
+            L["wheel_mark"] = L["wheel_ring"].intersection(box(535, 30, 592, 110))
     b = unary_union([L["base"], L["wheel_ring"], L["seat_back"], L["seat_head"], L["hook_lug"]]).bounds
     print("bbox px", [round(v) for v in b], "-> mm", round((b[2]-b[0])*MM_PX, 1), "x", round((b[3]-b[1])*MM_PX, 1))
     draw(L, f"{out}/flat.png")
