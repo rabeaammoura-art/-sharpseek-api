@@ -81,7 +81,7 @@ def seat_wheel(L):
     left_b = _smooth_closed(C([(72, 300), (112, 232), (200, 205), (255, 208), (290, 300), (305, 500),
                                (310, 690), (245, 775), (190, 830), (130, 770), (75, 570)]), 3)
     centre_up = Polygon(C([(262, 222), (500, 225), (515, 365), (285, 368)])).buffer(-5).buffer(5)
-    diamond = Polygon(C([(290, 368), (515, 368), (555, 665), (318, 668)])).buffer(-5).buffer(5)
+    diamond = Polygon(C([(262, 368), (515, 368), (575, 760), (300, 780)])).buffer(-5).buffer(5)
     right_b = _smooth_closed(C([(520, 285), (585, 325), (650, 420), (692, 540), (688, 620),
                                 (670, 720), (560, 760), (520, 366)]), 3).difference(diamond.buffer(2)).difference(centre_up.buffer(1))
     cush = _smooth_closed(C([(300, 700), (450, 676), (600, 676), (700, 722), (742, 790), (722, 852),
@@ -129,11 +129,14 @@ def draw_seat_wheel(ax, L, paint, kw, cols):
     paint(ax, L["wheel_logo"], **kw(BLK2))
     paint(ax, L["wheel_btn"], **kw(BLK))
     paint(ax, L["seat_fill"], **kw(BLK2))
-    for k in ("seat_left", "seat_right", "seat_cush", "seat_head"):
+    for k in ("seat_left", "seat_right"):
         paint(ax, L[k].buffer(1.5), **kw(BLK))
         paint(ax, L[k], **kw(BLK3))
     paint(ax, L["seat_centre"], **kw(BLK2))
     paint(ax, L["seat_diamond"], **kw(BLK3))
     paint(ax, L["seat_lattice"], **kw(RED))
     paint(ax, L["seat_piping"], **kw(RED))
+    for k in ("seat_cush", "seat_head"):          # cushion over the bottom of the diamond panel
+        paint(ax, L[k].buffer(1.5), **kw(BLK))
+        paint(ax, L[k], **kw(BLK3))
     paint(ax, L["seat_stitch"], **kw(RED))
