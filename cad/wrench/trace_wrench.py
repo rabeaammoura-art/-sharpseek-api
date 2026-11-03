@@ -17,6 +17,8 @@ K = W / 2000.0                                    # my measurements below are in
 def X(v): return int(v * K)
 orange = (r > 190) & (g > 70) & (g < 200) & (b < 110) & (r - b > 110)
 dark = (r + g + b) < 175
+yy0, xx0 = np.mgrid[0:H, 0:W]
+dark |= ((r + g + b) < 380) & (yy0 < int(300 * K))      # lighter grey outer border on the top side (no shadow there)
 m = dark | orange
 m = ndi.binary_closing(m, iterations=4)
 yy, xx = np.mgrid[0:H, 0:W]
@@ -26,7 +28,7 @@ zone = (xx >= ZX0) & (xx < ZX1)
 def edge(col, top=True):
     ys = np.where(m[:, col])[0]; ys = ys[(ys > X(150)) & (ys < X(480))]
     return ys.min() if top else ys.max()
-tl, tr_ = edge(ZX0 - 3), edge(ZX1 + 3)                 # bar top line joins the two necks (hidden behind the workshop)
+tl, tr_ = X(239), X(252)                             # bar top line between the necks (hidden behind the workshop)
 bl, br_ = BB, BB
 m[zone] = False
 for col in range(ZX0, ZX1):
@@ -42,7 +44,7 @@ holes = ndi.binary_fill_holes(m) & ~m
 hl, hn = ndi.label(holes)
 for i in range(1, hn + 1):                         # keep only the big hole (ring); fill small texture holes
     if (hl == i).sum() < 20000: m[hl == i] = True
-m = ndi.binary_opening(m, iterations=2)
+dy, dx = np.mgrid[-9:10, -9:10]; m = ndi.binary_opening(m, structure=(dx * dx + dy * dy) <= 81)   # removes thin workshop slivers
 # contours
 gen = contourpy.contour_generator(z=ndi.gaussian_filter(np.pad(m, 1).astype(float), 4.0))
 lines = gen.lines(0.5)
