@@ -26,6 +26,8 @@ The repo is **public** — never commit purchase prices, the price sheet, produc
 
 - **Reproducing a picture / design in CAD:** use the skill `3d-picture-to-cad` (measure, clean parametric shapes, flat 2D preview first, ask for marks, keep approved versions, no third-party data in git).
 
+- **Before sending any model for printing:** run the skill `3d-print-test` (`cad/print_test.py`: islands, overhangs, thin features, bed fit). Then `/3d-cost` for time and money.
+
 ## Facts and preferences (decided with the owner)
 - **The printer (Bambu Lab H2D) has not arrived yet.** Nothing is print-tested. Never say "print a test" as if they could; prepare files and software checks.
 - Priorities: **print time matters more than cost**; no glue; no thicker base; avoid loose separate pieces; the owner likes things shown as images.
