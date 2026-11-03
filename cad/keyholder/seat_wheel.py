@@ -103,6 +103,7 @@ def seat_wheel(L):
         lines.append(LineString([(xs, y0 - 10), (xs + 26 * 14, y0 - 10 + 35 * 14)]))
         lines.append(LineString([(xs + 26 * 14, y0 - 10), (xs, y0 - 10 + 35 * 14)]))
     lat = unary_union(lines).intersection(diamond.buffer(-6))
+    L["seat_lattice_lines"] = lat
     L["seat_lattice"] = unary_union([_dash(g, 12, 6, 1.6) for g in (lat.geoms if hasattr(lat, "geoms") else [lat])])
 
     st = [

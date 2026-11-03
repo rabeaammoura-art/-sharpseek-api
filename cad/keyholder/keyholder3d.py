@@ -80,6 +80,30 @@ def prism(g, z0, z1):
     return out
 
 
+ROUND = {"base": 0.8, "wheel_ring": 1.4, "wheel_pad": 1.2, "seat_left": 2.2, "seat_right": 2.2, "seat_centre": 1.2,
+         "seat_cush": 2.2, "seat_head": 2.2, "strip": 1.5}      # quarter-round top-edge radius per piece (mm); 0 = sharp
+SLAB = 0.4                                                          # slab thickness of the rounded edge (2 printed layers)
+CELL_H = 1.2                                                        # diamond cells stand this much above the diamond panel
+CELL_R = 0.9
+GROOVE = 0.95                                                       # half width of the quilting groove (mm)
+
+
+def shaped(g, z0, z1, R):
+    """Prism z0..z1 whose top edge is a quarter round of radius R (stacked slabs, each inset by the circle profile)."""
+    R = min(R, z1 - z0)
+    if R < 0.3:
+        return prism(g, z0, z1)
+    out = prism(g, z0, z1 - R)
+    n = max(int(math.ceil(R / SLAB)), 1)
+    for k in range(n):
+        za, zb = (z1 - R) + k * R / n, (z1 - R) + (k + 1) * R / n
+        t = ((za + zb) / 2) - (z1 - R)
+        d = R - math.sqrt(max(R * R - t * t, 0.0))
+        gg = g.buffer(-d)
+        out += prism(gg, za, zb)
+    return out
+
+
 def build(trace, wheel):
     L = F.load_layers(trace, wheel)
     M = {k: (to_mm(v) if hasattr(v, "geom_type") else v) for k, v in L.items()}
@@ -115,18 +139,28 @@ def build(trace, wheel):
         rb = r.buffer(0.02)            # tiny overlap with the neighbour region: no pinch points / non-manifold edges after the fuse
         if name == "strip":
             black += prism(rb, 0, H_BASE)
-            red += prism(r, H_BASE, H_STRIP)
+            red += shaped(r, H_BASE, H_STRIP, ROUND["strip"])
         else:
-            black += prism(rb, 0, h)
+            black += shaped(rb, 0, h, ROUND.get(name, 0.0))
 
     def level_regions():
         return [(n, r, (H_STRIP if n == "strip" else h)) for n, r, h in regions]
 
     def decor(poly, t, bucket):
         for name, r, h in level_regions():
-            piece = poly.intersection(r)
+            rr = ROUND.get(name, 0.0)
+            piece = poly.intersection(r.buffer(-rr) if rr > 0 else r)          # decoration only on the flat top, not on the rounded edge
             if not piece.is_empty:
                 bucket += prism(piece, h, h + t)
+
+    # quilted diamond cells: real relief between the stitched grooves
+    dia = [r for n, r, h in regions if n == "seat_diamond"]
+    if dia and "seat_lattice_lines" in M:
+        lines = M["seat_lattice_lines"].buffer(GROOVE)
+        cells = dia[0].buffer(-0.8).difference(lines)
+        for c in parts_of(cells):
+            if c.area > 3.0:
+                black += shaped(c.buffer(0.02), H_SEAT_DIAMOND, H_SEAT_DIAMOND + CELL_H, CELL_R)
 
     # the seat is in front of the wheel: wheel decoration must not run over it
     seat_cover = unary_union([M[k] for k in ("seat_fill", "seat_left", "seat_right", "seat_centre", "seat_diamond", "seat_cush", "seat_head")])
