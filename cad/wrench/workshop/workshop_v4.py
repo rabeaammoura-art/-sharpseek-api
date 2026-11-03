@@ -4,6 +4,7 @@ Run: python cad/wrench/workshop/workshop_v4.py --out DIR [--stretch 1.25] [--car
 import argparse, sys
 from pathlib import Path
 import numpy as np
+from shapely import affinity
 from shapely.ops import transform, unary_union
 from build123d import Compound, export_step, export_stl
 
@@ -23,22 +24,24 @@ def to_mm(g):
 def clean(g, m):
     return g if g.is_empty else g.buffer(-m / 2).buffer(m / 2)
 
-def build(stretch=1.25, car_trace=None):
+def build(stretch=1.25, car_trace=None, ws_scale=1.0):
     P = PARAMS; g = VW.build(stretch, car_trace)
-    panel, white, orange = to_mm(g["panel"]), to_mm(g["white"]), to_mm(g["orange"])
+    y_hb = W.m((0, 296 * W.K))[1]                                   # house bottom line (mm): the uniform scale keeps it where it is
+    sc = (lambda x: affinity.scale(x, ws_scale, ws_scale, origin=(0, y_hb))) if ws_scale != 1.0 else (lambda x: x)
+    panel, white, orange = sc(to_mm(g["panel"])), sc(to_mm(g["white"])), sc(to_mm(g["orange"]))
     white, orange = clean(white, P["MIN_FEATURE_MM"]), clean(orange, P["MIN_FEATURE_MM"])
     z0 = W.PARAMS["PLATE_T"]; face = z0 + P["FACE"]; top = face + P["RELIEF"]
-    house = to_mm(g["house"]); disc = to_mm(g["disc_base"])
-    black = W.solid(house, 0, face) + W.solid(disc.difference(house), z0, face)
+    house = sc(to_mm(g["house"])); disc = sc(to_mm(g["disc_base"]))
+    black = W.solid(house, 0, face) + W.solid(disc.difference(house), W.PARAMS["BORDER_T"], face)      # disc plate rests on the border layer (z 2), not in the air
     return {"workshop": {"black": black, "white": W.solid(white, face, top), "orange": W.solid(orange, face, top)}}, dict(
         bounds=unary_union([house, disc]).bounds)
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(); ap.add_argument("--out", required=True); ap.add_argument("--stretch", type=float, default=1.25)
-    ap.add_argument("--car-trace"); ap.add_argument("--no-hooks", action="store_true")
+    ap.add_argument("--car-trace"); ap.add_argument("--no-hooks", action="store_true"); ap.add_argument("--ws-scale", type=float, default=1.0)
     a = ap.parse_args(); out = Path(a.out); (out / "stl").mkdir(parents=True, exist_ok=True); (out / "step").mkdir(exist_ok=True)
     if a.no_hooks: W.PARAMS["HOOK_N"] = 0
-    parts, _ = W.build(); ws, info = build(a.stretch, a.car_trace); parts.update(ws)
+    parts, _ = W.build(); ws, info = build(a.stretch, a.car_trace, a.ws_scale); parts.update(ws)
     print("workshop bounds mm", [round(v, 1) for v in info["bounds"]])
     for name, cols in parts.items():
         for col, ss in cols.items():

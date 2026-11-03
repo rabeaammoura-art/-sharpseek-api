@@ -54,11 +54,11 @@ def hooks(profile_json, y_attach):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(); ap.add_argument("--outline", required=True); ap.add_argument("--profile", required=True)
     ap.add_argument("--car-trace"); ap.add_argument("--out", required=True); ap.add_argument("--stretch", type=float, default=1.25)
-    ap.add_argument("--hook-scale", type=float, default=1.0); ap.add_argument("--no-chamfer", action="store_true"); ap.add_argument("--no-flip", action="store_true")
+    ap.add_argument("--hook-scale", type=float, default=1.0); ap.add_argument("--no-chamfer", action="store_true"); ap.add_argument("--no-flip", action="store_true"); ap.add_argument("--ws-scale", type=float, default=1.25)
     a = ap.parse_args(); PARAMS["HOOK_SCALE"] = a.hook_scale; PARAMS["HOOK_CHAMFER"] = not a.no_chamfer; PARAMS["FLIP"] = not a.no_flip
     out = Path(a.out); (out / "stl").mkdir(parents=True, exist_ok=True); (out / "step").mkdir(exist_ok=True)
     b, info = body(a.outline)
-    parts = {"body": b}; parts.update(WS4.build(a.stretch, a.car_trace)[0])
+    parts = {"body": b}; parts.update(WS4.build(a.stretch, a.car_trace, a.ws_scale)[0])
     parts["hooks"] = {"black": hooks(a.profile, info["bot"])}
     print("body bounds mm", [round(v, 1) for v in info["bounds"]], "scale", round(info["scale"], 3), "handle top/bottom", round(info["top"], 1), round(info["bot"], 1))
     for name, cols in parts.items():
