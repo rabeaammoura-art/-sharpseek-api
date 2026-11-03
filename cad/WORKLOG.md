@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-03 (cloud) — car-upholstery key holder (seat + wheel + sewing machine + 5 hooks): flat 2D drawing v1
+- Owner sent a new reference picture (1536x1024, AI render) + a master prompt (ONE printed piece, 300 mm wide, Bambu H2D). `cad/keyholder/flat_preview.py` draws it flat from clean shapes measured on the picture (seat, headrest, diamond quilt, wheel, arch + panel + recessed band, real-font lettering, car swoosh, sewing machine from a 3x crop, red strip, 5 hooks, 2 screw holes). Real size 300 x 156 mm (not 200 tall: the picture's proportions; hooks included). Preview `cad/keyholder/preview/flat_v1.png` (overlay on the reference kept local).
+- Left: owner's marks on the flat drawing, colours (black/red/silver + brown band?), hook type (J printed in the same job), THEN 3D (relief heights), print test, cost. Nothing 3D yet, nothing print-tested.
+
 ## 2026-11-03 (cloud) — wrench key holder restarted from zero: wrench body traced from the picture
 - Owner rejected the first by-eye build (wrong proportions: I had assumed a 2000 px wide picture, it is 2345 px). Deleted it (still in git history). New: `cad/wrench/` — `trace_wrench.py` extracts outline + orange band from the reference by colour masks (json committed), `wrench.py` builds layers (border, plate, orange band, screws, recessed 18-tooth ring), STEP/STL/renders in `cad/wrench/out/`, `cad/wrench_render3d.py` = lit three.js render in headless Chromium.
 - Left (in order): owner approval of the body, then hooks (ball-tip, from the trace positions), split into printable parts, workshop (also traced layer by layer), brake disc/drum variants, validation. Nothing print-tested.
