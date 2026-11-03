@@ -26,7 +26,7 @@ def rrect(x0, y0, x1, y1, r):
     return box(x0 + r, y0 + r, x1 - r, y1 - r).buffer(r, 12)
 
 
-def build(S=1.5, car_trace=None, disc_scale=1.0):
+def build(S=1.5, car_trace=None, disc_scale=1.0, text="WORKSHOP"):
     sy = lambda y: YREF - (YREF - y) * S                      # stretch a y coordinate
     stretch = lambda g: affinity.scale(g, 1, S, origin=(0, YREF))
     sq = S ** 0.5
@@ -53,7 +53,7 @@ def build(S=1.5, car_trace=None, disc_scale=1.0):
     W.append(affinity.translate(gear, 0, dy))
     from matplotlib.textpath import TextPath
     from matplotlib.font_manager import FontProperties
-    tp = TextPath((0, 0), "WORKSHOP", size=100, prop=FontProperties(fname=FONT))
+    tp = TextPath((0, 0), text, size=100, prop=FontProperties(fname=FONT))
     rings = [Polygon(p) for p in tp.to_polygons() if len(p) > 3]
     rings.sort(key=lambda p: -p.area); letters = []
     for p in rings:
@@ -61,14 +61,21 @@ def build(S=1.5, car_trace=None, disc_scale=1.0):
             if q.contains(p): letters[i] = q.difference(p); break
         else: letters.append(p)
     txt = unary_union(letters); minx, miny, maxx, maxy = txt.bounds
-    k = 306.0 / (maxx - minx)
-    txt = affinity.scale(txt, k, -k, origin=(0, 0)); minx, miny, maxx, maxy = txt.bounds
     ty = sy(104)
-    W.append(affinity.translate(txt, 1037 - (minx + maxx) / 2, ty - (miny + maxy) / 2))
+    if text == "WORKSHOP":
+        k = 306.0 / (maxx - minx)
+        txt = affinity.scale(txt, k, -k, origin=(0, 0)); minx, miny, maxx, maxy = txt.bounds
+        W.append(affinity.translate(txt, 1037 - (minx + maxx) / 2, ty - (miny + maxy) / 2))
+    else:
+        k = 36.0 / 71.4                                        # capital height 36 view units (same as WORKSHOP)
+        txt = affinity.scale(txt, k, -k, origin=(0, 0)); minx, miny, maxx, maxy = txt.bounds
+        W.append(affinity.translate(txt, 1037 - (minx + maxx) / 2, ty + 18.0))   # baseline at ty + half the cap height
+    tw = maxx - minx
     for i, y in enumerate((82, 97, 112)):
         d = i * 12
-        left = Polygon([(765 + d, y), (872, y), (872, y + 9), (765 + d + 8, y + 9)])
-        right = Polygon([(1202, y), (1308 - d, y), (1308 - d - 8, y + 9), (1202, y + 9)])
+        xr_ = 1037 - tw / 2 - 12; xl_ = 1037 + tw / 2 + 12                         # stripes stay 12 units from the word
+        left = Polygon([(xr_ - 107 + d, y), (xr_, y), (xr_, y + 9), (xr_ - 107 + d + 8, y + 9)])
+        right = Polygon([(xl_, y), (xl_ + 106 - d, y), (xl_ + 106 - d - 8, y + 9), (xl_, y + 9)])
         O.append(affinity.translate(left, 0, sy(100) - 100)); O.append(affinity.translate(right, 0, sy(100) - 100))
 
     # ---- left shelf: jerry cans (clear shape: handle hole, spout, chamfer, label) -------------------

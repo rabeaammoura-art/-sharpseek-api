@@ -24,8 +24,8 @@ def to_mm(g):
 def clean(g, m):
     return g if g.is_empty else g.buffer(-m / 2).buffer(m / 2)
 
-def build(stretch=1.25, car_trace=None, ws_scale=1.0):
-    P = PARAMS; g = VW.build(stretch, car_trace)
+def build(stretch=1.25, car_trace=None, ws_scale=1.0, disc_scale=1.0, text="WORKSHOP"):
+    P = PARAMS; g = VW.build(stretch, car_trace, disc_scale, text)
     y_hb = W.m((0, 296 * W.K))[1]                                   # house bottom line (mm): the uniform scale keeps it where it is
     sc = (lambda x: affinity.scale(x, ws_scale, ws_scale, origin=(0, y_hb))) if ws_scale != 1.0 else (lambda x: x)
     panel, white, orange = sc(to_mm(g["panel"])), sc(to_mm(g["white"])), sc(to_mm(g["orange"]))
