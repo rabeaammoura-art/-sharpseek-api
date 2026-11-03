@@ -78,16 +78,20 @@ def seat_wheel(L):
     # ---------------- seat pieces ----------------------------------------
     head = _smooth_closed(C([(215, 110), (232, 45), (290, 15), (420, 22), (470, 60), (497, 140),
                              (490, 205), (380, 225), (250, 208), (215, 165)]), 3)
-    left_b = _smooth_closed(C([(72, 300), (112, 232), (200, 205), (255, 208), (285, 300), (292, 500),
-                               (290, 690), (245, 775), (190, 830), (130, 770), (75, 570)]), 3)
+    left_b = _smooth_closed(C([(72, 300), (112, 232), (200, 205), (255, 208), (290, 300), (305, 500),
+                               (310, 690), (245, 775), (190, 830), (130, 770), (75, 570)]), 3)
     centre_up = Polygon(C([(262, 222), (500, 225), (515, 365), (285, 368)])).buffer(-5).buffer(5)
     diamond = Polygon(C([(290, 368), (515, 368), (555, 665), (318, 668)])).buffer(-5).buffer(5)
     right_b = _smooth_closed(C([(520, 285), (585, 325), (650, 420), (692, 540), (688, 620),
-                                (655, 668), (560, 668), (520, 366)]), 3).difference(diamond.buffer(2)).difference(centre_up.buffer(1))
+                                (670, 720), (560, 760), (520, 366)]), 3).difference(diamond.buffer(2)).difference(centre_up.buffer(1))
     cush = _smooth_closed(C([(300, 700), (450, 676), (600, 676), (700, 722), (742, 790), (722, 852),
                              (600, 882), (430, 882), (300, 872), (190, 852), (184, 792), (232, 745)]), 4)
     L["seat_head"], L["seat_left"], L["seat_centre"] = head, left_b.difference(centre_up.buffer(1)), centre_up
     L["seat_diamond"], L["seat_right"], L["seat_cush"] = diamond, right_b, cush
+
+    # filler under the seat pieces: no empty gaps between them (closing of the union)
+    parts = unary_union([head, L["seat_left"], centre_up, diamond, right_b, cush])
+    L["seat_fill"] = parts.buffer(22).buffer(-22).intersection(L["base"].buffer(-3) if "base" in L else parts.buffer(22))
 
     # diamond lattice (clean, parametric): pitch 52 px wide, 70 px tall
     x0, y0, x1, y1 = diamond.bounds
@@ -124,6 +128,7 @@ def draw_seat_wheel(ax, L, paint, kw, cols):
     paint(ax, L["wheel_pad"], **kw(BLK))
     paint(ax, L["wheel_logo"], **kw(BLK2))
     paint(ax, L["wheel_btn"], **kw(BLK))
+    paint(ax, L["seat_fill"], **kw(BLK2))
     for k in ("seat_left", "seat_right", "seat_cush", "seat_head"):
         paint(ax, L[k].buffer(1.5), **kw(BLK))
         paint(ax, L[k], **kw(BLK3))
