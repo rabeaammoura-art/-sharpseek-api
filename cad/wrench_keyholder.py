@@ -36,7 +36,7 @@ PARAMS = dict(
     RING_TEETH=14,         # internal teeth of the ring head
     TOOTH_DEPTH=18,        # px
     HOOKS_PX=[600, 820, 1030, 1240, 1465],
-    HOOK_W=30,             # px: hook band width (about 9.6 mm)
+    HOOK_W=22,             # px: hook band width (about 7 mm)
     HOOK_T=10.0,           # hook thickness (Z), stands on the plate front
     HOOK_SCREW_D=3.4,      # clearance hole for M3 screws from the back
     BRAKE_C=(1300, 262),   # px: brake centre
@@ -259,17 +259,17 @@ def make_hook(hx):
     """J hook (profile in the wall plane, stem lying on the plate front, J hangs 8 mm off the wall)."""
     w = PARAMS["HOOK_W"]
     with BuildLine() as ln:
-        Line(P(hx, 346), P(hx, 424))
-        ThreePointArc(P(hx, 424), P(hx + 34, 458), P(hx + 68, 424))
-        Line(P(hx + 68, 424), P(hx + 68, 404))
+        Line(P(hx, 346), P(hx, 440))
+        ThreePointArc(P(hx, 440), P(hx + 26, 466), P(hx + 52, 440))
+        Line(P(hx + 52, 440), P(hx + 52, 416))
     wire = ln.wire()
     outline = wire.offset_2d(w * S / 2, kind=Kind.ARC)
     face = make_face(outline)
-    tip = Pos(*P(hx + 68, 402)) * Circle(w * S * 0.72)
+    tip = Pos(*P(hx + 52, 410)) * Circle(w * S * 0.85)
     sk = Sketch(children=[face]) + tip
     solid = ext(sk, T, T + PARAMS["HOOK_T"])
     # two pilot holes for M3 self-tapping screws from the back
-    for py in (364, 396):
+    for py in (362, 394):
         x, y = P(hx, py)
         solid = solid - Pos(x, y, T) * Cylinder(1.25, 8.0, align=(Align.CENTER, Align.CENTER, Align.MIN))
     return solid
@@ -278,7 +278,7 @@ def make_hook(hx):
 def hook_holes(base):
     d = PARAMS["HOOK_SCREW_D"]
     for hx in PARAMS["HOOKS_PX"]:
-        for py in (364, 396):
+        for py in (362, 394):
             x, y = P(hx, py)
             base = base - Pos(x, y, 0) * Cylinder(d / 2, T + 1, align=(Align.CENTER, Align.CENTER, Align.MIN))
             cs = Solid.make_cone(d / 2 + 1.4, d / 2, 1.5)  # countersink at the back

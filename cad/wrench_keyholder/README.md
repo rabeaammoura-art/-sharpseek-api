@@ -7,7 +7,7 @@ The "native editable CAD project" is that script: change `PARAMS` and re-run
 ## What is here
 - `step/` and `stl/`: one file per printable component and colour (`<part>__<colour>`), plus
   `assembly_disc_brake.step` / `assembly_drum_brake.step` (complete assemblies, the two brake variants are never combined).
-- `views/`: front, side, top, isometric for both variants (`disc_*.png`, `drum_*.png`; software renderer, not photo-real).
+- `views/`: lit renders (`*_render_front|iso|close.png`, three.js with shadows, `cad/wrench_render3d.py`) and plain technical views front/side/top/iso (`*_front.png` ...), both variants.
 - Parts: `A_left_jaw`, `B_bar_left`, `C_bar_right`, `D_ring_head` (body split in 4 so each fits the H2D bed, longest 201 mm),
   `hook_1..5`, `splice_1..3` (back plates across the joints), `brake_disc`, `brake_drum`.
 - Colours (filament slots): black, orange, white, red.
@@ -16,7 +16,7 @@ The "native editable CAD project" is that script: change `PARAMS` and re-run
 - Overall size is NOT measured: `SCALE = 0.32 mm/px` gives about 610 x 155 mm. One number changes it.
 - Every outline is traced by eye from the picture (jaw slot angle, neck curves, tool shapes, car). It is a faithful
   layout, not an exact copy; the brick texture and the soft shading of the picture are not modelled.
-- Hooks: the picture shows J hooks in the wall plane. They are built that way (10 mm thick, stand 8 mm off the wall so a key ring can pass behind them).
+- Hooks: slim J hooks with a ball tip (7 mm wide, 10 mm thick), screwed from the back.
 - Brake: the picture shows a disc brake; the drum variant is an addition with the same footprint.
 - Nothing is print-tested (the printer has not arrived).
 
