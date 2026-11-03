@@ -49,12 +49,12 @@ def hook_shape(cx):
     from shapely.geometry import box
     from shapely.ops import unary_union
     def P(x, y): return md(cx + x, y)
-    stem = Polygon([P(-17.5, 348), P(17.5, 348), P(17.5, 450), P(-17.5, 450)])
+    stem = Polygon([P(-17.5, 348), P(17.5, 348), P(17.5, 450), P(-20, 450)])
     top = Point(P(0, 347.5)).buffer(17.5 * K * S, 32)
-    ux0, uy0 = P(-22, 395); ux1, uy1 = P(38, 484)
+    ux0, uy0 = P(-20, 436); ux1, uy1 = P(38, 484)
     bottom = box(min(ux0, ux1), min(uy0, uy1), max(ux0, ux1), max(uy0, uy1)).buffer(-21 * K * S).buffer(21 * K * S, 48)
-    arm = Polygon([P(8, 432), P(34, 432), P(34, 470), P(8, 470)])
-    ball = Point(P(24.4, 425)).buffer(17 * K * S, 32)
+    arm = Polygon([P(10, 430), P(30, 430), P(30, 470), P(10, 470)])
+    ball = Point(P(25, 423)).buffer(16 * K * S, 32)
     return unary_union([stem, top, bottom, arm, ball]).buffer(1.0).buffer(-1.0)
 
 def hook_holes_xy(cx):
