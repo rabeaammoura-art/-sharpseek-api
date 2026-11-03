@@ -26,7 +26,7 @@ def rrect(x0, y0, x1, y1, r):
     return box(x0 + r, y0 + r, x1 - r, y1 - r).buffer(r, 12)
 
 
-def build(S=1.5):
+def build(S=1.5, car_trace=None):
     sy = lambda y: YREF - (YREF - y) * S                      # stretch a y coordinate
     stretch = lambda g: affinity.scale(g, 1, S, origin=(0, YREF))
     sq = S ** 0.5
@@ -117,17 +117,23 @@ def build(S=1.5):
 
     # ---- car: white body, black windscreen/grille/intake cut-outs, orange headlights ---------------
     cx, cb = 1036, sy(268)
-    def car(parts):
-        return [affinity.translate(g, cx - 1036, cb - 268) for g in parts]
-    body = unary_union([rrect(925, 207, 1147, 268, 20), Polygon([(950, 212), (972, 162), (1100, 162), (1122, 212)]).buffer(6, join_style=1)])
-    ws = Polygon([(966, 206), (984, 170), (1088, 170), (1106, 206)])
-    grille = rrect(990, 236, 1082, 254, 6)
-    intake = Polygon([(1000, 258), (1072, 258), (1066, 267), (1006, 267)])
-    hl_l = Polygon([(931, 214), (978, 220), (980, 230), (934, 229)]); hl_r = Polygon([(1141, 214), (1094, 220), (1092, 230), (1138, 229)])
-    mirrors = [rrect(915, 198, 930, 207, 3), rrect(1142, 198, 1157, 207, 3)]
-    slats = [box(996, 241.5, 1076, 245), box(996, 247.5, 1076, 251)]
-    W.extend(car([body.difference(unary_union([ws, grille, intake, hl_l, hl_r])).union(unary_union(mirrors)).union(unary_union([s.intersection(grille) for s in slats]))]))
-    O.extend(car([hl_l, hl_r]))
+    if car_trace:                                              # car traced from the owner's second picture (local json)
+        ct = json.loads(Path(car_trace).read_text()); x0, y0, x1, y1 = ct["bounds"]; kk = 222.0 / (x1 - x0)
+        for r in ct["polys"]:
+            f = lambda q: (cx + (q[0] - (x0 + x1) / 2) * kk, cb + (q[1] - y1) * kk)
+            W.append(Polygon([f(q) for q in r["outer"]], [[f(q) for q in h] for h in r["holes"]]).buffer(0))
+    else:
+        def car(parts):
+            return [affinity.translate(g, cx - 1036, cb - 268) for g in parts]
+        body = unary_union([rrect(925, 207, 1147, 268, 20), Polygon([(950, 212), (972, 162), (1100, 162), (1122, 212)]).buffer(6, join_style=1)])
+        ws = Polygon([(966, 206), (984, 170), (1088, 170), (1106, 206)])
+        grille = rrect(990, 236, 1082, 254, 6)
+        intake = Polygon([(1000, 258), (1072, 258), (1066, 267), (1006, 267)])
+        hl_l = Polygon([(931, 214), (978, 220), (980, 230), (934, 229)]); hl_r = Polygon([(1141, 214), (1094, 220), (1092, 230), (1138, 229)])
+        mirrors = [rrect(915, 198, 930, 207, 3), rrect(1142, 198, 1157, 207, 3)]
+        slats = [box(996, 241.5, 1076, 245), box(996, 247.5, 1076, 251)]
+        W.extend(car([body.difference(unary_union([ws, grille, intake, hl_l, hl_r])).union(unary_union(mirrors)).union(unary_union([s.intersection(grille) for s in slats]))]))
+        O.extend(car([hl_l, hl_r]))
 
     # ---- ceiling lamp (white shade, orange bulb) hanging between the lettering and the car roof ------
     ly = (sy(104) + 28 + (cb - 107)) / 2 - 8
@@ -191,4 +197,4 @@ def preview(geoms, ref_img, out, S):
 if __name__ == "__main__":
     ref, out = sys.argv[1], Path(sys.argv[2]); out.mkdir(parents=True, exist_ok=True)
     S = float(sys.argv[3]) if len(sys.argv) > 3 else 1.5
-    g = build(S); preview(g, ref if S == 1.0 else None, out / f"vector_S{S}.png", S); print("ok", S)
+    g = build(S, sys.argv[4] if len(sys.argv) > 4 else None); preview(g, ref if S == 1.0 else None, out / f"vector_S{S}.png", S); print("ok", S)
