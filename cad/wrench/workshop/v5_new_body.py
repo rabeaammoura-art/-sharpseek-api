@@ -17,15 +17,17 @@ import wrench as W
 import workshop_v4 as WS4
 
 PARAMS = dict(LENGTH_MM=300.0, BORDER_T=2.0, PLATE_T=5.0, INSET=1.7, BAND_H=1.0, BAND_OFF=3.2, BAND_W=1.5,
-              HOOK_SCALE=1.0, HOOK_CHAMFER=True, HOOK_XS=(-80.0, -40.0, 0.0, 40.0, 80.0), OVERLAP=0.4)
+              HOOK_SCALE=1.0, HOOK_CHAMFER=True, FLIP=True, HOOK_XS=(-80.0, -40.0, 0.0, 40.0, 80.0), OVERLAP=0.4)
 
 def body(outline_json):
     P = PARAMS; o = json.loads(Path(outline_json).read_text())
     g = Polygon(o["outer"], o["holes"]).buffer(0)
     s = P["LENGTH_MM"] / (g.bounds[2] - g.bounds[0])
     g = affinity.scale(g, s, s, origin=(0, 0))
-    ytop = g.bounds[3]                                            # handle top edge (native z 5.8 is the top of the straight bar)
     handle = g.intersection(box(-60, -50, 60, 50))                # straight part of the bar
+    if P["FLIP"]:                                                 # owner: the SHORT jaw prong must be at the bottom -> mirror about the handle's centre line (handle stays put)
+        yc = (handle.bounds[1] + handle.bounds[3]) / 2
+        g = affinity.scale(g, 1, -1, origin=(0, yc)); handle = g.intersection(box(-60, -50, 60, 50))
     top, bot = handle.bounds[3], handle.bounds[1]
     y_hb = W.m((0, 296 * W.K))[1]                                 # house bottom line (mm) in the workshop's coordinate system
     dy = y_hb + P["OVERLAP"] - top
@@ -52,8 +54,8 @@ def hooks(profile_json, y_attach):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(); ap.add_argument("--outline", required=True); ap.add_argument("--profile", required=True)
     ap.add_argument("--car-trace"); ap.add_argument("--out", required=True); ap.add_argument("--stretch", type=float, default=1.25)
-    ap.add_argument("--hook-scale", type=float, default=1.0); ap.add_argument("--no-chamfer", action="store_true")
-    a = ap.parse_args(); PARAMS["HOOK_SCALE"] = a.hook_scale; PARAMS["HOOK_CHAMFER"] = not a.no_chamfer
+    ap.add_argument("--hook-scale", type=float, default=1.0); ap.add_argument("--no-chamfer", action="store_true"); ap.add_argument("--no-flip", action="store_true")
+    a = ap.parse_args(); PARAMS["HOOK_SCALE"] = a.hook_scale; PARAMS["HOOK_CHAMFER"] = not a.no_chamfer; PARAMS["FLIP"] = not a.no_flip
     out = Path(a.out); (out / "stl").mkdir(parents=True, exist_ok=True); (out / "step").mkdir(exist_ok=True)
     b, info = body(a.outline)
     parts = {"body": b}; parts.update(WS4.build(a.stretch, a.car_trace)[0])
