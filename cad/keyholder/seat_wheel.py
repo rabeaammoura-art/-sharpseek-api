@@ -83,8 +83,9 @@ def seat_wheel(L):
                                (310, 690), (245, 775), (190, 830), (130, 770), (75, 570)]), 3)
     centre_up = Polygon(C([(262, 222), (500, 225), (515, 365), (285, 368)])).buffer(-5).buffer(5)
     diamond = Polygon(C([(262, 368), (515, 368), (575, 760), (300, 780)])).buffer(-5).buffer(5)
-    right_b = _smooth_closed(C([(505, 285), (585, 325), (650, 420), (692, 540), (688, 620),
-                                (670, 720), (575, 760), (556, 665), (540, 500), (520, 366)]), 3).difference(diamond.buffer(2)).difference(centre_up.buffer(1))
+    right_b = _smooth_closed(C([(492, 232), (548, 262), (600, 318), (655, 420), (695, 540), (702, 640),
+                                (715, 730), (700, 780), (575, 790), (556, 665), (540, 500), (520, 366),
+                                (500, 300)]), 3).difference(diamond.buffer(2)).difference(centre_up.buffer(1))
     cush = _smooth_closed(C([(300, 700), (450, 676), (600, 676), (700, 722), (742, 790), (722, 852),
                              (600, 882), (430, 882), (300, 872), (190, 852), (184, 792), (232, 745)]), 4)
     L["seat_head"], L["seat_left"], L["seat_centre"] = head, left_b.difference(centre_up.buffer(1)), centre_up
@@ -92,7 +93,7 @@ def seat_wheel(L):
 
     # filler under the seat pieces: no empty gaps between them (closing of the union)
     parts = unary_union([head, L["seat_left"], centre_up, diamond, right_b, cush])
-    L["seat_fill"] = parts.buffer(22).buffer(-22).intersection(L["base"].buffer(-3) if "base" in L else parts.buffer(22))
+    L["seat_fill"] = parts.buffer(40).buffer(-40).intersection(L["base"].buffer(-3) if "base" in L else parts.buffer(22))
 
     # diamond lattice (clean, parametric): pitch 52 px wide, 70 px tall
     x0, y0, x1, y1 = diamond.bounds
@@ -109,7 +110,7 @@ def seat_wheel(L):
         C([(440, 45), (468, 110), (480, 195)]),                                           # headrest right
         C([(212, 222), (180, 300), (178, 520), (190, 820)]), C([(138, 240), (128, 400), (140, 600), (172, 800)]),  # left bolster
         C([(268, 232), (300, 400), (312, 690)]),                                          # left bolster inner
-        C([(530, 295), (610, 360), (670, 470), (682, 590)]),                              # right bolster edge
+        C([(515, 262), (570, 295), (630, 360), (672, 450), (690, 560), (700, 660), (710, 735)]),                              # right bolster edge
         C([(300, 692), (450, 676), (600, 678), (695, 720), (735, 785)]),                  # cushion top
         C([(205, 752), (350, 740), (450, 760), (495, 820), (500, 870)]),                  # cushion front
         C([(200, 777), (330, 757), (440, 787), (480, 842)]),
