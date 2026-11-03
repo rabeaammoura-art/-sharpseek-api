@@ -10,7 +10,7 @@ from shapely import affinity
 from shapely.geometry import Polygon, Point, box, LineString
 from shapely.geometry.polygon import orient
 from shapely.ops import unary_union
-from build123d import Compound, export_step, export_stl
+from build123d import Compound, Solid, Pos, export_step, export_stl
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE)); sys.path.insert(0, str(HERE.parent))
@@ -19,7 +19,7 @@ import workshop_v4 as WS4
 import v5_new_body as V5
 
 P = dict(LENGTH=300.0, BORDER_T=2.0, PLATE_T=5.0, INSET=1.7, BAND_H=1.0, HANDLE=20.0, RING=1.15, OVERLAP=0.4, WRAP=240.0,
-         HOOK_XS=(-80.0, -40.0, 0.0, 40.0, 80.0))
+         HOOK_XS=(-80.0, -40.0, 0.0, 40.0, 80.0), SCREW_XS=(-100.0, 100.0), SCREW_D=4.2, SCREW_HEAD_D=8.5, SCREW_HEAD_DEPTH=2.2)
 
 def smooth(t):
     t = min(max(t, 0.0), 1.0); return t * t * (3 - 2 * t)
@@ -46,8 +46,11 @@ def body_shapes(outline_json):
     hole_pts = [ring_scale(q) for q in g.interiors[0].segmentize(0.3).coords]
     ext2 = Polygon(ext).buffer(0.0)
     body = orient(Polygon(ext2.exterior, [hole_pts])); plate = orient(body.buffer(-P["INSET"], join_style=1))
+    yh = (top + newbot) / 2; screws = [(x, yh) for x in P["SCREW_XS"]]                     # wall screws: on the handle's centre line, 200 mm apart
+    holes = unary_union([Point(q).buffer(P["SCREW_D"] / 2, 32) for q in screws])
+    body = orient(body.difference(holes)); plate = orient(plate.difference(holes))
     plate = plate.difference(Point(xr, yr).buffer(18.05 * (F / 1.15) + 2.0, 64))     # the ring wall is only 3-5 mm: no plate level around the ring head (it would only leave scalloped slivers)
-    return dict(body=body, plate=plate, ext2=ext2, xr=xr, yr=yr, yc0=yc0, top=top, newbot=newbot)
+    return dict(body=body, plate=plate, ext2=ext2, xr=xr, yr=yr, yc0=yc0, top=top, newbot=newbot, screws=screws)
 
 def orange_line(sh):
     ext2, xr, yr, yc0, RING = sh["ext2"], sh["xr"], sh["yr"], sh["yc0"], P["RING"]
@@ -96,8 +99,14 @@ def orange_line(sh):
 
 def body_solids(sh, band):
     body, plate = sh["body"], sh["plate"]
+    band = band.difference(unary_union([Point(q).buffer(P["SCREW_HEAD_D"] / 2 + 0.6, 32) for q in sh["screws"]]))     # the line keeps clear of the screw heads
     on_plate = band.intersection(plate.buffer(-0.1)); on_border = band.intersection(body.buffer(-0.2)).difference(plate.buffer(-0.1))
-    black = W.solid(body, 0, P["BORDER_T"]) + W.solid(plate, P["BORDER_T"], P["PLATE_T"])
+    z0c = P["PLATE_T"] - P["SCREW_HEAD_DEPTH"] - 0.2; r0c = P["SCREW_D"] / 2 - 0.2; hc = P["PLATE_T"] + 0.1 - z0c      # 45 deg cone that crosses the hole wall (no coincident edges)
+    cones = [Pos(x, y, z0c) * Solid.make_cone(r0c, r0c + hc, hc) for x, y in sh["screws"]]
+    plate_solids = W.solid(plate, P["BORDER_T"], P["PLATE_T"])
+    for c in cones: plate_solids = [(ps - c) if ps.bounding_box().min.X < c.bounding_box().max.X and ps.bounding_box().max.X > c.bounding_box().min.X else ps for ps in plate_solids]    # countersink (head flush)
+    border_solids = W.solid(body, 0, P["BORDER_T"])
+    black = list(border_solids[0].fuse(*border_solids[1:], *plate_solids).clean().solids())      # one solid: the touching border/plate shells shared hole edges (non-manifold in the STL)
     orange = W.solid(on_plate, P["PLATE_T"], P["PLATE_T"] + P["BAND_H"]) + W.solid(on_border, P["BORDER_T"], P["BORDER_T"] + P["BAND_H"])
     return black, orange
 
