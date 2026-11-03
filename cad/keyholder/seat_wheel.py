@@ -66,7 +66,7 @@ def seat_wheel(L):
     slot = Polygon(C([(702, 462), (742, 458), (730, 522), (714, 522)]))
     L["wheel_hub"] = unary_union([ring, spokes]).difference(slot)
     L["wheel_pad"] = Point(*hub_c).buffer(61)           # dark airbag cover (slightly raised)
-    L["wheel_logo"] = Point(*hub_c).buffer(26)
+    L["wheel_logo"] = Point(560, 233).buffer(27)
     L["wheel_btn"] = unary_union([
         box(*C([(548, 258)])[0], *C([(580, 285)])[0]), box(*C([(582, 258)])[0], *C([(612, 283)])[0]),
         box(*C([(548, 290)])[0], *C([(580, 312)])[0]), box(*C([(582, 288)])[0], *C([(612, 308)])[0]),
@@ -124,8 +124,8 @@ def draw_seat_wheel(ax, L, paint, kw, cols):
     paint(ax, L["wheel_ring"], **kw(BLK3))
     paint(ax, L["wheel_stitch"], **kw(RED))
     paint(ax, L["wheel_mark"], **kw(RED))
+    paint(ax, L["wheel_pad"], **kw(BLK3))
     paint(ax, L["wheel_hub"], **kw(SIL))
-    paint(ax, L["wheel_pad"], **kw(BLK))
     paint(ax, L["wheel_logo"], **kw(BLK2))
     paint(ax, L["wheel_btn"], **kw(BLK))
     paint(ax, L["seat_fill"], **kw(BLK2))

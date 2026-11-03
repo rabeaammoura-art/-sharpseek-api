@@ -280,7 +280,11 @@ if __name__ == "__main__":
         from shapely.geometry import Polygon as _P
         gs = [_P(g["ext"], g["holes"]).buffer(0) for g in json.load(open(sys.argv[4]))]
         L["wheel_hub"] = unary_union(gs).difference(box(570, 372, 665, 405)).buffer(1.0)   # drop ring highlight, widen thin chrome lines (>= 0.7 mm)
-        L["wheel_pad"] = L["wheel_btn"] = Point(0, 0).buffer(0)
+        # bodies under the chrome trim: hub pad + spokes (closed so the V of the bottom spoke is one body)
+        body = unary_union([_P(g.exterior) for g in gs]).buffer(12).buffer(-12)
+        slot_v = box(515, 318, 575, 372)
+        L["wheel_pad"] = unary_union([body.difference(slot_v), Point(560, 233).buffer(64)]).intersection(ellipse(570, 229, 128, 150))
+        L["wheel_btn"] = Point(0, 0).buffer(0)
     b = unary_union([L["base"], L["wheel_ring"], L["seat_left"], L["seat_head"], L["hook_lug"]]).bounds
     print("bbox px", [round(v) for v in b], "-> mm", round((b[2]-b[0])*MM_PX, 1), "x", round((b[3]-b[1])*MM_PX, 1))
     draw(L, f"{out}/flat.png")
