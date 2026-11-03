@@ -33,14 +33,14 @@ const d=new THREE.DirectionalLight(0xffffff,0.9);d.position.set(-250,350,400);d.
 Object.assign(d.shadow.camera,{{left:-400,right:400,top:200,bottom:-200,near:10,far:1500}});d.shadow.radius=4;d.shadow.bias=-0.0004;sc.add(d);
 const cam=new THREE.PerspectiveCamera(22,W/H,10,5000);
 const v=location.hash.slice(1)||'front';
-const P={{front:[0,10,780],iso:[-330,-170,820],close:[330,10,520]}}[v];
-const T={{front:[0,0,0],iso:[0,0,0],close:[150,10,0]}}[v];
+const P={{front:[0,10,780],iso:[-330,-170,820],side:[820,-30,120],low:[260,-330,560],close:[330,10,520]}}[v];
+const T={{front:[0,0,0],iso:[0,0,0],close:[150,10,0],side:[0,-10,0],low:[0,-10,0]}}[v];
 const sk=(box.max.x-box.min.x)/610;cam.position.set(P[0]*sk,P[1]*sk,P[2]*sk);cam.lookAt(T[0]*sk,T[1]*sk,T[2]*sk);r.render(sc,cam);window.done=true;
 </script></body></html>"""
 (out / "r.html").write_text(html)
 runner = out / "r.js"
 runner.write_text("""const {chromium}=require('playwright');(async()=>{const b=await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});
-for(const v of ['front','iso','close']){const pg=await b.newPage({viewport:{width:2400,height:900}});
+for(const v of ['front','iso','close','side','low']){const pg=await b.newPage({viewport:{width:2400,height:900}});
 await pg.goto('file://'+process.argv[2]+'#'+v);await pg.reload();await pg.waitForFunction('window.done===true',null,{timeout:120000});
 await pg.locator('canvas').screenshot({path:process.argv[3]+'_render_'+v+'.png'});console.log(v);}await b.close();})();""")
 subprocess.run(["node", str(runner), str(out / "r.html"), str(out / "views" / variant)], check=True)
