@@ -34,7 +34,7 @@ def build(S=1.5, car_trace=None):
 
     # ---- house silhouette (traced, approved) --------------------------------------------------------
     HOUSE = [(590, 92), (1037, -14), (1474, 92), (1474, 128), (1432, 128), (1432, 296), (655, 296), (655, 128), (590, 128)]
-    SHELF = [(526, 122), (655, 122), (655, 268), (526, 268)]
+    SHELF = [(526, 122), (655, 122), (655, 296), (526, 296)]
     house = unary_union([stretch(Polygon(HOUSE)), stretch(Polygon(SHELF))])
     # roof: white band of constant width under a thin dark edge, plus the two white posts
     edge = [(590, 92), (1037, -14), (1474, 92)]
