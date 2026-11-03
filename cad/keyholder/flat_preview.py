@@ -131,7 +131,7 @@ def build():
 
     # lettering (real font)
     L["text"] = unary_union([text_poly("Car", 770, 366, 262, 80, 0.22),
-                             text_poly("Upholstery", 690, 474, 440, 84, 0.22)])
+                             text_poly("Upholstery", 683, 472, 472, 78, 0.22)])
 
     # car silhouette: two crescents (roof sweep + lower sweep) and a small arc
     def cres(top, bot):
@@ -245,6 +245,9 @@ if __name__ == "__main__":
         L["strip_stitch"] = L["strip"].buffer(-9).exterior
         sw = Polygon(T["swoosh"]).buffer(0)
         L["swoosh"] = sw
+        if "sil" in T:
+            L["base"] = Polygon(T["sil"]).buffer(0).buffer(-5).buffer(5).buffer(4).buffer(-4).simplify(1.0)
+            L["panel"] = L["panel"].intersection(L["base"])
     b = unary_union([L["base"], L["wheel_ring"], L["seat_back"], L["seat_head"], L["hook_lug"]]).bounds
     print("bbox px", [round(v) for v in b], "-> mm", round((b[2]-b[0])*MM_PX, 1), "x", round((b[3]-b[1])*MM_PX, 1))
     draw(L, f"{out}/flat.png")

@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-03 (cloud) — key holder flat v3: whole outline traced (skill 3d-picture-to-cad re-run)
+- Owner asked to redo the drawing with the skill. Now traced by colour masks: outer silhouette (`trace_silhouette.py`: "not wood" mask, stays local), red strip, car swoosh. Machine/steering hub traced too but the result was ragged/missing the handwheel, so those stay clean parametric drawings. Seat/headrest/wheel inner edges are dark-on-dark (not traceable): measured by eye, checked on zoomed overlays. Lettering re-fitted (Upholstery 472 px wide, cap 78). `flat_preview.py <ref> <out> <trace.json>`; preview `cad/keyholder/preview/flat_v3.png`. Size 301 x 160 mm. Left: owner's marks, then 3D.
+
 ## 2026-11-03 (cloud) — key holder flat v2: red strip + car swoosh traced from the picture
 - Owner: 3 colours for now, J hooks OK; circled the car swoosh and the red strip as wrong, asked to use the tracing method. `cad/keyholder/trace_keyholder.py` (colour masks, smoothed) -> local json (not committed); `flat_preview.py <ref> <out> <trace.json>` uses it. Overlay checked: both now match the picture. Preview `cad/keyholder/preview/flat_v2.png`.
 - Left: owner's OK/marks on v2, then 3D heights, J hooks, print test, cost. Nothing 3D, nothing print-tested.
