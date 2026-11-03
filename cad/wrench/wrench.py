@@ -9,7 +9,8 @@ from shapely.ops import unary_union
 from build123d import Face, Wire, Solid, Vector, Compound, Pos, Cylinder, Box, Align, export_step, export_stl
 
 HERE = Path(__file__).resolve().parent
-PARAMS = dict(HOOK_T=10.0, HOOK_X0=603.0, HOOK_DX=216.25, HOOK_N=5, HOOK_PILOT_D=2.5, HOOK_HOLE_D=3.4, LENGTH_MM=610.0, BORDER_T=3.0, PLATE_T=7.0, BAND_H=1.4, INSET_MM=3.4, SCREW_R=6.4, SCREW_H=2.0)
+PARAMS = dict(HOOK_T=6.0, HOOK_X0=603.0, HOOK_DX=216.25, HOOK_N=5, HOOK_PILOT_D=1.8, HOOK_HOLE_D=2.4,
+              LENGTH_MM=300.0, BORDER_T=2.0, PLATE_T=5.0, BAND_H=1.0, INSET_MM=1.7, SCREW_R=3.2, SCREW_H=1.2)
 tr = json.loads((HERE / "wrench_trace.json").read_text())
 ox = [p[0] for p in tr["outline"]["outer"]]; oy = [p[1] for p in tr["outline"]["outer"]]
 X0, X1 = min(ox), max(ox)
@@ -58,7 +59,7 @@ def hook_shape(cx):
     return unary_union([stem, top, bottom, arm, ball]).buffer(1.0).buffer(-1.0)
 
 def hook_holes_xy(cx):
-    return [md(cx, 352), md(cx, 384)]
+    return [md(cx, 368)]            # one screw per hook at this size (the stem is only about 5.5 mm wide)
 
 def build():
     P = PARAMS
@@ -76,8 +77,8 @@ def build():
     for sx, sy in tr["screws_px"]:
         x, y = m((sx, sy))
         h = Pos(x, y, P["PLATE_T"]) * Cylinder(P["SCREW_R"], P["SCREW_H"], align=(Align.CENTER, Align.CENTER, Align.MIN))
-        for bx, by in ((9.6, 1.5), (1.5, 9.6)):
-            h = h - Pos(x, y, P["PLATE_T"] + P["SCREW_H"] - 1.0) * Box(bx, by, 1.2, align=(Align.CENTER, Align.CENTER, Align.MIN))
+        for bx, by in ((4.8, 0.8), (0.8, 4.8)):
+            h = h - Pos(x, y, P["PLATE_T"] + P["SCREW_H"] - 0.5) * Box(bx, by, 0.7, align=(Align.CENTER, Align.CENTER, Align.MIN))
         black.append(h)
     orange = solid(band, P["PLATE_T"], P["PLATE_T"] + P["BAND_H"])
     hooks = {}
@@ -85,7 +86,7 @@ def build():
         sh = hook_shape(cx)
         hs = solid(sh, P["PLATE_T"], P["PLATE_T"] + P["HOOK_T"])[0]
         for (hx, hy) in hook_holes_xy(cx):
-            hs = hs - Pos(hx, hy, P["PLATE_T"]) * Cylinder(P["HOOK_PILOT_D"] / 2, 8.0, align=(Align.CENTER, Align.CENTER, Align.MIN))
+            hs = hs - Pos(hx, hy, P["PLATE_T"]) * Cylinder(P["HOOK_PILOT_D"] / 2, 5.0, align=(Align.CENTER, Align.CENTER, Align.MIN))
         hooks[f"hook_{i+1}"] = {"black": [hs]}
     res = {"wrench_body": {"black": black, "orange": orange}}
     res.update(hooks)
