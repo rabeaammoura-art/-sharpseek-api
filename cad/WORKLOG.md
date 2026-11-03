@@ -5,9 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
-## 2026-11-03 (cloud) — wrench key holder (workshop theme) reconstructed from the owner's picture
-- New: `cad/wrench_keyholder.py` (build123d, parametric, SCALE 0.32 = about 610 mm, assumed), `wrench_render.py`, `wrench_validate.py`; outputs in `cad/wrench_keyholder/` (STEP/STL per part and colour, both brake variants, 4 views each, README).
-- Split in 4 body parts (dovetail + back splice plates), 5 separate J hooks (screwed from the back), brake peg, keyholes. CAD interference check: 0 clashes. Not done: wall-thickness/hook strength analysis, slicing/time estimate, photoreal render, owner review of the likeness. Not tied to the plaque focus; ask the owner whether to continue.
+## 2026-11-03 (cloud) — wrench key holder restarted from zero: wrench body traced from the picture
+- Owner rejected the first by-eye build (wrong proportions: I had assumed a 2000 px wide picture, it is 2345 px). Deleted it (still in git history). New: `cad/wrench/` — `trace_wrench.py` extracts outline + orange band from the reference by colour masks (json committed), `wrench.py` builds layers (border, plate, orange band, screws, recessed 18-tooth ring), STEP/STL/renders in `cad/wrench/out/`, `cad/wrench_render3d.py` = lit three.js render in headless Chromium.
+- Left (in order): owner approval of the body, then hooks (ball-tip, from the trace positions), split into printable parts, workshop (also traced layer by layer), brake disc/drum variants, validation. Nothing print-tested.
 
 ## 2026-11-03 (cloud) — little-prince lamp at 150 mm: files built
 - Owner chose size 150 (X/Y x1.5, height unchanged) and the option-4 diffuser. `cad/lamp150.py`: diffuser (white disc 118 mm x 1.34 + black relief 0.67, 2 colours, ar/en) -> `cad/print_files/lamp_150/diffuser_{ar,en}.3mf` (own geometry, committed); case 150x150x80 and stand 105x105x5 from the owner's licensed 3MF are written to a scratch dir only (NOT committed: public repo, third-party design).

@@ -1,5 +1,5 @@
 """Lit render (three.js in headless Chromium, soft shadows) of the wrench key holder STLs.
-Usage: python cad/wrench_render3d.py <out_dir> <disc|drum> <three_js_dir>   (needs playwright + three.min.js, STLLoader.js)"""
+Usage: python cad/wrench_render3d.py <out_dir> <tag> <three_js_dir>   (needs playwright + three.min.js, STLLoader.js)"""
 import base64, json, sys
 from pathlib import Path
 import subprocess
