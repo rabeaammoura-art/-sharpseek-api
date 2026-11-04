@@ -80,7 +80,7 @@ def text_poly(s, x, y_base, width, height_cap, italic=0.2):
 HJ_W, HJ_DROP, HJ_RC, HJ_TIP, HJ_BALL, HJ_UP = 9.0, 30.0, 11.0, 8.0, 5.5, 10.0     # mm
 
 
-def hook_j_mm():
+def hook_flatj_mm():
     """J hook, x = 0 stem centre, y = 0 plate bottom edge (y up)."""
     pts = [(0.0, HJ_UP), (0.0, -HJ_DROP)]
     for k in range(1, 37):                                    # half circle, centre (HJ_RC, -HJ_DROP), from 180 to 360 deg
@@ -91,6 +91,15 @@ def hook_j_mm():
     body = line.buffer(HJ_W / 2, 24)
     ball = Point(2 * HJ_RC, -HJ_DROP + HJ_TIP).buffer(HJ_BALL, 32)
     return unary_union([body, ball])
+
+
+# ---- outward J hook (the wrench piece's hook system): FRONT silhouette = stem hanging below the plate with a rounded bottom;
+#      the curl rises toward the viewer (side profile, see keyholder3d --hook-profile)
+HF_W, HF_DROP, HF_UP = 8.0, 31.5, 8.0                  # mm: width, drop below the plate edge, stem embedded in the plate
+
+
+def hook_j_mm():
+    return unary_union([box(-HF_W / 2, -HF_DROP + HF_W / 2, HF_W / 2, HF_UP), Point(0, -HF_DROP + HF_W / 2).buffer(HF_W / 2, 24)])
 
 
 def hook_j_px(cx_px):

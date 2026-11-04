@@ -102,7 +102,7 @@ def shaped(g, z0, z1, R):
 GREY_NAMES = {"wheel_ring", "wheel_pad", "seat_fill", "seat_left", "seat_right", "seat_centre", "seat_diamond", "seat_cush", "seat_head"}
 
 
-def build(trace, wheel, grey=False, strip_dark=False):
+def build(trace, wheel, grey=False, strip_dark=False, hook_profile=None):
     L = F.load_layers(trace, wheel)
     M = {k: (to_mm(v) if hasattr(v, "geom_type") else v) for k, v in L.items()}
     base = M["base"]
@@ -180,11 +180,23 @@ def build(trace, wheel, grey=False, strip_dark=False):
 
     # --- seam groove: cut a narrow channel in the seat (black stays, only a groove 0.6 deep) -> skipped (not needed for the print)
 
-    # --- hooks: flat J hooks hanging below the plate in the wall plane (printed flat, no overhang, no support),
-    #     same colour group as the plate (like the wrench piece); stem rises HJ_UP into the plate
+    # --- hooks
     xs = [(x - X_LEFT_PX) * S for x in F.build()["hooks_x"]]
-    for cx in xs:
-        black += prism(affinity.translate(F.hook_j_mm(), cx, 0.0), 0.0, HOOK_THICK)
+    if hook_profile:
+        # outward J hook: side profile (y, z) from a LOCAL json (taken from the owner's own wrench file; third-party shape, not in git).
+        # Stem in the wall plane, curl toward the viewer with a 45 deg underside slope = prints flat without supports.
+        import json
+        d = json.load(open(hook_profile))
+        poly = Polygon(d["ext"], d["holes"]).buffer(0)
+        y_top = poly.bounds[2]                       # top of the stem
+        dy = F.HF_UP - y_top                         # put the stem top HF_UP mm inside the plate (plate bottom edge = y 0)
+        prof = list(affinity.translate(poly, dy, 0).exterior.coords)[:-1]
+        for cx in xs:
+            f = Face(Wire.make_polygon([Vector(cx - F.HF_W / 2, y, z) for y, z in prof]))
+            black.append(Solid.extrude(f, Vector(F.HF_W, 0, 0)))
+    else:                                            # fallback: my own flat J in the wall plane (no third-party data)
+        for cx in xs:
+            black += prism(affinity.translate(F.hook_flatj_mm(), cx, 0.0), 0.0, HOOK_THICK)
 
     # --- wall screw holes (countersunk), cut from the black
     screws = [((x - X_LEFT_PX) * S, (Y_BOTTOM_PX - y) * S) for x, y in F.build()["screws"]]
@@ -199,11 +211,11 @@ def fuse(solids):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("out")
-    ap.add_argument("--trace"); ap.add_argument("--wheel"); ap.add_argument("--grey", action="store_true", help="4th colour: seat + wheel in grey")
+    ap.add_argument("--trace"); ap.add_argument("--wheel"); ap.add_argument("--hook-profile", help="local json (y,z) side profile of the outward J hook"); ap.add_argument("--grey", action="store_true", help="4th colour: seat + wheel in grey")
     ap.add_argument("--strip-dark", action="store_true", help="with --grey: the leather strip goes in the seat colour group")
     a = ap.parse_args()
     out = Path(a.out); (out / "stl").mkdir(parents=True, exist_ok=True)
-    black, red, white, greyp, screws, L = build(a.trace, a.wheel, a.grey, a.strip_dark)
+    black, red, white, greyp, screws, L = build(a.trace, a.wheel, a.grey, a.strip_dark, a.hook_profile)
     res = {}
     for name, sol in (("black", black), ("red", red), ("white", white)) + ((("grey", greyp),) if a.grey else ()):
         comp = Compound(sol)
