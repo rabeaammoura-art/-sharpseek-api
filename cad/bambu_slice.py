@@ -146,6 +146,7 @@ def main():
     ap.add_argument("stl", nargs="+")
     ap.add_argument("--printer", default="Bambu Lab H2D 0.4 nozzle")
     ap.add_argument("--process", default="0.20mm Standard @BBL H2D")
+    ap.add_argument("--set", action="append", default=[], metavar="KEY=VALUE", help="override a process setting, e.g. --set layer_height=0.28 --set sparse_infill_density=8%% (repeatable)")
     ap.add_argument("--filament", action="append",
                     help="filament profile name; repeat once per filament slot of a multi-colour 3MF "
                          "(default: Bambu ASA @BBL H2D 0.4 nozzle)")
@@ -169,6 +170,8 @@ def main():
     machine = flatten("machine", a.printer)
     process = flatten("process", a.process)
     process["curr_bed_type"] = a.plate
+    for kv in a.set:
+        k, _, v = kv.partition("="); process[k.strip()] = v.strip()
     if a.support:
         process.update(enable_support="1", support_type="tree(auto)")
     # "profile name=Sheet type" prices a slot with another stock-sheet type, e.g.

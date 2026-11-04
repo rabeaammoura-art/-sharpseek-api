@@ -97,7 +97,10 @@ def seam_ys(p, c, relief):
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--outline", required=True); ap.add_argument("--car-trace"); ap.add_argument("--text", default="Aldawayme")
     ap.add_argument("--out", required=True); ap.add_argument("--scale", type=float, default=3.3)
+    ap.add_argument("--border", type=float, default=Z["BORDER"]); ap.add_argument("--plate", type=float, default=Z["PLATE"]); ap.add_argument("--face", type=float, default=Z["FACE"])
+    ap.add_argument("--relief", type=float, default=Z["RELIEF"]); ap.add_argument("--band", type=float, default=Z["BAND"])
     a = ap.parse_args(); out = Path(a.out); (out / "stl").mkdir(parents=True, exist_ok=True); (out / "step").mkdir(exist_ok=True)
+    Z.update(BORDER=a.border, PLATE=a.plate, FACE=a.face, RELIEF=a.relief, BAND=a.band); SCREW["DEPTH"] = min(SCREW["DEPTH"], Z["PLATE"] - 2.0)      # thinner panel: shallower countersink
     F = a.scale; p = polys(a, F); sol = solids(p)
     xmin, xmax = unary_union([p["body"], p["house"]]).bounds[0], unary_union([p["body"], p["house"]]).bounds[2]
     n = 4; cuts = [xmin + (xmax - xmin) * i / n for i in range(1, n)]
