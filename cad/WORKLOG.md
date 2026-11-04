@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-04 (cloud) — BMW painter openwork wall art: phase 2 (CAD) built
+- Owner approved the flat design (v5: painter 82 mm tall to match the car's rear perspective, blue = recoloured original rear-quarter lines + 3 spray beams, 5-spoke wheels, open face). `cad/bmw_painter/phase2.py <phase1_dir> <out_dir> [--depth 5]` -> exact manifold extrusions (manifold3d), STL (fused), STL per colour, 2-colour Bambu 3MF, STEP per colour; `render3d.py` -> lit renders. Piece is 297.8 x 104.7 mm.
+- Checks: all STL watertight, 1 body, footprint 1 piece, `/3d-print-test` 0 problems (0.6 % of area thinner than 0.7 mm). Slice (PLA Basic, tower beside the piece at y=235, price 6.951 JOD/kg from the owner's file, no price sheet in this session): 5 mm = 5h45m, 62.8 g, 0.64 JOD; 3 mm = 3h36m, 38.6 g, 0.39 JOD. Nothing print-tested (printer not here).
+- Left: owner picks 5 mm or 3 mm; real print test when the printer arrives; STEP is faceted polygons (not parametric).
+
 ## 2026-11-04 (cloud) — BMW painter openwork wall art: phase 1 (flat vector) done, waiting for approval
 - New project (not the plaque). `cad/bmw_painter/phase1.py <car_rgba.png> <composition.png> <out_dir>`: car from the owner's picture 1 (3/4 view), painter from picture 2, 300 x 150 mm flat, black + blue, wheels replaced by 5 spokes, ground line follows the car's perspective, 3 blue beams + 2 blue accents. Union = ONE connected piece. Pictures/SVG/preview stay out of git (scratchpad).
 - Open for owner: grille/headlights fuse to black blobs at 3 mm lines; blue accents on quarter panel small; height 150 not 180-200 (proportions). Nothing built in 3D, nothing sliced.
