@@ -107,7 +107,7 @@ def shaped(g, z0, z1, R):
 GREY_NAMES = {"wheel_ring", "wheel_pad", "seat_fill", "seat_left", "seat_right", "seat_centre", "seat_diamond", "seat_cush", "seat_head"}
 
 
-def build(trace, wheel, grey=False):
+def build(trace, wheel, grey=False, strip_dark=False):
     L = F.load_layers(trace, wheel)
     M = {k: (to_mm(v) if hasattr(v, "geom_type") else v) for k, v in L.items()}
     base = M["base"]
@@ -142,7 +142,7 @@ def build(trace, wheel, grey=False):
         rb = r.buffer(0.02)            # tiny overlap with the neighbour region: no pinch points / non-manifold edges after the fuse
         if name == "strip":
             black += prism(rb, 0, H_BASE)
-            red += shaped(r, H_BASE, H_STRIP, ROUND["strip"])
+            (greyp if (grey and strip_dark) else red).extend(shaped(r, H_BASE, H_STRIP, ROUND["strip"]))
         elif grey and name in GREY_NAMES:       # 4th colour: seat + wheel stand on the black plate (black below H_BASE, grey above)
             black += prism(rb, 0, H_BASE)
             greyp += shaped(rb, H_BASE, h, ROUND.get(name, 0.0))
@@ -224,9 +224,10 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("out")
     ap.add_argument("--trace"); ap.add_argument("--wheel"); ap.add_argument("--grey", action="store_true", help="4th colour: seat + wheel in grey")
+    ap.add_argument("--strip-dark", action="store_true", help="with --grey: the leather strip goes in the seat colour group")
     a = ap.parse_args()
     out = Path(a.out); (out / "stl").mkdir(parents=True, exist_ok=True)
-    black, red, white, greyp, screws, L = build(a.trace, a.wheel, a.grey)
+    black, red, white, greyp, screws, L = build(a.trace, a.wheel, a.grey, a.strip_dark)
     res = {}
     for name, sol in (("black", black), ("red", red), ("white", white)) + ((("grey", greyp),) if a.grey else ()):
         comp = Compound(sol)
