@@ -76,23 +76,25 @@ def canvas_poly(pts):
     return np.round(np.array(pts)*PPM).astype(np.int32)
 
 def wheel(cx, cy, a, bb, rot_deg, phase=0.0, k_hole=0.30, k_hub=0.62):
-    """cx,cy,a,bb in car picture px (centre, semi-axes x,y). Returns (erase_mask, add_mask) in canvas."""
-    erase = np.zeros((CH, CW), np.uint8); add = np.zeros((CH, CW), np.uint8)
+    """5 wide flared spokes + rim ring + hub (unit-circle design mapped onto the wheel ellipse).
+    cx,cy,a,bb in car picture px (centre, semi-axes x,y)."""
+    erase = np.zeros((CH, CW), np.uint8); add = np.zeros((CH, CW), np.uint8); hole = np.zeros((CH, CW), np.uint8)
     c = car_pt(cx, cy)
     A, B = a*SC_CAR, bb*SC_CAR
-    cv2.ellipse(erase, tuple(np.round(c*PPM).astype(int)), (int(A*PPM), int(B*PPM)), 0, 0, 360, 1, -1)
-    # hub disc + hole
-    hub_r = 0.30
-    cv2.ellipse(add, tuple(np.round(c*PPM).astype(int)), (int(A*hub_r*PPM), int(B*hub_r*PPM)), 0, 0, 360, 1, -1)
-    hole = np.zeros_like(add)
-    cv2.ellipse(hole, tuple(np.round(c*PPM).astype(int)), (int(A*0.13*PPM), int(B*0.13*PPM)), 0, 0, 360, 1, -1)
-    # 5 spokes: tapered bars from hub to rim, drawn in unit-circle coords then scaled to the ellipse
+    ctr = tuple(np.round(c*PPM).astype(int))
+    cv2.ellipse(erase, ctr, (int(A*PPM), int(B*PPM)), 0, 0, 360, 1, -1)
+    # rim ring (overlaps the original rim line so everything is one piece)
+    cv2.ellipse(add, ctr, (int(A*1.04*PPM), int(B*1.04*PPM)), 0, 0, 360, 1, -1)
+    cv2.ellipse(add, ctr, (int(A*0.91*PPM), int(B*0.91*PPM)), 0, 0, 360, 0, -1)
+    # hub disc and centre hole
+    cv2.ellipse(add, ctr, (int(A*0.25*PPM), int(B*0.25*PPM)), 0, 0, 360, 1, -1)
+    cv2.ellipse(hole, ctr, (int(A*0.10*PPM), int(B*0.10*PPM)), 0, 0, 360, 1, -1)
     for k in range(5):
         th = np.deg2rad(phase + 72*k)
         u = np.array([np.cos(th), np.sin(th)]); v = np.array([-u[1], u[0]])
-        w0, w1 = 0.26, 0.17                           # half width (unit) at hub / rim
-        pts = [0.2*u + w0*v*0.5, 1.0*u + w1*v*0.5, 1.0*u - w1*v*0.5, 0.2*u - w0*v*0.5]
-        pp = [c + np.array([p[0]*A, p[1]*B]) for p in pts]
+        prof = [(0.15, 0.10), (0.45, 0.075), (0.70, 0.085), (0.90, 0.135), (1.02, 0.15)]   # (radius, half width)
+        left = [p*u + w*v for p, w in prof]; right = [p*u - w*v for p, w in prof][::-1]
+        pp = [c + np.array([q[0]*A, q[1]*B]) for q in left + right]
         cv2.fillPoly(add, [canvas_poly(pp)], 1)
     return erase.astype(bool), add.astype(bool), hole.astype(bool), (A, B)
 
@@ -113,7 +115,10 @@ cv2.fillPoly(fas, [canvas_poly([car_pt(*p) for p in [(15,395),(640,395),(640,640
 fas = cv2.GaussianBlur(fas.astype(np.float32), (0,0), 15) > 0.5
 car_t = np.where(fas, disc(lines0, 0.12), disc(lines0, R_CAR)) | adds
 car_t = car_t & ~holes
-pnt_t = disc(pnt_c, R_PNT)
+head = np.zeros((CH, CW), np.uint8)
+cv2.fillPoly(head, [canvas_poly([pnt_pt(*p) for p in [(1380,5),(1575,5),(1575,205),(1380,205)]])], 1)
+head = cv2.GaussianBlur(head.astype(np.float32), (0,0), 8) > 0.5
+pnt_t = np.where(head, disc(pnt_c, 0.08), disc(pnt_c, R_PNT))
 black = car_t | pnt_t
 
 # ---------- ground line ----------
