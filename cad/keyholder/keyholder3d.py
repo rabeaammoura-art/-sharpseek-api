@@ -104,7 +104,10 @@ def shaped(g, z0, z1, R):
     return out
 
 
-def build(trace, wheel):
+GREY_NAMES = {"wheel_ring", "wheel_pad", "seat_fill", "seat_left", "seat_right", "seat_centre", "seat_diamond", "seat_cush", "seat_head"}
+
+
+def build(trace, wheel, grey=False):
     L = F.load_layers(trace, wheel)
     M = {k: (to_mm(v) if hasattr(v, "geom_type") else v) for k, v in L.items()}
     base = M["base"]
@@ -134,12 +137,15 @@ def build(trace, wheel):
         covered = covered.union(poly)
     regions = [(n, r.buffer(0), h) for n, r, h in regions if not r.is_empty]
 
-    black, red, white = [], [], []
+    black, red, white, greyp = [], [], [], []
     for name, r, h in regions:
         rb = r.buffer(0.02)            # tiny overlap with the neighbour region: no pinch points / non-manifold edges after the fuse
         if name == "strip":
             black += prism(rb, 0, H_BASE)
             red += shaped(r, H_BASE, H_STRIP, ROUND["strip"])
+        elif grey and name in GREY_NAMES:       # 4th colour: seat + wheel stand on the black plate (black below H_BASE, grey above)
+            black += prism(rb, 0, H_BASE)
+            greyp += shaped(rb, H_BASE, h, ROUND.get(name, 0.0))
         else:
             black += shaped(rb, 0, h, ROUND.get(name, 0.0))
 
@@ -160,7 +166,7 @@ def build(trace, wheel):
         cells = dia[0].buffer(-0.8).difference(lines)
         for c in parts_of(cells):
             if c.area > 3.0:
-                black += shaped(c.buffer(0.02), H_SEAT_DIAMOND, H_SEAT_DIAMOND + CELL_H, CELL_R)
+                (greyp if grey else black).extend(shaped(c.buffer(0.02), H_SEAT_DIAMOND, H_SEAT_DIAMOND + CELL_H, CELL_R))
 
     # the seat is in front of the wheel: wheel decoration must not run over it
     seat_cover = unary_union([M[k] for k in ("seat_fill", "seat_left", "seat_right", "seat_centre", "seat_diamond", "seat_cush", "seat_head")])
@@ -195,7 +201,7 @@ def build(trace, wheel):
 
     # --- wall screw holes (countersunk), cut from the black
     screws = [((x - X_LEFT_PX) * S, (Y_BOTTOM_PX - y) * S) for x, y in F.build()["screws"]]
-    return black, red, white, screws, L
+    return black, red, white, greyp, screws, L
 
 
 def fuse(solids):
@@ -206,20 +212,22 @@ def fuse(solids):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("out")
-    ap.add_argument("--trace"); ap.add_argument("--wheel")
+    ap.add_argument("--trace"); ap.add_argument("--wheel"); ap.add_argument("--grey", action="store_true", help="4th colour: seat + wheel in grey")
     a = ap.parse_args()
     out = Path(a.out); (out / "stl").mkdir(parents=True, exist_ok=True)
-    black, red, white, screws, L = build(a.trace, a.wheel)
+    black, red, white, greyp, screws, L = build(a.trace, a.wheel, a.grey)
     res = {}
-    for name, sol in (("black", black), ("red", red), ("white", white)):
+    for name, sol in (("black", black), ("red", red), ("white", white)) + ((("grey", greyp),) if a.grey else ()):
         comp = Compound(sol)
         if name == "black":
-            comp = fuse(sol)                       # ONE fused black solid (plate + seat + hooks)
+            comp = fuse(sol)                       # ONE fused black solid (plate + hooks, + seat when not grey)
             cuts = []
             for (sx, sy) in screws:
                 cuts.append(Pos(sx, sy, -0.1) * Solid.make_cylinder(SCREW_THROUGH / 2, 40))
                 cuts.append(Pos(sx, sy, H_BASE - (SCREW_HEAD - SCREW_THROUGH) / 2) * Solid.make_cone(SCREW_THROUGH / 2, SCREW_HEAD / 2, (SCREW_HEAD - SCREW_THROUGH) / 2 + 0.01))
             comp = comp - Compound(cuts)
+        elif name == "grey":
+            comp = fuse(sol)                       # seat + wheel in the 4th colour, standing on the black plate
         res[name] = comp
         export_stl(comp, str(out / "stl" / f"keyholder__{name}.stl"))
         bb = comp.bounding_box()

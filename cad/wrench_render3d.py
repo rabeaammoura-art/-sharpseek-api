@@ -5,7 +5,7 @@ from pathlib import Path
 import subprocess
 
 out, variant, js = Path(sys.argv[1]), sys.argv[2], Path(sys.argv[3])
-COL = {"black": "#26262a", "orange": "#ff7a00", "white": "#ececee", "red": "#d01818"}
+COL = {"black": "#26262a", "orange": "#ff7a00", "white": "#ececee", "red": "#d01818", "grey": "#8a8a94"}
 PAL = json.loads(sys.argv[4]) if len(sys.argv) > 4 else {}      # optional palette override: {"black": "#hex", "white": "#hex", "orange": "#hex", "metal": ["white", "orange"]}
 COL.update({k: v for k, v in PAL.items() if k in COL}); METAL = PAL.get("metal", [])
 items = []
