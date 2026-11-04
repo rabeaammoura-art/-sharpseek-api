@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-04 (cloud) — BMW painter openwork wall art: phase 1 (flat vector) done, waiting for approval
+- New project (not the plaque). `cad/bmw_painter/phase1.py <car_rgba.png> <composition.png> <out_dir>`: car from the owner's picture 1 (3/4 view), painter from picture 2, 300 x 150 mm flat, black + blue, wheels replaced by 5 spokes, ground line follows the car's perspective, 3 blue beams + 2 blue accents. Union = ONE connected piece. Pictures/SVG/preview stay out of git (scratchpad).
+- Open for owner: grille/headlights fuse to black blobs at 3 mm lines; blue accents on quarter panel small; height 150 not 180-200 (proportions). Nothing built in 3D, nothing sliced.
+
 ## 2026-11-04 (cloud) — key holder: hooks switched to the outward J hook (owner gave me the choice)
 - Owner (annoyed that I changed the design without discussing, then): "you have the freedom, pick the best". He sent the MakerWorld fish-skeleton 3MF (6 hooks 5-6 mm wide, plate 7.6, curl out 29 mm, printed with tree supports on an A1) and his own Aldawayme wrench 3MF (our v6: 5 hooks 6.0 wide x 39.5 tall x 29.3 out, no supports thanks to the 45 deg underside slope, PLA Basic, 2 walls, 15 %). Both third-party-derived, kept OUT of git.
 - Decision: use the proven outward J (stem in the wall plane, curl toward the viewer, 45 deg underside = no supports) instead of my flat hanging J, but 8 mm wide (own call, stronger) and stem 8 mm into the plate, same colour as the plate. `keyholder3d.py --hook-profile <local json>` (the (y,z) side profile cut from the owner's wrench 3MF with a local script; fallback without the json = my flat J). Flat view: stem 8 x 31.5 mm with round end (`flat_preview.hook_j_mm`).
