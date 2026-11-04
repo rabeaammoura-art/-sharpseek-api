@@ -104,7 +104,10 @@ for er, ad, hole, _ in wh:
     car_c = car_c & ~hole
 
 # ---------- thicken ----------
-car_t = disc(car_c, R_CAR)
+fas = np.zeros((CH, CW), np.uint8)   # front fascia (grille, lamps): keep fine rings open
+cv2.fillPoly(fas, [canvas_poly([car_pt(*p) for p in [(15,395),(640,395),(640,640),(15,640)]])], 1)
+fas = cv2.GaussianBlur(fas.astype(np.float32), (0,0), 15) > 0.5
+car_t = np.where(fas, disc(car_c, 0.12), disc(car_c, R_CAR))
 pnt_t = disc(pnt_c, R_PNT)
 black = car_t | pnt_t
 
@@ -134,14 +137,31 @@ for i in range(3):
     cv2.fillPoly(bl, [canvas_poly(tri)], 1)
 def stripe(p, q, w):
     cv2.line(bl, tuple(np.round(car_pt(*p)*PPM).astype(int)), tuple(np.round(car_pt(*q)*PPM).astype(int)), 1, int(w*PPM), cv2.LINE_AA)
-stripe((1030, 554), (1322, 512), 3.4)               # sill stripe
+stripe((1030, 548), (1322, 506), 4.0)               # sill stripe
+stripe((1030, 578), (1322, 540), 2.6)               # second, thinner sill stripe
 # rear-arch crescent: arc between the two arch lines
 arc = [(1352, 438), (1372, 395), (1405, 368), (1445, 370), (1478, 395)]
-cv2.polylines(bl, [canvas_poly([car_pt(*p) for p in arc])], False, 1, int(3.4*PPM), cv2.LINE_AA)
+cv2.polylines(bl, [canvas_poly([car_pt(*p) for p in arc])], False, 1, int(4.0*PPM), cv2.LINE_AA)
 blue = bl.astype(bool)
 blue = blue & ~black          # blue only where the black does not already sit (black on top)
 blue_core = blue
 
+# ---- bridge any island to the main body with a 2 mm bar (shortest gap) ----
+u = black | blue
+lab, ncomp = ndi.label(u, structure=np.ones((3, 3)))
+sizes = ndi.sum(u, lab, range(1, ncomp+1)); main = 1 + int(np.argmax(sizes))
+BR = []
+for i in range(1, ncomp+1):
+    if i == main: continue
+    dist, idx = ndi.distance_transform_edt(lab != i, return_indices=True)
+    isl = lab == i
+    cand = np.where(((lab == main)) & (dist < 400))
+    k = np.argmin(dist[cand]); y2, x2 = cand[0][k], cand[1][k]
+    ys_, xs_ = np.where(isl); j = np.argmin((ys_-y2)**2 + (xs_-x2)**2)
+    cv2.line(bl, (int(xs_[j]), int(ys_[j])), (int(x2), int(y2)), 1, int(2.0*PPM))
+    black = black | (np.zeros((CH, CW), np.uint8) + cv2.line(np.zeros((CH, CW), np.uint8), (int(xs_[j]), int(ys_[j])), (int(x2), int(y2)), 1, int(2.0*PPM))).astype(bool)
+    BR.append((xs_[j]/PPM, ys_[j]/PPM))
+print('bridges at (mm)', BR)
 np.savez_compressed(os.path.join(OUT, 'masks.npz'), black=black, blue=blue)
 
 # ---------- preview ----------
