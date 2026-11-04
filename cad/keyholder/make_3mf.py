@@ -9,14 +9,21 @@ from threemf import build_project_settings, write_bambu_3mf
 ap = argparse.ArgumentParser(); ap.add_argument("src"); ap.add_argument("out")
 ap.add_argument("--tower-x", type=float, default=150.0); ap.add_argument("--tower-y", type=float, default=235.0); ap.add_argument("--tower-w", type=float, default=30.0)
 ap.add_argument("--material", default="pla", choices=("pla", "petg"))
+ap.add_argument("--scheme", default="rbw", choices=("rbw", "D"), help="rbw: black/red/white (3 STL); D: red plate + black seat group + silver (4 STL, --grey --strip-dark)")
 a = ap.parse_args(); src = Path(a.src)
-parts = {n: trimesh.load(src / "stl" / f"keyholder__{n}.stl") for n in ("black", "red", "white")}
+names = ("black", "red", "white") + (("grey",) if a.scheme == "D" else ())
+parts = {n: trimesh.load(src / "stl" / f"keyholder__{n}.stl") for n in names}
 allm = trimesh.util.concatenate(list(parts.values())); b = allm.bounds
 mid = ((b[0][0] + b[1][0]) / 2, (b[0][1] + b[1][1]) / 2)
 for m in parts.values():
     m.apply_translation([-mid[0], -mid[1], 0])
 template = (Path(__file__).resolve().parents[1] / "config" / f"bambu_project_4fil_{a.material}.config").read_bytes()
-colours = ["#1A1A1A", "#C4161C", "#F2F2F2", "#1A1A1A"]
-write_bambu_3mf(a.out, [("black", parts["black"], 1), ("red", parts["red"], 2), ("white", parts["white"], 3)], center=(162.5, 100.0),
+if a.scheme == "D":      # slot 1 red (plate + stitches), slot 2 black (seat, wheel, strip), slot 3 silver (Silk Silver); slot 4 spare
+    colours = ["#C4161C", "#1A1A1A", "#C9CDD3", "#1A1A1A"]
+    plist = [("plate_red", parts["black"], 1), ("stitch_red", parts["red"], 1), ("seat_black", parts["grey"], 2), ("trim_silver", parts["white"], 3)]
+else:
+    colours = ["#1A1A1A", "#C4161C", "#F2F2F2", "#1A1A1A"]
+    plist = [("black", parts["black"], 1), ("red", parts["red"], 2), ("white", parts["white"], 3)]
+write_bambu_3mf(a.out, plist, center=(162.5, 100.0),
                 name=Path(a.out).stem, project_settings=build_project_settings(template, colours, (a.tower_x, a.tower_y, a.tower_w)))
 print("wrote", a.out, "piece", (b[1] - b[0]).round(1).tolist())

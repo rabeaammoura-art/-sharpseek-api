@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-04 (cloud) — key holder: palette D (red plate, black seat/wheel/strip) + hanging J hooks (owner showed the wrench piece's hook system)
+- Palette D approved to try: plate/panel/arch red, seat + wheel + leather strip black (`--grey --strip-dark`), lettering/machine/chrome Silk Silver; 3 filaments (PLA+ red, PLA+ black, Silk Silver). Hooks changed to the wrench-piece system: flat J hooks hanging BELOW the plate in the wall plane (stem 9 wide, 30 mm drop, curl R 11, rounded tip, 6 mm thick, stem 10 mm into the plate), same colour as the plate, printed flat: no overhang, no support. `flat_preview.hook_j_mm`, my own drawing (not the third-party profile). Piece is now 300 x 196 mm (the original 300x200 target); the peg hooks are gone.
+- Checks: all parts watertight, `/3d-print-test` 0 problems, slice (3MF `make_3mf.py --scheme D`, tower on): 5h11m, 169.9 g (red 106.1, black 49.7, Silk Silver 14.0); with the stock sheet: 1.39 JOD (material 1.21 + electricity 0.18). Nothing print-tested. `wrench_render3d.py` camera now fits taller pieces.
+- Left: owner's look at the hooks (length, curl size, thickness), wall mounting (2 countersunk screws kept), then the texture idea, time reduction.
+
 ## 2026-11-04 (cloud) — key holder colours: seat/wheel looked like the background; 4-colour options from stock
 - Owner rejected the grey seat. Price sheet received (copied to `cad/config/filament_prices.xlsx`, git-ignored). Stock useful here: Wood PLA, Walnut PLA, Silk Silver/Bronze/Copper, PLA+ black/red/white/grey. `keyholder3d.py --grey` now splits 4 colour groups: black = plate/panel/arch (z<=5.5), "grey" slot = seat + wheel + hooks (start exactly on the plate), red, white (-> Silk Silver in the options). Rendered 3 palettes (`cad/keyholder/preview/palette_*.png`): A walnut plate + black seat, B light wood plate + black seat, C black plate + walnut seat; all with Silk Silver trim. Recommended A (red stitching and silver pop best). Owner to choose; then 3MF colours + print test + cost. Not yet checked: Walnut/Wood PLA print profile, time with 4 colours (the last slice was 3 colours, 5h05m).
 

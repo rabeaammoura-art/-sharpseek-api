@@ -76,6 +76,29 @@ def text_poly(s, x, y_base, width, height_cap, italic=0.2):
     return affinity.translate(res, x - b[0], y_base)     # y=0 (baseline) -> y_base
 
 
+# ---- hanging J hook in the wall plane (same idea as the wrench piece): stem down from the plate, curl up, rounded tip
+HJ_W, HJ_DROP, HJ_RC, HJ_TIP, HJ_BALL, HJ_UP = 9.0, 30.0, 11.0, 8.0, 5.5, 10.0     # mm
+
+
+def hook_j_mm():
+    """J hook, x = 0 stem centre, y = 0 plate bottom edge (y up)."""
+    pts = [(0.0, HJ_UP), (0.0, -HJ_DROP)]
+    for k in range(1, 37):                                    # half circle, centre (HJ_RC, -HJ_DROP), from 180 to 360 deg
+        a = math.pi + math.pi * k / 36
+        pts.append((HJ_RC + HJ_RC * math.cos(a), -HJ_DROP + HJ_RC * math.sin(a)))
+    pts.append((2 * HJ_RC, -HJ_DROP + HJ_TIP))
+    line = LineString(pts)
+    body = line.buffer(HJ_W / 2, 24)
+    ball = Point(2 * HJ_RC, -HJ_DROP + HJ_TIP).buffer(HJ_BALL, 32)
+    return unary_union([body, ball])
+
+
+def hook_j_px(cx_px):
+    g = hook_j_mm()
+    g = affinity.scale(g, 1 / MM_PX, -1 / MM_PX, origin=(0, 0))      # mm -> px, y down
+    return affinity.translate(g, cx_px, 728.0)
+
+
 def smooth_poly(poly, step=2.0, sigma=5.0):
     """Resample the outline every `step` px and gaussian-smooth the coordinates (removes jagged/broken edges)."""
     from scipy.ndimage import gaussian_filter1d
@@ -205,9 +228,7 @@ def build():
     # hooks (front view) and screw holes
     hooks = [305, 565, 820, 1075, 1315]
     L["hooks_x"] = hooks
-    L["hook_knob"] = unary_union([Point(x, 668).buffer(25) for x in hooks])
-    L["hook_lug"] = unary_union([box(x - 17, 668, x + 17, 752) for x in hooks] +
-                                [Point(x, 752).buffer(17) for x in hooks])
+    L["hook_j"] = unary_union([hook_j_px(x) for x in hooks])
     L["screws"] = [(150, 668), (1425, 648)]
     return L
 
@@ -250,10 +271,7 @@ def draw(L, path, ref=None, alpha=1.0):
     paint(ax, L["machine"], **kw(SIL))
     paint(ax, L["strip"], **kw(RED))
     paint(ax, L["strip_stitch"], **kw("#f0e6d0"))
-    paint(ax, L["hook_lug"], **kw(BLK2))
-    paint(ax, L["hook_knob"], **kw(BLK3))
-    for x in L["hooks_x"]:
-        paint(ax, Point(x, 668).buffer(9), **kw(BLK))
+    paint(ax, L["hook_j"], **kw(BLK))
     for (x, y) in L["screws"]:
         paint(ax, Point(x, y).buffer(11), **kw("#0a0a0a"))
     fig.savefig(path, dpi=100)
@@ -291,7 +309,7 @@ if __name__ == "__main__":
     ref, out = sys.argv[1], sys.argv[2]
     os.makedirs(out, exist_ok=True)
     L = load_layers(sys.argv[3] if len(sys.argv) > 3 else None, sys.argv[4] if len(sys.argv) > 4 else None)
-    b = unary_union([L["base"], L["wheel_ring"], L["seat_left"], L["seat_head"], L["hook_lug"]]).bounds
+    b = unary_union([L["base"], L["wheel_ring"], L["seat_left"], L["seat_head"], L["hook_j"]]).bounds
     print("bbox px", [round(v) for v in b], "-> mm", round((b[2]-b[0])*MM_PX, 1), "x", round((b[3]-b[1])*MM_PX, 1))
     draw(L, f"{out}/flat.png")
     draw(L, f"{out}/overlay.png", ref=ref, alpha=0.55)

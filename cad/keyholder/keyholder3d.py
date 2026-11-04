@@ -34,12 +34,7 @@ T_TEXT = 3.5                    # lettering on the panel
 T_SWOOSH = 1.6
 T_MACHINE = 3.0
 T_TRIM = 1.2                    # chrome trim of the wheel
-HOOK_OUT = 28.0                 # hook stem length out of the plate surface
-HOOK_W = 12.0                   # hook width (x)
-HOOK_T = 9.0                    # stem thickness (y)
-HOOK_LIP = 6.0                  # upturned lip
-HOOK_BOSS_R = 11.0
-HOOK_BOSS_H = 5.0
+HOOK_THICK = 6.0                # hook thickness (z); the J itself is defined in flat_preview.hook_j_mm (stem 9 wide, 30 mm drop, curl R 11)
 SCREW_THROUGH = 4.2
 SCREW_HEAD = 8.5
 
@@ -185,30 +180,11 @@ def build(trace, wheel, grey=False, strip_dark=False):
 
     # --- seam groove: cut a narrow channel in the seat (black stays, only a groove 0.6 deep) -> skipped (not needed for the print)
 
-    # --- hooks (black): boss + stem (J profile in the y-z plane, 45 deg lip underside)
-    hooks = []
+    # --- hooks: flat J hooks hanging below the plate in the wall plane (printed flat, no overhang, no support),
+    #     same colour group as the plate (like the wrench piece); stem rises HJ_UP into the plate
     xs = [(x - X_LEFT_PX) * S for x in F.build()["hooks_x"]]
-    yc = (Y_BOTTOM_PX - 668.0) * S
-    z0 = H_BASE
     for cx in xs:
-        prof = [(yc - HOOK_T / 2, z0 - 0.5), (yc + HOOK_T / 2, z0 - 0.5), (yc + HOOK_T / 2, z0 + HOOK_OUT - HOOK_LIP - 0.01),
-                (yc + HOOK_T / 2 + HOOK_LIP * 0.75, z0 + HOOK_OUT - 1.5), (yc + HOOK_T / 2 + HOOK_LIP * 0.75, z0 + HOOK_OUT),
-                (yc - HOOK_T / 2, z0 + HOOK_OUT)]
-        f = Face(Wire.make_polygon([Vector(cx - HOOK_W / 2, y, z) for y, z in prof]))
-        hooks.append(Solid.extrude(f, Vector(HOOK_W, 0, 0)))
-        hooks += prism(Point(cx, yc).buffer(HOOK_BOSS_R, 48), z0 - 0.5, z0 + HOOK_BOSS_H)
-    if grey:   # 4-colour mode: hooks belong to the "seat" colour; start exactly on the plate (no overlap between colours)
-        hooks = []
-        for cx in xs:
-            prof = [(yc - HOOK_T / 2, z0), (yc + HOOK_T / 2, z0), (yc + HOOK_T / 2, z0 + HOOK_OUT - HOOK_LIP - 0.01),
-                    (yc + HOOK_T / 2 + HOOK_LIP * 0.75, z0 + HOOK_OUT - 1.5), (yc + HOOK_T / 2 + HOOK_LIP * 0.75, z0 + HOOK_OUT),
-                    (yc - HOOK_T / 2, z0 + HOOK_OUT)]
-            f = Face(Wire.make_polygon([Vector(cx - HOOK_W / 2, y, z) for y, z in prof]))
-            hooks.append(Solid.extrude(f, Vector(HOOK_W, 0, 0)))
-            hooks += prism(Point(cx, yc).buffer(HOOK_BOSS_R, 48), z0, z0 + HOOK_BOSS_H)
-        greyp += hooks
-    else:
-        black += hooks
+        black += prism(affinity.translate(F.hook_j_mm(), cx, 0.0), 0.0, HOOK_THICK)
 
     # --- wall screw holes (countersunk), cut from the black
     screws = [((x - X_LEFT_PX) * S, (Y_BOTTOM_PX - y) * S) for x, y in F.build()["screws"]]

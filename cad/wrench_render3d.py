@@ -37,7 +37,7 @@ const cam=new THREE.PerspectiveCamera(22,W/H,10,5000);
 const v=location.hash.slice(1)||'front';
 const P={{front:[0,10,780],iso:[-330,-170,820],side:[820,-30,120],low:[260,-330,560],close:[330,10,520]}}[v];
 const T={{front:[0,0,0],iso:[0,0,0],close:[150,10,0],side:[0,-10,0],low:[0,-10,0]}}[v];
-const sk=(box.max.x-box.min.x)/610;cam.position.set(P[0]*sk,P[1]*sk,P[2]*sk);cam.lookAt(T[0]*sk,T[1]*sk,T[2]*sk);r.render(sc,cam);window.done=true;
+const sk=Math.max((box.max.x-box.min.x)/610,(box.max.y-box.min.y)/295);cam.position.set(P[0]*sk,P[1]*sk,P[2]*sk);cam.lookAt(T[0]*sk,T[1]*sk,T[2]*sk);r.render(sc,cam);window.done=true;
 </script></body></html>"""
 (out / "r.html").write_text(html)
 runner = out / "r.js"
