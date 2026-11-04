@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-04 (cloud) — BMW painter: 600 x 211 mm version in 3 interlocking modules
+- Owner asked for the approved art at 600 mm, 3 mm body, exactly 3 modules with hidden joints. `cad/bmw_painter/modular.py <master_stl_dir> <out>` reads the approved model back, scales x2.0149, cuts at x=196 (between grille/lamps and front wheel) and x=452 (car tail / spray beams bases), adds rear sliding dovetails (tab 6 mm, 12 deg flanks, 0.25 clearance, vertical slide, gravity-seated, pads <= 1.8 mm outside the lines), rear tie bars for isolated bits, exports STL/3MF (art mirrored in X because modules print front face DOWN), validation.json; `render_modules.py`, `drawing.py`, `step_export.py` (slow, optional).
+- Checks: each module 1 shell, watertight, 0 bad edges after STL export, fits H2D (max 262 x 211 x 12.65), interference 0, seam gap 0.2 mm. Slices (PLA, supports, tower): M1 2h26 41 g, M2 5h15 90 g, M3 3h03 48 g = 10h44, 180 g, ~1.62 JOD. Nothing print-tested.
+- Honest limits: pads are visible as dark blocks through the open spaces at oblique angles; seam 2 cuts the beam bases; 0.2 mm hairline on the front; STEP bodies are polylines.
+
 ## 2026-11-04 (cloud) — BMW painter openwork wall art: phase 2 (CAD) built
 - Owner approved the flat design (v5: painter 82 mm tall to match the car's rear perspective, blue = recoloured original rear-quarter lines + 3 spray beams, 5-spoke wheels, open face). `cad/bmw_painter/phase2.py <phase1_dir> <out_dir> [--depth 5]` -> exact manifold extrusions (manifold3d), STL (fused), STL per colour, 2-colour Bambu 3MF, STEP per colour; `render3d.py` -> lit renders. Piece is 297.8 x 104.7 mm.
 - Checks: all STL watertight, 1 body, footprint 1 piece, `/3d-print-test` 0 problems (0.6 % of area thinner than 0.7 mm). Slice (PLA Basic, tower beside the piece at y=235, price 6.951 JOD/kg from the owner's file, no price sheet in this session): 5 mm = 5h45m, 62.8 g, 0.64 JOD; 3 mm = 3h36m, 38.6 g, 0.39 JOD. Nothing print-tested (printer not here).
