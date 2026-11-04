@@ -13,7 +13,7 @@ CW, CH = int(W_MM*PPM), int(H_MM*PPM)
 
 SC_CAR = 0.133                # mm per car-picture px
 SC_PNT = 0.150                # mm per painter-picture px
-R_CAR = 0.55                  # mm added per side to car lines
+R_CAR = 0.32                  # mm added per side to car lines
 R_PNT = 0.45
 CLOSE_GAP = 0.5               # mm: gaps narrower than this are closed (can't print)
 
@@ -99,15 +99,20 @@ def wheel(cx, cy, a, bb, rot_deg, phase=0.0, k_hole=0.30, k_hub=0.62):
 wh = []
 wh.append(wheel(833, 607, 77, 117, 0, phase=-90))
 wh.append(wheel(1412, 531, 43, 90, 0, phase=-90))
+lines0 = car_c.copy()
+adds = np.zeros_like(car_c); holes = np.zeros_like(car_c)
 for er, ad, hole, _ in wh:
-    car_c = (car_c & ~er) | ad
-    car_c = car_c & ~hole
+    lines0 = lines0 & ~er
+    adds |= ad; holes |= hole
+car_c = lines0 | adds
 
 # ---------- thicken ----------
-fas = np.zeros((CH, CW), np.uint8)   # front fascia (grille, lamps): keep fine rings open
+# even, slightly heavier lines: car strokes grow by R_CAR per side (original ~1.0-1.3 mm -> ~1.7-2.0 mm)
+fas = np.zeros((CH, CW), np.uint8)   # front fascia (grille, lamps): finest details, keep them open
 cv2.fillPoly(fas, [canvas_poly([car_pt(*p) for p in [(15,395),(640,395),(640,640),(15,640)]])], 1)
 fas = cv2.GaussianBlur(fas.astype(np.float32), (0,0), 15) > 0.5
-car_t = np.where(fas, disc(car_c, 0.12), disc(car_c, R_CAR))
+car_t = np.where(fas, disc(lines0, 0.12), disc(lines0, R_CAR)) | adds
+car_t = car_t & ~holes
 pnt_t = disc(pnt_c, R_PNT)
 black = car_t | pnt_t
 
@@ -115,11 +120,11 @@ black = car_t | pnt_t
 gl = np.zeros((CH, CW), np.uint8)
 tyre_f = car_pt(780, 774)       # front tyre bottom (measured)
 tyre_r = car_pt(1410, 655)
-GW = 3.6
+GW = 3.0
 p1 = np.array([car_tx+1.5, tyre_f[1] + (tyre_f[0]-car_tx-1.5)*(tyre_r[1]-tyre_f[1])/(tyre_r[0]-tyre_f[0])*-1.0])
 slope = (tyre_r[1]-tyre_f[1])/(tyre_r[0]-tyre_f[0])
 y_at = lambda x: tyre_f[1] + slope*(x-tyre_f[0])
-pts = [(tyre_f[0]-12, y_at(tyre_f[0]-12)+GW/2), (tyre_r[0]+4, y_at(tyre_r[0]+4)+GW/2), (tyre_r[0]+4+8, Y_G+GW/2), (298, Y_G+GW/2)]
+pts = [(tyre_f[0]-4, y_at(tyre_f[0]-4)+GW/2), (tyre_r[0]+4, y_at(tyre_r[0]+4)+GW/2), (tyre_r[0]+4+8, Y_G+GW/2), (298, Y_G+GW/2)]
 cv2.polylines(gl, [canvas_poly(pts)], False, 1, int(GW*PPM), cv2.LINE_AA)
 for p in pts:
     cv2.circle(gl, tuple(np.round(np.array(p)*PPM).astype(int)), int(GW/2*PPM), 1, -1)
