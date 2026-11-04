@@ -197,7 +197,18 @@ def build(trace, wheel, grey=False):
         f = Face(Wire.make_polygon([Vector(cx - HOOK_W / 2, y, z) for y, z in prof]))
         hooks.append(Solid.extrude(f, Vector(HOOK_W, 0, 0)))
         hooks += prism(Point(cx, yc).buffer(HOOK_BOSS_R, 48), z0 - 0.5, z0 + HOOK_BOSS_H)
-    black += hooks
+    if grey:   # 4-colour mode: hooks belong to the "seat" colour; start exactly on the plate (no overlap between colours)
+        hooks = []
+        for cx in xs:
+            prof = [(yc - HOOK_T / 2, z0), (yc + HOOK_T / 2, z0), (yc + HOOK_T / 2, z0 + HOOK_OUT - HOOK_LIP - 0.01),
+                    (yc + HOOK_T / 2 + HOOK_LIP * 0.75, z0 + HOOK_OUT - 1.5), (yc + HOOK_T / 2 + HOOK_LIP * 0.75, z0 + HOOK_OUT),
+                    (yc - HOOK_T / 2, z0 + HOOK_OUT)]
+            f = Face(Wire.make_polygon([Vector(cx - HOOK_W / 2, y, z) for y, z in prof]))
+            hooks.append(Solid.extrude(f, Vector(HOOK_W, 0, 0)))
+            hooks += prism(Point(cx, yc).buffer(HOOK_BOSS_R, 48), z0, z0 + HOOK_BOSS_H)
+        greyp += hooks
+    else:
+        black += hooks
 
     # --- wall screw holes (countersunk), cut from the black
     screws = [((x - X_LEFT_PX) * S, (Y_BOTTOM_PX - y) * S) for x, y in F.build()["screws"]]
