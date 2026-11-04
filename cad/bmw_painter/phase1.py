@@ -8,11 +8,11 @@ from scipy import ndimage as ndi
 CAR, COMP, OUT = sys.argv[1:4]
 os.makedirs(OUT, exist_ok=True)
 PPM = 10                      # canvas px per mm
-W_MM, H_MM = 300.0, 150.0
+W_MM, H_MM = 300.0, 130.0
 CW, CH = int(W_MM*PPM), int(H_MM*PPM)
 
-SC_CAR = 0.133                # mm per car-picture px
-SC_PNT = 0.150                # mm per painter-picture px
+SC_CAR = 0.145                # mm per car-picture px
+SC_PNT = 0.103                # mm per painter-picture px
 R_CAR = 0.32                  # mm added per side to car lines
 R_PNT = 0.45
 CLOSE_GAP = 0.5               # mm: gaps narrower than this are closed (can't print)
@@ -52,7 +52,7 @@ def close_gaps(mask, g_mm):
     return d2 > r - 0.5 + 0 if False else (ndi.distance_transform_edt(~(~dil)) > 0) & (ndi.distance_transform_edt(dil) > r) | mask
 
 # ---------- layout ----------
-Y_G = 126.0                                   # y of the painter's ground (mm) = rear tyre bottom
+Y_G = 100.0                                   # y of the painter's ground (mm) = rear tyre bottom
 car_ox, car_oy = 9, 80                        # car bbox top-left in picture
 # rear tyre bottom in picture px (measured below)
 REAR_TYRE_BOT = 655.0
@@ -135,21 +135,20 @@ black = black | gl
 bl = np.zeros((CH, CW), np.uint8)
 nozzle = pnt_pt(1245, 347)
 # three broad beams from the nozzle to the rear quarter edge of the car
-tgt_x = car_pt(1498, 0)[0]
+tgt_x = car_pt(1524, 0)[0]
 ys = [car_pt(0, y)[1] for y in (300, 366, 432, 498)]
 for i in range(3):
     tri = [nozzle, (tgt_x, ys[i]+1.3), (tgt_x, ys[i+1]-1.3)]
     cv2.fillPoly(bl, [canvas_poly(tri)], 1)
-def stripe(p, q, w):
-    cv2.line(bl, tuple(np.round(car_pt(*p)*PPM).astype(int)), tuple(np.round(car_pt(*q)*PPM).astype(int)), 1, int(w*PPM), cv2.LINE_AA)
-stripe((1030, 548), (1322, 506), 4.0)               # sill stripe
-stripe((1030, 578), (1322, 540), 2.6)               # second, thinner sill stripe
-# rear-arch crescent: arc between the two arch lines
-arc = [(1352, 438), (1372, 395), (1405, 368), (1445, 370), (1478, 395)]
-cv2.polylines(bl, [canvas_poly([car_pt(*p) for p in arc])], False, 1, int(4.0*PPM), cv2.LINE_AA)
 blue = bl.astype(bool)
-blue = blue & ~black          # blue only where the black does not already sit (black on top)
-blue_core = blue
+# blue accent = the car's OWN rear-quarter lines recoloured (no new lines): polygon on the rear quarter minus the tyre
+reg = np.zeros((CH, CW), np.uint8)
+cv2.fillPoly(reg, [canvas_poly([car_pt(*p) for p in [(1255,325),(1535,300),(1535,560),(1255,585)]])], 1)
+tyre = np.zeros((CH, CW), np.uint8)
+cv2.ellipse(tyre, tuple(np.round(car_pt(1412, 532)*PPM).astype(int)), (int(64*SC_CAR*PPM), int(126*SC_CAR*PPM)), 0, 0, 360, 1, -1)
+reg = (reg.astype(bool) & ~tyre.astype(bool)) & car_t
+blue = blue | reg
+black = black & ~reg
 
 # ---- bridge any island to the main body with a 2 mm bar (shortest gap) ----
 u = black | blue
