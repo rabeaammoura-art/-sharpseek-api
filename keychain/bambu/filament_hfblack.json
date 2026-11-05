@@ -1,0 +1,7 @@
+{
+  "type": "filament",
+  "name": "HueForge PLA black @H2D",
+  "inherits": "Bambu PLA Basic @BBL H2D",
+  "from": "User",
+  "filament_colour": ["#1A1A1A"]
+}
