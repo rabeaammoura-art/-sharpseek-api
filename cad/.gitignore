@@ -1,3 +1,6 @@
 out/
 config/filament_prices.xlsx
 print_files/*.zip
+
+# private/third-party geometry (copy by hand between machines)
+config/automotive_frame*.wkt

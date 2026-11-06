@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-06 (cloud) — Parametric one-piece automotive nameplate script
+- `cad/nameplate_one_piece.py --name Omar --width 250 --out cad/out/x` (English names only, Pacifico font bundled): frame polygon + name, 3 layers extruded with manifold3d (body 10, name +6, LED channel cut from the FRONT, 3 mm x 5 mm, wire hole d=3 from the back). Output watertight by construction (checked), 1 body, `/3d-print-test` 0 problems.
+- Frame outline is third-party/private: `cad/config/automotive_frame*.wkt` (git-ignored, copy by hand). Known limit: the traced frame still has the old name's banner outline (kept to stay one piece); the `_cut` variant is clean but leaves rods/wrench cut in 5-6 loose bodies. Fix = redraw the cut rods/wrench parametrically (not done). Not print-tested; no diffuser/rear cover yet.
+
 ## 2026-11-06 (cloud) — Reviewed owner's automotive nameplate zip (wrench+pistons+"Rabea", 297x250x28)
 - Findings: A/B/C/E meshes not watertight (few open edges + pinch points from traced outlines, 8-17 bodies each), D/F/G fine, parts not at z=0, SCAD is symbolic (not matching STL), font Brush Script not bundled. Quick repair (normals, z=0) done in scratch; pinch points remain, so slicer test still pending.
 - Agreed rule: quick repair first, rebuild only if needed (now in CLAUDE.md). Left: run cad/setup.sh + /3d-print-test + /3d-cost on repaired parts.
