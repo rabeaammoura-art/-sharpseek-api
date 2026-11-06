@@ -1,6 +1,6 @@
 """E30 line art (transparent PNG) -> pieces with in-plane butterfly (bow-tie) keys, STL + keys + preview.
     python make_e30.py lineart.png OUTDIR
-Sizes: small 500 mm (2x1), medium 700 mm (3x2), large 940 mm (4x2) - the bed (325 x 320) decides the piece count.  Thickness 4 mm.
+Sizes: small 500 mm (2x1), medium 700 mm (3x2), large 940 mm (3x2) - the bed (325 x 320) decides the piece count.  Thickness 4 mm.
 At each cut crossing a rounded pad (full thickness) joins both pieces; a bow-tie pocket is cut from the BACK
 (2 mm deep, front stays closed) and a printed bow-tie key (1.8 mm) locks the two pads together."""
 import sys, pathlib, json, itertools
@@ -17,8 +17,9 @@ T, POCKET, KEYT, CLEAR = 4.0, 2.0, 1.8, 0.2
 PAD_L, PAD_W = 18.0, 12.0                    # pad along the seam normal / along the seam
 KEY = [(-7, -4), (-7, 4), (0, 2), (7, 4), (7, -4), (0, -2)]   # bow-tie key (mm)
 FIT = (316, 312)
-SIZES = {"small": (500, 2, 1), "medium": (700, 3, 2), "large": (940, 4, 2)}
+SIZES = {"small": (500, 2, 1), "medium": (700, 3, 2), "large": (940, 3, 2)}
 MAXKEYS, MINGAP = 4, 45.0
+MAXW, MAXH = 322.0, 316.0          # piece rectangles must fit the H2D bed (325 x 320)
 
 a = np.array(Image.open(sys.argv[1]).convert("RGBA"))[..., 3] > 128
 ys, xs = np.where(a); a = a[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
@@ -51,14 +52,16 @@ def build(name, wmm, nx, ny, out):
     # cut positions: vertical cuts near uniform, horizontal cut per column; minimise stroke area under the cut line
     xcuts = [0.0]
     for i in range(1, nx):
-        best = min(((area(G ^ rect(x - .5, 0, x + .5, H)), x) for x in np.arange(i * W / nx * 0.93, i * W / nx * 1.07, 3)))
+        lo = max(i * W / nx * 0.93, W - (nx - i) * MAXW, xcuts[-1] + 1); hi = min(i * W / nx * 1.07, i * MAXW if i == 1 else xcuts[-1] + MAXW)
+        best = min(((area(G ^ rect(x - .5, 0, x + .5, H)), x) for x in np.arange(lo, hi + .1, 2)))
         xcuts.append(best[1])
     xcuts.append(W)
     ycuts = {}
     for i in range(nx):
         yy = [0.0]
         for j in range(1, ny):
-            best = min(((area(G ^ rect(xcuts[i], y - .5, xcuts[i + 1], y + .5)), y) for y in np.arange(j * H / ny * 0.9, j * H / ny * 1.1, 3)))
+            ylo = max(j * H / ny * 0.9, H - (ny - j) * MAXH); yhi = min(j * H / ny * 1.1, j * MAXH)
+            best = min(((area(G ^ rect(xcuts[i], y - .5, xcuts[i + 1], y + .5)), y) for y in np.arange(ylo, yhi + .1, 3)))
             yy.append(best[1])
         yy.append(H); ycuts[i] = yy
     rects = {(i, j): (xcuts[i], ycuts[i][j], xcuts[i + 1], ycuts[i][j + 1]) for i in range(nx) for j in range(ny)}
@@ -124,5 +127,7 @@ def build(name, wmm, nx, ny, out):
     fig.savefig(out / f"layout_{name}.png", bbox_inches="tight", facecolor="white"); plt.close(fig)
 
 out = pathlib.Path(sys.argv[2])
+import os
 for name, (w, nx, ny) in SIZES.items():
+    if os.environ.get("ONLY") and name != os.environ["ONLY"]: continue
     build(name, w, nx, ny, out)
