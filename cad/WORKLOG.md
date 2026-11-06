@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-06 (cloud) — Reviewed owner's automotive nameplate zip (wrench+pistons+"Rabea", 297x250x28)
+- Findings: A/B/C/E meshes not watertight (few open edges + pinch points from traced outlines, 8-17 bodies each), D/F/G fine, parts not at z=0, SCAD is symbolic (not matching STL), font Brush Script not bundled. Quick repair (normals, z=0) done in scratch; pinch points remain, so slicer test still pending.
+- Agreed rule: quick repair first, rebuild only if needed (now in CLAUDE.md). Left: run cad/setup.sh + /3d-print-test + /3d-cost on repaired parts.
+
 ## 2026-11-04 (cloud) — BMW painter: 600 x 211 mm version in 3 interlocking modules
 - Owner asked for the approved art at 600 mm, 3 mm body, exactly 3 modules with hidden joints. `cad/bmw_painter/modular.py <master_stl_dir> <out>` reads the approved model back, scales x2.0149, cuts at x=196 (between grille/lamps and front wheel) and x=452 (car tail / spray beams bases), adds rear sliding dovetails (tab 6 mm, 12 deg flanks, 0.25 clearance, vertical slide, gravity-seated, pads <= 1.8 mm outside the lines), rear tie bars for isolated bits, exports STL/3MF (art mirrored in X because modules print front face DOWN), validation.json; `render_modules.py`, `drawing.py`, `step_export.py` (slow, optional).
 - Checks: each module 1 shell, watertight, 0 bad edges after STL export, fits H2D (max 262 x 211 x 12.65), interference 0, seam gap 0.2 mm. Slices (PLA, supports, tower): M1 2h26 41 g, M2 5h15 90 g, M3 3h03 48 g = 10h44, 180 g, ~1.62 JOD. Nothing print-tested.
