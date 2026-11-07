@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-07 (cloud) — owner asked for the latest backlit (glow_cap) original plaque: image + files + gaps
+- Added `cad/plaque/example_ar_glowcap_preview.png`. Latest files: `cad/print_files/glow_cap/` (plaque 3MF ar/en 150/200/280, `glowcap_box_and_leg_*.3mf`, `glow_box_*`, `back_leg_*`). Open: the leg hinge fix (bracket with ears + horizontal M3 pin + brass insert, leg +2.8 mm) was proposed on 2 Nov and is NOT in the code/files; nothing print-tested; owner's yes on the fix pending.
+
 ## 2026-11-06 (cloud) — Parametric one-piece automotive nameplate script
 - `cad/nameplate_one_piece.py --name Omar --width 250 --out cad/out/x` (English names only, Pacifico font bundled): frame polygon + name, 3 layers extruded with manifold3d (body 10, name +6, LED channel cut from the FRONT, 3 mm x 5 mm, wire hole d=3 from the back). Output watertight by construction (checked), 1 body, `/3d-print-test` 0 problems.
 - Frame outline is third-party/private: `cad/config/automotive_frame*.wkt` (git-ignored, copy by hand). Known limit: the traced frame still has the old name's banner outline (kept to stay one piece); the `_cut` variant is clean but leaves rods/wrench cut in 5-6 loose bodies. Fix = redraw the cut rods/wrench parametrically (not done). Not print-tested; no diffuser/rear cover yet.
