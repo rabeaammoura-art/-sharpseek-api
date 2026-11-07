@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-07 (cloud) — Maryam Hello Kitty plaque (personal gift, NOT for sale): flat preview from the owner's GPT picture
+- Owner's GPT zip was a mess (wrong letters "الورن"/"الاريخ", digits reversed, no eyes, non-watertight, 245 x 280). Owner confirmed: gift, wants this design. Rebuilt from the GPT picture (1450 x 1085) following `3d-picture-to-cad`: colour segmentation (white / light pink / dark pink / yellow), plaque 245 x 280 (frame 11 mm, r 28), pills parametric, name/labels/values with the real font, icons from the generator, dark pink kept only for Kitty + bow (elsewhere it was 3D side-wall shading), thin lines buffered to >= 0.7 mm.
+- Flat preview + overlay shown to the owner; scripts and picture traces stay in the scratchpad (third-party character/picture: NOT committed). Left: owner's marks, then 3D (z levels, 4 filament slots: white / light pink / dark pink / yellow), print test, slice. Date 12/03/2024 and values are the picture's examples.
+
 ## 2026-11-07 (cloud) — kickstand: everything on ONE plate (owner: all parts in the same print)
 - `glowcap_all_<size>.3mf` = box + leg + module + pin on one plate (replaces `glowcap_box_*` / `glowcap_kickstand_*`). Foot narrowed 40 -> 28 mm (`FOOT_W`) so the leg fits the 32 mm strip above the 280 box (bed 320 in y); pin in the right strip (x <= 300; left nozzle reaches ~305). Slices OK (the CLI needs one `--filament` per slot, 4 for these 3MFs; with a single `--filament` it fails with ZFiller errors): 280 2h57m/145 g, 200 2h01m/91 g, 150 1h32m/63 g (PETG, 0.24). 280 is tight (1.5 mm from the front edge): verify in Bambu Studio.
 
