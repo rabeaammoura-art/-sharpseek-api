@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-07 (cloud) — Maryam plaque: square 280 x 280 (fits the EXISTING box) + backlit (glow_cap) build
+- Owner: keep the box as it is, change the plaque size -> plate 280 x 280 (r 28): butterflies / bottom sprigs moved out, sprigs stretched, pills 15 mm wider, same content. Backlit like the original plaque: opaque white base with openings, translucent pink (2 levels: fills 1.2, frame / Kitty lines / text / icons 1.8) and yellow (1.2) caps, frame has no opening, 2 nut pockets as in `fix_points`. 3 slots used (white opaque, pink translucent, yellow translucent), tower x=287.
+- Checks: 3 meshes watertight (base needed a 0.12/-0.06 buffer to remove 3-4 vertex-touching edges), `print_test` 0 problems, opening not covered by a cap = 0 mm2 (no light leak), interference with `glow_box_280.stl` = 0 mm3, base pieces 22 (smallest 6.9 mm2). CLI slice (PETG 0.24, tower on, 4 --filament args): 5h48m / 194 g (price per kg is the plain PETG estimate, translucent costs more). Not print-tested.
+- Scripts in `cad/maryam/` (picture + traces stay out of git, see its README). Thin lines (< 0.8 mm: Kitty outline, whiskers, small text) get no real opening, so they glow weakly. Left: owner's view of the lit preview, real filament prices, Studio check.
+
 ## 2026-11-07 (cloud) — Maryam plaque v3 flat (owner: v1 was bad; 3 colours only: white / ONE pink / yellow)
 - Owner's marks on v1: broken leaf stems at the cloud corners, mess above the name and on Kitty's dress/heart, bow overlapping the clock text, sliver bottom-left. Fixed: pink = light+dark merged (frame, Kitty lines, text, icons are the same filament printed 0.6 mm higher), decor symmetric (left half mirrored), flowers / butterflies / leaf sprigs drawn parametric from measured px (traced leaves merged), pink under the yellow parts (no white halo), slivers near the frame dropped. Scratch only (picture + Kitty character stay out of git). Left: owner's marks on v3, then 3D (z levels, 3 slots), print test, slice; date 12/03/2024 and values are the picture's examples.
 
