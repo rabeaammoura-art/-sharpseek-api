@@ -45,17 +45,20 @@ def px_to_mm_factory(size):
     return s, to_mm
 
 
-HEART_R = [(625, 208), (680, 150), (760, 92), (850, 50), (930, 30), (1000, 40), (1083, 100), (1132, 160),
-           (1167, 220), (1192, 280), (1206, 340), (1208, 400), (1207, 460), (1193, 520), (1170, 580), (1132, 640),
-           (1094, 700), (1045, 760), (1000, 820), (950, 885), (895, 945), (835, 1005), (750, 1100), (625, 1215)]
+HEART_TAIL = [(1193, 520), (1170, 580), (1132, 640), (1094, 700), (1045, 760), (1000, 820), (950, 885), (895, 945), (835, 1005),
+              (750, 1100), (625, 1215)]
 
 
 def heart_px():
-    """Outer heart: right half measured on the picture (gold edge per row), spline through the points, mirrored."""
+    """Outer heart: right lobe = ellipse arc (smooth, round top), lower side = points measured on the picture, mirrored."""
     from scipy.interpolate import splprep, splev
-    pts = np.array(HEART_R, float)
-    tck, _ = splprep([pts[:, 0], pts[:, 1]], s=25.0, k=3)
-    xs, ys = splev(np.linspace(0, 1, 400), tck)
+    cx, cy, rx, ry = 905.0, 380.0, 305.0, 350.0
+    arc = []
+    for t in np.linspace(math.radians(-134), math.radians(8), 40):      # from near the cleft over the top to the side
+        arc.append((cx + rx * math.cos(t), cy + ry * math.sin(t)))
+    pts = np.array([(625, 212)] + arc + HEART_TAIL, float)
+    tck, _ = splprep([pts[:, 0], pts[:, 1]], s=30.0, k=3)
+    xs, ys = splev(np.linspace(0, 1, 500), tck)
     right = list(zip(xs, ys))
     left = [(2 * AX - x, y) for x, y in right[::-1]]
     return Polygon(right + left[1:]).buffer(0)
@@ -150,12 +153,20 @@ def build(ref, size):
         return affinity.translate(h, cx - (x0 + x1) / 2, cy - (y0 + y1) / 2)
     deco_hearts = unary_union([ph(890, 150, 68), ph(810, 198, 58), ph(728, 232, 50), ph(573, 392, 52), ph(622, 445, 44)])
     mid_heart = ph(847, 497, 118)
-    lines = unary_union([line_px(630, 775, 497, 9), line_px(918, 1055, 497, 9),
-                         line_px(482, 540, 1012, 8), line_px(710, 768, 1012, 8)])
-    rings = unary_union([Point(cx, 1052).buffer(46, 48).difference(Point(cx, 1052).buffer(34, 48)) for cx in (587, 663)])
+    ra = Point(587, 1052).buffer(46, 48).difference(Point(587, 1052).buffer(34, 48))
+    rb = Point(663, 1052).buffer(46, 48).difference(Point(663, 1052).buffer(34, 48))
+    gap = 4.0                                             # ~0.9 mm: shows which ring is over / under
+    top, bot = Point(625, 1052 - 12.5).buffer(17), Point(625, 1052 + 12.5).buffer(17)
+    rings = unary_union([ra.difference(rb.buffer(gap).intersection(top)), rb.difference(ra.buffer(gap).intersection(bot))])
+    # bottom lines: only as long as the heart allows between the frame and the rings
+    y_l = 1004
+    row = inner.intersection(LineString([(0, y_l), (1254, y_l)]))
+    xl, xr = row.bounds[0], row.bounds[2]
+    lines_b = [line_px(a_, b_, y_l, 8) for a_, b_ in [(xl + 16, 541 - 10), (709 + 10, xr - 16)] if b_ - a_ >= 24]
+    lines = unary_union([line_px(630, 775, 497, 9), line_px(918, 1055, 497, 9)] + lines_b)
 
     # ---- text: font geometry is y UP, so build it in mm space afterwards -------------------------------------------
-    navy_trace = trace_dark(ref, outer)
+    navy_trace = trace_dark(ref, inner.buffer(-5))
 
     gold_px = unary_union([outer.difference(inner), deco_hearts, mid_heart, lines, rings])
     gold_px = unary_union([gold_px.difference(ban_fill), ban_out])
@@ -182,7 +193,8 @@ def build(ref, size):
     navy = unary_union([navy] + texts)
     cream_marks = amp                                    # cream "&" on the gold heart
     gold = gold.difference(cream_marks).difference(navy)
-    navy = navy.difference(unary_union([to_mm(deco_hearts)]))
+    navy = navy.difference(to_mm(deco_hearts.buffer(3)))
+    navy = unary_union([q for q in (navy.geoms if hasattr(navy, 'geoms') else [navy]) if q.area >= 12.0])
     return dict(gold=gold, navy=navy, cream=cream, amp=cream_marks, outer=to_mm(outer), inner=to_mm(inner), s=s)
 
 
