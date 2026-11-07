@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-07 (cloud) — removable printed kickstand built for the backlit box (owner: "ابني", no brass inserts)
+- New `cad/kickstand.py` + `make_lit_box(..., kick=True)`: box gets a pad (back panel thickened to 6.7 mm inside, +6.5 cm3) and a blind dovetail pocket in the back (lips 2.5 mm, chamber behind, two entry windows, 2 detent dimples, floor 2 mm = no light leak). Module (30 x 28 x 17.7) enters through the windows and is pushed UP 10 mm: the leg pushes the module up, so the load cannot unlock it. Two ears + stop bar (touches the leg at 24 degrees), snap pin (head + slit prongs), leg 232 x 12 x 4 with barrel + 40 mm foot flush with the bottom edge. Print-in-place hinge dropped: the leg would hang in the air when printed flat -> separate printed pin instead (still no metal).
+- Checks (`trimesh`+manifold): all parts watertight, module/leg/pin vs box 0 mm3 at 0-23.5 degrees, stop collides at 26 degrees, pin vs leg/module 0, sliding-in detent interference 0.06 mm3. `print_test`: leg and pin OK, module only the 8 mm bridge between the flanges, box only the old plate-ledge overhang at Z 8.6 (existed before). Slices (PETG, 0.24, 280): box 2h30m/131 g, leg 23m/10 g, module 19m/4.5 g, pin 5m.
+- Files in `cad/print_files/glow_cap/` (box + kickstand 3MF and STL for 150/200/280); old `back_leg_*`, `glowcap_box_and_leg_*`, `glow_box_noleg_*` removed; picture `cad/plaque/kickstand_renders.png`. Nothing print-tested: detent bumps (0.45 mm) and pin/barrel clearances are parameters. Left: owner's view of the renders, first print of module + leg + pin coupon, fix the pad over the LED strip layout if it collides.
+
 ## 2026-11-07 (cloud) — backlit box without any leg base
 - Owner: remove the boss and screw hole, no base for the leg at all (leg to be decided later). `make_lit_box(size, glow=True, leg=False)` -> `cad/print_files/glow_cap/glow_box_noleg_{150,200,280}.stl` (watertight; boss/pocket/screw/cord hole gone, -794 mm3 at 200). Plaque fixing (2 planted nuts + 2 posts/screws) unchanged. The generator's default output and `glowcap_box_and_leg_*` still carry the leg boss.
 

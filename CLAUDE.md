@@ -22,7 +22,7 @@ The repo is **public** — never commit purchase prices, the price sheet, produc
 
 ## Current focus and rules (latest)
 - Work on the **original plaque (name "يوسف", `cad/plaque/example_ar*.json`)**. The train / horse / night layouts are parked: do not bring them up unless the owner does.
-- Backlit stand: closed box + folding leg. **The current `make_back_leg` hinge is WRONG** (screw through the back = leg swings in the plane of the back); the fix is a bracket with a horizontal hinge pin on the boss (M3 brass insert), pending owner approval. Plaque fixing in the box = planted hex nuts in the plaque back + screws from the back through posts (`fix_spec`, `fix_points`). Prefer **guaranteed** solutions (generous clearances, hardware screws), not print-in-place hinges/hooks. Show a perspective drawing and get a "yes" **before** editing files; if unsure what the owner means, **ask**, do not guess.
+- Backlit stand: closed box + **removable printed kickstand** (`cad/kickstand.py`: dovetail pocket in the back, module, leg, snap pin; no metal; built 2026-11-07, owner approved the drawing). The old screw-hinge leg (`make_back_leg`) is obsolete. Plaque fixing in the box = planted hex nuts in the plaque back + screws from the back through posts (`fix_spec`, `fix_points`). Prefer **guaranteed** solutions (generous clearances), not print-in-place hinges/hooks. Show a perspective drawing and get a "yes" **before** editing files; if unsure what the owner means, **ask**, do not guess.
 
 - **Reproducing a picture / design in CAD:** use the skill `3d-picture-to-cad` (measure, clean parametric shapes, flat 2D preview first, ask for marks, keep approved versions, no third-party data in git).
 

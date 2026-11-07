@@ -54,3 +54,11 @@ The STL files (`glow_box_*`, `back_leg_*`) are the same parts, kept for referenc
 **UPDATE 2026-11-02 (replaces the "FINAL" status above for the leg):**
 - **Plaque fixing in the box (new, simulated only, not print-tested):** two hex nuts are planted (pressed in cold, from the back) into pockets in the back of the plaque, in the frame band, left and right at mid height; the frame covers the pockets from the front. The box has two short posts (the plaque rests on them) with a hole each; a screw from the back of the box goes through the post into the nut. 280 mm: M3 nut + M3 x 14 screw. 150/200 mm: the frame band is only 6/8 mm wide, so M2 nut + M2 x 14 screw. Pocket walls to the band edge: 2.7 mm (280), 1.85 (200), 0.85 (150). Checks: no light leaks, watertight, no plaque/box interference. 200 mm: plaque 3h42m / 107 g, box + leg 1h40m / 81 g.
 - **The folding leg is NOT final.** Found by simulation: a screw through the back panel makes the leg swing in the plane of the back (like a clock hand) instead of opening backwards, and it is 2.8 mm too short to reach the ground. The planned fix: a small bracket with two ears and a horizontal M3 hinge pin, screwed onto the boss (M3 x 5 x 5 brass insert pressed into the boss with a soldering iron), leg length +2.8 mm. Not built yet; pending the owner's approval of the drawing.
+
+**Removable kickstand for the backlit box (`glow_cap/`, all printed, no metal, PETG, one colour, no supports):** `glowcap_box_<size>.3mf`
+(box with a dovetail pocket in the back) and `glowcap_kickstand_<size>.3mf` (leg + module + pin on one plate); same parts as STL:
+`glow_box_*`, `kick_leg_*`, `kick_module_*`, `kick_pin.stl`. The module enters the pocket through two windows and is pushed UP 10 mm
+(the leg's load pushes it up, so it cannot unlock); the pin snaps into the module's ears and the leg's barrel; the leg opens 24 degrees
+(stop bar), the plaque leans 12 degrees. Picture: `cad/plaque/kickstand_renders.png`. CLI estimates (0.24 mm, PETG, 280 mm): box 2h30m / 131 g,
+leg 23 min / 10 g, module 19 min / 4.5 g, pin 5 min. Box 200 mm 1h37m / 79 g, 150 mm 1h10m / 53 g. Not print-tested: the detent
+(0.45 mm bumps) and the pin/barrel clearances (0.2-0.35 mm) are parameters in `cad/kickstand.py` to tune on the printer.

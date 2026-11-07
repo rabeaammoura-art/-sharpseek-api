@@ -935,7 +935,7 @@ def hexagon(cx, cy, af):
     return Polygon([(cx + r * math.cos(math.radians(30 + 60 * i)), cy + r * math.sin(math.radians(30 + 60 * i))) for i in range(6)])
 
 
-def make_lit_box(size, glow=False, leg=True):
+def make_lit_box(size, glow=False, leg=True, kick=False):
     """Shallow white tray behind the backlit plate: LED strip stuck on its back panel, USB-C slot in the
     bottom wall, 12 small ledges hold the plate whose front face ends flush with the rim.
     Printed back panel down. Returns (mesh, info)."""
@@ -962,13 +962,17 @@ def make_lit_box(size, glow=False, leg=True):
     cord = circle(0, yp - LEG_CORD * size, 1.25)
     hexp = Polygon([(3.41 * math.cos(math.radians(60 * i + 30)), yp + 3.41 * math.sin(math.radians(60 * i + 30))) for i in range(6)])
     boss = circle(0, yp, 7.0)
+    kp = None
+    if kick:                                  # removable kickstand: thickened pad + dovetail pocket in the back (see kickstand.py)
+        import kickstand as _ks
+        kp = _ks.pocket_shapes(size)
     posts = holes = None
     if glow:
         nut_name, nut = fix_spec(size)
         pts = fix_points(size)
         posts = unary_union([circle(x, y, nut["post"] / 2) for x, y in pts])
         holes = unary_union([circle(x, y, nut["hole"] / 2) for x, y in pts])
-    cuts = sorted({0, back, z0, z1, ledge_top - 2.0, ledge_top, depth} | ({boss_top, pocket_z} if leg else set()))
+    cuts = sorted({0, back, z0, z1, ledge_top - 2.0, ledge_top, depth} | ({boss_top, pocket_z} if leg else set()) | (set(kp["z"]) if kp else set()))
     meshes = []
     for a, b in zip(cuts, cuts[1:]):       # one extrusion per slab, so no part overlaps another
         mid = (a + b) / 2
@@ -987,6 +991,13 @@ def make_lit_box(size, glow=False, leg=True):
                 g = g.union(boss).difference(screw)
                 if mid > pocket_z:
                     g = g.difference(hexp)
+        if kp is not None:
+            if back <= mid < kp["z"][2]:
+                g = g.union(kp["pad"])      # local thickening of the back panel under the pocket (inside the box)
+            if mid < kp["z"][0]:
+                g = g.difference(kp["slot"])    # lipped slot + the two entry windows + detent dimples
+            elif mid < kp["z"][1]:
+                g = g.difference(kp["chamber"])  # chamber behind the lips (the module's flanges)
         meshes += extrude(only_polygons(g), a, b)
     mesh = merge_solids(meshes)
     return mesh, {"outer": 2 * (half + BOX_WALL), "depth": depth}
@@ -1550,24 +1561,33 @@ def main():
                   f"USB-C slot in the bottom wall; ONE long base {finfo['width']:.0f}x{finfo['depth']:.0f}x{finfo['height']:.0f} mm "
                   f"(slot for the {info['depth']:.0f} mm tray), stability margin {finfo['margin']:.0f} mm")
         else:
-            box_mesh, info = make_lit_box(size, glow=is_glow)
+            box_mesh, info = make_lit_box(size, glow=is_glow, leg=False, kick=is_glow)
             box_mesh.export(out / (f"glow_box_{size}.stl" if is_glow else f"lit_box_{size}.stl"))
             if is_glow:
-                leg_mesh, linfo = make_back_leg(size)
-                leg_mesh.export(out / f"back_leg_{size}.stl")
-                # one ready 3MF with the box and the leg side by side (one colour, no prime tower): print it as a second plate
-                gap = 14.0
-                lm = leg_mesh.copy()
-                lm.apply_translation([box_mesh.bounds[1][0] + gap - lm.bounds[0][0], -(lm.bounds[0][1] + lm.bounds[1][1]) / 2, 0])   # leg right of the box
-                total_w = lm.bounds[1][0] - box_mesh.bounds[0][0]
+                import kickstand as ks
+                mod, minfo = ks.make_module(size)
+                leg_mesh, linfo = ks.make_leg(size)
+                pin = ks.make_pin()
+                mod.export(out / f"kick_module_{size}.stl")
+                leg_mesh.export(out / f"kick_leg_{size}.stl")
+                pin.export(out / f"kick_pin.stl")
                 petg = (Path(__file__).parent / "config" / "bambu_project_4fil_petg.config").read_bytes()
                 cols = [THEMES["glow"][r].upper() for r in ("base", "main", "accent", "animal")]
-                write_bambu_3mf(out / f"glowcap_box_and_leg_{size}.3mf", [("box", box_mesh, 1), ("leg", lm, 1)],
-                                center=(4 - box_mesh.bounds[0][0], 160.0),         # the box's left edge 4 mm from the bed's left edge
-                                name=f"box_and_leg_{size}", project_settings=build_project_settings(petg, cols, None))
-                print(f"wrote {out / f'glowcap_box_and_leg_{size}.3mf'} (box + leg on one plate, slot 1 only, width {total_w:.0f} mm)")
-                print(f"back leg: {linfo['length']:.0f} x {linfo['width']:.0f} x {linfo['thickness']:.0f} mm (pivot to foot {linfo['pivot_to_foot']:.0f}); "
-                      f"M3 screw (12 mm) + M3 nut in the hex pocket of the boss, opens 24 degrees; stop cord through the small holes")
+                ps = build_project_settings(petg, cols, None)
+                bc = box_mesh.copy()
+                bc.apply_translation([-(bc.bounds[0][0] + bc.bounds[1][0]) / 2, -(bc.bounds[0][1] + bc.bounds[1][1]) / 2, 0])
+                write_bambu_3mf(out / f"glowcap_box_{size}.3mf", [("box", bc, 1)], center=(162.5, 160.0), name=f"box_{size}", project_settings=ps)
+                # second plate: module, leg and pin side by side (all one colour, no tower)
+                lm, mm_, pm = leg_mesh.copy(), mod.copy(), pin.copy()
+                lm.apply_translation([-(lm.bounds[0][0] + lm.bounds[1][0]) / 2, -lm.bounds[0][1], 0])
+                mm_.apply_translation([-(mm_.bounds[0][0] + mm_.bounds[1][0]) / 2 + 40, -mm_.bounds[0][1], 0])
+                pm.apply_translation([-(pm.bounds[0][0] + pm.bounds[1][0]) / 2 + 40, -pm.bounds[0][1] + 40, 0])
+                parts = [("leg", lm, 1), ("module", mm_, 1), ("pin", pm, 1)]
+                allb = trimesh.util.concatenate([p_[1] for p_ in parts]).bounds
+                write_bambu_3mf(out / f"glowcap_kickstand_{size}.3mf", parts, center=(162.5 - (allb[0][0] + allb[1][0]) / 2, 160.0 - (allb[0][1] + allb[1][1]) / 2),
+                                name=f"kickstand_{size}", project_settings=ps)
+                print(f"kickstand: module {minfo['width']:.0f}x{minfo['length']:.0f}x{minfo['height']:.1f} mm (dovetail into the back, slides up {ks.SLIDE:.0f} mm), "
+                      f"leg {linfo['length']:.0f}x{linfo['width']:.0f}x{linfo['thickness']:.0f} mm + foot {ks.FOOT_W:.0f} mm, printed pin; opens {ks.OPEN_DEG:.0f} degrees; no metal")
             print(f"lit box: {info['outer']:.0f}x{info['outer']:.0f}x{info['depth']:.0f} mm; LED strip on its back panel, USB-C slot in the bottom wall")
     elif data.get("stand") == "rails":
         bridge, leg, info, world = make_bridge(size)
