@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-07 (cloud) — Wedding heart plaque (backlit, same idea as the newborn plaque): flat 2D preview v1
+- Owner sent 2 GPT pictures (backlit couple silhouette / lithophane photo). Agreed after discussion: start with the backlit silhouette version, heart plate 280 wide + NEW heart-shaped box (+ same printed kickstand), lithophane maybe later as an option. Colours planned: gold / navy / translucent cream.
+- `cad/wedding/flat_v1.py <picture.png> <out_dir>`: heart outer measured from the picture (spline, mirrored), frame 48 -> 34 px, couple + veil traced (big shapes only), banner / hearts / lines / rings parametric, names + date with the real fonts. Picture and preview stay in the scratchpad (third-party).
+- Left: owner's marks on the flat preview (rings are smaller than the picture because the heart tip is narrow, bottom lines short), then 3D (layers, heart box, nut posts, kickstand), print test, slice. Nothing print-tested.
+
 ## 2026-11-07 (cloud) — Maryam plaque: square 280 x 280 (fits the EXISTING box) + backlit (glow_cap) build
 - Owner: keep the box as it is, change the plaque size -> plate 280 x 280 (r 28): butterflies / bottom sprigs moved out, sprigs stretched, pills 15 mm wider, same content. Backlit like the original plaque: opaque white base with openings, translucent pink (2 levels: fills 1.2, frame / Kitty lines / text / icons 1.8) and yellow (1.2) caps, frame has no opening, 2 nut pockets as in `fix_points`. 3 slots used (white opaque, pink translucent, yellow translucent), tower x=287.
 - Checks: 3 meshes watertight (base needed a 0.12/-0.06 buffer to remove 3-4 vertex-touching edges), `print_test` 0 problems, opening not covered by a cap = 0 mm2 (no light leak), interference with `glow_box_280.stl` = 0 mm3, base pieces 22 (smallest 6.9 mm2). CLI slice (PETG 0.24, tower on, 4 --filament args): 5h48m / 194 g (price per kg is the plain PETG estimate, translucent costs more). Not print-tested.
