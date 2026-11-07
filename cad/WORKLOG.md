@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-07 (cloud) — Wedding heart plaque: flat v3 from the owner's own clean flat picture (no banner)
+- Owner marked v1 (lobes too pointed, rings not interlocked, flecks) and then sent his own clean flat picture (no banner, bigger rings, calendar icon, bottom heart). Agreed: use it as the base, NO "يوم الزواج" line (assumed, he did not object), frame rebuilt 9 mm wide (picture had 3 mm) so it can carry the box.
+- `cad/wedding/flat_v3.py <flat.png> <out_dir> [--name1 --name2 --date --frame]`: heart outline + couple + veil + hearts + lines + rings + calendar traced from the clean colour masks (smoothed), names/date re-typeset with the real fonts, content auto-scaled only if it does not fit the wider frame (it fit at scale 1.000). Heart 280.0 x 279.9 mm. Pictures/preview stay in scratchpad (third-party).
+- Left: owner's marks on v3, then 3D (layers: gold / navy / translucent cream; heart box + nut posts + kickstand), print test, slice. Nothing print-tested.
+
 ## 2026-11-07 (cloud) — Wedding heart plaque (backlit, same idea as the newborn plaque): flat 2D preview v1
 - Owner sent 2 GPT pictures (backlit couple silhouette / lithophane photo). Agreed after discussion: start with the backlit silhouette version, heart plate 280 wide + NEW heart-shaped box (+ same printed kickstand), lithophane maybe later as an option. Colours planned: gold / navy / translucent cream.
 - `cad/wedding/flat_v1.py <picture.png> <out_dir>`: heart outer measured from the picture (spline, mirrored), frame 48 -> 34 px, couple + veil traced (big shapes only), banner / hearts / lines / rings parametric, names + date with the real fonts. Picture and preview stay in the scratchpad (third-party).
