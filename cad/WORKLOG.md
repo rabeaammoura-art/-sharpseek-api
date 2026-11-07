@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-07 (cloud) — Maryam plaque v3 flat (owner: v1 was bad; 3 colours only: white / ONE pink / yellow)
+- Owner's marks on v1: broken leaf stems at the cloud corners, mess above the name and on Kitty's dress/heart, bow overlapping the clock text, sliver bottom-left. Fixed: pink = light+dark merged (frame, Kitty lines, text, icons are the same filament printed 0.6 mm higher), decor symmetric (left half mirrored), flowers / butterflies / leaf sprigs drawn parametric from measured px (traced leaves merged), pink under the yellow parts (no white halo), slivers near the frame dropped. Scratch only (picture + Kitty character stay out of git). Left: owner's marks on v3, then 3D (z levels, 3 slots), print test, slice; date 12/03/2024 and values are the picture's examples.
+
 ## 2026-11-07 (cloud) — Maryam Hello Kitty plaque (personal gift, NOT for sale): flat preview from the owner's GPT picture
 - Owner's GPT zip was a mess (wrong letters "الورن"/"الاريخ", digits reversed, no eyes, non-watertight, 245 x 280). Owner confirmed: gift, wants this design. Rebuilt from the GPT picture (1450 x 1085) following `3d-picture-to-cad`: colour segmentation (white / light pink / dark pink / yellow), plaque 245 x 280 (frame 11 mm, r 28), pills parametric, name/labels/values with the real font, icons from the generator, dark pink kept only for Kitty + bow (elsewhere it was 3D side-wall shading), thin lines buffered to >= 0.7 mm.
 - Flat preview + overlay shown to the owner; scripts and picture traces stay in the scratchpad (third-party character/picture: NOT committed). Left: owner's marks, then 3D (z levels, 4 filament slots: white / light pink / dark pink / yellow), print test, slice. Date 12/03/2024 and values are the picture's examples.
