@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-07 (cloud) — backlit box without any leg base
+- Owner: remove the boss and screw hole, no base for the leg at all (leg to be decided later). `make_lit_box(size, glow=True, leg=False)` -> `cad/print_files/glow_cap/glow_box_noleg_{150,200,280}.stl` (watertight; boss/pocket/screw/cord hole gone, -794 mm3 at 200). Plaque fixing (2 planted nuts + 2 posts/screws) unchanged. The generator's default output and `glowcap_box_and_leg_*` still carry the leg boss.
+
 ## 2026-11-07 (cloud) — owner asked for the latest backlit (glow_cap) original plaque: image + files + gaps
 - Added `cad/plaque/example_ar_glowcap_preview.png`. Latest files: `cad/print_files/glow_cap/` (plaque 3MF ar/en 150/200/280, `glowcap_box_and_leg_*.3mf`, `glow_box_*`, `back_leg_*`). Open: the leg hinge fix (bracket with ears + horizontal M3 pin + brass insert, leg +2.8 mm) was proposed on 2 Nov and is NOT in the code/files; nothing print-tested; owner's yes on the fix pending.
 
