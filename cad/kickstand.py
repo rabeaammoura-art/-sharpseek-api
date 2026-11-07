@@ -43,8 +43,15 @@ DIMPLE_R = 0.9
 LIP_T, CH_TOP, PAD_TOP = NECK_T, MOD_T + 0.2, MOD_T + 0.2 + 2.0   # pocket z levels (box frame)
 
 
+OVERRIDE = None    # {"y_axis": .., "y_bot": ..} for non-square boxes (wedding heart); None = the square plaque box
+
+
 def layout(size):
     """Positions in the box frame (y up). The hinge axis is where the old leg pivoted (0.82 x size above the plaque bottom)."""
+    if OVERRIDE:
+        y_a, y_b = OVERRIDE["y_axis"], OVERRIDE["y_bot"]
+        y0 = y_a - AX_Y
+        return {"y_axis": y_a, "y_lock": y0, "y_in": y0 - SLIDE, "y_bot": y_b, "half_out": -y_b, "leg_len": y_a - y_b}
     half_out = size / 2 + 0.2 + 2.6                      # outer half size of the box (BOX_WALL 2.6)
     y_a = -size / 2 + 0.82 * size
     y0 = y_a - AX_Y                                      # module bottom, locked position

@@ -7,3 +7,5 @@ mapbox-earcut
 uharfbuzz
 fonttools
 lxml
+manifold3d
+openpyxl
