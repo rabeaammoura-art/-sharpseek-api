@@ -1574,18 +1574,25 @@ def main():
                 petg = (Path(__file__).parent / "config" / "bambu_project_4fil_petg.config").read_bytes()
                 cols = [THEMES["glow"][r].upper() for r in ("base", "main", "accent", "animal")]
                 ps = build_project_settings(petg, cols, None)
-                bc = box_mesh.copy()
-                bc.apply_translation([-(bc.bounds[0][0] + bc.bounds[1][0]) / 2, -(bc.bounds[0][1] + bc.bounds[1][1]) / 2, 0])
-                write_bambu_3mf(out / f"glowcap_box_{size}.3mf", [("box", bc, 1)], center=(162.5, 160.0), name=f"box_{size}", project_settings=ps)
-                # second plate: module, leg and pin side by side (all one colour, no tower)
-                lm, mm_, pm = leg_mesh.copy(), mod.copy(), pin.copy()
-                lm.apply_translation([-(lm.bounds[0][0] + lm.bounds[1][0]) / 2, -lm.bounds[0][1], 0])
-                mm_.apply_translation([-(mm_.bounds[0][0] + mm_.bounds[1][0]) / 2 + 40, -mm_.bounds[0][1], 0])
-                pm.apply_translation([-(pm.bounds[0][0] + pm.bounds[1][0]) / 2 + 40, -pm.bounds[0][1] + 40, 0])
-                parts = [("leg", lm, 1), ("module", mm_, 1), ("pin", pm, 1)]
+                # ONE plate for everything (one colour, no tower). Box bottom-left; the leg lies along x in the strip above the box
+                # (foot 28 mm wide so it fits the 320 mm bed at 280 mm), module and pin beside it / in the right strip.
+                bc, lm, mm_, pm = box_mesh.copy(), leg_mesh.copy(), mod.copy(), pin.copy()
+                BX0, BY0, GAP = 3.0, (1.5 if size >= 250 else 20.0), 3.0
+                bc.apply_translation([BX0 - bc.bounds[0][0], BY0 - bc.bounds[0][1], 0])
+                rot = trimesh.transformations.rotation_matrix(-math.pi / 2, (0, 0, 1))       # leg: along +y -> along +x
+                lm.apply_transform(rot)
+                lm.apply_translation([BX0 - lm.bounds[0][0], bc.bounds[1][1] + GAP - lm.bounds[0][1], 0])
+                mm_.apply_translation([lm.bounds[1][0] + GAP - mm_.bounds[0][0], bc.bounds[1][1] + GAP - mm_.bounds[0][1], 0])
+                pr = trimesh.transformations.rotation_matrix(math.pi / 2, (0, 0, 1))
+                pm.apply_transform(pr)
+                pm.apply_translation([bc.bounds[1][0] + GAP - pm.bounds[0][0], BY0 - pm.bounds[0][1] + 20, 0])
+                parts = [("box", bc, 1), ("leg", lm, 1), ("module", mm_, 1), ("pin", pm, 1)]
                 allb = trimesh.util.concatenate([p_[1] for p_ in parts]).bounds
-                write_bambu_3mf(out / f"glowcap_kickstand_{size}.3mf", parts, center=(162.5 - (allb[0][0] + allb[1][0]) / 2, 160.0 - (allb[0][1] + allb[1][1]) / 2),
-                                name=f"kickstand_{size}", project_settings=ps)
+                ccx, ccy = (allb[0][0] + allb[1][0]) / 2, (allb[0][1] + allb[1][1]) / 2
+                for _, m_, _ in parts:
+                    m_.apply_translation([-ccx, -ccy, 0])                 # parts around the object origin, the object is placed at its bbox centre
+                write_bambu_3mf(out / f"glowcap_all_{size}.3mf", parts, center=(ccx, ccy), name=f"glowcap_all_{size}", project_settings=ps)
+                print(f"ONE plate {size}: x {allb[0][0]:.1f}..{allb[1][0]:.1f}, y {allb[0][1]:.1f}..{allb[1][1]:.1f} (H2D left nozzle: x 0-~305, y 0-320)")
                 print(f"kickstand: module {minfo['width']:.0f}x{minfo['length']:.0f}x{minfo['height']:.1f} mm (dovetail into the back, slides up {ks.SLIDE:.0f} mm), "
                       f"leg {linfo['length']:.0f}x{linfo['width']:.0f}x{linfo['thickness']:.0f} mm + foot {ks.FOOT_W:.0f} mm, printed pin; opens {ks.OPEN_DEG:.0f} degrees; no metal")
             print(f"lit box: {info['outer']:.0f}x{info['outer']:.0f}x{info['depth']:.0f} mm; LED strip on its back panel, USB-C slot in the bottom wall")
