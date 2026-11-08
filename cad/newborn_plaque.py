@@ -57,6 +57,10 @@ THEMES = {
     "green":     {"base": "#f2f0ea", "main": "#5b8a72", "accent": "#e58a2b", "animal": "#8a5a36"},
     "purple":    {"base": "#f2f0ea", "main": "#8e739f", "accent": "#e8c24a", "animal": "#9a6a3a"},
     "sky":       {"base": "#f2f0ea", "main": "#3aa8c8", "accent": "#f0c446", "animal": "#8c96a0"},
+    "gpt_blue":   {"base": "#faf9f6", "main": "#1559a1", "accent": "#fdbd03", "animal": "#1559a1"},    # owner's GPT design: bear + cloud + frame are ONE colour
+    "gpt_pink":   {"base": "#faf9f6", "main": "#f3478a", "accent": "#fdbd03", "animal": "#f3478a"},
+    "gpt_green":  {"base": "#faf9f6", "main": "#3b9039", "accent": "#fdbd03", "animal": "#3b9039"},
+    "gpt_purple": {"base": "#faf9f6", "main": "#783b9e", "accent": "#fdbd03", "animal": "#783b9e"},
     "blue_tan":   {"base": "#f2f0ea", "main": "#3e628a", "accent": "#f0c446", "animal": "#c8a078"},   # the original blue with the light teddy
     "soft_blue":  {"base": "#f5ecd7", "main": "#6f8fb3", "accent": "#f0c446", "animal": "#c8a078"},   # round C: soft colourways + tan teddy
     "soft_green": {"base": "#f5ecd7", "main": "#7fa08a", "accent": "#e8b24a", "animal": "#c8a078"},
@@ -83,6 +87,8 @@ THEME_FILAMENTS = {
     "train_lit": ["PETG Blue", "AD-PETG Translucent White", "AD-PETG Translucent Yellow", "AD-PETG Translucent Orange-Red"],
     "train":     ["PLA+ Blue", "PLA+ White", "PLA+ Yellow", "Wood PLA"],
 }
+for _t, _f in (("gpt_blue", "PLA+ Blue"), ("gpt_pink", "PLA+ Pink"), ("gpt_green", "PLA+ Green"), ("gpt_purple", "PLA+ Purple")):
+    THEME_FILAMENTS[_t] = ["PLA+ White", _f, "PLA+ Yellow", _f]      # filament match to be confirmed against the stock sheet
 THEME_FILAMENTS["blue_tan"] = ["PLA+ White", "PLA+ Blue", "PLA+ Yellow", "Walnut PLA"]
 THEME_FILAMENTS["soft_blue"] = ["PLA+ White", "PLA+ Blue", "PLA+ Yellow", "Walnut PLA"]      # stock match for the soft colours still to be chosen
 THEME_FILAMENTS["soft_green"] = ["PLA+ White", "PLA+ Green", "PLA+ Orange", "Walnut PLA"]
@@ -956,6 +962,58 @@ def layout_balloons(data, add, layers, k, lang, rtl):
     add("accent", heart(0, -108, 10), BASE_H, TOP)
 
 
+def layout_gpt(data, add, layers, k, lang, rtl):
+    """The owner's GPT design: ONE-colour teddy asleep on a cloud (traced to cad/poses/gpt_sleep.json), name inside the cloud, moon + stars,
+    four info boxes, small heart. Bear, cloud outline and frame share the main colour; cream muzzle / ears / eyes are holes."""
+    import json as _json
+    plate = rrect(0, 0, SIZE, SIZE, 30)
+    add("base", plate, 0, BASE_H)
+    add("main", ring(plate, 11), BASE_H, BASE_H + FRAME_RAISE)
+    asset = _json.loads((Path(__file__).parent / "poses" / "gpt_sleep.json").read_text())
+    bear_cloud = unary_union([Polygon(pp[0], pp[1:]).buffer(0) for pp in asset["main"]])
+    # closed sleepy eyes redrawn at a printable width (the picture's lines are far too thin): cream arcs cut into the bear
+    eyes = []
+    for (ex, ey, rot_) in [(-19.7, 82.4, -22), (4.4, 92.7, -25)]:
+        arc = ring(circle(0, 0, 6.8), rw(1.6)).intersection(box(-9, -9, 9, -1.5))
+        eyes.append(affinity.translate(affinity.rotate(arc, rot_, origin=(0, 0)), ex, ey))
+    bear_cloud = bear_cloud.difference(unary_union(eyes))
+    add("main", bear_cloud, BASE_H, TOP)
+    name = data["name"]
+    g = put_text([(name, 34 if lang == "ar" else 28, "word")], lang, rtl, 0, 0, max_width=float(data.get("name_w", 118)))
+    b = g.bounds
+    add("main", affinity.translate(g, -(b[0] + b[2]) / 2, 36.5 - (b[1] + b[3]) / 2), BASE_H, TOP + 0.4)
+    add("accent", crescent(-100, 103, 19), BASE_H, TOP)
+    for (x, y, r) in [(-69, 116, 7.7), (79, 120, 7), (102, 102, 11.5), (117, 77, 7)]:
+        add("accent", star(x, y, r), BASE_H, TOP)
+    add("main", star(-122, 54, 7), BASE_H, TOP)
+    weight, length, time, date = data["weight"], data["length"], data["time"], data["date"]
+    ampm = AMPM[lang][data.get("ampm", "AM").upper()]
+    conv = (lambda s_: s_.translate(ARABIC_DIGITS)) if lang == "ar" else (lambda s_: s_)
+    values = {
+        "weight": [(conv(weight), 17, "num"), (UNITS[lang]["weight"], 9, "word")],
+        "length": [(conv(length), 17, "num"), (UNITS[lang]["length"], 9, "word")],
+        "date": [(conv(date), 14.5, "num")],
+        "time": [(conv(time), 17, "num"), (ampm, 9, "word")],
+    }
+    order = ["weight", "length", "date", "time"]
+    r1, r2 = -25, -77
+    slots = [(66, r1), (-66, r1), (66, r2), (-66, r2)] if rtl else [(-66, r1), (66, r1), (-66, r2), (66, r2)]
+    for key, (bx, by) in zip(order, slots):
+        add("main", ring(rrect(bx, by, 124, 43, 10), rw(1.2)), BASE_H, TOP)
+        add("main", affinity.translate(ICONS[key](1.0), bx - 39, by), BASE_H, TOP)
+        tx_right, tx_left = bx + 55, bx - 19
+        if k >= 0.6:
+            lab, _ = text_line([(LABELS[lang][key], 7.5, "word")], lang, rtl)
+            lw = max(lab.bounds[2], 1)
+            scale = min(1, 70 / lw)
+            lab = affinity.scale(lab, scale, scale, origin=(0, 0))
+            x0 = (tx_right - lw * scale) if rtl else tx_left
+            add("main", affinity.translate(lab, x0, by + 7), BASE_H, TOP)
+        vy = by - 13 if k >= 0.6 else by - 7
+        add("main", put_text(values[key], lang, rtl, tx_right if rtl else tx_left, vy, "right" if rtl else "left", 72), BASE_H, TOP)
+    add("accent", heart(0, -118, 19.5), BASE_H, TOP)
+
+
 def build(data):
     global _K, BASE_H, TOP
     size = float(data.get("size", 300))
@@ -981,6 +1039,8 @@ def build(data):
         layout_train(data, add, layers, k, lang, rtl)
     elif data.get("layout") == "balloons":
         layout_balloons(data, add, layers, k, lang, rtl)
+    elif data.get("layout") == "gpt":
+        layout_gpt(data, add, layers, k, lang, rtl)
     else:
         plate = rrect(0, 0, SIZE, SIZE, 30)
         add("base", plate, 0, BASE_H)
