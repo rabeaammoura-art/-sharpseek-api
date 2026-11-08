@@ -82,7 +82,7 @@ def key_of(c):
     top = (c[4] + c[5]) / 2 < y0 + 0.68 * (y1 - y0)
     return {(True, True): "weight", (False, True): "length", (True, False): "date", (False, False): "time"}[(right, top)]
 box_of = {key_of(c): c for c in boxes}
-NAME = (x0 + 165, y0 + 175, x1 - 160, y0 + 262)
+NAME = (x0 + 150, y0 + 175, x1 - 140, y0 + 290)
 keep, text = set(), {"name": [], **{k: {"label": [], "value": []} for k in box_of}}
 icon_w = 80
 for c in comps:
