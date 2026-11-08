@@ -974,6 +974,10 @@ def layout_gpt(data, add, layers, k, lang, rtl):
     add("main", unary_union([Polygon(pp[0], pp[1:]).buffer(0) for pp in asset["main"]]), BASE_H, TOP)
     add("accent", unary_union([Polygon(pp[0], pp[1:]).buffer(0) for pp in asset["accent"]]), BASE_H, TOP)
     tb = asset["text"]
+    if data.get("exact", True) and asset.get("text_traced"):
+        # the picture exactly as it is (name + numbers traced too). Set "exact": false to typeset another name / other values with the real font.
+        add("main", unary_union([Polygon(pp[0], pp[1:]).buffer(0) for pp in asset["text_traced"]]), BASE_H, TOP + 0.4)
+        return
 
     def put(geom, bbox, align):
         b_ = geom.bounds

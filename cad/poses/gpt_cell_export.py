@@ -69,7 +69,7 @@ lab, nl = ndi.label(blue & cell, structure=np.ones((3, 3)))
 comps = []
 for i, sl in enumerate(ndi.find_objects(lab), 1):
     ar = int((lab[sl] == i).sum())
-    if ar >= 40:
+    if ar >= 6:                                      # also the small dots of the Arabic letters and the colon
         comps.append((i, ar, sl[1].start, sl[1].stop, sl[0].start, sl[0].stop))
 rel = lambda c: (c[2] - x0, c[3] - x0, c[4] - y0, c[5] - y0)         # bbox relative to the plate frame
 
@@ -106,7 +106,7 @@ for c in comps:
                 text[k]["value"].append(c)
             placed = True
             break
-    if not placed:
+    if not placed and ar >= 40:
         keep.add(i)                                    # frame, bear/cloud outline parts, blue star ...
 main_mask = np.isin(lab, list(keep))
 # nose + mouth (dark, inside the cream muzzle) printed in the bear colour; closed eyes (dark, outside the muzzle) cut out, a little thicker
@@ -127,9 +127,17 @@ alpha_main = alpha_blue * near_main
 alpha_main = np.maximum(alpha_main, ndi.gaussian_filter((navy & muzzle & cell).astype(float), 0.8))
 alpha_main = alpha_main * (1 - ndi.gaussian_filter(eyes.astype(float), 0.7))
 main_g = polys(ndi.gaussian_filter(alpha_main, 0.5), sigma=0.55, simp=0.3)
+# text = everything blue inside the name zone and the text zone of each box (rectangles, so even the tiny dots of the letters are caught)
+yy2, xx2 = np.mgrid[0:H, 0:W]
+zones = (xx2 >= NAME[0]) & (xx2 <= NAME[2]) & (yy2 >= NAME[1]) & (yy2 <= NAME[3])
+for b in box_of.values():
+    zones |= (xx2 >= b[2] + 92) & (xx2 <= b[3] - 7) & (yy2 >= b[4] + 7) & (yy2 <= b[5] - 7)
+text_near = zones
+text_g = polys(np.clip(alpha_blue * 1.6, 0, 1) * text_near, sigma=0.4, min_area=4, simp=0.2)     # boosted alpha keeps the tiny dots of the letters
 yel_g = polys(alpha_yel * ndi.binary_dilation(yellow & cell, iterations=3), sigma=0.55, simp=0.3)
 from shapely import affinity
 main_u = affinity.scale(affinity.translate(main_g, -cx, -cy), u, -v, origin=(0, 0))
+text_u = affinity.scale(affinity.translate(text_g, -cx, -cy), u, -v, origin=(0, 0))
 yel_u = affinity.scale(affinity.translate(yel_g, -cx, -cy), u, -v, origin=(0, 0))
 
 
@@ -155,6 +163,6 @@ ex_vals = {"weight": [("٣٫٤", 17, "num"), ("كغم", 9, "word")], "length": [
 label_factor = {k: round((tb[k]["label"][2] - tb[k]["label"][0]) / natural_w([(lab_txt[k], 7.5, "word")]), 3) for k in lab_txt}
 value_factor = {k: round((tb[k]["value"][2] - tb[k]["value"][0]) / natural_w(ex_vals[k]), 3) for k in ex_vals}
 size_label_factor, size_value_factor = label_factor, value_factor
-out.write_text(json.dumps({"main": ser(main_u), "accent": ser(yel_u), "text": tb, "name_size": round(size_name, 2),
+out.write_text(json.dumps({"main": ser(main_u), "accent": ser(yel_u), "text_traced": ser(text_u), "text": tb, "name_size": round(size_name, 2),
                            "label_factor": label_factor, "value_factor": value_factor}))
 print("main polys", len(ser(main_u)), "accent", len(ser(yel_u)), "name", tb["name"], "size_name", round(size_name, 1), label_factor, value_factor)
