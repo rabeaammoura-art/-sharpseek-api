@@ -1003,7 +1003,7 @@ def layout_gpt(data, add, layers, k, lang, rtl):
     elif asset.get("navy"):          # the bear's dark details (closed eyes, nose + mouth, paw outlines) in the 4th filament, flush with the body
         add("animal", unary_union([Polygon(pp[0], pp[1:]).buffer(0) for pp in asset["navy"]]), BASE_H, TOP)
     tb = asset["text"]
-    if data.get("exact", True) and asset.get("text_traced"):
+    if data.get("exact", False) and asset.get("text_traced"):
         # the picture exactly as it is (name + numbers traced too). Set "exact": false to typeset another name / other values with the real font.
         add("main", unary_union([Polygon(pp[0], pp[1:]).buffer(0) for pp in asset["text_traced"]]), BASE_H, TOP + 0.4)
         return
