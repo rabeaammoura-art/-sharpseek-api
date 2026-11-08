@@ -4,7 +4,7 @@ Goal: keep our plaque (cloud name banner, 4 info badges, sleeping bear) but give
 sellers on Etsy (hot-air balloons, small clouds, stars, soft colours) and get 3 colourways. We only use GPT's picture for
 SHAPES and POSITIONS: names / numbers are re-typeset later with the real fonts (GPT letters are often wrong).
 
-Attach in this order, in the same message:
+Attach in this order, in the same message (do NOT attach pictures of any existing cartoon-bear brand):
 1. `example_ar_glowcap_preview.png` — the current plaque (layout + style to keep; yours to edit)
 2. `3_shapes_sheet.png` — exact shapes of the 4 icons, bear, moon, stars, heart (keep them exactly)
 
@@ -38,7 +38,12 @@ CHANGES (only these):
    2 small round clouds near the balloons; 4-5 chunky 5-point stars of different sizes; keep ONE crescent moon, small.
    Everything stays inside the frame and does NOT touch the bear, the name cloud or the badges (leave a clear gap).
 2. DATE BADGE: make the date badge a pill shape (fully rounded ends) with a tiny heart on each side of the date.
-3. COLOURS (EXACTLY 4 flat colours, no gradients, no shading, no texture, no glow):
+3. BEAR (replace the bear of image 1 by our own ORIGINAL sleeping teddy bear, same position on top of the name cloud):
+   chubby round teddy, big round head wider than its body, two small round ears with cream inner ears, a plain cream oval
+   muzzle with a tiny dark nose, two closed sleepy eyes (small arcs), two short round arms resting on the cloud.
+   The whole bear is ONE flat colour (the bear colour below) plus the cream muzzle. NO badge, NO emblem, NO symbol on its
+   belly or anywhere, no outlines, no shading. Do not imitate any existing cartoon bear or brand character.
+4. COLOURS (EXACTLY 4 flat colours, no gradients, no shading, no texture, no glow):
    cream #F5ECD7 (background of the plaque and inside badges), {COLOURWAY: frame / text / icons colour},
    {COLOURWAY: accent colour} (moon, stars, balloon stripes, heart), tan #C8A078 (bear).
    Balloon stripes alternate between the accent colour and the frame colour. No white, no black, no grey.
