@@ -21,10 +21,11 @@ import newborn_plaque as n  # noqa: E402
 sheet = np.asarray(Image.open(sys.argv[1]).convert("RGB")).astype(float)
 x0, y0, x1, y1 = map(int, sys.argv[2:6])
 out = Path(sys.argv[6])
+NOBEAR = len(sys.argv) > 7 and sys.argv[7] == 'nobear'        # the picture shows the cloud WITHOUT a bear (our own bear is placed by the generator)
 cx, cy, u = (x0 + x1) / 2, (y0 + y1) / 2, 300.0 / (x1 - x0)
 v = 300.0 / (y1 - y0)                                       # the GPT plate is ~2 % wider than tall: stretch y a little to fit our square plate
 H, W, _ = sheet.shape
-body_blue = sheet[130, 320]
+body_blue = sheet[(y0 + y1) // 2, x0 + 8]                  # the frame colour = the main colour of the plaque
 blue = np.linalg.norm(sheet - body_blue, axis=2) < 88
 d_blue = np.linalg.norm(sheet - body_blue, axis=2)
 alpha_blue = np.clip(1 - d_blue / 275.0, 0, 1)              # 1 on the bear colour, 0 on the paper, 0.5 on an anti-aliased edge
@@ -116,27 +117,32 @@ bear_zone = (xx > x0 + 180) & (xx < x0 + 420) & (yy > y0 + 20) & (yy < y0 + 200)
 main_mask |= navy & muzzle & cell
 lum = 0.3 * sheet[..., 0] + 0.59 * sheet[..., 1] + 0.11 * sheet[..., 2]
 # ---- the bear, rebuilt from clean pieces of the picture -------------------------------------------------------------------------------
-bzone = (xx > x0 + 172) & (xx < x0 + 440) & (yy > y0 + 22) & (yy < y0 + 222)
-# ---- the bear taken as it is: every pixel gets the nearest of the 4 colours of the picture (paper / body blue / cream / navy) -------------
-protos = np.array([[250.0, 249.0, 246.0], body_blue, [253.0, 243.0, 219.0], [16.0, 22.0, 28.0], [3.0, 45.0, 112.0]])
-cls = np.argmin(((sheet[:, :, None, :] - protos[None, None]) ** 2).sum(3), axis=2)          # 0 paper, 1 body, 2 cream, 3 navy, 4 dark blue (outlines of paws / arm)
-cls_f = ndi.median_filter(cls, size=5)                                                       # removes speckle, keeps every shape
-solid = (cls_f != 0) & bzone
-solid = ndi.binary_fill_holes(solid)
-lab_s, ns = ndi.label(solid)
-cid = lab_s[100 + y0, 330 + x0]
-sil = lab_s == (cid if cid else 1 + int(np.argmax(ndi.sum(solid, lab_s, range(1, ns + 1)))))
-body_m = sil & (cls_f == 1)
-cream_m = sil & (cls_f == 2)
-inner_zone = ndi.binary_erosion(sil, iterations=5) & ~ndi.binary_dilation(cream_m, iterations=4)
-navy_m = sil & ((cls_f == 3) | ((cls_f == 4) & inner_zone))       # navy features + the dark-blue paw / arm outlines inside the silhouette (not its rim)
-bear_main = sil & ~cream_m & ~navy_m
-details = navy_m
-alpha_bear = ndi.gaussian_filter(bear_main.astype(float), 0.9)
-rest = main_mask & ~ndi.binary_dilation(sil, iterations=5)
-alpha_rest = alpha_blue * ndi.binary_dilation(rest, iterations=3) * (~ndi.binary_dilation(sil, iterations=2))
-alpha_main = np.maximum(alpha_rest, alpha_bear)
-eyes = navy_m
+if NOBEAR:
+    sil = np.zeros((H, W), bool); details = sil; eyes = sil
+    alpha_rest = alpha_blue * ndi.binary_dilation(main_mask, iterations=3)
+    alpha_main = alpha_rest
+else:
+    bzone = (xx > x0 + 172) & (xx < x0 + 440) & (yy > y0 + 22) & (yy < y0 + 222)
+    # ---- the bear taken as it is: every pixel gets the nearest of the 4 colours of the picture (paper / body blue / cream / navy) -------------
+    protos = np.array([[250.0, 249.0, 246.0], body_blue, [253.0, 243.0, 219.0], [16.0, 22.0, 28.0], [3.0, 45.0, 112.0]])
+    cls = np.argmin(((sheet[:, :, None, :] - protos[None, None]) ** 2).sum(3), axis=2)          # 0 paper, 1 body, 2 cream, 3 navy, 4 dark blue (outlines of paws / arm)
+    cls_f = ndi.median_filter(cls, size=5)                                                       # removes speckle, keeps every shape
+    solid = (cls_f != 0) & bzone
+    solid = ndi.binary_fill_holes(solid)
+    lab_s, ns = ndi.label(solid)
+    cid = lab_s[100 + y0, 330 + x0]
+    sil = lab_s == (cid if cid else 1 + int(np.argmax(ndi.sum(solid, lab_s, range(1, ns + 1)))))
+    body_m = sil & (cls_f == 1)
+    cream_m = sil & (cls_f == 2)
+    inner_zone = ndi.binary_erosion(sil, iterations=5) & ~ndi.binary_dilation(cream_m, iterations=4)
+    navy_m = sil & ((cls_f == 3) | ((cls_f == 4) & inner_zone))       # navy features + the dark-blue paw / arm outlines inside the silhouette (not its rim)
+    bear_main = sil & ~cream_m & ~navy_m
+    details = navy_m
+    alpha_bear = ndi.gaussian_filter(bear_main.astype(float), 0.9)
+    rest = main_mask & ~ndi.binary_dilation(sil, iterations=5)
+    alpha_rest = alpha_blue * ndi.binary_dilation(rest, iterations=3) * (~ndi.binary_dilation(sil, iterations=2))
+    alpha_main = np.maximum(alpha_rest, alpha_bear)
+    eyes = navy_m
 navy_g = polys(ndi.gaussian_filter(details.astype(float), 0.8), sigma=0.4, min_area=3, simp=0.2)
 main_g = polys(ndi.gaussian_filter(alpha_main, 0.4), sigma=0.5, simp=0.3)
 nobear_g = polys(ndi.gaussian_filter(alpha_rest, 0.4), sigma=0.5, simp=0.3)      # cloud outline, boxes, icons, star: without the GPT bear (our own bear is placed instead)

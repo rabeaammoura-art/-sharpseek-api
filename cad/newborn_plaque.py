@@ -57,10 +57,10 @@ THEMES = {
     "green":     {"base": "#f2f0ea", "main": "#5b8a72", "accent": "#e58a2b", "animal": "#8a5a36"},
     "purple":    {"base": "#f2f0ea", "main": "#8e739f", "accent": "#e8c24a", "animal": "#9a6a3a"},
     "sky":       {"base": "#f2f0ea", "main": "#3aa8c8", "accent": "#f0c446", "animal": "#8c96a0"},
-    "gpt_blue":   {"base": "#faf9f6", "main": "#1559a1", "accent": "#fdbd03", "animal": "#12181f"},    # owner's GPT design: bear + cloud + frame are ONE colour
-    "gpt_pink":   {"base": "#faf9f6", "main": "#f3478a", "accent": "#fdbd03", "animal": "#12181f"},
-    "gpt_green":  {"base": "#faf9f6", "main": "#3b9039", "accent": "#fdbd03", "animal": "#12181f"},
-    "gpt_purple": {"base": "#faf9f6", "main": "#783b9e", "accent": "#fdbd03", "animal": "#12181f"},
+    "gpt_blue":   {"base": "#faf9f6", "main": "#004395", "accent": "#fdba05", "animal": "#12181f"},    # owner's GPT design: bear + cloud + frame are ONE colour
+    "gpt_pink":   {"base": "#faf9f6", "main": "#ef0269", "accent": "#fdba05", "animal": "#12181f"},
+    "gpt_green":  {"base": "#faf9f6", "main": "#137f27", "accent": "#fdba05", "animal": "#12181f"},
+    "gpt_purple": {"base": "#faf9f6", "main": "#6c1282", "accent": "#fdba05", "animal": "#12181f"},
     "blue_tan":   {"base": "#f2f0ea", "main": "#3e628a", "accent": "#f0c446", "animal": "#c8a078"},   # the original blue with the light teddy
     "soft_blue":  {"base": "#f5ecd7", "main": "#6f8fb3", "accent": "#f0c446", "animal": "#c8a078"},   # round C: soft colourways + tan teddy
     "soft_green": {"base": "#f5ecd7", "main": "#7fa08a", "accent": "#e8b24a", "animal": "#c8a078"},
@@ -967,16 +967,22 @@ def layout_gpt(data, add, layers, k, lang, rtl):
     blue star, the 4 info boxes and their icons, yellow moon / stars / heart. Only the TEXT is typeset with the real font, at the size and
     place it has in the picture. Bear, cloud, boxes and frame share the main colour; muzzle / ears / eyes are cut-outs (cream shows)."""
     import json as _json
-    asset = _json.loads((Path(__file__).parent / "poses" / "gpt_sleep.json").read_text())
+    asset = _json.loads((Path(__file__).parent / "poses" / ("gpt_cloud.json" if data.get("bear") == "own" else "gpt_sleep.json")).read_text())
     plate = rrect(0, 0, SIZE, SIZE, 30)
     add("base", plate, 0, BASE_H)
     add("main", ring(plate, 10.3), BASE_H, TOP)
     own_bear = data.get("bear", "gpt") == "own"
-    add("main", unary_union([Polygon(pp[0], pp[1:]).buffer(0) for pp in asset["main_nobear" if own_bear else "main"]]), BASE_H, TOP)
+    main_poly = unary_union([Polygon(pp[0], pp[1:]).buffer(0) for pp in asset["main_nobear" if own_bear else "main"]])
+    if own_bear:                   # our own teddy (cad/poses/poses.json, 4 poses) in the plaque colour, sitting in the top of the GPT cloud
+        nb_ = main_poly.intersection(box(-25, 20, 35, 130))
+        cloud_top = nb_.bounds[3] if not nb_.is_empty else 70.0
+        by_ = float(data["bear_y"]) if "bear_y" in data else cloud_top - float(data.get("bear_sink", 28))
+        pose = place_pose(data.get("pose", "sleep"), float(data.get("bear_x", 4)), by_, float(data["bear_h"]) if "bear_h" in data else min(92.0, 133 - by_), float(data.get("bear_w", 118)))
+        solid = unary_union([Polygon(q.exterior) for q in (pose["body"].geoms if hasattr(pose["body"], "geoms") else [pose["body"]])]).union(pose["yellow"].buffer(0))
+        main_poly = main_poly.difference(solid.buffer(0.6))        # the cloud outline does not show through the teddy's cream parts
+    add("main", main_poly, BASE_H, TOP)
     add("accent", unary_union([Polygon(pp[0], pp[1:]).buffer(0) for pp in asset["accent"]]), BASE_H, TOP)
-    if own_bear:                   # our own teddy (cad/poses/poses.json, 4 poses) in the plaque colour, on the GPT cloud
-        pose = place_pose(data.get("pose", "sleep"), float(data.get("bear_x", 4)), float(data.get("bear_y", 50)), float(data.get("bear_h", 80)), float(data.get("bear_w", 118)))
-        solid = unary_union([Polygon(q.exterior) for q in (pose["body"].geoms if hasattr(pose["body"], "geoms") else [pose["body"]])])
+    if own_bear:
         add("main", solid.difference(pose["cream"]).difference(pose["navy"]).difference(pose["yellow"]), BASE_H, TOP)
         add("animal", pose["navy"], BASE_H, TOP)
         add("accent", pose["yellow"], BASE_H, TOP)
