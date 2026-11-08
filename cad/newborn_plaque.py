@@ -57,6 +57,7 @@ THEMES = {
     "green":     {"base": "#f2f0ea", "main": "#5b8a72", "accent": "#e58a2b", "animal": "#8a5a36"},
     "purple":    {"base": "#f2f0ea", "main": "#8e739f", "accent": "#e8c24a", "animal": "#9a6a3a"},
     "sky":       {"base": "#f2f0ea", "main": "#3aa8c8", "accent": "#f0c446", "animal": "#8c96a0"},
+    "blue_tan":   {"base": "#f2f0ea", "main": "#3e628a", "accent": "#f0c446", "animal": "#c8a078"},   # the original blue with the light teddy
     "soft_blue":  {"base": "#f5ecd7", "main": "#6f8fb3", "accent": "#f0c446", "animal": "#c8a078"},   # round C: soft colourways + tan teddy
     "soft_green": {"base": "#f5ecd7", "main": "#7fa08a", "accent": "#e8b24a", "animal": "#c8a078"},
     "soft_pink":  {"base": "#f5ecd7", "main": "#d98c9a", "accent": "#f4c95d", "animal": "#c8a078"},
@@ -82,6 +83,7 @@ THEME_FILAMENTS = {
     "train_lit": ["PETG Blue", "AD-PETG Translucent White", "AD-PETG Translucent Yellow", "AD-PETG Translucent Orange-Red"],
     "train":     ["PLA+ Blue", "PLA+ White", "PLA+ Yellow", "Wood PLA"],
 }
+THEME_FILAMENTS["blue_tan"] = ["PLA+ White", "PLA+ Blue", "PLA+ Yellow", "Walnut PLA"]
 THEME_FILAMENTS["soft_blue"] = ["PLA+ White", "PLA+ Blue", "PLA+ Yellow", "Walnut PLA"]      # stock match for the soft colours still to be chosen
 THEME_FILAMENTS["soft_green"] = ["PLA+ White", "PLA+ Green", "PLA+ Orange", "Walnut PLA"]
 THEME_FILAMENTS["soft_pink"] = ["PLA+ White", "PLA+ Pink", "PLA+ Yellow", "Walnut PLA"]
@@ -987,11 +989,27 @@ def build(data):
         # name banner (cloud) + animal peeking over it
         banner = unary_union([rrect(0, 58, 196, 38, 19), circle(0, 79, 17), circle(-38, 77, 13), circle(38, 77, 13),
                               circle(-72, 72, 10), circle(72, 72, 10)])
-        animal = ANIMALS[data.get("animal", "bear")](0, 111, banner)
-        paws = animal.pop("_paws")
-        for role, items in animal.items():
-            for g, z0, z1 in items:
-                add(role, g, z0, z1)
+        if data.get("cloud") == "soft":      # round C: calmer cloud, 3 big round bumps, no small ones
+            banner = unary_union([rrect(0, 58, 200, 38, 19), circle(0, 76, 18), circle(-42, 72, 14), circle(42, 72, 14)])
+        if data.get("pose"):                 # round C: the original teddy in one of its poses (cad/poses/poses.json)
+            top = banner.bounds[3]
+            hide = {"sleep": 14, "cheer": 22, "balloon": 20, "star": 8}.get(data["pose"], 14)      # part of the teddy hidden behind the cloud (peeking)
+            pose = place_pose(data["pose"], 0, top - hide, 134 - (top - hide), 100)
+            solid = unary_union([Polygon(q.exterior) for q in (pose["body"].geoms if hasattr(pose["body"], "geoms") else [pose["body"]])])
+            on_body = unary_union([solid, pose["yellow"]]).buffer(0.2)
+            add("animal", solid.difference(pose["yellow"]).difference(banner), BASE_H, TOP)
+            add("accent", pose["yellow"].difference(banner), BASE_H, TOP)
+            for role_src, role_ in (("cream", "base"), ("navy", "main")):
+                g_ = pose[role_src].difference(banner)
+                add(role_, g_.intersection(on_body), TOP, TOP + 0.6)
+                add(role_, g_.difference(on_body), BASE_H, TOP + 0.6)
+            paws = Polygon()
+        else:
+            animal = ANIMALS[data.get("animal", "bear")](0, 111, banner)
+            paws = animal.pop("_paws")
+            for role, items in animal.items():
+                for g, z0, z1 in items:
+                    add(role, g, z0, z1)
         add("base", banner.difference(paws), BASE_H, TOP)  # cream fill hides animal parts behind the cloud
         add("main", ring(banner, rw(1.4)).difference(paws.buffer(1.0)), BASE_H, TOP)
         name = data["name"]
