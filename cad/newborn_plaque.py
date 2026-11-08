@@ -806,21 +806,55 @@ def layout_moon(data, add, layers, k, lang, rtl):
     plate = rrect(0, 0, SIZE, SIZE, 30)
     add("base", plate, 0, BASE_H)
     add("main", ring(plate, 12), BASE_H, BASE_H + FRAME_RAISE)
-    outer_m = affinity.translate(affinity.scale(circle(0, 0, 1), 92, 46, origin=(0, 0)), 0, 76)
-    inner_m = affinity.translate(affinity.scale(circle(0, 0, 1), 92 * 0.93, 41, origin=(0, 0)), 0, 87)
-    moon = outer_m.difference(inner_m)
-    pose = place_pose(data.get("pose", "sleep"), 0, 44, 80, 112)
-    body = pose["body"].difference(pose["yellow"]).difference(moon)
-    yellow = pose["yellow"].difference(moon)
-    on_body = unary_union([pose["body"], pose["yellow"]]).buffer(0.2)
+    style = data.get("style", "moon")
+    pose_name = data.get("pose", "sleep")
+    name_y, line_y, hearts = 0, (-38, -70), True
+    if style == "arch":
+        # night-window arch: a solid arch in the main colour, stars + moon inside, the teddy sits on a cream hill at its foot
+        shape = unary_union([box(-66, 16, 66, 68), circle(0, 68, 66)])
+        hill = affinity.translate(affinity.scale(circle(0, 0, 1), 66, 20, origin=(0, 0)), 0, 14).intersection(shape)
+        pose = place_pose(pose_name, 0, 30, 68, 100)
+        add("main", shape.difference(hill), BASE_H, TOP)
+        add("base", hill, BASE_H, TOP)
+        add("accent", crescent(-36, 112, 12), BASE_H, TOP)
+        for (x, y, r) in [(30, 118, 7), (-46, 84, 5.5), (46, 92, 8), (8, 126, 4.5)]:
+            add("accent", star(x, y, r), BASE_H, TOP)
+        cover = Polygon()
+        name_y, line_y, hearts = -17, (-52, -84), True
+        extras = []
+    elif style == "rainbow":
+        cy = 34
+        up = box(-120, cy, 120, 150)
+        band_b = circle(0, cy, 100, ).difference(circle(0, cy, 84)).intersection(up)
+        band_y = circle(0, cy, 84).difference(circle(0, cy, 68)).intersection(up)
+        mound = affinity.translate(affinity.scale(circle(0, 0, 1), 66, 11, origin=(0, 0)), 0, cy - 7)
+        add("main", band_b, BASE_H, TOP)
+        add("accent", band_y, BASE_H, TOP)
+        add("main", mound, BASE_H, TOP)
+        pose = place_pose(pose_name, 0, cy - 2, 64, 100)
+        cover = Polygon()
+        for (x, y, r) in [(-122, 112, 7), (124, 104, 9), (-124, 60, 5), (122, 58, 6)]:
+            add("accent", star(x, y, r), BASE_H, TOP)
+        name_y, line_y, hearts = -8, (-48, -80), True
+    else:
+        outer_m = affinity.translate(affinity.scale(circle(0, 0, 1), 92, 46, origin=(0, 0)), 0, 76)
+        inner_m = affinity.translate(affinity.scale(circle(0, 0, 1), 92 * 0.93, 41, origin=(0, 0)), 0, 87)
+        cover = outer_m.difference(inner_m)
+        pose = place_pose(pose_name, 0, 44, 80, 112)
+        add("accent", cover.difference(pose["yellow"]), BASE_H, TOP)
+        for (x, y, r) in [(-112, 120, 7), (114, 112, 9), (122, 70, 5.5), (-124, 66, 5)]:
+            add("accent", star(x, y, r), BASE_H, TOP)
+    solid = unary_union([Polygon(q.exterior) for q in (pose["body"].geoms if hasattr(pose["body"], "geoms") else [pose["body"]])])   # no see-through holes
+    body = solid.difference(pose["yellow"]).difference(cover)
+    yellow = pose["yellow"].difference(cover)
+    on_body = unary_union([solid, pose["yellow"]]).buffer(0.2)
     add("animal", body, BASE_H, TOP)
-    add("accent", unary_union([yellow]), BASE_H, TOP)
+    add("accent", yellow, BASE_H, TOP)
     for role_src, role in (("cream", "base"), ("navy", "main")):
-        g = pose[role_src].difference(moon)
+        g = pose[role_src].difference(cover)
         add(role, g.intersection(on_body), TOP, TOP + 0.6)
         add(role, g.difference(on_body), BASE_H, TOP + 0.6)
-    add("accent", moon.difference(pose["yellow"]), BASE_H, TOP)
-    add("main", put_text([(data["name"], 33 if lang == "ar" else 27, "word")], lang, rtl, 0, 0, max_width=190), BASE_H, TOP + 0.4)
+    add("main", put_text([(data["name"], 33 if lang == "ar" else 27, "word")], lang, rtl, 0, name_y, max_width=190), BASE_H, TOP + 0.4)
     conv = (lambda s_: s_.translate(ARABIC_DIGITS)) if lang == "ar" else (lambda s_: s_)
     ampm = AMPM[lang][data.get("ampm", "AM").upper()]
     it = {
@@ -830,17 +864,16 @@ def layout_moon(data, add, layers, k, lang, rtl):
         "length": info_item("length", [(conv(data["length"]), 17.5, "num"), (UNITS[lang]["length"], 10, "word")], lang, rtl),
     }
     sep = heart(0, 0, 7)
-    for y, pair in ((-36, ("date", "time")), (-70, ("weight", "length"))):
+    for y, pair in ((line_y[0], ("date", "time")), (line_y[1], ("weight", "length"))):
         m, sp = info_line([it[pair[0]], it[pair[1]]], y, rtl, sep_geom=sep)
         add("main", m, BASE_H, TOP)
         add("accent", sp, BASE_H, TOP)
-    add("accent", unary_union([heart(-24, -112, 9), heart(0, -108, 13), heart(24, -112, 9)]), BASE_H, TOP)
-    for (x, y, r) in [(-112, 120, 7), (114, 112, 9), (122, 70, 5.5), (-124, 66, 5)]:
-        add("accent", star(x, y, r), BASE_H, TOP)
+    if hearts:
+        add("accent", unary_union([heart(-24, -118, 8), heart(0, -114, 12), heart(24, -118, 8)]), BASE_H, TOP)
 
 
 def layout_balloons(data, add, layers, k, lang, rtl):
-    if data.get("style", "moon") == "moon":
+    if data.get("style", "moon") in ("moon", "arch", "rainbow"):
         return layout_moon(data, add, layers, k, lang, rtl)
     plate = rrect(0, 0, SIZE, SIZE, 30)
     add("base", plate, 0, BASE_H)
