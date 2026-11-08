@@ -139,6 +139,7 @@ alpha_main = np.maximum(alpha_rest, alpha_bear)
 eyes = navy_m
 navy_g = polys(ndi.gaussian_filter(details.astype(float), 0.8), sigma=0.4, min_area=3, simp=0.2)
 main_g = polys(ndi.gaussian_filter(alpha_main, 0.4), sigma=0.5, simp=0.3)
+nobear_g = polys(ndi.gaussian_filter(alpha_rest, 0.4), sigma=0.5, simp=0.3)      # cloud outline, boxes, icons, star: without the GPT bear (our own bear is placed instead)
 # text = everything blue inside the name zone and the text zone of each box (rectangles, so even the tiny dots of the letters are caught)
 yy2, xx2 = np.mgrid[0:H, 0:W]
 zones = (xx2 >= NAME[0]) & (xx2 <= NAME[2]) & (yy2 >= NAME[1]) & (yy2 <= NAME[3])
@@ -149,6 +150,7 @@ text_g = polys(np.clip(alpha_blue * 1.6, 0, 1) * text_near, sigma=0.4, min_area=
 yel_g = polys(alpha_yel * ndi.binary_dilation(yellow & cell, iterations=3), sigma=0.55, simp=0.3)
 from shapely import affinity
 main_u = affinity.scale(affinity.translate(main_g, -cx, -cy), u, -v, origin=(0, 0))
+nobear_u = affinity.scale(affinity.translate(nobear_g, -cx, -cy), u, -v, origin=(0, 0))
 navy_u = affinity.scale(affinity.translate(navy_g, -cx, -cy), u, -v, origin=(0, 0))
 text_u = affinity.scale(affinity.translate(text_g, -cx, -cy), u, -v, origin=(0, 0))
 yel_u = affinity.scale(affinity.translate(yel_g, -cx, -cy), u, -v, origin=(0, 0))
@@ -176,6 +178,6 @@ ex_vals = {"weight": [("٣٫٤", 17, "num"), ("كغم", 9, "word")], "length": [
 label_factor = {k: round((tb[k]["label"][2] - tb[k]["label"][0]) / natural_w([(lab_txt[k], 7.5, "word")]), 3) for k in lab_txt}
 value_factor = {k: round((tb[k]["value"][2] - tb[k]["value"][0]) / natural_w(ex_vals[k]), 3) for k in ex_vals}
 size_label_factor, size_value_factor = label_factor, value_factor
-out.write_text(json.dumps({"main": ser(main_u), "accent": ser(yel_u), "text_traced": ser(text_u), "navy": ser(navy_u), "text": tb, "name_size": round(size_name, 2),
+out.write_text(json.dumps({"main": ser(main_u), "accent": ser(yel_u), "text_traced": ser(text_u), "navy": ser(navy_u), "main_nobear": ser(nobear_u), "text": tb, "name_size": round(size_name, 2),
                            "label_factor": label_factor, "value_factor": value_factor}))
 print("main polys", len(ser(main_u)), "accent", len(ser(yel_u)), "name", tb["name"], "size_name", round(size_name, 1), label_factor, value_factor)

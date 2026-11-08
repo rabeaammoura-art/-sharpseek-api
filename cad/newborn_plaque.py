@@ -971,9 +971,16 @@ def layout_gpt(data, add, layers, k, lang, rtl):
     plate = rrect(0, 0, SIZE, SIZE, 30)
     add("base", plate, 0, BASE_H)
     add("main", ring(plate, 10.3), BASE_H, TOP)
-    add("main", unary_union([Polygon(pp[0], pp[1:]).buffer(0) for pp in asset["main"]]), BASE_H, TOP)
+    own_bear = data.get("bear", "gpt") == "own"
+    add("main", unary_union([Polygon(pp[0], pp[1:]).buffer(0) for pp in asset["main_nobear" if own_bear else "main"]]), BASE_H, TOP)
     add("accent", unary_union([Polygon(pp[0], pp[1:]).buffer(0) for pp in asset["accent"]]), BASE_H, TOP)
-    if asset.get("navy"):          # the bear's dark details (closed eyes, nose + mouth, paw outlines) in the 4th filament, flush with the body
+    if own_bear:                   # our own teddy (cad/poses/poses.json, 4 poses) in the plaque colour, on the GPT cloud
+        pose = place_pose(data.get("pose", "sleep"), float(data.get("bear_x", 4)), float(data.get("bear_y", 50)), float(data.get("bear_h", 80)), float(data.get("bear_w", 118)))
+        solid = unary_union([Polygon(q.exterior) for q in (pose["body"].geoms if hasattr(pose["body"], "geoms") else [pose["body"]])])
+        add("main", solid.difference(pose["cream"]).difference(pose["navy"]).difference(pose["yellow"]), BASE_H, TOP)
+        add("animal", pose["navy"], BASE_H, TOP)
+        add("accent", pose["yellow"], BASE_H, TOP)
+    elif asset.get("navy"):          # the bear's dark details (closed eyes, nose + mouth, paw outlines) in the 4th filament, flush with the body
         add("animal", unary_union([Polygon(pp[0], pp[1:]).buffer(0) for pp in asset["navy"]]), BASE_H, TOP)
     tb = asset["text"]
     if data.get("exact", True) and asset.get("text_traced"):
