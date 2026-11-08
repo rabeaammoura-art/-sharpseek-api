@@ -57,10 +57,10 @@ THEMES = {
     "green":     {"base": "#f2f0ea", "main": "#5b8a72", "accent": "#e58a2b", "animal": "#8a5a36"},
     "purple":    {"base": "#f2f0ea", "main": "#8e739f", "accent": "#e8c24a", "animal": "#9a6a3a"},
     "sky":       {"base": "#f2f0ea", "main": "#3aa8c8", "accent": "#f0c446", "animal": "#8c96a0"},
-    "gpt_blue":   {"base": "#faf9f6", "main": "#1559a1", "accent": "#fdbd03", "animal": "#1559a1"},    # owner's GPT design: bear + cloud + frame are ONE colour
-    "gpt_pink":   {"base": "#faf9f6", "main": "#f3478a", "accent": "#fdbd03", "animal": "#f3478a"},
-    "gpt_green":  {"base": "#faf9f6", "main": "#3b9039", "accent": "#fdbd03", "animal": "#3b9039"},
-    "gpt_purple": {"base": "#faf9f6", "main": "#783b9e", "accent": "#fdbd03", "animal": "#783b9e"},
+    "gpt_blue":   {"base": "#faf9f6", "main": "#1559a1", "accent": "#fdbd03", "animal": "#12181f"},    # owner's GPT design: bear + cloud + frame are ONE colour
+    "gpt_pink":   {"base": "#faf9f6", "main": "#f3478a", "accent": "#fdbd03", "animal": "#12181f"},
+    "gpt_green":  {"base": "#faf9f6", "main": "#3b9039", "accent": "#fdbd03", "animal": "#12181f"},
+    "gpt_purple": {"base": "#faf9f6", "main": "#783b9e", "accent": "#fdbd03", "animal": "#12181f"},
     "blue_tan":   {"base": "#f2f0ea", "main": "#3e628a", "accent": "#f0c446", "animal": "#c8a078"},   # the original blue with the light teddy
     "soft_blue":  {"base": "#f5ecd7", "main": "#6f8fb3", "accent": "#f0c446", "animal": "#c8a078"},   # round C: soft colourways + tan teddy
     "soft_green": {"base": "#f5ecd7", "main": "#7fa08a", "accent": "#e8b24a", "animal": "#c8a078"},
@@ -88,7 +88,7 @@ THEME_FILAMENTS = {
     "train":     ["PLA+ Blue", "PLA+ White", "PLA+ Yellow", "Wood PLA"],
 }
 for _t, _f in (("gpt_blue", "PLA+ Blue"), ("gpt_pink", "PLA+ Pink"), ("gpt_green", "PLA+ Green"), ("gpt_purple", "PLA+ Purple")):
-    THEME_FILAMENTS[_t] = ["PLA+ White", _f, "PLA+ Yellow", _f]      # filament match to be confirmed against the stock sheet
+    THEME_FILAMENTS[_t] = ["PLA+ White", _f, "PLA+ Yellow", "PLA+ Black"]      # filament match to be confirmed against the stock sheet
 THEME_FILAMENTS["blue_tan"] = ["PLA+ White", "PLA+ Blue", "PLA+ Yellow", "Walnut PLA"]
 THEME_FILAMENTS["soft_blue"] = ["PLA+ White", "PLA+ Blue", "PLA+ Yellow", "Walnut PLA"]      # stock match for the soft colours still to be chosen
 THEME_FILAMENTS["soft_green"] = ["PLA+ White", "PLA+ Green", "PLA+ Orange", "Walnut PLA"]
@@ -973,6 +973,8 @@ def layout_gpt(data, add, layers, k, lang, rtl):
     add("main", ring(plate, 10.3), BASE_H, TOP)
     add("main", unary_union([Polygon(pp[0], pp[1:]).buffer(0) for pp in asset["main"]]), BASE_H, TOP)
     add("accent", unary_union([Polygon(pp[0], pp[1:]).buffer(0) for pp in asset["accent"]]), BASE_H, TOP)
+    if asset.get("navy"):          # the bear's dark details (closed eyes, nose + mouth, paw outlines) in the 4th filament, flush with the body
+        add("animal", unary_union([Polygon(pp[0], pp[1:]).buffer(0) for pp in asset["navy"]]), BASE_H, TOP)
     tb = asset["text"]
     if data.get("exact", True) and asset.get("text_traced"):
         # the picture exactly as it is (name + numbers traced too). Set "exact": false to typeset another name / other values with the real font.

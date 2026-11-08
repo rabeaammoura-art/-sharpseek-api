@@ -115,18 +115,30 @@ muzzle = ((xx - (x0 + 291)) ** 2 + (yy - (y0 + 134)) ** 2) < 32 ** 2
 bear_zone = (xx > x0 + 180) & (xx < x0 + 420) & (yy > y0 + 20) & (yy < y0 + 200)
 main_mask |= navy & muzzle & cell
 lum = 0.3 * sheet[..., 0] + 0.59 * sheet[..., 1] + 0.11 * sheet[..., 2]
-# the bear's inner details are DARKER blue / navy lines (paws, arm, closed eyes): cut them out (cream shows), but only well inside the
-# silhouette, so its outer rim stays closed
-bc_ids = [c[0] for c in comps if c[1] > 20000 and c[3] - c[2] < 570]
-bc_mask = ndi.binary_fill_holes(np.isin(lab, bc_ids))
-interior = ndi.binary_erosion(bc_mask, iterations=5)
-dark_in_bear = (lum < 72) & bear_zone & ~muzzle & interior
-eyes = dark_in_bear
-near_main = ndi.binary_dilation(main_mask & ~eyes, iterations=3)
-alpha_main = alpha_blue * near_main
-alpha_main = np.maximum(alpha_main, ndi.gaussian_filter((navy & muzzle & cell).astype(float), 0.8))
-alpha_main = alpha_main * (1 - ndi.gaussian_filter(eyes.astype(float), 0.7))
-main_g = polys(ndi.gaussian_filter(alpha_main, 0.5), sigma=0.55, simp=0.3)
+# ---- the bear, rebuilt from clean pieces of the picture -------------------------------------------------------------------------------
+bzone = (xx > x0 + 172) & (xx < x0 + 440) & (yy > y0 + 22) & (yy < y0 + 222)
+# ---- the bear taken as it is: every pixel gets the nearest of the 4 colours of the picture (paper / body blue / cream / navy) -------------
+protos = np.array([[250.0, 249.0, 246.0], body_blue, [253.0, 243.0, 219.0], [16.0, 22.0, 28.0], [3.0, 45.0, 112.0]])
+cls = np.argmin(((sheet[:, :, None, :] - protos[None, None]) ** 2).sum(3), axis=2)          # 0 paper, 1 body, 2 cream, 3 navy, 4 dark blue (outlines of paws / arm)
+cls_f = ndi.median_filter(cls, size=5)                                                       # removes speckle, keeps every shape
+solid = (cls_f != 0) & bzone
+solid = ndi.binary_fill_holes(solid)
+lab_s, ns = ndi.label(solid)
+cid = lab_s[100 + y0, 330 + x0]
+sil = lab_s == (cid if cid else 1 + int(np.argmax(ndi.sum(solid, lab_s, range(1, ns + 1)))))
+body_m = sil & (cls_f == 1)
+cream_m = sil & (cls_f == 2)
+inner_zone = ndi.binary_erosion(sil, iterations=5) & ~ndi.binary_dilation(cream_m, iterations=4)
+navy_m = sil & ((cls_f == 3) | ((cls_f == 4) & inner_zone))       # navy features + the dark-blue paw / arm outlines inside the silhouette (not its rim)
+bear_main = sil & ~cream_m & ~navy_m
+details = navy_m
+alpha_bear = ndi.gaussian_filter(bear_main.astype(float), 0.9)
+rest = main_mask & ~ndi.binary_dilation(sil, iterations=5)
+alpha_rest = alpha_blue * ndi.binary_dilation(rest, iterations=3) * (~ndi.binary_dilation(sil, iterations=2))
+alpha_main = np.maximum(alpha_rest, alpha_bear)
+eyes = navy_m
+navy_g = polys(ndi.gaussian_filter(details.astype(float), 0.8), sigma=0.4, min_area=3, simp=0.2)
+main_g = polys(ndi.gaussian_filter(alpha_main, 0.4), sigma=0.5, simp=0.3)
 # text = everything blue inside the name zone and the text zone of each box (rectangles, so even the tiny dots of the letters are caught)
 yy2, xx2 = np.mgrid[0:H, 0:W]
 zones = (xx2 >= NAME[0]) & (xx2 <= NAME[2]) & (yy2 >= NAME[1]) & (yy2 <= NAME[3])
@@ -137,6 +149,7 @@ text_g = polys(np.clip(alpha_blue * 1.6, 0, 1) * text_near, sigma=0.4, min_area=
 yel_g = polys(alpha_yel * ndi.binary_dilation(yellow & cell, iterations=3), sigma=0.55, simp=0.3)
 from shapely import affinity
 main_u = affinity.scale(affinity.translate(main_g, -cx, -cy), u, -v, origin=(0, 0))
+navy_u = affinity.scale(affinity.translate(navy_g, -cx, -cy), u, -v, origin=(0, 0))
 text_u = affinity.scale(affinity.translate(text_g, -cx, -cy), u, -v, origin=(0, 0))
 yel_u = affinity.scale(affinity.translate(yel_g, -cx, -cy), u, -v, origin=(0, 0))
 
@@ -163,6 +176,6 @@ ex_vals = {"weight": [("٣٫٤", 17, "num"), ("كغم", 9, "word")], "length": [
 label_factor = {k: round((tb[k]["label"][2] - tb[k]["label"][0]) / natural_w([(lab_txt[k], 7.5, "word")]), 3) for k in lab_txt}
 value_factor = {k: round((tb[k]["value"][2] - tb[k]["value"][0]) / natural_w(ex_vals[k]), 3) for k in ex_vals}
 size_label_factor, size_value_factor = label_factor, value_factor
-out.write_text(json.dumps({"main": ser(main_u), "accent": ser(yel_u), "text_traced": ser(text_u), "text": tb, "name_size": round(size_name, 2),
+out.write_text(json.dumps({"main": ser(main_u), "accent": ser(yel_u), "text_traced": ser(text_u), "navy": ser(navy_u), "text": tb, "name_size": round(size_name, 2),
                            "label_factor": label_factor, "value_factor": value_factor}))
 print("main polys", len(ser(main_u)), "accent", len(ser(yel_u)), "name", tb["name"], "size_name", round(size_name, 1), label_factor, value_factor)
