@@ -57,6 +57,9 @@ THEMES = {
     "green":     {"base": "#f2f0ea", "main": "#5b8a72", "accent": "#e58a2b", "animal": "#8a5a36"},
     "purple":    {"base": "#f2f0ea", "main": "#8e739f", "accent": "#e8c24a", "animal": "#9a6a3a"},
     "sky":       {"base": "#f2f0ea", "main": "#3aa8c8", "accent": "#f0c446", "animal": "#8c96a0"},
+    "soft_blue":  {"base": "#f5ecd7", "main": "#6f8fb3", "accent": "#f0c446", "animal": "#c8a078"},   # round C: soft colourways + tan teddy
+    "soft_green": {"base": "#f5ecd7", "main": "#7fa08a", "accent": "#e8b24a", "animal": "#c8a078"},
+    "soft_pink":  {"base": "#f5ecd7", "main": "#d98c9a", "accent": "#f4c95d", "animal": "#c8a078"},
     "gold_dark": {"base": "#26262a", "main": "#d4af37", "accent": "#c98b7b", "animal": "#a0703a"},
     "boy":       {"base": "#f2f0ea", "main": "#3e628a", "accent": "#f0c446", "animal": "#8a5a36"},
     "girl":      {"base": "#f2f0ea", "main": "#d9808c", "accent": "#f4c95d", "animal": "#8a5a36"},
@@ -79,6 +82,9 @@ THEME_FILAMENTS = {
     "train_lit": ["PETG Blue", "AD-PETG Translucent White", "AD-PETG Translucent Yellow", "AD-PETG Translucent Orange-Red"],
     "train":     ["PLA+ Blue", "PLA+ White", "PLA+ Yellow", "Wood PLA"],
 }
+THEME_FILAMENTS["soft_blue"] = ["PLA+ White", "PLA+ Blue", "PLA+ Yellow", "Walnut PLA"]      # stock match for the soft colours still to be chosen
+THEME_FILAMENTS["soft_green"] = ["PLA+ White", "PLA+ Green", "PLA+ Orange", "Walnut PLA"]
+THEME_FILAMENTS["soft_pink"] = ["PLA+ White", "PLA+ Pink", "PLA+ Yellow", "Walnut PLA"]
 THEME_FILAMENTS["boy"], THEME_FILAMENTS["girl"] = THEME_FILAMENTS["blue"], THEME_FILAMENTS["pink"]
 
 ARABIC_DIGITS = str.maketrans("0123456789.", "٠١٢٣٤٥٦٧٨٩٫")
@@ -723,6 +729,120 @@ def layout_train(data, add, layers, k, lang, rtl):
     add("animal", only_polygons(geo["animal2"].buffer(0.08)), BASE_H, TOP)           # its darker details (inner ears, toes) are lower
 
 # --------------------------------------------------------------- layout ----
+# ------------------------------------------------------- "balloons" layout (improvement round C) ----
+_POSES = None
+
+
+def load_poses():
+    global _POSES
+    if _POSES is None:
+        import json as _json
+        _POSES = _json.loads((Path(__file__).parent / "poses" / "poses.json").read_text())
+    return _POSES
+
+
+def place_pose(name, cx, y_bottom, h_max, w_max):
+    """The original teddy in one of its poses (cad/poses/poses.json, px y up, origin bottom centre) scaled into a box.
+    Returns role -> geometry in design units."""
+    d = load_poses()[name]
+    w, h = d["size"]
+    sc = min(h_max / h, w_max / w)
+    out = {}
+    for role, polys in d["roles"].items():
+        gs = [Polygon(pp[0], pp[1:]).buffer(0) for pp in polys]
+        g = unary_union(gs) if gs else Polygon()
+        out[role] = affinity.translate(affinity.scale(g, sc, sc, origin=(0, 0)), cx, y_bottom)
+    out["_scale"] = sc
+    return out
+
+
+def balloon_shape(cx, cy, r):
+    """Hot-air balloon: (body parts, stripe, rope + basket) in design units."""
+    body = circle(cx, cy, r)
+    stripe = affinity.scale(circle(cx, cy, r), 0.42, 1.0, origin=(cx, cy)).intersection(body)
+    ropes = unary_union([LineString([(cx + sx * r * 0.55, cy - r * 0.8), (cx + sx * r * 0.28, cy - r * 1.75)]).buffer(rw(0.8)) for sx in (-1, 1)])
+    basket = rrect(cx, cy - r * 1.75 - 3.0, r * 0.75, 6.0, 1.5)
+    return body.difference(stripe), stripe, unary_union([ropes, basket])
+
+
+def small_cloud(cx, cy, w):
+    s = w / 30.0
+    return unary_union([rrect(cx, cy, 30 * s, 9 * s, 4.5 * s), circle(cx - 6 * s, cy + 4 * s, 6 * s), circle(cx + 4 * s, cy + 5 * s, 7.5 * s)])
+
+
+def layout_balloons(data, add, layers, k, lang, rtl):
+    plate = rrect(0, 0, SIZE, SIZE, 30)
+    add("base", plate, 0, BASE_H)
+    add("main", ring(plate, 12), BASE_H, BASE_H + FRAME_RAISE)
+    boxes = data.get("boxes", True)
+    # name cloud (lower than the original layout so the whole teddy fits above it)
+    by0 = 30
+    banner = unary_union([rrect(0, by0, 196, 38, 19), circle(0, by0 + 21, 17), circle(-38, by0 + 19, 13), circle(38, by0 + 19, 13),
+                          circle(-72, by0 + 14, 10), circle(72, by0 + 14, 10)])
+    # teddy in the chosen pose, sitting behind the top of the cloud
+    pose = place_pose(data.get("pose", "sleep"), 0, by0 + 21 + 17 - 7, 72, 92)
+    cover = banner
+    body = pose["body"].difference(pose["yellow"]).difference(cover)      # star / balloon sit in front of the body
+    yellow = pose["yellow"].difference(cover)
+    on_body = unary_union([pose["body"], pose["yellow"]]).buffer(0.2)
+    add("animal", body, BASE_H, TOP)
+    add("accent", yellow, BASE_H, TOP)
+    for role_src, role in (("cream", "base"), ("navy", "main")):
+        g = pose[role_src].difference(cover)
+        on, off = g.intersection(on_body), g.difference(on_body)
+        add(role, on, TOP, TOP + 0.6)
+        add(role, off, BASE_H, TOP + 0.6)
+    add("base", banner, BASE_H, TOP)
+    add("main", ring(banner, rw(1.4)), BASE_H, TOP)
+    name = data["name"]
+    add("main", put_text([(name, 25 if lang == "ar" else 21, "word")], lang, rtl, 0, by0 - 8.5, max_width=160), BASE_H, TOP + 0.4)
+
+    # sky: hot-air balloons, small clouds, stars, one crescent
+    for (bx_, by_, br_) in [(-100, 112, 17), (-70, 98, 10.5), (104, 108, 19)]:
+        bod, stripe, rope = balloon_shape(bx_, by_, br_)
+        add("accent", bod, BASE_H, TOP)
+        add("main", unary_union([stripe, rope]), BASE_H, TOP)
+    for (cx_, cy_, w_) in [(-112, 72, 26), (110, 70, 28)]:
+        sc_ = small_cloud(cx_, cy_, w_)
+        add("base", sc_, BASE_H, TOP)
+        add("main", ring(sc_, rw(1.2)), BASE_H, TOP)
+    add("accent", crescent(66, 102, 11), BASE_H, TOP)
+    for (x, y, r) in [(-56, 126, 5.5), (60, 128, 6), (-124, 90, 5), (126, 82, 5)]:
+        add("accent", star(x, y, r), BASE_H, TOP)
+
+    # info badges (date badge = pill)
+    weight, length, time, date = data["weight"], data["length"], data["time"], data["date"]
+    ampm = AMPM[lang][data.get("ampm", "AM").upper()]
+    conv = (lambda s_: s_.translate(ARABIC_DIGITS)) if lang == "ar" else (lambda s_: s_)
+    values = {
+        "weight": [(conv(weight), 17, "num"), (UNITS[lang]["weight"], 9, "word")],
+        "length": [(conv(length), 17, "num"), (UNITS[lang]["length"], 9, "word")],
+        "date": [(conv(date), 14.5, "num")],
+        "time": [(conv(time), 17, "num"), (ampm, 9, "word")],
+    }
+    order = ["weight", "length", "date", "time"]
+    r1, r2 = -14, -60
+    slots = [(66, r1), (-66, r1), (66, r2), (-66, r2)] if rtl else [(-66, r1), (66, r1), (-66, r2), (66, r2)]
+    for key, (bx, by) in zip(order, slots):
+        if boxes:
+            add("main", ring(rrect(bx, by, 124, 40, 20 if key == "date" else 10), rw(1.2)), BASE_H, TOP)
+        add("main", affinity.translate(ICONS[key](1.0), bx - 39, by), BASE_H, TOP)
+        tx_right, tx_left = bx + 55, bx - 19
+        if k >= 0.6:
+            lab, _ = text_line([(LABELS[lang][key], 7.5, "word")], lang, rtl)
+            lw = max(lab.bounds[2], 1)
+            scale = min(1, 70 / lw)
+            lab = affinity.scale(lab, scale, scale, origin=(0, 0))
+            x0 = (tx_right - lw * scale) if rtl else tx_left
+            add("main", affinity.translate(lab, x0, by + 6.5), BASE_H, TOP)
+        vy = by - 13 if k >= 0.6 else by - 7
+        add("main", put_text(values[key], lang, rtl, tx_right if rtl else tx_left, vy, "right" if rtl else "left", 72), BASE_H, TOP)
+    pad = rrect(0, -108, 124, 44, 12)
+    if boxes:
+        add("main", ring(pad, rw(1.2)), BASE_H, TOP)
+    add("accent", heart(0, -108, 10), BASE_H, TOP)
+
+
 def build(data):
     global _K, BASE_H, TOP
     size = float(data.get("size", 300))
@@ -746,6 +866,8 @@ def build(data):
         layout_horse(data, add, layers, k, lang, rtl)
     elif data.get("layout") == "train":
         layout_train(data, add, layers, k, lang, rtl)
+    elif data.get("layout") == "balloons":
+        layout_balloons(data, add, layers, k, lang, rtl)
     else:
         plate = rrect(0, 0, SIZE, SIZE, 30)
         add("base", plate, 0, BASE_H)
