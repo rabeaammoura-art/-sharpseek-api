@@ -990,6 +990,17 @@ def layout_gpt(data, add, layers, k, lang, rtl):
             add("main", solid.difference(pose["cream"]).difference(navy_).difference(pose["yellow"]), BASE_H, TOP)
             add("animal", navy_, BASE_H, TOP)
             add("accent", pose["yellow"], BASE_H, TOP)
+        elif data.get("bear_details") == "yellow":
+            # eyes + paw / arm lines on the body in the star colour (3 filaments only); nose / mouth on the cream muzzle in the plaque colour
+            fill_ = lambda g_: unary_union([Polygon(q.exterior) for q in (g_.geoms if hasattr(g_, "geoms") else [g_]) if not q.is_empty])
+            light_ = unary_union([fill_(pose["cream"]), fill_(pose["yellow"])]).buffer(0.8)
+            parts_ = list(navy_.geoms) if hasattr(navy_, "geoms") else [navy_]
+            small_ = [q for q in parts_ if not q.is_empty and light_.contains(q.representative_point()) and q.area < 30]
+            on_light = unary_union([affinity.scale(q, 0.75, 0.75, origin=q.centroid) for q in small_])
+            on_body_ = navy_.difference(unary_union(small_).buffer(0.1)).difference(pose["yellow"])
+            add("main", solid.difference(pose["cream"]).difference(on_body_).difference(pose["yellow"]), BASE_H, TOP)
+            add("main", on_light, BASE_H, TOP)
+            add("accent", unary_union([on_body_, pose["yellow"].difference(on_light)]), BASE_H, TOP)
         else:
             # details on the body are CUT OUT (cream shows); on the muzzle / on the yellow they keep the plaque colour. No 4th filament.
             fill_ = lambda g_: unary_union([Polygon(q.exterior) for q in (g_.geoms if hasattr(g_, "geoms") else [g_]) if not q.is_empty])
