@@ -993,13 +993,13 @@ def layout_gpt(data, add, layers, k, lang, rtl):
     conv = (lambda s_: s_.translate(ARABIC_DIGITS)) if lang == "ar" else (lambda s_: s_)
     vf, lf = asset["value_factor"], asset["label_factor"]
     values = {
-        "weight": [(conv(weight), 17 * vf, "num"), (UNITS[lang]["weight"], 9 * vf, "word")],
-        "length": [(conv(length), 17 * vf, "num"), (UNITS[lang]["length"], 9 * vf, "word")],
-        "date": [(conv(date), 14.5 * vf, "num")],
-        "time": [(conv(time), 17 * vf, "num"), (ampm, 9 * vf, "word")],
+        "weight": [(conv(weight), 17 * vf["weight"], "num"), (UNITS[lang]["weight"], 9 * vf["weight"], "word")],
+        "length": [(conv(length), 17 * vf["length"], "num"), (UNITS[lang]["length"], 9 * vf["length"], "word")],
+        "date": [(conv(date), 14.5 * vf["date"], "num")],
+        "time": [(conv(time), 17 * vf["time"], "num"), (ampm, 9 * vf["time"], "word")],
     }
     for key in ("weight", "length", "date", "time"):
-        lab, _ = text_line([(LABELS[lang][key], 7.5 * lf, "word")], lang, rtl)
+        lab, _ = text_line([(LABELS[lang][key], 7.5 * lf[key], "word")], lang, rtl)
         add("main", put(lab, tb[key]["label"], "right"), BASE_H, TOP)
         val, _ = text_line(values[key], lang, rtl)
         vb = tb[key]["value"]

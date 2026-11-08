@@ -114,13 +114,19 @@ yy, xx = np.mgrid[0:H, 0:W]
 muzzle = ((xx - (x0 + 291)) ** 2 + (yy - (y0 + 134)) ** 2) < 32 ** 2
 bear_zone = (xx > x0 + 180) & (xx < x0 + 420) & (yy > y0 + 20) & (yy < y0 + 200)
 main_mask |= navy & muzzle & cell
-eyes = ndi.binary_dilation(navy & bear_zone & ~muzzle, iterations=1)
-main_mask &= ~eyes
+lum = 0.3 * sheet[..., 0] + 0.59 * sheet[..., 1] + 0.11 * sheet[..., 2]
+# the bear's inner details are DARKER blue / navy lines (paws, arm, closed eyes): cut them out (cream shows), but only well inside the
+# silhouette, so its outer rim stays closed
+bc_ids = [c[0] for c in comps if c[1] > 20000 and c[3] - c[2] < 570]
+bc_mask = ndi.binary_fill_holes(np.isin(lab, bc_ids))
+interior = ndi.binary_erosion(bc_mask, iterations=5)
+dark_in_bear = (lum < 72) & bear_zone & ~muzzle & interior
+eyes = dark_in_bear
 near_main = ndi.binary_dilation(main_mask & ~eyes, iterations=3)
 alpha_main = alpha_blue * near_main
 alpha_main = np.maximum(alpha_main, ndi.gaussian_filter((navy & muzzle & cell).astype(float), 0.8))
 alpha_main = alpha_main * (1 - ndi.gaussian_filter(eyes.astype(float), 0.7))
-main_g = polys(alpha_main, sigma=0.55, simp=0.3)
+main_g = polys(ndi.gaussian_filter(alpha_main, 0.5), sigma=0.55, simp=0.3)
 yel_g = polys(alpha_yel * ndi.binary_dilation(yellow & cell, iterations=3), sigma=0.55, simp=0.3)
 from shapely import affinity
 main_u = affinity.scale(affinity.translate(main_g, -cx, -cy), u, -v, origin=(0, 0))
@@ -144,9 +150,11 @@ size_name = 40 * wname / natural_w([("يوسف", 40, "name")])
 lab_txt = {"weight": "الوزن", "length": "الطول", "date": "التاريخ", "time": "الساعة"}
 sl = [7.5 * (tb[k]["label"][2] - tb[k]["label"][0]) / natural_w([(lab_txt[k], 7.5, "word")]) for k in lab_txt]
 size_label_factor = float(np.mean(sl)) / 7.5
-wd = tb["date"]["value"][2] - tb["date"]["value"][0]
-size_value_factor = (14.5 * wd / natural_w([("١٢/٠٣/٢٠٢٦", 14.5, "num")])) / 14.5
+ex_vals = {"weight": [("٣٫٤", 17, "num"), ("كغم", 9, "word")], "length": [("٥٠", 17, "num"), ("سم", 9, "word")],
+           "date": [("١٢/٠٣/٢٠٢٦", 14.5, "num")], "time": [("٠٤:٣٥", 17, "num"), ("ص", 9, "word")]}
+label_factor = {k: round((tb[k]["label"][2] - tb[k]["label"][0]) / natural_w([(lab_txt[k], 7.5, "word")]), 3) for k in lab_txt}
+value_factor = {k: round((tb[k]["value"][2] - tb[k]["value"][0]) / natural_w(ex_vals[k]), 3) for k in ex_vals}
+size_label_factor, size_value_factor = label_factor, value_factor
 out.write_text(json.dumps({"main": ser(main_u), "accent": ser(yel_u), "text": tb, "name_size": round(size_name, 2),
-                           "label_factor": round(size_label_factor, 3), "value_factor": round(size_value_factor, 3)}))
-print("main polys", len(ser(main_u)), "accent", len(ser(yel_u)), "name", tb["name"], "size_name", round(size_name, 1),
-      "label x", round(size_label_factor, 2), "value x", round(size_value_factor, 2))
+                           "label_factor": label_factor, "value_factor": value_factor}))
+print("main polys", len(ser(main_u)), "accent", len(ser(yel_u)), "name", tb["name"], "size_name", round(size_name, 1), label_factor, value_factor)
