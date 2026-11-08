@@ -770,7 +770,78 @@ def small_cloud(cx, cy, w):
     return unary_union([rrect(cx, cy, 30 * s, 9 * s, 4.5 * s), circle(cx - 6 * s, cy + 4 * s, 6 * s), circle(cx + 4 * s, cy + 5 * s, 7.5 * s)])
 
 
+def info_item(key, values, lang, rtl, h=17.0):
+    """One inline info item (icon + value) for the birth-announcement lines. Left edge x=0, vertically centred on y=0."""
+    ic = ICONS[key](1.0)
+    b = ic.bounds
+    sc = h / (b[3] - b[1])
+    ic = affinity.translate(affinity.scale(ic, sc, sc, origin=(0, 0)), -b[0] * sc, -(b[1] + b[3]) / 2 * sc)
+    iw = (b[2] - b[0]) * sc
+    txt, tw = text_line(values, lang, rtl)
+    txt = affinity.translate(txt, 0, -0.36 * h)
+    gap = 3.0
+    if rtl:
+        return unary_union([txt, affinity.translate(ic, tw + gap, 0)]), tw + gap + iw
+    return unary_union([ic, affinity.translate(txt, iw + gap, 0)]), iw + gap + tw
+
+
+def info_line(items, y, rtl, sep_geom=None, sep_w=8.0, gap=6.0):
+    """items = [(geom, width)] in logical order; centred on x=0 at height y; returns (main geometry, separators)."""
+    seq = items[::-1] if rtl else items
+    total = sum(w for _, w in seq) + (len(seq) - 1) * (sep_w + 2 * gap)
+    x = -total / 2
+    main, seps = [], []
+    for i, (g, w) in enumerate(seq):
+        main.append(affinity.translate(g, x, y))
+        x += w
+        if i < len(seq) - 1:
+            seps.append(affinity.translate(sep_geom, x + gap + sep_w / 2, y) if sep_geom is not None else None)
+            x += sep_w + 2 * gap
+    return unary_union(main), unary_union([g for g in seps if g is not None])
+
+
+def layout_moon(data, add, layers, k, lang, rtl):
+    """Round C, calm version: the teddy nests in a crescent moon, the name is big with no frame around it, the facts are two
+    centred lines (like a birth announcement) instead of boxes."""
+    plate = rrect(0, 0, SIZE, SIZE, 30)
+    add("base", plate, 0, BASE_H)
+    add("main", ring(plate, 12), BASE_H, BASE_H + FRAME_RAISE)
+    outer_m = affinity.translate(affinity.scale(circle(0, 0, 1), 92, 46, origin=(0, 0)), 0, 76)
+    inner_m = affinity.translate(affinity.scale(circle(0, 0, 1), 92 * 0.93, 41, origin=(0, 0)), 0, 87)
+    moon = outer_m.difference(inner_m)
+    pose = place_pose(data.get("pose", "sleep"), 0, 44, 80, 112)
+    body = pose["body"].difference(pose["yellow"]).difference(moon)
+    yellow = pose["yellow"].difference(moon)
+    on_body = unary_union([pose["body"], pose["yellow"]]).buffer(0.2)
+    add("animal", body, BASE_H, TOP)
+    add("accent", unary_union([yellow]), BASE_H, TOP)
+    for role_src, role in (("cream", "base"), ("navy", "main")):
+        g = pose[role_src].difference(moon)
+        add(role, g.intersection(on_body), TOP, TOP + 0.6)
+        add(role, g.difference(on_body), BASE_H, TOP + 0.6)
+    add("accent", moon.difference(pose["yellow"]), BASE_H, TOP)
+    add("main", put_text([(data["name"], 33 if lang == "ar" else 27, "word")], lang, rtl, 0, 0, max_width=190), BASE_H, TOP + 0.4)
+    conv = (lambda s_: s_.translate(ARABIC_DIGITS)) if lang == "ar" else (lambda s_: s_)
+    ampm = AMPM[lang][data.get("ampm", "AM").upper()]
+    it = {
+        "date": info_item("date", [(conv(data["date"]), 17.5, "num")], lang, rtl, 17.0),
+        "time": info_item("time", [(conv(data["time"]), 17.5, "num"), (ampm, 10, "word")], lang, rtl),
+        "weight": info_item("weight", [(conv(data["weight"]), 17.5, "num"), (UNITS[lang]["weight"], 10, "word")], lang, rtl),
+        "length": info_item("length", [(conv(data["length"]), 17.5, "num"), (UNITS[lang]["length"], 10, "word")], lang, rtl),
+    }
+    sep = heart(0, 0, 7)
+    for y, pair in ((-36, ("date", "time")), (-70, ("weight", "length"))):
+        m, sp = info_line([it[pair[0]], it[pair[1]]], y, rtl, sep_geom=sep)
+        add("main", m, BASE_H, TOP)
+        add("accent", sp, BASE_H, TOP)
+    add("accent", unary_union([heart(-24, -112, 9), heart(0, -108, 13), heart(24, -112, 9)]), BASE_H, TOP)
+    for (x, y, r) in [(-112, 120, 7), (114, 112, 9), (122, 70, 5.5), (-124, 66, 5)]:
+        add("accent", star(x, y, r), BASE_H, TOP)
+
+
 def layout_balloons(data, add, layers, k, lang, rtl):
+    if data.get("style", "moon") == "moon":
+        return layout_moon(data, add, layers, k, lang, rtl)
     plate = rrect(0, 0, SIZE, SIZE, 30)
     add("base", plate, 0, BASE_H)
     add("main", ring(plate, 12), BASE_H, BASE_H + FRAME_RAISE)
