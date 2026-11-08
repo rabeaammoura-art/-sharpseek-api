@@ -989,18 +989,24 @@ def build(data):
         # name banner (cloud) + animal peeking over it
         banner = unary_union([rrect(0, 58, 196, 38, 19), circle(0, 79, 17), circle(-38, 77, 13), circle(38, 77, 13),
                               circle(-72, 72, 10), circle(72, 72, 10)])
+        peak_x, cloud_cy = 0.0, 49.5 + 8
         if data.get("cloud") == "soft":      # round C: calmer cloud, 3 big round bumps, no small ones
             banner = unary_union([rrect(0, 58, 200, 38, 19), circle(0, 76, 18), circle(-42, 72, 14), circle(42, 72, 14)])
-        elif data.get("cloud") == "real":    # round C: a fluffy cumulus: puffs of different sizes (not symmetric), scalloped underside
-            top_l = [(-82, 60, 13), (-62, 68, 17), (-34, 72, 20), (-4, 77, 23), (26, 74, 21), (54, 70, 19), (78, 63, 15)]   # overlapping round lobes: shallow notches, tallest near the centre
-            bot_l = [(-60, 48, 12), (-26, 47, 13), (8, 47, 13), (42, 47, 13), (70, 49, 11)]                                      # gentle shallow dips underneath
-            banner = unary_union([rrect(0, 56, 176, 30, 15)] + [circle(x_, y_, r_) for x_, y_, r_ in top_l + bot_l])
-            banner = banner.buffer(3.5, join_style=1).buffer(-3.5, join_style=1)        # soft, rounded joints between the lobes
-            banner_top = banner.bounds[3]
+        elif data.get("cloud") == "real":
+            # the owner's cartoon cloud (5 round lobes measured on his picture, px y down) stretched to `cloud_w` x `cloud_h` mm
+            lobes = [(140, 380, 65), (210, 292, 70), (310, 265, 82), (415, 345, 92), (285, 395, 73)]
+            hull = Polygon([(140, -380), (210, -292), (310, -265), (415, -345), (405, -385), (285, -395)])
+            cs = unary_union([hull] + [Point(x_, -y_).buffer(r_, 64) for x_, y_, r_ in lobes])
+            cx0, cy0, cx1, cy1 = cs.bounds
+            cw, ch = float(data.get("cloud_w", 190)), float(data.get("cloud_h", 64))
+            sx, sy = cw / (cx1 - cx0), ch / (cy1 - cy0)
+            banner = affinity.translate(affinity.scale(affinity.translate(cs, -(cx0 + cx1) / 2, -cy0), sx, sy, origin=(0, 0)), 0, 32)
+            peak_x = (310 - (cx0 + cx1) / 2) * sx           # the bear sits on the tallest lobe
+            cloud_cy = banner.centroid.y
         if data.get("pose"):                 # round C: the original teddy in one of its poses (cad/poses/poses.json)
             top = banner.bounds[3]
             hide = {"sleep": 14, "cheer": 22, "balloon": 20, "star": 8}.get(data["pose"], 14)      # part of the teddy hidden behind the cloud (peeking)
-            pose = place_pose(data["pose"], 0, top - hide, 134 - (top - hide), 100)
+            pose = place_pose(data["pose"], peak_x, top - hide, 134 - (top - hide), 100)
             solid = unary_union([Polygon(q.exterior) for q in (pose["body"].geoms if hasattr(pose["body"], "geoms") else [pose["body"]])])
             on_body = unary_union([solid, pose["yellow"]]).buffer(0.2)
             add("animal", solid.difference(pose["yellow"]).difference(banner), BASE_H, TOP)
@@ -1019,7 +1025,7 @@ def build(data):
         add("base", banner.difference(paws), BASE_H, TOP)  # cream fill hides animal parts behind the cloud
         add("main", ring(banner, rw(1.4)).difference(paws.buffer(1.0)), BASE_H, TOP)
         name = data["name"]
-        add("main", put_text([(name, 25 if lang == "ar" else 21, "word")], lang, rtl, 0, 50.5 if data.get("cloud") == "real" else 49.5, max_width=160), BASE_H, TOP + 0.4)
+        add("main", put_text([(name, 25 if lang == "ar" else 21, "word")], lang, rtl, 0, (cloud_cy - 8) if data.get("cloud") == "real" else 49.5, max_width=min(160, 0.62 * float(data.get("cloud_w", 190))) if data.get("cloud") == "real" else 160), BASE_H, TOP + 0.4)
 
         # sky decoration
         add("accent", crescent(-98, 110, 19), BASE_H, TOP)
