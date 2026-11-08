@@ -978,22 +978,28 @@ def layout_gpt(data, add, layers, k, lang, rtl):
         cloud_top = nb_.bounds[3] if not nb_.is_empty else 70.0
         by_ = float(data["bear_y"]) if "bear_y" in data else cloud_top - float(data.get("bear_sink", 28))
         pose = place_pose(data.get("pose", "sleep"), float(data.get("bear_x", 4)), by_, float(data["bear_h"]) if "bear_h" in data else min(92.0, 133 - by_), float(data.get("bear_w", 118)))
-        solid = unary_union([Polygon(q.exterior) for q in (pose["body"].geoms if hasattr(pose["body"], "geoms") else [pose["body"]])]).union(pose["yellow"].buffer(0))
+        _fill = lambda g_: [Polygon(q.exterior) for q in (g_.geoms if hasattr(g_, "geoms") else [g_]) if not q.is_empty and q.geom_type == "Polygon"]
+        solid = unary_union(_fill(pose["body"]) + _fill(pose["cream"]) + _fill(pose["navy"]) + _fill(pose["yellow"])).buffer(0.3).buffer(-0.3)      # the whole teddy incl. muzzle / ear insides, no gaps for the cloud line
         main_poly = main_poly.difference(solid.buffer(0.6))        # the cloud outline does not show through the teddy's cream parts
     add("main", main_poly, BASE_H, TOP)
     add("accent", unary_union([Polygon(pp[0], pp[1:]).buffer(0) for pp in asset["accent"]]), BASE_H, TOP)
     if own_bear:
-        # dark details of the teddy: on its body (eyes, paw / arm lines) they are CUT OUT so the cream paper shows (readable on any colour);
-        # on the cream muzzle (nose, mouth) and on the yellow (balloon stripes) they are printed in the plaque colour. No 4th filament.
         navy_ = pose["navy"]
-        fill_ = lambda g_: unary_union([Polygon(q.exterior) for q in (g_.geoms if hasattr(g_, "geoms") else [g_]) if not q.is_empty])      # holes filled (the nose is a hole in the muzzle)
-        light_ = unary_union([fill_(pose["cream"]), fill_(pose["yellow"])]).buffer(0.8)
-        parts_ = list(navy_.geoms) if hasattr(navy_, "geoms") else [navy_]
-        on_light = unary_union([affinity.scale(q, 0.75, 0.75, origin=q.centroid) if q.area < 30 else q for q in parts_ if not q.is_empty and light_.contains(q.representative_point()) and q.area < 30])     # the nose (a bit smaller than in the picture)
-        on_body_ = navy_.difference(on_light.buffer(0.05))
-        add("main", solid.difference(pose["cream"]).difference(on_body_).difference(pose["yellow"]), BASE_H, TOP)
-        add("main", on_light, BASE_H, TOP)
-        add("accent", pose["yellow"].difference(on_light), BASE_H, TOP)
+        if data.get("bear_details", "navy") == "navy":
+            # as in the first version: the teddy's dark details (eyes, nose, mouth, paw lines) in the 4th filament (dark navy), flush with the body
+            add("main", solid.difference(pose["cream"]).difference(navy_).difference(pose["yellow"]), BASE_H, TOP)
+            add("animal", navy_, BASE_H, TOP)
+            add("accent", pose["yellow"], BASE_H, TOP)
+        else:
+            # details on the body are CUT OUT (cream shows); on the muzzle / on the yellow they keep the plaque colour. No 4th filament.
+            fill_ = lambda g_: unary_union([Polygon(q.exterior) for q in (g_.geoms if hasattr(g_, "geoms") else [g_]) if not q.is_empty])
+            light_ = unary_union([fill_(pose["cream"]), fill_(pose["yellow"])]).buffer(0.8)
+            parts_ = list(navy_.geoms) if hasattr(navy_, "geoms") else [navy_]
+            on_light = unary_union([affinity.scale(q, 0.75, 0.75, origin=q.centroid) for q in parts_ if not q.is_empty and light_.contains(q.representative_point()) and q.area < 30])
+            on_body_ = navy_.difference(on_light.buffer(0.05))
+            add("main", solid.difference(pose["cream"]).difference(on_body_).difference(pose["yellow"]), BASE_H, TOP)
+            add("main", on_light, BASE_H, TOP)
+            add("accent", pose["yellow"].difference(on_light), BASE_H, TOP)
     elif asset.get("navy"):          # the bear's dark details (closed eyes, nose + mouth, paw outlines) in the 4th filament, flush with the body
         add("animal", unary_union([Polygon(pp[0], pp[1:]).buffer(0) for pp in asset["navy"]]), BASE_H, TOP)
     tb = asset["text"]
