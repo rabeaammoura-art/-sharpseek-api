@@ -770,7 +770,7 @@ def small_cloud(cx, cy, w):
     return unary_union([rrect(cx, cy, 30 * s, 9 * s, 4.5 * s), circle(cx - 6 * s, cy + 4 * s, 6 * s), circle(cx + 4 * s, cy + 5 * s, 7.5 * s)])
 
 
-def info_item(key, values, lang, rtl, h=17.0):
+def info_item(key, values, lang, rtl, h=19.0):
     """One inline info item (icon + value) for the birth-announcement lines. Left edge x=0, vertically centred on y=0."""
     ic = ICONS[key](1.0)
     b = ic.bounds
@@ -808,7 +808,7 @@ def layout_moon(data, add, layers, k, lang, rtl):
     add("main", ring(plate, 12), BASE_H, BASE_H + FRAME_RAISE)
     style = data.get("style", "moon")
     pose_name = data.get("pose", "sleep")
-    name_y, line_y, hearts = 0, (-38, -70), True
+    name_y, line_y, hearts = -16, (-62, -96), True
     if style == "arch":
         # night-window arch: a solid arch in the main colour, stars + moon inside, the teddy sits on a cream hill at its foot
         shape = unary_union([box(-66, 16, 66, 68), circle(0, 68, 66)])
@@ -837,10 +837,11 @@ def layout_moon(data, add, layers, k, lang, rtl):
             add("accent", star(x, y, r), BASE_H, TOP)
         name_y, line_y, hearts = -8, (-48, -80), True
     else:
-        outer_m = affinity.translate(affinity.scale(circle(0, 0, 1), 92, 46, origin=(0, 0)), 0, 76)
-        inner_m = affinity.translate(affinity.scale(circle(0, 0, 1), 92 * 0.93, 41, origin=(0, 0)), 0, 87)
+        outer_m = affinity.translate(affinity.scale(circle(0, 0, 1), 104, 50, origin=(0, 0)), 0, 66)
+        inner_m = affinity.translate(affinity.scale(circle(0, 0, 1), 104 * 0.93, 44, origin=(0, 0)), 0, 78)
         cover = outer_m.difference(inner_m)
-        pose = place_pose(pose_name, 0, 44, 80, 112)
+        pose = place_pose(pose_name, 0, 36, 94, 128)
+        name_y, line_y = -16, (-62, -96)
         add("accent", cover.difference(pose["yellow"]), BASE_H, TOP)
         for (x, y, r) in [(-112, 120, 7), (114, 112, 9), (122, 70, 5.5), (-124, 66, 5)]:
             add("accent", star(x, y, r), BASE_H, TOP)
@@ -854,14 +855,14 @@ def layout_moon(data, add, layers, k, lang, rtl):
         g = pose[role_src].difference(cover)
         add(role, g.intersection(on_body), TOP, TOP + 0.6)
         add(role, g.difference(on_body), BASE_H, TOP + 0.6)
-    add("main", put_text([(data["name"], 33 if lang == "ar" else 27, "word")], lang, rtl, 0, name_y, max_width=190), BASE_H, TOP + 0.4)
+    add("main", put_text([(data["name"], 38 if lang == "ar" else 31, "word")], lang, rtl, 0, name_y, max_width=200), BASE_H, TOP + 0.4)
     conv = (lambda s_: s_.translate(ARABIC_DIGITS)) if lang == "ar" else (lambda s_: s_)
     ampm = AMPM[lang][data.get("ampm", "AM").upper()]
     it = {
-        "date": info_item("date", [(conv(data["date"]), 17.5, "num")], lang, rtl, 17.0),
-        "time": info_item("time", [(conv(data["time"]), 17.5, "num"), (ampm, 10, "word")], lang, rtl),
-        "weight": info_item("weight", [(conv(data["weight"]), 17.5, "num"), (UNITS[lang]["weight"], 10, "word")], lang, rtl),
-        "length": info_item("length", [(conv(data["length"]), 17.5, "num"), (UNITS[lang]["length"], 10, "word")], lang, rtl),
+        "date": info_item("date", [(conv(data["date"]), 20, "num")], lang, rtl, 19.0),
+        "time": info_item("time", [(conv(data["time"]), 20, "num"), (ampm, 11, "word")], lang, rtl),
+        "weight": info_item("weight", [(conv(data["weight"]), 20, "num"), (UNITS[lang]["weight"], 11, "word")], lang, rtl),
+        "length": info_item("length", [(conv(data["length"]), 20, "num"), (UNITS[lang]["length"], 11, "word")], lang, rtl),
     }
     sep = heart(0, 0, 7)
     for y, pair in ((line_y[0], ("date", "time")), (line_y[1], ("weight", "length"))):
@@ -869,7 +870,7 @@ def layout_moon(data, add, layers, k, lang, rtl):
         add("main", m, BASE_H, TOP)
         add("accent", sp, BASE_H, TOP)
     if hearts:
-        add("accent", unary_union([heart(-24, -118, 8), heart(0, -114, 12), heart(24, -118, 8)]), BASE_H, TOP)
+        add("accent", unary_union([heart(-26, -126, 7), heart(0, -123, 10), heart(26, -126, 7)]), BASE_H, TOP)
 
 
 def layout_balloons(data, add, layers, k, lang, rtl):
