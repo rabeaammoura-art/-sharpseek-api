@@ -780,7 +780,7 @@ def layout_balloons(data, add, layers, k, lang, rtl):
     banner = unary_union([rrect(0, by0, 196, 38, 19), circle(0, by0 + 21, 17), circle(-38, by0 + 19, 13), circle(38, by0 + 19, 13),
                           circle(-72, by0 + 14, 10), circle(72, by0 + 14, 10)])
     # teddy in the chosen pose, sitting behind the top of the cloud
-    pose = place_pose(data.get("pose", "sleep"), 0, by0 + 21 + 17 - 7, 72, 92)
+    pose = place_pose(data.get("pose", "sleep"), 0, by0 + 21 + 17 - 7, 78, 100)
     cover = banner
     body = pose["body"].difference(pose["yellow"]).difference(cover)      # star / balloon sit in front of the body
     yellow = pose["yellow"].difference(cover)
@@ -797,18 +797,24 @@ def layout_balloons(data, add, layers, k, lang, rtl):
     name = data["name"]
     add("main", put_text([(name, 25 if lang == "ar" else 21, "word")], lang, rtl, 0, by0 - 8.5, max_width=160), BASE_H, TOP + 0.4)
 
-    # sky: hot-air balloons, small clouds, stars, one crescent
-    for (bx_, by_, br_) in [(-100, 112, 17), (-70, 98, 10.5), (104, 108, 19)]:
-        bod, stripe, rope = balloon_shape(bx_, by_, br_)
-        add("accent", bod, BASE_H, TOP)
-        add("main", unary_union([stripe, rope]), BASE_H, TOP)
-    for (cx_, cy_, w_) in [(-112, 72, 26), (110, 70, 28)]:
-        sc_ = small_cloud(cx_, cy_, w_)
-        add("base", sc_, BASE_H, TOP)
-        add("main", ring(sc_, rw(1.2)), BASE_H, TOP)
-    add("accent", crescent(66, 102, 11), BASE_H, TOP)
-    for (x, y, r) in [(-56, 126, 5.5), (60, 128, 6), (-124, 90, 5), (126, 82, 5)]:
-        add("accent", star(x, y, r), BASE_H, TOP)
+    # sky: "simple" (default) = one crescent + a few stars (calm); "balloons" = hot-air balloons + small clouds too
+    if data.get("decor", "simple") == "balloons":
+        for (bx_, by_, br_) in [(-100, 112, 17), (-70, 98, 10.5), (104, 108, 19)]:
+            bod, stripe, rope = balloon_shape(bx_, by_, br_)
+            add("accent", bod, BASE_H, TOP)
+            add("main", unary_union([stripe, rope]), BASE_H, TOP)
+        for (cx_, cy_, w_) in [(-112, 72, 26), (110, 70, 28)]:
+            sc_ = small_cloud(cx_, cy_, w_)
+            add("base", sc_, BASE_H, TOP)
+            add("main", ring(sc_, rw(1.2)), BASE_H, TOP)
+        add("accent", crescent(66, 102, 11), BASE_H, TOP)
+        for (x, y, r) in [(-56, 126, 5.5), (60, 128, 6), (-124, 90, 5), (126, 82, 5)]:
+            add("accent", star(x, y, r), BASE_H, TOP)
+    else:
+        add("accent", crescent(-96, 106, 17), BASE_H, TOP)
+        for (x, y, r) in [(-70, 124, 7), (92, 112, 10), (112, 80, 6)]:
+            add("accent", star(x, y, r), BASE_H, TOP)
+        add("main", star(-118, 74, 5.5), BASE_H, TOP)
 
     # info badges (date badge = pill)
     weight, length, time, date = data["weight"], data["length"], data["time"], data["date"]
