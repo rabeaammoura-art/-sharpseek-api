@@ -963,55 +963,50 @@ def layout_balloons(data, add, layers, k, lang, rtl):
 
 
 def layout_gpt(data, add, layers, k, lang, rtl):
-    """The owner's GPT design: ONE-colour teddy asleep on a cloud (traced to cad/poses/gpt_sleep.json), name inside the cloud, moon + stars,
-    four info boxes, small heart. Bear, cloud outline and frame share the main colour; cream muzzle / ears / eyes are holes."""
+    """The owner's GPT design, traced faithfully (cad/poses/gpt_cell_export.py -> gpt_sleep.json): frame, one-colour teddy asleep on a cloud,
+    blue star, the 4 info boxes and their icons, yellow moon / stars / heart. Only the TEXT is typeset with the real font, at the size and
+    place it has in the picture. Bear, cloud, boxes and frame share the main colour; muzzle / ears / eyes are cut-outs (cream shows)."""
     import json as _json
+    asset = _json.loads((Path(__file__).parent / "poses" / "gpt_sleep.json").read_text())
     plate = rrect(0, 0, SIZE, SIZE, 30)
     add("base", plate, 0, BASE_H)
-    add("main", ring(plate, 11), BASE_H, BASE_H + FRAME_RAISE)
-    asset = _json.loads((Path(__file__).parent / "poses" / "gpt_sleep.json").read_text())
-    bear_cloud = unary_union([Polygon(pp[0], pp[1:]).buffer(0) for pp in asset["main"]])
-    # closed sleepy eyes redrawn at a printable width (the picture's lines are far too thin): cream arcs cut into the bear
-    eyes = []
-    for (ex, ey, rot_) in [(-19.7, 82.4, -22), (4.4, 92.7, -25)]:
-        arc = ring(circle(0, 0, 6.8), rw(1.6)).intersection(box(-9, -9, 9, -1.5))
-        eyes.append(affinity.translate(affinity.rotate(arc, rot_, origin=(0, 0)), ex, ey))
-    bear_cloud = bear_cloud.difference(unary_union(eyes))
-    add("main", bear_cloud, BASE_H, TOP)
-    name = data["name"]
-    g = put_text([(name, 34 if lang == "ar" else 28, "word")], lang, rtl, 0, 0, max_width=float(data.get("name_w", 118)))
-    b = g.bounds
-    add("main", affinity.translate(g, -(b[0] + b[2]) / 2, 36.5 - (b[1] + b[3]) / 2), BASE_H, TOP + 0.4)
-    add("accent", crescent(-100, 103, 19), BASE_H, TOP)
-    for (x, y, r) in [(-69, 116, 7.7), (79, 120, 7), (102, 102, 11.5), (117, 77, 7)]:
-        add("accent", star(x, y, r), BASE_H, TOP)
-    add("main", star(-122, 54, 7), BASE_H, TOP)
+    add("main", ring(plate, 10.3), BASE_H, TOP)
+    add("main", unary_union([Polygon(pp[0], pp[1:]).buffer(0) for pp in asset["main"]]), BASE_H, TOP)
+    add("accent", unary_union([Polygon(pp[0], pp[1:]).buffer(0) for pp in asset["accent"]]), BASE_H, TOP)
+    tb = asset["text"]
+
+    def put(geom, bbox, align):
+        b_ = geom.bounds
+        x_ = bbox[2] - b_[2] if align == "right" else (bbox[0] + bbox[2]) / 2 - (b_[0] + b_[2]) / 2
+        y_ = (bbox[1] + bbox[3]) / 2 - (b_[1] + b_[3]) / 2
+        return affinity.translate(geom, x_, y_)
+
+    name_geom, _ = text_line([(data["name"], asset["name_size"] if lang == "ar" else asset["name_size"] * 0.8, "name" if lang == "ar" else "word")], lang, rtl)
+    nb = tb["name"]
+    maxw = (nb[2] - nb[0]) * float(data.get("name_fit", 1.12))
+    if name_geom.bounds[2] - name_geom.bounds[0] > maxw:
+        f_ = maxw / (name_geom.bounds[2] - name_geom.bounds[0])
+        name_geom = affinity.scale(name_geom, f_, f_, origin=(0, 0))
+    add("main", put(name_geom, nb, "center"), BASE_H, TOP + 0.4)
     weight, length, time, date = data["weight"], data["length"], data["time"], data["date"]
     ampm = AMPM[lang][data.get("ampm", "AM").upper()]
     conv = (lambda s_: s_.translate(ARABIC_DIGITS)) if lang == "ar" else (lambda s_: s_)
+    vf, lf = asset["value_factor"], asset["label_factor"]
     values = {
-        "weight": [(conv(weight), 17, "num"), (UNITS[lang]["weight"], 9, "word")],
-        "length": [(conv(length), 17, "num"), (UNITS[lang]["length"], 9, "word")],
-        "date": [(conv(date), 14.5, "num")],
-        "time": [(conv(time), 17, "num"), (ampm, 9, "word")],
+        "weight": [(conv(weight), 17 * vf, "num"), (UNITS[lang]["weight"], 9 * vf, "word")],
+        "length": [(conv(length), 17 * vf, "num"), (UNITS[lang]["length"], 9 * vf, "word")],
+        "date": [(conv(date), 14.5 * vf, "num")],
+        "time": [(conv(time), 17 * vf, "num"), (ampm, 9 * vf, "word")],
     }
-    order = ["weight", "length", "date", "time"]
-    r1, r2 = -25, -77
-    slots = [(66, r1), (-66, r1), (66, r2), (-66, r2)] if rtl else [(-66, r1), (66, r1), (-66, r2), (66, r2)]
-    for key, (bx, by) in zip(order, slots):
-        add("main", ring(rrect(bx, by, 124, 43, 10), rw(1.2)), BASE_H, TOP)
-        add("main", affinity.translate(ICONS[key](1.0), bx - 39, by), BASE_H, TOP)
-        tx_right, tx_left = bx + 55, bx - 19
-        if k >= 0.6:
-            lab, _ = text_line([(LABELS[lang][key], 7.5, "word")], lang, rtl)
-            lw = max(lab.bounds[2], 1)
-            scale = min(1, 70 / lw)
-            lab = affinity.scale(lab, scale, scale, origin=(0, 0))
-            x0 = (tx_right - lw * scale) if rtl else tx_left
-            add("main", affinity.translate(lab, x0, by + 7), BASE_H, TOP)
-        vy = by - 13 if k >= 0.6 else by - 7
-        add("main", put_text(values[key], lang, rtl, tx_right if rtl else tx_left, vy, "right" if rtl else "left", 72), BASE_H, TOP)
-    add("accent", heart(0, -118, 19.5), BASE_H, TOP)
+    for key in ("weight", "length", "date", "time"):
+        lab, _ = text_line([(LABELS[lang][key], 7.5 * lf, "word")], lang, rtl)
+        add("main", put(lab, tb[key]["label"], "right"), BASE_H, TOP)
+        val, _ = text_line(values[key], lang, rtl)
+        vb = tb[key]["value"]
+        if val.bounds[2] - val.bounds[0] > (vb[2] - vb[0]) * 1.1:
+            f_ = (vb[2] - vb[0]) * 1.1 / (val.bounds[2] - val.bounds[0])
+            val = affinity.scale(val, f_, f_, origin=(0, 0))
+        add("main", put(val, vb, "right"), BASE_H, TOP)
 
 
 def build(data):
