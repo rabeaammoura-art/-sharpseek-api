@@ -991,6 +991,12 @@ def build(data):
                               circle(-72, 72, 10), circle(72, 72, 10)])
         if data.get("cloud") == "soft":      # round C: calmer cloud, 3 big round bumps, no small ones
             banner = unary_union([rrect(0, 58, 200, 38, 19), circle(0, 76, 18), circle(-42, 72, 14), circle(42, 72, 14)])
+        elif data.get("cloud") == "real":    # round C: a fluffy cumulus: puffs of different sizes (not symmetric), scalloped underside
+            puffs = [(-74, 64, 13), (-42, 71, 18), (-6, 76, 22), (34, 72, 18), (66, 68, 15), (88, 60, 11)]
+            under = [(x_, 47.5, 10) for x_ in range(-80, 81, 20)]
+            banner = unary_union([rrect(0, 57, 176, 26, 13)] + [circle(x_, y_, r_) for x_, y_, r_ in puffs + under])
+            banner = banner.buffer(3, join_style=1).buffer(-3, join_style=1)        # soft, rounded joints between the puffs
+            banner_top = banner.bounds[3]
         if data.get("pose"):                 # round C: the original teddy in one of its poses (cad/poses/poses.json)
             top = banner.bounds[3]
             hide = {"sleep": 14, "cheer": 22, "balloon": 20, "star": 8}.get(data["pose"], 14)      # part of the teddy hidden behind the cloud (peeking)
@@ -1013,7 +1019,7 @@ def build(data):
         add("base", banner.difference(paws), BASE_H, TOP)  # cream fill hides animal parts behind the cloud
         add("main", ring(banner, rw(1.4)).difference(paws.buffer(1.0)), BASE_H, TOP)
         name = data["name"]
-        add("main", put_text([(name, 25 if lang == "ar" else 21, "word")], lang, rtl, 0, 49.5, max_width=160), BASE_H, TOP + 0.4)
+        add("main", put_text([(name, 25 if lang == "ar" else 21, "word")], lang, rtl, 0, 50.5 if data.get("cloud") == "real" else 49.5, max_width=160), BASE_H, TOP + 0.4)
 
         # sky decoration
         add("accent", crescent(-98, 110, 19), BASE_H, TOP)
@@ -1057,7 +1063,11 @@ def build(data):
         pad = rrect(0, -97, 124, 62, 12)
         if boxes:
             add("main", ring(pad, rw(1.2)), BASE_H, TOP)
-        add("accent", heart(0, -97, 12), BASE_H, TOP)
+        if data.get("blessing"):          # round C: a blessing / dua in the footprint box (default for AR: ما شاء الله)
+            add("main", put_text([(data["blessing"], 22 if lang == "ar" else 17, "word")], lang, rtl, 0, -105 if lang == "ar" else -103, max_width=70), BASE_H, TOP)
+            add("accent", unary_union([heart(-48, -97, 7), heart(48, -97, 7)]), BASE_H, TOP)
+        else:
+            add("accent", heart(0, -97, 12), BASE_H, TOP)
     if data.get("stand") == "rails" and data.get("layout") not in ("night", "train", "horse"):
         # T-shaped rails recessed in the two side frame bands (see STANDS.md): cut the base and the frame ring
         opening, cavity = rail_cutters(size)
