@@ -992,10 +992,10 @@ def build(data):
         if data.get("cloud") == "soft":      # round C: calmer cloud, 3 big round bumps, no small ones
             banner = unary_union([rrect(0, 58, 200, 38, 19), circle(0, 76, 18), circle(-42, 72, 14), circle(42, 72, 14)])
         elif data.get("cloud") == "real":    # round C: a fluffy cumulus: puffs of different sizes (not symmetric), scalloped underside
-            puffs = [(-74, 64, 13), (-42, 71, 18), (-6, 76, 22), (34, 72, 18), (66, 68, 15), (88, 60, 11)]
-            under = [(-80, 11), (-58, 14), (-34, 10), (-8, 15), (18, 12), (42, 14), (64, 10), (84, 9)]       # underside puffs of different sizes, like the top
-            banner = unary_union([rrect(0, 57, 176, 26, 13)] + [circle(x_, y_, r_) for x_, y_, r_ in puffs] + [circle(x_, 32 + r_, r_) for x_, r_ in under])
-            banner = banner.buffer(3, join_style=1).buffer(-3, join_style=1)        # soft, rounded joints between the puffs
+            top_l = [(-82, 60, 13), (-62, 68, 17), (-34, 72, 20), (-4, 77, 23), (26, 74, 21), (54, 70, 19), (78, 63, 15)]   # overlapping round lobes: shallow notches, tallest near the centre
+            bot_l = [(-60, 48, 12), (-26, 47, 13), (8, 47, 13), (42, 47, 13), (70, 49, 11)]                                      # gentle shallow dips underneath
+            banner = unary_union([rrect(0, 56, 176, 30, 15)] + [circle(x_, y_, r_) for x_, y_, r_ in top_l + bot_l])
+            banner = banner.buffer(3.5, join_style=1).buffer(-3.5, join_style=1)        # soft, rounded joints between the lobes
             banner_top = banner.bounds[3]
         if data.get("pose"):                 # round C: the original teddy in one of its poses (cad/poses/poses.json)
             top = banner.bounds[3]
@@ -1062,13 +1062,23 @@ def build(data):
             g = put_text(values[key], lang, rtl, tx_right if rtl else tx_left, vy, "right" if rtl else "left", 72)
             add("main", g, BASE_H, TOP)
 
-        # footprint area: raised rim, flat inside for a sticker / ink print
+        # footprint area: raised rim, flat inside for a sticker / ink print  (round C "real" cloud: no box, optional free text instead)
+        real_c = data.get("cloud") == "real"
         pad = rrect(0, pad_y, 124, 58 if dr else 62, 12)
-        if boxes:
+        if boxes and not real_c:
             add("main", ring(pad, rw(1.2)), BASE_H, TOP)
-        if data.get("blessing"):          # round C: a blessing / dua in the footprint box (default for AR: ما شاء الله)
-            add("main", put_text([(data["blessing"], 22 if lang == "ar" else 17, "word")], lang, rtl, 0, pad_y - 8 if lang == "ar" else pad_y - 6, max_width=70), BASE_H, TOP)
-            add("accent", unary_union([heart(-48, pad_y, 7), heart(48, pad_y, 7)]), BASE_H, TOP)
+        if data.get("blessing"):          # buyer's choice: a dua, the meaning of the name, an ayah ... (1-2 lines, separate lines with \n)
+            lines_ = str(data["blessing"]).split("\n")[:2]
+            n_ = len(lines_)
+            sz_ = (21 if lang == "ar" else 17) if n_ == 1 else (16.5 if lang == "ar" else 13.5)
+            gs_ = []
+            for i_, ln_ in enumerate(lines_):
+                yb_ = pad_y - 8 + (n_ - 1) * 10 - i_ * 20
+                gs_.append(put_text([(ln_, sz_, "word")], lang, rtl, 0, yb_, max_width=200))
+            add("main", unary_union(gs_), BASE_H, TOP)
+            if n_ == 1:
+                x0_, _, x1_, _ = gs_[0].bounds
+                add("accent", unary_union([heart(x0_ - 11, pad_y, 7), heart(x1_ + 11, pad_y, 7)]), BASE_H, TOP)
         else:
             add("accent", heart(0, pad_y, 12), BASE_H, TOP)
     if data.get("stand") == "rails" and data.get("layout") not in ("night", "train", "horse"):
