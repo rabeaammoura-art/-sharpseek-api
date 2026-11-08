@@ -1212,7 +1212,10 @@ def build(data):
             layers[role] = capped
         nut_name, nut = fix_spec(size)
         pockets = unary_union([hexagon(x / k, y / k, (nut["af"] + 0.3) / k) for x, y in fix_points(size)])
-        layers["base"][0] = (only_polygons(plate_g.difference(unary_union(openings)).difference(pockets)), 0, BASE_H)
+        base_g = only_polygons(plate_g.difference(unary_union(openings)).difference(pockets))
+        if data.get("layout") == "gpt":      # closing: removes vertex-touching edges (the slicer / mesh would be non-manifold)
+            base_g = only_polygons(base_g.buffer(0.2 / k, join_style=1).buffer(-0.2 / k, join_style=1).simplify(0.02 / k))
+        layers["base"][0] = (base_g, 0, BASE_H)
     if glow:
         # backlit coloured glass: opaque base, every coloured part flush with it and through its full thickness
         plate_g = layers["base"][0][0]                 # the first base item is the plate itself
