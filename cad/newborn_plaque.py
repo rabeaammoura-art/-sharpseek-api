@@ -998,10 +998,19 @@ def build(data):
             hull = Polygon([(140, -380), (210, -292), (310, -265), (415, -345), (405, -385), (285, -395)])
             cs = unary_union([hull] + [Point(x_, -y_).buffer(r_, 64) for x_, y_, r_ in lobes])
             cx0, cy0, cx1, cy1 = cs.bounds
-            cw, ch = float(data.get("cloud_w", 190)), float(data.get("cloud_h", 64))
-            sx, sy = cw / (cx1 - cx0), ch / (cy1 - cy0)
-            banner = affinity.translate(affinity.scale(affinity.translate(cs, -(cx0 + cx1) / 2, -cy0), sx, sy, origin=(0, 0)), 0, 32)
-            peak_x = (310 - (cx0 + cx1) / 2) * sx           # the bear sits on the tallest lobe
+            cw, ch = float(data.get("cloud_w", 190)), float(data.get("cloud_h", 62))
+            sc_ = ch / (cy1 - cy0)                                   # UNIFORM scale: the arcs keep exactly the shape of the picture
+            cs = affinity.scale(affinity.translate(cs, -cx0, -cy0), sc_, sc_, origin=(0, 0))
+            w0 = (cx1 - cx0) * sc_
+            xc = (300 - cx0) * sc_                                   # cut just left of the tallest lobe: there both the top and the bottom are nearly flat
+            dw = max(0.0, cw - w0)                                   # width control = widening of this middle slice only
+            left_ = cs.intersection(box(-1e3, -1e3, xc, 1e3))
+            right_ = affinity.translate(cs.intersection(box(xc, -1e3, 1e3, 1e3)), dw, 0)
+            cut_ = cs.intersection(LineString([(xc, -10), (xc, 1e3)]))
+            mid_ = box(xc - 0.05, cut_.bounds[1], xc + dw + 0.05, cut_.bounds[3])
+            banner = unary_union([left_, right_, mid_])
+            banner = affinity.translate(banner, -(xc + dw / 2), 32)  # slice centre on the plate centre line
+            peak_x = 0.0                                             # the teddy sits on the flat top of the tallest lobe
             cloud_cy = banner.centroid.y
         if data.get("pose"):                 # round C: the original teddy in one of its poses (cad/poses/poses.json)
             top = banner.bounds[3]
