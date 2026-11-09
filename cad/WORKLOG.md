@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-09 (cloud) — Chandelier (pendant shade) draft from the owner's wavy vase (designer permission asked by the owner)
+- Source = third-party BY-ND vase ("Flow" wavy planter, 89 x 89 x 138, solid mesh made for vase mode, bottom disc only 3 layers = 0.6 mm), so file and derived STL stay OUT of git (scratchpad only; keep the designer's written OK).
+- Owner decisions: one pendant, E27 LED bulb, translucent PETG (all colours), PLA silk only as an opaque decor option. The commercial E27 holder brings its own ring/nut: no printed fixing ring.
+- Draft built (scale 1.5 = 134 x 134 x 207): hollowed by 1.0 mm normal offset, 3 mm flange at the closed end with a 38 mm hole (DRAFT value, to be set from the real holder's neck/flange), open end down. One body, watertight (manifold3d), ~156 cm3 as modelled (~200 g PETG as a solid upper bound; NOT sliced). Printed as normal walls, not vase mode, because vase mode cannot make the hole.
+- Left: measure the real E27 holder (neck diameter, flange), slice (/3d-print-test, /3d-cost), run `cad/setup.sh` first; check LED heat (<= 9 W), real light look after the first print.
+
 ## 2026-11-07 (cloud) — Maryam plaque: square 280 x 280 (fits the EXISTING box) + backlit (glow_cap) build
 - Owner: keep the box as it is, change the plaque size -> plate 280 x 280 (r 28): butterflies / bottom sprigs moved out, sprigs stretched, pills 15 mm wider, same content. Backlit like the original plaque: opaque white base with openings, translucent pink (2 levels: fills 1.2, frame / Kitty lines / text / icons 1.8) and yellow (1.2) caps, frame has no opening, 2 nut pockets as in `fix_points`. 3 slots used (white opaque, pink translucent, yellow translucent), tower x=287.
 - Checks: 3 meshes watertight (base needed a 0.12/-0.06 buffer to remove 3-4 vertex-touching edges), `print_test` 0 problems, opening not covered by a cap = 0 mm2 (no light leak), interference with `glow_box_280.stl` = 0 mm3, base pieces 22 (smallest 6.9 mm2). CLI slice (PETG 0.24, tower on, 4 --filament args): 5h48m / 194 g (price per kg is the plain PETG estimate, translucent costs more). Not print-tested.
