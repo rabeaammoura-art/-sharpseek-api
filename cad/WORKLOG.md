@@ -5,6 +5,13 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-10 (cloud) — PS5 controller holder with a footballer figure (gift for the owner's nephew, NOT for sale)
+- Owner's idea: take a proven MakerWorld holder (figure + base + controller dummy; owner asked the designer for permission), put the owner's Meshy footballer figure in the original figure's place at the same size, then move its bones to the same pose. Done with Blender as a module (`pip install bpy`, automatic weights + 2-bone IK): figure 143 mm, watertight, body not distorted.
+- Contact vs the original figure (software only): fists 1.5 mm into the controller dummy (original palms 1.7), support x -20..20 (orig -18..21), head gap 0.9 mm (orig helmet 1.1). Face is hidden from the front by the controller, as in the original (owner chose exact size over a visible face).
+- Tried and dropped: pillars under the controller (owner: no), arms opened wide (looked too long), hand-made vertex blending (tore the mesh), scale 0.7.
+- Scripts + notes in `cad/controller_holder/` (README has the steps and numbers). Models stay out of git (`work/` ignored): they live only in the session scratch and on the owner's machine.
+- Left: owner's OK on the preview, union with the base, cut the seat in the fists, `print_test`, slice for time. Another player = new Meshy figure in a similar stance + re-measure joints.
+
 ## 2026-11-07 (cloud) — Maryam plaque: square 280 x 280 (fits the EXISTING box) + backlit (glow_cap) build
 - Owner: keep the box as it is, change the plaque size -> plate 280 x 280 (r 28): butterflies / bottom sprigs moved out, sprigs stretched, pills 15 mm wider, same content. Backlit like the original plaque: opaque white base with openings, translucent pink (2 levels: fills 1.2, frame / Kitty lines / text / icons 1.8) and yellow (1.2) caps, frame has no opening, 2 nut pockets as in `fix_points`. 3 slots used (white opaque, pink translucent, yellow translucent), tower x=287.
 - Checks: 3 meshes watertight (base needed a 0.12/-0.06 buffer to remove 3-4 vertex-touching edges), `print_test` 0 problems, opening not covered by a cap = 0 mm2 (no light leak), interference with `glow_box_280.stl` = 0 mm3, base pieces 22 (smallest 6.9 mm2). CLI slice (PETG 0.24, tower on, 4 --filament args): 5h48m / 194 g (price per kg is the plain PETG estimate, translucent costs more). Not print-tested.
