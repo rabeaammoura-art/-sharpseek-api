@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-10 (cloud) — Maryam v3: grid under the butterfly wings replaced by one rib per wing (owner's choice)
+- Only 2 openings were wider than 20 mm (upper wings, span 20.7). `rebuild_thick.py` now cuts ONE 1.4 mm base rib along the long axis (`vein`), spans after 10.7 / 11.4 mm. Supports instead of ribs were discussed and rejected (cap sits on a 0.4 mm ledge, PETG on PETG, scar on the light face).
+- Checks: 3 meshes watertight, `print_test` 0 problems, uncovered opening 0 mm2. Not re-sliced (base changed by < 0.2 cm3; time stays ~6h54m). Zip v3 sent to the owner (not in git). Left: owner's OK, real values for Maryam, prices, time decisions from the entry below.
+
 ## 2026-11-10 (cloud) — why the lit 280 plaque takes ~7 h (owner: too long; compare Maryam with Yusuf)
 - Same settings for both (PETG Basic white base + PETG Translucent caps, 0.24, tower): Maryam 6h54m / 194.5 g, Yusuf 280 6h11m / 201.7 g, Yusuf 200 3h46m / 108 g. Maryam +43 min = pink 52 g vs 28 g and more outlines (walls 72 vs 45 min raw, travel 69 vs 51).
 - Where the time goes (both): the solid white base 280 x 280 x 2.4 (10 of 18 layers, about 60 %). One base layer (6) takes 43-46 min = slow bridge layer over the 2 sparse layers inside the base. Bambu's PETG Translucent profile is limited to 6 mm3/s (Basic 18, HF 25): all PETG Basic gives 5h53m (that is the 5h48m of 7 Nov), all PLA 5h41m.

@@ -26,11 +26,24 @@ if GROW>0:
     l2=n.only_polygons(unary_union(rest+[kg]))
     l1=n.only_polygons(l1.difference(kg))
 l1=minpoly(l1,2.0); l2=minpoly(l2,0.5)
+import shapely
+from shapely.geometry import LineString
+def mic(p): return 2*shapely.maximum_inscribed_circle(p,0.05).length
+def vein(p,width=1.4,max_span=20.0):
+    """One base rib along the long axis of an opening that is too wide to bridge (instead of the add_ribs grid)."""
+    if p.area<1 or mic(p)<=max_span: return p
+    r=list(p.minimum_rotated_rectangle.exterior.coords)[:4]
+    e=[(np.hypot(r[(i+1)%4][0]-r[i][0],r[(i+1)%4][1]-r[i][1]),i) for i in range(4)]
+    L,i=max(e); a=np.array(r[i]); b=np.array(r[(i+1)%4]); c=np.array(r[(i+2)%4]); d=np.array(r[(i+3)%4])
+    m0=(a+d)/2; m1=(b+c)/2; u=(m1-m0)/np.linalg.norm(m1-m0)
+    q=p.difference(LineString([m0-2*u,m1+2*u]).buffer(width/2,cap_style=2))
+    print('  vein in opening at',[round(v,1) for v in p.centroid.coords[0]],'span before',round(mic(p),1),'after',[round(mic(g),1) for g in geoms(q) if g.area>1])
+    return q
 holes=[]
 for g in (l1,l2,Y):
     h=g.buffer(-OVL,join_style=1)
     for p in geoms(h):
-        if not p.is_empty and p.area>0.3: holes.append(n.add_ribs(p,1.0))
+        if not p.is_empty and p.area>0.3: holes.append(vein(p))
 nut_name,nut=n.fix_spec(SIZE)
 pockets=unary_union([n.hexagon(x,y,nut['af']+0.3) for x,y in n.fix_points(SIZE)])
 base_g=n.only_polygons(OUT.difference(unary_union(holes)).difference(pockets))
