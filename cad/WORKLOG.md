@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-10 (cloud) — horse plaque 300 x 200 rebuilt from the Manus picture with `zt_forge.py`
+- Manus's STL had the black horse HIGH (light) = wrong against its own picture, 4.8 mm thick, no swaps. Rebuilt in colour mode, base 0.64 / top 2.4: black, blue, cyan, white PLA+ (swaps at layers 8 / 9 / 15, dE 10.5). With 3 colours (no cyan) water and sky turn lilac (dE 12.9). STL closed, 66.7 cm3.
+- Slice (0.08, first 0.16, 100 %, PLA Basic, one colour, no swaps / tower): 9h06m / 82.2 g (Manus's STL: 22h15m / 183.7 g). Cyan and blue hex / TD are guesses. Outputs in `cad/out/hueforge/` (not in git).
+- Left: owner's decision on size (9 h is long; 200 x 133 untested), print_test, 4-slot 3MF with the swaps for a tower slice.
+
 ## 2026-11-10 (cloud) — owner's `horse_v3_300x200_experimental.stl` checked (STL only, no picture / colours / swaps)
 - Heightfield 300 x 200, 0.64-4.8 mm (continuous heights, 901 x 601 grid), closed mesh, 149 cm3; 42 % of the area is above 2.4 mm. Edges of the reflection are ragged. Slice (0.08 Extra Fine, first 0.16, 100 %, PLA Basic, one colour, no swaps / tower): 22h15m / 183.7 g. File not in git.
 - Left: the source picture + filament list (without them there is no swap plan), and a thinner rebuild (top 2.4) through `zt_forge.py`.
