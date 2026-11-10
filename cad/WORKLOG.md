@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-10 (cloud) — owner's `horse_v3_300x200_experimental.stl` checked (STL only, no picture / colours / swaps)
+- Heightfield 300 x 200, 0.64-4.8 mm (continuous heights, 901 x 601 grid), closed mesh, 149 cm3; 42 % of the area is above 2.4 mm. Edges of the reflection are ragged. Slice (0.08 Extra Fine, first 0.16, 100 %, PLA Basic, one colour, no swaps / tower): 22h15m / 183.7 g. File not in git.
+- Left: the source picture + filament list (without them there is no swap plan), and a thinner rebuild (top 2.4) through `zt_forge.py`.
+
 ## 2026-11-10 (cloud) — Manus "HueForge demo pack" reviewed (owl / koi / horse images + guide)
 - Pack = 3 AI source images (1920 px), a guide about HueForge modes, a layer-arithmetic checker and an owl STL that is only a brightness relief (no colour model, no swaps: not printable as a painting). Nothing sliced or calibrated there; nothing from it copied into git.
 - The 3 images run through `zt_forge.py` at 200 mm with stock PLA+ (TD guesses): owl black+white (1 swap, layer 16) and koi black+red+white (swaps 8 / 11) look good; horse black+blue+white is weak (grey body turns black/white, sky lilac). All 3 STLs closed. Not sliced. Left: owner's pick of what goes to the first test prints.
