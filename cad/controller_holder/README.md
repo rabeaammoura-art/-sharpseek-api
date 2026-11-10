@@ -15,6 +15,8 @@ figure is an AI-generated likeness. Everything in `work/` is git-ignored; keep t
 5. `python ../5_preview.py`
 6. `python ../6_assemble.py` -> `holder_final.stl` (figure + base - controller dummy), then `cad/print_test.py` on it
 
+7. `python ../7_colour_split.py` (venv python) -> `holder_4colour.3mf`, a rough 4-colour split for a time estimate only
+
 ## What was learned
 - The original figure faces the controller: it sits on the two **palms** (about 1.7 mm into the dummy, x -18..21) and
   leans on the **helmet** (1.1 mm gap); the chest is 7 mm away. The head is hidden from the front by design.
