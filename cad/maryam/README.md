@@ -10,3 +10,5 @@ Only these scripts are committed; run them in a scratch dir that holds the pictu
    opening, 2 nut pockets) -> `maryam_{base,main,accent}.stl`, `maryam_lit_280.3mf` (tower at x = 287). Needs `G6.pkl`.
 Pink level 1 (fills) 1.2 mm, level 2 (frame, Kitty lines, bow creases, text, icons) 1.8 mm, yellow 1.2 mm on a 2.4 mm base.
 Paths in the scripts are those of the cloud scratch dir: adjust `sys.path` to `cad/`. Box + kickstand: `cad/print_files/glow_cap/glowcap_all_280.3mf`.
+4. Without the picture / `G6.pkl` (new session, only the owner's package zip): `recover_from_stl.py R.pkl <stl dir>` then `rebuild_thick.py 0.4 <outdir>`
+   (Kitty line art +0.4 mm per side, so its light openings double; everything else identical). Needs `networkx` and `manifold3d`.
