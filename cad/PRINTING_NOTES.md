@@ -27,3 +27,5 @@
   tower 3 mm right of it, as wide as the room allows (8-14 mm). `TOWER_LIMIT = 305` in `newborn_plaque.py`.
 - 285 mm (tower 12 mm): 4h24m / 199.5 g (PLA). 290 mm (tower 8 mm): 4h37m / 207.6 g (PLA). 300 mm: no room (tried in Bambu Studio, failed).
 - Bigger coloured plaques would need: two half-plates joined, or a single-colour print (no tower).
+
+- **100 % infill through the CLI:** `--set sparse_infill_density=100%` alone fails ("Invalid parameter value(s)", 0h00m); add `--set sparse_infill_pattern=zig-zag`.

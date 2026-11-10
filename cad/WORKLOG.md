@@ -5,6 +5,13 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-10 (cloud) — HueForge-style filament painting: tool brought into the repo + first real slice (Jerusalem wall art)
+- Owner uploaded the handoff zip of a chat session (9 Nov). `cad/hueforge/` = `zt_forge.py` (image -> heightfield STL + simulated preview + swap layers) and `check_stl.py`, see its README. Images, STL, previews, research on the downloaded rose stay out of git (`cad/out/hueforge/`); price sheet copied to `cad/config/` (git-ignored).
+- Dome of the Rock 200 x 200 regenerated: preview pixel-identical to the handoff, swaps #8 blue / #12 silk gold / #22 white, STL closed, 33.2 cm3. `print_test` on the 100 mm sample: 0 problems (note: details thinner than 0.7 mm).
+- Real slice (0.08 Extra Fine, first layer 0.16, 100 % infill, PLA Basic, ONE colour so without the 3 swaps / tower): 200 mm = 4h40m / 40.9 g, 100 mm sample = 1h20m / 10.2 g (the chat's guess was 2.5-3 h and 45-60 min). Slicer warning "floating regions" on both = single raised pixels of the colour mode, not real islands.
+- Fixed: `sparse_infill_density=100%` through the CLI needs `sparse_infill_pattern=zig-zag` too (this was the 0h00m failure of the entry below); `requirements.txt` now has `manifold3d`, `networkx`, `openpyxl`.
+- Left: TD of PLA+ Blue and Silk Gold are guesses until a printed sample is photographed; a 4-slot 3MF with the swaps built in (for a slice with the tower); the thin cable right of the dome in the picture; time is long for the owner's taste (ideas: 0.12 layers, smaller size) - not decided.
+
 ## 2026-11-10 (cloud) — Maryam v4 (current): no ribs under the butterfly wings
 - Owner noticed the smaller wings had no rib: the two upper wings were only 0.7 mm over the 20 mm rule (span 20.7; next widest openings 16.9). Owner: pick what fits, as long as it does not sag -> bridge limit raised to 21 mm in `rebuild_thick.py` (3rd argument), so no rib and no grid. v3 (one rib per wing, entry below) is superseded; `rebuild_thick.py 0.4 out 20` brings the rib back if the real print sags.
 - Checks: 3 meshes watertight, `print_test` 0 problems, uncovered opening 0 mm2. Not re-sliced (time stays ~6h54m). Zip v4 sent to the owner (not in git). Left: real values for Maryam, prices, time decisions; bridge of 20.7 mm is unproven until the printer arrives.
