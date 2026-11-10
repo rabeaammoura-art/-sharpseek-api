@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-10 (cloud) — Manus "HueForge demo pack" reviewed (owl / koi / horse images + guide)
+- Pack = 3 AI source images (1920 px), a guide about HueForge modes, a layer-arithmetic checker and an owl STL that is only a brightness relief (no colour model, no swaps: not printable as a painting). Nothing sliced or calibrated there; nothing from it copied into git.
+- The 3 images run through `zt_forge.py` at 200 mm with stock PLA+ (TD guesses): owl black+white (1 swap, layer 16) and koi black+red+white (swaps 8 / 11) look good; horse black+blue+white is weak (grey body turns black/white, sky lilac). All 3 STLs closed. Not sliced. Left: owner's pick of what goes to the first test prints.
+
 ## 2026-11-10 (cloud) — HueForge-style filament painting: tool brought into the repo + first real slice (Jerusalem wall art)
 - Owner uploaded the handoff zip of a chat session (9 Nov). `cad/hueforge/` = `zt_forge.py` (image -> heightfield STL + simulated preview + swap layers) and `check_stl.py`, see its README. Images, STL, previews, research on the downloaded rose stay out of git (`cad/out/hueforge/`); price sheet copied to `cad/config/` (git-ignored).
 - Dome of the Rock 200 x 200 regenerated: preview pixel-identical to the handoff, swaps #8 blue / #12 silk gold / #22 white, STL closed, 33.2 cm3. `print_test` on the 100 mm sample: 0 problems (note: details thinner than 0.7 mm).
