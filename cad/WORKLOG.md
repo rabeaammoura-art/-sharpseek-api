@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-10 (cloud) — Maryam v4 (current): no ribs under the butterfly wings
+- Owner noticed the smaller wings had no rib: the two upper wings were only 0.7 mm over the 20 mm rule (span 20.7; next widest openings 16.9). Owner: pick what fits, as long as it does not sag -> bridge limit raised to 21 mm in `rebuild_thick.py` (3rd argument), so no rib and no grid. v3 (one rib per wing, entry below) is superseded; `rebuild_thick.py 0.4 out 20` brings the rib back if the real print sags.
+- Checks: 3 meshes watertight, `print_test` 0 problems, uncovered opening 0 mm2. Not re-sliced (time stays ~6h54m). Zip v4 sent to the owner (not in git). Left: real values for Maryam, prices, time decisions; bridge of 20.7 mm is unproven until the printer arrives.
+
 ## 2026-11-10 (cloud) — Maryam v3: grid under the butterfly wings replaced by one rib per wing (owner's choice)
 - Only 2 openings were wider than 20 mm (upper wings, span 20.7). `rebuild_thick.py` now cuts ONE 1.4 mm base rib along the long axis (`vein`), spans after 10.7 / 11.4 mm. Supports instead of ribs were discussed and rejected (cap sits on a 0.4 mm ledge, PETG on PETG, scar on the light face).
 - Checks: 3 meshes watertight, `print_test` 0 problems, uncovered opening 0 mm2. Not re-sliced (base changed by < 0.2 cm3; time stays ~6h54m). Zip v3 sent to the owner (not in git). Left: owner's OK, real values for Maryam, prices, time decisions from the entry below.

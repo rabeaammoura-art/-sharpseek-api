@@ -12,4 +12,4 @@ Pink level 1 (fills) 1.2 mm, level 2 (frame, Kitty lines, bow creases, text, ico
 Paths in the scripts are those of the cloud scratch dir: adjust `sys.path` to `cad/`. Box + kickstand: `cad/print_files/glow_cap/glowcap_all_280.3mf`.
 4. Without the picture / `G6.pkl` (new session, only the owner's package zip): `recover_from_stl.py R.pkl <stl dir>` then `rebuild_thick.py 0.4 <outdir>`
    (Kitty line art +0.4 mm per side, so its light openings double; everything else identical). Needs `networkx` and `manifold3d`.
-   Wide openings (> 20 mm, the two upper butterfly wings) get ONE 1.4 mm base rib along the wing (`vein`), not the `add_ribs` grid (owner's choice 2026-11-10).
+   `rebuild_thick.py 0.4 <outdir> [max_span]`: openings wider than max_span (default 21 mm) get ONE 1.4 mm base rib (`vein`). Default = no rib at all: the widest openings are the two upper butterfly wings at 20.7 mm (owner's choice 2026-11-10; pass 20 to get the ribs back if they sag).
