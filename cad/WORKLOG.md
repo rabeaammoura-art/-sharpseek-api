@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-10 (cloud) — why the lit 280 plaque takes ~7 h (owner: too long; compare Maryam with Yusuf)
+- Same settings for both (PETG Basic white base + PETG Translucent caps, 0.24, tower): Maryam 6h54m / 194.5 g, Yusuf 280 6h11m / 201.7 g, Yusuf 200 3h46m / 108 g. Maryam +43 min = pink 52 g vs 28 g and more outlines (walls 72 vs 45 min raw, travel 69 vs 51).
+- Where the time goes (both): the solid white base 280 x 280 x 2.4 (10 of 18 layers, about 60 %). One base layer (6) takes 43-46 min = slow bridge layer over the 2 sparse layers inside the base. Bambu's PETG Translucent profile is limited to 6 mm3/s (Basic 18, HF 25): all PETG Basic gives 5h53m (that is the 5h48m of 7 Nov), all PLA 5h41m.
+- Tried on Maryam: 0.28 layer 6h41m, HF base 6h46m, both 6h26m (small gains). `sparse_infill_density=100%` via the CLI returned 0h00m (failed, not solved).
+- Owner asked about the grid in the butterfly wings of the lit preview: these are the base ribs of `add_ribs` (openings wider than 20 mm get 1.4 mm ribs every 14 mm); they were in v1 too, the old preview did not draw them. Left: owner's choice (keep / one centre rib / none), and the time decision (size 200, real flow of his translucent filament, bridge layer).
+
 ## 2026-11-10 (cloud) — Maryam backlit plaque v2: Kitty line art thicker (owner: "سمّك خطوط وجه كيتي")
 - New session had no picture / `G6.pkl`; owner uploaded his package zip (3 STL + 3MF + box). Layer shapes recovered by sectioning the STLs (`cad/maryam/recover_from_stl.py`; identical rebuild matches the old base area within 1 mm2, 22 pieces), then the whole Kitty line art (head, whiskers, eyes, bow outline, body: 4 pieces) grown 0.4 mm per side (`rebuild_thick.py 0.4`). Name, pills, decor, frame, nut pockets unchanged.
 - Result: light opening under the Kitty lines 707 -> 1283 mm2. 3 meshes watertight, `print_test` 0 problems, opening not covered by a cap 0 mm2, base pieces 22 -> 29 (smallest 6.9 mm2). Slice (PETG Basic base + PETG Translucent caps, 0.24, tower x=287): 6h54m / 194.5 g vs 6h53m / 194.5 g for the old file with the same settings (the 5h48m of 7 Nov was with another filament profile). No price sheet in this session.
