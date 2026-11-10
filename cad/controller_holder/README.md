@@ -13,6 +13,7 @@ figure is an AI-generated likeness. Everything in `work/` is git-ignored; keep t
 3. `python ../3_pose_bones.py -- t4.ply 33 5 16 -30 15.1 8` (Blender as a module: `pip install bpy`)
 4. `python ../4_check_contact.py p_Knight.ply t4.ply` and compare with the original figure
 5. `python ../5_preview.py`
+6. `python ../6_assemble.py` -> `holder_final.stl` (figure + base - controller dummy), then `cad/print_test.py` on it
 
 ## What was learned
 - The original figure faces the controller: it sits on the two **palms** (about 1.7 mm into the dummy, x -18..21) and
@@ -24,4 +25,4 @@ figure is an AI-generated likeness. Everything in `work/` is git-ignored; keep t
   step 3 and the six pose numbers change.
 
 ## Left
-Union with the base, cut the controller dummy out of the fists (seat), `print_test`, slice for time. Not print-tested.
+Slice with supports for time. Needs supports like the original holder (islands at the shorts hem, elbows, chin). Not print-tested.
