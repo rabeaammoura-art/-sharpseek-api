@@ -171,10 +171,10 @@ def resolve(kind, theme, name, ops, silhouette, holes=(), base=BASE, tunnel=None
                  [tuple(h) for h in holes], tunnel, list(notes))
 
 
-def make_silhouette(ops, extra=None, close=0.6, min_hole=10.0):
+def make_silhouette(ops, extra=None, close=0.6, min_hole=10.0, spur=0.4):
     g = unary_union([o[1] for o in ops] + ([extra] if extra is not None else []))
     g = g.buffer(close, join_style=1).buffer(-close, join_style=1)
-    g = opening(g, 0.4)                       # no hair-thin spurs on the outline
+    g = opening(g, spur)                      # no spurs thinner than 2 x spur on the outline (theme 'sil_open', default 0.4)
     polys = []
     for p in _polys(g):
         polys.append(Polygon(p.exterior, [r for r in p.interiors if Polygon(r).area >= min_hole]))
@@ -223,10 +223,14 @@ def _tag(theme, name, kind, width, cap_h):
     overlap = 1.2
     my = letters.bounds[3] + R - overlap
     ops = [(c, g, False) for c, g in place(m, -cb[0] * ms, my - cb[1] * 0, ms)] + nops
-    sil = make_silhouette(ops)
+    spur = th.get("sil_open", 0.4)
+    sil = make_silhouette(ops, spur=spur)
     tab, hole = add_tab(sil, (m["tab_x"] - cb[0]) * ms)
-    ops.append((th["outline"], tab, False))
-    sil = make_silhouette(ops)
+    if th.get("tab_under_art"):               # the art stays visible where the hanging loop overlaps it
+        ops.insert(0, (th["outline"], tab, False))
+    else:
+        ops.append((th["outline"], tab, False))
+    sil = make_silhouette(ops, spur=spur)
     ops, sil, holes, _ = normalise(ops, sil, [hole])
     return resolve(kind, theme, name, ops, sil, holes, notes=notes)
 
@@ -272,7 +276,7 @@ def pencil(theme, name, length=85.0, plate_h=24.0):
     ops += nops
     pad = PENCIL_HOLE_D + 2 * 2.0                                      # always >= 2 mm wall each side of the tunnel
     capsule = box(1.0, yc - pad / 2 + 1.0, length - 1.0, yc + pad / 2 - 1.0).buffer(1.0, 16)
-    sil = make_silhouette(ops, extra=capsule)
+    sil = make_silhouette(ops, extra=capsule, spur=th.get("sil_open", 0.4))
     tunnel = dict(y=yc, d=PENCIL_HOLE_D, zc=TUNNEL_CENTER_Z, roof_cut=TUNNEL_ROOF_CUT)
     ops, sil, holes, tunnel = normalise(ops, sil, [], tunnel)
     return resolve("pencil", theme, name, ops, sil, [], base=PENCIL_BASE, tunnel=tunnel, notes=notes)

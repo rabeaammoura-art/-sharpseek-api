@@ -94,7 +94,8 @@ THEMES = {
     ),
     "gamer": dict(
         label="Gamer boy (private: made for Osayd), 4 colours",
-        private=True,                              # not sold: stays out of the price catalog and the website
+        private=True,
+        sil_open=1.0,                              # trim outline spurs thinner than 2 mm                              # not sold: stays out of the price catalog and the website
         art="art/source_art_gamer.png",
         outline="black",
         letters="white",
@@ -122,6 +123,8 @@ THEMES = {
         label="Gamer girl (private: made for Saly), 4 colours",
         private=True,
         fill_counters=True,
+        sil_open=1.0,                              # trim outline spurs thinner than 2 mm
+        tab_under_art=True,                        # the bow stays visible under the hanging loop
         art="art/source_art_gamer_saly.png",
         outline="yellow",
         letters="white",
@@ -138,7 +141,7 @@ THEMES = {
         ruler=dict(band="purple", ticks="white", rim="yellow", rim_w=1.6, stripes=None, body="purple"),
         motifs={
             "tag": dict(box=(20, 134, 612, 562), erase=[(600, 134, 612, 562)], bg="flood", seal=["bottom"], scale=70 / 592, tab_x_px=305),
-            "bottle": dict(box=(788, 716, 1252, 1015), bg="flood", seal=["bottom"], clip_circle=(1020, 952, 232), scale=48 / 464, tab_x_px=1020),
+            "bottle": dict(box=(788, 716, 1252, 992), bg="flood", seal=["bottom"], clip_circle=(1020, 952, 232), scale=48 / 464, tab_x_px=1020),   # ends at the chin: no hoodie scraps
             "pencil_l": dict(box=(632, 366, 764, 498), bg="purple", scale=85 / 660),
             "pencil_r": dict(box=(1040, 392, 1224, 508), bg="purple", scale=85 / 660),
             "ruler_l": dict(box=(24, 918, 176, 1138), bg="purple", scale=165 / 800),
