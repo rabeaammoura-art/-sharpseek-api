@@ -142,6 +142,7 @@ def main():
     ap.add_argument("--plate", action="store_true", help="also write ONE plate 3MF with every piece of every kid (same theme) - far less colour-change time")
     ap.add_argument("--name-cut", action="store_true", help="ruler: cut the name through the plate (stencil) instead of raising it")
     ap.add_argument("--stencil-font", action="store_true", help="with --name-cut: stencil font, no bridges needed")
+    ap.add_argument("--palette", help="custom filament colours, e.g. black=blue,yellow=white,orange=green (stock PLA+ names or #RRGGBB); roles = the theme's colours")
     ap.add_argument("--list-themes", action="store_true")
     a = ap.parse_args()
     layout.NAME_CUT = a.name_cut
@@ -157,6 +158,21 @@ def main():
         ap.error(str(e))
     if len(jobs) != len(raw):
         ap.error("give --name and --theme (or --pack NAME:THEME[:COLORS] ...)")
+    if a.palette:
+        import stock
+        try:
+            pal = stock.parse_palette(a.palette)
+        except ValueError as e:
+            ap.error(str(e))
+        for _, theme in jobs:
+            rgb = THEMES[theme]["filament_rgb"]
+            bad = [r for r in pal if r not in rgb]
+            if bad:
+                ap.error(f"theme {theme} has no colour role(s) {', '.join(bad)} (roles: {', '.join(rgb)})")
+            THEMES[theme] = dict(THEMES[theme], filament_rgb={**rgb, **pal})
+            eff = list(THEMES[theme]["filament_rgb"].values())
+            if any(stock.contrast(x, y) < 1.6 for i, x in enumerate(eff) for y in eff[i + 1:]):
+                print(f"WARNING: two colours of {theme} are very close (contrast < 1.6): the name or details may be hard to read")
     for name, theme in jobs:
         print(f"{name} / {theme}")
         build(name, theme, a.out, a.pieces.split(","), a.slice and not a.plate)

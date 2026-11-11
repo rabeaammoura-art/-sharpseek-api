@@ -21,7 +21,8 @@ from pathlib import Path
 
 import generate
 import pricing
-from themes import BASE_THEMES, resolve_theme
+from themes import BASE_THEMES, THEMES, resolve_theme
+import stock
 
 HERE = Path(__file__).parent
 
@@ -42,7 +43,7 @@ def read_orders(path):
         if bad:
             raise SystemExit(f"line {i}: unknown pieces {bad}")
         rows.append(dict(order_id=r.get("order_id") or str(len(rows) + 1), name=r["name"], base=r["theme"], colours=colours,
-                         pieces=pcs, qty=int(r.get("qty") or 1)))
+                         pieces=pcs, qty=int(r.get("qty") or 1), palette=r.get("palette", "")))
     return rows
 
 
@@ -72,7 +73,17 @@ def main():
     for o in read_orders(a.csv):
         theme = resolve_theme(o["base"], o["colours"])
         d = out / f"{o['order_id']}_{re.sub(r'[^A-Za-z0-9]+', '', o['name']).upper()}_{theme}"
-        generate.build(o["name"], theme, d.parent / d.name, o["pieces"], False)
+        saved = THEMES[theme]
+        if o["palette"]:                                   # custom filament colours for this order, e.g. black=blue|yellow=white
+            pal = stock.parse_palette(o["palette"].replace("|", ","))
+            bad = [r_ for r_ in pal if r_ not in saved["filament_rgb"]]
+            if bad:
+                raise SystemExit(f"order {o['order_id']}: theme {theme} has no colour role(s) {bad}")
+            THEMES[theme] = dict(saved, filament_rgb={**saved["filament_rgb"], **pal})
+        try:
+            generate.build(o["name"], theme, d.parent / d.name, o["pieces"], False)
+        finally:
+            THEMES[theme] = saved
         gen_dir = d.parent / d.name / f"{re.sub(r'[^A-Za-z0-9]+', '_', o['name']).strip('_').upper()}_{theme}"
         stem_base = re.sub(r"[^A-Za-z0-9]+", "_", o["name"]).strip("_").lower()
         stems = {k: f"{stem_base}_{k}" for k in o["pieces"]}

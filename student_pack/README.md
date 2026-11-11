@@ -89,3 +89,11 @@ Layer tops checked in the G-code (black 2.2, yellow 2.8; plate 11.6 mm on the pe
 - `python order.py orders.csv [--exact] [--plates]` reads `order_id,name,theme,colors,pieces,qty`, writes the print files per
   order, `out/orders/quotes.csv`, and a quote per order (`--exact` slices the real pieces; `--plates` groups kids into plates
   of two for shared colour changes). See `orders_example.csv`.
+
+
+## Custom filament colours
+
+`generate.py --palette black=blue,yellow=white,orange=green` assigns your own stock PLA+ colours to the theme's colour roles
+(names from `stock.py`, or `#RRGGBB`). The geometry is unchanged: only the AMS slot colours in the 3MF and the preview change.
+A warning is printed when two colours are too close to read (contrast < 1.6). In `order.py` add a `palette` column, e.g.
+`black=blue|yellow=white|orange=green`. Orders with different colours cannot share a plate unless the same filaments are loaded.
