@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-11 (cloud) — Kromacut tried on the horse picture (owner's request) + thinner version of ours
+- Owner pasted a Kromacut plan with 27 colours / a swap every layer (not printable with 4 AMS slots). Kromacut = open-source web app; `npm ci` of its repo was blocked here, so the live web app was driven with Playwright (headless): horse 1000 x 667 px, 0.3 mm/px, 0.08 / 0.16, Auto-paint with a 4-filament profile (black, blue, cyan, white, our TD guesses), defaults otherwise. Its 3MF download hung; STL downloaded.
+- Kromacut result: 300 x 200 x 1.36 mm, swaps at layers 2 / 6 / 11, black only in the first layer -> the horse comes out BLUE (also in its own preview). Colour error vs the picture with our model: Kromacut 24.8, ours 9.6. Slice (0.08, 100 %, PLA, one colour): 6h52m / 54.0 g. Its settings were not tuned.
+- Ours thinner (base 0.64, top 1.6 instead of 2.4; swaps 8 / 9 / 13; dE 10.9 vs 10.5): 7h24m / 75.0 g (was 9h06m / 82.2 g). STL closed. Base 0.48 / top 1.44 gives the same dE at low resolution (not built).
+- Left: owner's choice (thin version / smaller size / 0.12 layers), print_test on the chosen file, real TDs.
+
 ## 2026-11-10 (cloud) — horse plaque 300 x 200 rebuilt from the Manus picture with `zt_forge.py`
 - Manus's STL had the black horse HIGH (light) = wrong against its own picture, 4.8 mm thick, no swaps. Rebuilt in colour mode, base 0.64 / top 2.4: black, blue, cyan, white PLA+ (swaps at layers 8 / 9 / 15, dE 10.5). With 3 colours (no cyan) water and sky turn lilac (dE 12.9). STL closed, 66.7 cm3.
 - Slice (0.08, first 0.16, 100 %, PLA Basic, one colour, no swaps / tower): 9h06m / 82.2 g (Manus's STL: 22h15m / 183.7 g). Cyan and blue hex / TD are guesses. Outputs in `cad/out/hueforge/` (not in git).
