@@ -166,10 +166,14 @@ def trace_motif(img, theme, spec):
 def main(argv):
     only_theme = argv[0] if argv else None
     only_motifs = set(argv[1:])
-    img = np.asarray(Image.open(HERE / ART).convert("RGB"))
+    imgs = {}
     for tname, theme in THEMES.items():
         if only_theme and tname != only_theme:
             continue
+        art = theme.get("art", ART)
+        if art not in imgs:
+            imgs[art] = np.asarray(Image.open(HERE / art).convert("RGB"))
+        img = imgs[art]
         out = HERE / "motifs" / f"{tname}.json"
         out.parent.mkdir(exist_ok=True)
         data = json.loads(out.read_text()) if out.exists() and only_motifs else {}

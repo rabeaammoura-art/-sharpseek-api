@@ -65,8 +65,34 @@ THEMES = {
             "ruler_r": dict(box=(950, 834, 1176, 968), cut=[(950, 834, 974, 872)], bg="lpink", scale=165 / 785),
         },
     ),
-}
 
+    "cars": dict(
+        label="Cars (sport car + chequered flags), same colours as Construction",
+        art="art/source_art_cars.png",
+        outline="black",
+        letters="white",
+        detail=None,
+        palette={
+            "black": ((20, 20, 20), "black"), "yellow": ((255, 232, 0), "yellow"),
+            "orange": ((255, 126, 0), "orange"), "white": ((255, 255, 255), "white"),
+            "gray": ((150, 150, 150), "black"), "brown": ((140, 92, 45), "orange"),
+            "lyellow": ((255, 215, 90), "yellow"),
+        },
+        filament_rgb={"black": "#1C1C1C", "yellow": "#F6BA1C", "orange": "#FA7614", "white": "#FCFCFC"},
+        heights={"black": 2.2, "yellow": 2.8, "orange": 2.8, "white": 3.2},
+        text_rings=[("black", 0.8), ("yellow", 1.5), ("black", 1.5)],
+        ruler=dict(band="black", ticks="white", rim="yellow", rim_w=1.6, stripes="yellow", body=None),
+        motifs={
+            "tag": dict(box=(80, 118, 718, 396), erase=[(80, 368, 142, 396), (645, 372, 718, 396)], bg="flood", seal=["bottom"],
+                        scale=70 / 638, tab_x_px=370, heal=[("orange", 0.3)]),
+            "bottle": dict(box=(1100, 628, 1445, 796), bg="flood", seal=["bottom"], scale=48 / 345, tab_x_px=1272,
+                           erase_poly=[[(1096, 624), (1180, 624), (1096, 705)], [(1450, 624), (1366, 624), (1450, 700)]]),   # ring arcs of the round tag
+            "pencil_r": dict(box=(1228, 272, 1484, 386), bg="black", scale=85 / 780),
+            "ruler_l": dict(box=(46, 770, 298, 890), bg="black", scale=165 / 1020),
+            "ruler_r": dict(box=(778, 768, 1006, 892), bg="black", scale=165 / 1020),
+        },
+    ),
+}
 
 def _derive(base, name, label, remap, **over):
     """Fewer-colour variant of a traced theme: motif layers are merged by `remap` (e.g. white -> black) and the
@@ -86,6 +112,14 @@ _derive("construction", "construction2", "Construction, 2 colours (black, yellow
         ruler=dict(band="yellow", ticks="black", rim="black", rim_w=1.6, stripes="black", body="yellow", halo=1.2))
 
 _cat_ruler = dict(band="pink", ticks="white", rim="pink", rim_w=1.6, stripes=None, body=None)
+_derive("cars", "cars3", "Cars, 3 colours (black, yellow, orange)", {"white": "yellow"},
+        letters="yellow", filament_rgb={"black": "#1C1C1C", "yellow": "#F6BA1C", "orange": "#FA7614"},
+        heights={"black": 2.2, "yellow": 2.8, "orange": 2.8}, text_rings=[("black", 2.2)],
+        ruler=dict(band="yellow", ticks="black", rim="black", rim_w=1.6, stripes="black", body="yellow", halo=1.2))
+_derive("cars", "cars2", "Cars, 2 colours (black, yellow)", {"white": "yellow", "orange": "yellow"},
+        letters="yellow", filament_rgb={"black": "#1C1C1C", "yellow": "#F6BA1C"},
+        heights={"black": 2.2, "yellow": 2.8}, text_rings=[("black", 2.2)],
+        ruler=dict(band="yellow", ticks="black", rim="black", rim_w=1.6, stripes="black", body="yellow", halo=1.2))
 _derive("cat", "cat3", "Cat, 3 colours (pink, white, black)", {"lpink": "pink"},
         filament_rgb={"pink": "#EC307A", "white": "#FCFCFC", "black": "#1C1C1C"},
         heights={"pink": 2.2, "white": 3.2, "black": 3.4}, ruler=_cat_ruler)
