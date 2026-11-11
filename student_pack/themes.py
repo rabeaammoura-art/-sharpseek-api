@@ -92,7 +92,35 @@ THEMES = {
             "ruler_r": dict(box=(778, 768, 1006, 892), bg="black", scale=165 / 1020),
         },
     ),
+    "gamer": dict(
+        label="Gamer girl (private: made for Sally), 4 colours",
+        private=True,                              # not sold: stays out of the price catalog and the website
+        art="art/source_art_gamer.png",
+        outline="black",
+        letters="white",
+        detail=None,
+        # the art has ~8 colours; folded into the 4 filaments: skin, hair highlights, grey shading -> white / black
+        palette={
+            "black": ((5, 3, 7), "black"), "brown": ((97, 51, 43), "black"),
+            "white": ((253, 253, 253), "white"), "skin": ((251, 215, 145), "white"), "skin2": ((232, 180, 110), "white"),
+            "grey": ((145, 132, 130), "white"), "lav": ((223, 187, 221), "white"), "star": ((250, 215, 60), "white"),
+            "pink": ((249, 44, 154), "pink"), "pink2": ((247, 5, 121), "pink"), "pink3": ((251, 71, 192), "pink"),
+            "purple": ((199, 79, 246), "purple"), "purple2": ((140, 35, 191), "purple"), "purple3": ((100, 15, 120), "purple"),
+        },
+        filament_rgb={"black": "#1C1C1C", "pink": "#EC407A", "purple": "#7B3FA0", "white": "#F2F2F2"},
+        heights={"black": 2.2, "pink": 2.8, "purple": 2.8, "white": 3.2},
+        text_rings=[("black", 0.8), ("pink", 1.5), ("black", 1.5)],
+        ruler=dict(band="black", ticks="white", rim="pink", rim_w=1.6, stripes=None, body=None),
+        motifs={
+            "tag": dict(box=(0, 136, 610, 546), bg="flood", seal=["bottom"], scale=70 / 610, tab_x_px=315),
+            "bottle": dict(box=(845, 733, 1215, 1000), bg="purple", seal=["bottom"], clip_circle=(1030, 948, 212), scale=48 / 370, tab_x_px=1030),
+            "pencil_r": dict(box=(1040, 380, 1200, 505), bg="black", scale=85 / 650),
+            "ruler_l": dict(box=(28, 1008, 305, 1130), bg="black", erase=[(28, 1008, 205, 1064), (255, 1008, 306, 1062)], scale=165 / 800),    # erase: corner of the logo tile
+            "ruler_r": dict(box=(565, 920, 795, 1132), bg="black", erase=[(565, 920, 662, 1060)], scale=165 / 800),    # erase: end of the name pill
+        },
+    ),
 }
+
 
 def _derive(base, name, label, remap, **over):
     """Fewer-colour variant of a traced theme: motif layers are merged by `remap` (e.g. white -> black) and the
@@ -127,7 +155,8 @@ _derive("cat", "cat2", "Cat, 2 colours (pink, white)", {"lpink": "pink", "black"
         filament_rgb={"pink": "#EC307A", "white": "#FCFCFC"}, detail=None,
         heights={"pink": 2.2, "white": 3.2}, ruler=_cat_ruler)
 
-BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v]
+BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
+PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
 
 
 def resolve_theme(base, colours=4):

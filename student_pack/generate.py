@@ -26,7 +26,7 @@ import layout
 import mesh
 import preview
 from layout import MIN_FEATURE, _polys, opening
-from themes import BASE_THEMES, THEMES, resolve_theme
+from themes import BASE_THEMES, PRIVATE_THEMES, THEMES, resolve_theme
 
 HERE = Path(__file__).parent
 PIECES = ("tag", "pencil", "ruler", "bottle")
@@ -133,7 +133,7 @@ def build_plate(jobs, outdir, pieces=PIECES, slice_=False):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--name")
-    ap.add_argument("--theme", choices=BASE_THEMES, help="base theme; add --colors for the 2/3-colour version")
+    ap.add_argument("--theme", choices=BASE_THEMES + PRIVATE_THEMES, help="base theme; add --colors for the 2/3-colour version")
     ap.add_argument("--colors", type=int, choices=(2, 3, 4), default=4, help="number of filament colours (default 4)")
     ap.add_argument("--pack", nargs="+", metavar="NAME:THEME[:COLORS]", help="e.g. OSAYD:construction:2 SALLY:cat")
     ap.add_argument("--out", default=str(HERE / "out"))
