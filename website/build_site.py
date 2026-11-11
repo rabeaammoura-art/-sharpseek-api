@@ -16,7 +16,7 @@ import preview  # noqa: E402
 import pricing  # noqa: E402
 from themes import THEMES, resolve_theme  # noqa: E402
 
-SAMPLE = {"construction": "OMAR", "cat": "LAYLA"}
+SAMPLE = {"construction": "OMAR", "cat": "LAYLA", "cars": "OMAR"}
 
 
 def sheet(theme, name, out):
@@ -40,7 +40,7 @@ def main():
     cat = json.loads((HERE.parent / "student_pack" / "catalog.json").read_text())
     p = pricing.load_prices()
     data = {"currency": "JOD", "premium": p["single_premium"], "step": p["round_up_to"], "themes": {}}
-    labels = {"construction": ("إنشاءات", "حفّارة وقلّاب"), "cat": ("قطة", "قطة صغيرة بمخالب وردية")}
+    labels = {"construction": ("إنشاءات", "حفّارة وقلّاب"), "cat": ("قطة", "قطة صغيرة بمخالب وردية"), "cars": ("سيارات", "سيارة سباق وأعلام مربعات")}
     for base in pricing.BASE_THEMES:
         entry = {"label": labels[base][0], "desc": labels[base][1], "sample": SAMPLE[base], "colours": {}}
         for c in (2, 3, 4):

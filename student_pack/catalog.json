@@ -124,5 +124,65 @@
   "printer": "Bambu Lab H2D 0.4",
   "process": "0.20mm Standard",
   "filament": "Bambu PETG Basic"
+ },
+ "cars:2:tag": {
+  "seconds": 1547,
+  "grams": 9.08,
+  "model_g": 6.93
+ },
+ "cars:2:pencil": {
+  "seconds": 1706,
+  "grams": 10.66,
+  "model_g": 7.58
+ },
+ "cars:2:ruler": {
+  "seconds": 3621,
+  "grams": 22.73,
+  "model_g": 20.58
+ },
+ "cars:2:bottle": {
+  "seconds": 1164,
+  "grams": 5.93,
+  "model_g": 3.78
+ },
+ "cars:3:tag": {
+  "seconds": 2122,
+  "grams": 11.32,
+  "model_g": 6.94
+ },
+ "cars:3:pencil": {
+  "seconds": 2308,
+  "grams": 13.39,
+  "model_g": 7.57
+ },
+ "cars:3:ruler": {
+  "seconds": 4176,
+  "grams": 24.97,
+  "model_g": 20.59
+ },
+ "cars:3:bottle": {
+  "seconds": 1737,
+  "grams": 8.17,
+  "model_g": 3.79
+ },
+ "cars:4:tag": {
+  "seconds": 3295,
+  "grams": 16.65,
+  "model_g": 8.05
+ },
+ "cars:4:pencil": {
+  "seconds": 3537,
+  "grams": 19.54,
+  "model_g": 8.71
+ },
+ "cars:4:ruler": {
+  "seconds": 4559,
+  "grams": 28.25,
+  "model_g": 19.66
+ },
+ "cars:4:bottle": {
+  "seconds": 2870,
+  "grams": 13.0,
+  "model_g": 4.41
  }
 }
