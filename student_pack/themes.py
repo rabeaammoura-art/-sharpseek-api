@@ -28,12 +28,15 @@ THEMES = {
         ruler=dict(band="black", ticks="white", rim="yellow", rim_w=1.6, stripes="yellow", body=None),
         motifs={
             "tag": dict(box=(20, 126, 392, 354), erase=[(106, 120, 244, 170)], bg="flood", seal=["bottom"], open=[(272, 262)],
-                        scale=70 / 377, tab_x_px=175),
+                        scale=70 / 377, tab_x_px=175, heal=[("yellow", 0.45)], absorb=[("orange", 25.0, "yellow"), ("black", 2.0, "yellow")]),
             "bottle": dict(box=(1205, 186, 1515, 378), paint=[("black", (1318, 160, 1405, 252))], bg="flood",
                            clip_circle=(1360, 330, 146), erase=[(1190, 100, 1536, 187)], seal=["bottom"], scale=48 / 310, tab_x_px=1360),
             "pencil_r": dict(box=(858, 36, 970, 207), bg="flood", seal=["left"], scale=85 / 457),
             "ruler_l": dict(box=(425, 318, 528, 444), bg="black", drop_edge=[("yellow", "bottom")], scale=165 / 785),
-            "ruler_r": dict(box=(895, 316, 1142, 450), bg="black", drop_edge=[("yellow", "bottom"), ("white", "top"), ("orange", "top")], scale=165 / 785),
+            "ruler_r": dict(box=(895, 316, 1142, 450), bg="black", drop_edge=[("yellow", "bottom"), ("white", "top"), ("orange", "top"), ("yellow", "left"), ("orange", "left"), ("yellow", "right"), ("orange", "right")], scale=165 / 785,
+                            erase=[(895, 432, 918, 450), (1008, 437, 1050, 450), (1124, 427, 1142, 450)],   # stripes of the neighbouring art
+                            paint_poly=[("yellow", [(992, 341), (1015, 336), (1137, 360), (1138, 366), (1137, 389), (1102, 394), (1052, 413), (1012, 413)])],  # dump bed: no ribs
+                            heal=[("yellow", 0.45)], absorb=[("orange", 12.0, "yellow")]),
         },
     ),
     "cat": dict(

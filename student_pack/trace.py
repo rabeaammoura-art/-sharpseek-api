@@ -23,6 +23,7 @@ from themes import ART, THEMES
 
 HERE = Path(__file__).parent
 UP = 3            # upscale factor before classification
+MIN_AREA_MM2 = 0.6    # drop specks below this area
 SEAL_PX = 4       # width (source px) of the temporary sealing strip
 
 
@@ -85,6 +86,9 @@ def trace_motif(img, theme, spec):
         crop[max(0, ey0 - y0):max(0, ey1 - y0), max(0, ex0 - x0):max(0, ex1 - x0)] = erase_rgb
     for pts in spec.get("erase_poly", []):            # free-form erase (px, source coords)
         cv2.fillPoly(crop, [np.array([(x - x0, y - y0) for x, y in pts], np.int32)], (255, 255, 255) if erase_rgb == 255 else erase_rgb)
+    for color, pts in spec.get("paint_poly", []):      # free-form paint (px, source coords)
+        rgb = [v for k, (v, p) in palette.items() if p == color][0]
+        cv2.fillPoly(crop, [np.array([(x - x0, y - y0) for x, y in pts], np.int32)], rgb)
     for color, (ex0, ey0, ex1, ey1) in spec.get("paint", []):
         rgb = [v for k, (v, p) in palette.items() if p == color][0]
         crop[max(0, ey0 - y0):max(0, ey1 - y0), max(0, ex0 - x0):max(0, ex1 - x0)] = rgb
@@ -105,6 +109,19 @@ def trace_motif(img, theme, spec):
             up[:, -s:] = outline_rgb; clip[2] -= s
     lab, printed = classify(up, palette)
     lab = cv2.medianBlur(lab, 9)
+    mmpx = spec["scale"] / UP
+    dark = printed.index(spec["bg"] if spec["bg"] != "flood" else theme["outline"])
+    for colour, r_mm in spec.get("heal", []):         # close thin dark gaps inside a colour (ribs, hairlines)
+        ci = printed.index(colour); r = max(1, int(round(r_mm / mmpx)))
+        k = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * r + 1, 2 * r + 1))
+        closed = cv2.morphologyEx((lab == ci).astype(np.uint8), cv2.MORPH_CLOSE, k) > 0
+        lab[closed & (lab == dark)] = ci
+    for colour, max_mm2, into in spec.get("absorb", []):  # small isolated blobs take their neighbour's colour
+        ci, ti = printed.index(colour), printed.index(into)
+        n_, cc_, st_, _ = cv2.connectedComponentsWithStats((lab == ci).astype(np.uint8), connectivity=8)
+        for j in range(1, n_):
+            if st_[j, 4] * mmpx * mmpx < max_mm2:
+                lab[cc_ == j] = ti
     if spec["bg"] == "flood":
         near_white = (up.min(-1) > 232).astype(np.uint8)
         n, cc = cv2.connectedComponents(near_white, connectivity=4)
@@ -133,7 +150,7 @@ def trace_motif(img, theme, spec):
         if not m.any():
             continue
         g = mask_to_geom(m, mm, h * UP).intersection(usable)
-        polys = [p for p in (g.geoms if hasattr(g, "geoms") else [g]) if isinstance(p, Polygon) and not p.is_empty]
+        polys = [p for p in (g.geoms if hasattr(g, "geoms") else [g]) if isinstance(p, Polygon) and not p.is_empty and p.area >= MIN_AREA_MM2]
         for c, edge in spec.get("drop_edge", []):   # stray bits of neighbouring art touching a cut edge
             if c == name:
                 polys = [p for p in polys if not _touches(p, edge, usable)]
