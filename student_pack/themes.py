@@ -93,30 +93,29 @@ THEMES = {
         },
     ),
     "gamer": dict(
-        label="Gamer girl (private: made for Sally), 4 colours",
+        label="Gamer boy (private: made for Osayd), 4 colours",
         private=True,                              # not sold: stays out of the price catalog and the website
         art="art/source_art_gamer.png",
         outline="black",
         letters="white",
         detail=None,
-        # the art has ~8 colours; folded into the 4 filaments: skin, hair highlights, grey shading -> white / black
         palette={
-            "black": ((5, 3, 7), "black"), "brown": ((97, 51, 43), "black"),
-            "white": ((253, 253, 253), "white"), "skin": ((251, 215, 145), "white"), "skin2": ((232, 180, 110), "white"),
-            "grey": ((145, 132, 130), "white"), "lav": ((223, 187, 221), "white"), "star": ((250, 215, 60), "white"),
-            "pink": ((249, 44, 154), "pink"), "pink2": ((247, 5, 121), "pink"), "pink3": ((251, 71, 192), "pink"),
-            "purple": ((199, 79, 246), "purple"), "purple2": ((140, 35, 191), "purple"), "purple3": ((100, 15, 120), "purple"),
+            "black": ((2, 2, 2), "black"), "dark": ((60, 44, 47), "black"),
+            "white": ((253, 253, 253), "white"), "grey": ((127, 125, 125), "white"), "lgrey": ((200, 193, 194), "white"),
+            "red": ((250, 8, 9), "red"),
+            "blue": ((2, 169, 250), "blue"), "dblue": ((1, 92, 142), "blue"),
         },
-        filament_rgb={"black": "#1C1C1C", "pink": "#EC407A", "purple": "#7B3FA0", "white": "#F2F2F2"},
-        heights={"black": 2.2, "pink": 2.8, "purple": 2.8, "white": 3.2},
-        text_rings=[("black", 0.8), ("pink", 1.5), ("black", 1.5)],
-        ruler=dict(band="black", ticks="white", rim="pink", rim_w=1.6, stripes=None, body=None),
+        filament_rgb={"black": "#1C1C1C", "blue": "#1E5BD8", "red": "#D32F2F", "white": "#F2F2F2"},
+        heights={"black": 2.2, "blue": 2.8, "red": 2.8, "white": 3.2},
+        text_rings=[("black", 0.8), ("blue", 1.5), ("black", 1.5)],
+        ruler=dict(band="black", ticks="white", rim="blue", rim_w=1.6, stripes=None, body=None),
         motifs={
-            "tag": dict(box=(0, 136, 610, 546), bg="flood", seal=["bottom"], scale=70 / 610, tab_x_px=315),
-            "bottle": dict(box=(845, 733, 1215, 1000), bg="purple", seal=["bottom"], clip_circle=(1030, 948, 212), scale=48 / 370, tab_x_px=1030),
-            "pencil_r": dict(box=(1040, 380, 1200, 505), bg="black", scale=85 / 650),
-            "ruler_l": dict(box=(28, 1008, 305, 1130), bg="black", erase=[(28, 1008, 205, 1064), (255, 1008, 306, 1062)], scale=165 / 800),    # erase: corner of the logo tile
-            "ruler_r": dict(box=(565, 920, 795, 1132), bg="black", erase=[(565, 920, 662, 1060)], scale=165 / 800),    # erase: end of the name pill
+            "tag": dict(box=(0, 130, 600, 548), bg="flood", seal=["bottom"], scale=70 / 600, tab_x_px=310),
+            "bottle": dict(box=(805, 718, 1250, 985), bg="flood", seal=["bottom"], clip_circle=(1028, 948, 222), scale=48 / 445, tab_x_px=1028),
+            "pencil_l": dict(box=(648, 368, 764, 490), bg="black", erase=[(648, 468, 674, 490), (744, 478, 764, 490)], scale=85 / 650),
+            "pencil_r": dict(box=(1040, 372, 1212, 505), bg="black", erase=[(1122, 364, 1180, 390)], scale=85 / 650),
+            "ruler_l": dict(box=(28, 897, 190, 1132), bg="black", scale=165 / 800),
+            "ruler_r": dict(box=(662, 898, 792, 1132), bg="black", scale=165 / 800),
         },
     ),
 }
