@@ -271,7 +271,32 @@ function bindAsk(pid) {
 /* ---------- Student Pack product page (configurator) ---------- */
 const PIECES = [["tag", "بطاقة شنطة"], ["pencil", "اسم القلم"], ["ruler", "مسطرة ١٥ سم"], ["bottle", "بطاقة قنينة"]];
 const COLOUR_NAMES = { black: "أسود", yellow: "أصفر", orange: "برتقالي", white: "أبيض", pink: "وردي", lpink: "وردي فاتح" };
-const state = { theme: "construction", colours: "4", pieces: new Set(PIECES.map((p) => p[0])), name: "OMAR" };
+const STOCK = [["white", "أبيض", "#F2F2F2"], ["black", "أسود", "#1C1C1C"], ["red", "أحمر", "#D32F2F"], ["blue", "أزرق", "#1E5BD8"], ["yellow", "أصفر", "#F6BA1C"], ["green", "أخضر", "#2E9E4F"],
+  ["orange", "برتقالي", "#FA7614"], ["purple", "بنفسجي", "#7B3FA0"], ["pink", "وردي", "#EC407A"], ["cyan", "سماوي", "#14B8D4"], ["grey", "رمادي", "#8E9196"]];
+const stockOf = (id) => STOCK.find((x) => x[0] === id);
+const hex2 = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+const lum = (h) => { const c = hex2(h).map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+const contrast = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+let recToken = 0;
+function recolour(url, pairs, done) {            // swap the preview's flat colours for the customer's choice (nearest colour, small tolerance)
+  const tok = ++recToken, img = new Image();
+  img.onload = () => {
+    if (tok !== recToken) return;
+    try {
+      const cv = document.createElement("canvas"); cv.width = img.naturalWidth; cv.height = img.naturalHeight;
+      const g = cv.getContext("2d"); g.drawImage(img, 0, 0);
+      const d = g.getImageData(0, 0, cv.width, cv.height), px = d.data, src = pairs.map((q) => hex2(q[0])), dst = pairs.map((q) => hex2(q[1])), tol = pairs.map((q) => (lum(q[0]) > 0.8 ? 12 : 46));
+      for (let i = 0; i < px.length; i += 4) {
+        let best = -1, bd = 1e9;
+        for (let k = 0; k < src.length; k++) { const dr = px[i] - src[k][0], dg = px[i + 1] - src[k][1], db = px[i + 2] - src[k][2], dd = dr * dr + dg * dg + db * db; if (dd < bd) { bd = dd; best = k; } }
+        if (best >= 0 && bd <= tol[best] * tol[best]) { px[i] = dst[best][0]; px[i + 1] = dst[best][1]; px[i + 2] = dst[best][2]; }
+      }
+      g.putImageData(d, 0, 0); done(cv.toDataURL("image/png"));
+    } catch (e) { done(url); }
+  };
+  img.onerror = () => done(url); img.src = url;
+}
+const state = { theme: "construction", colours: "4", pieces: new Set(PIECES.map((p) => p[0])), name: "OMAR", pal: {} };
 const ceilTo = (v, s) => Math.ceil(v / s - 1e-9) * s;
 function priceFor() {
   const c = DATA.themes[state.theme].colours[state.colours], all = PIECES.map((p) => p[0]), sel = all.filter((k) => state.pieces.has(k));
@@ -288,6 +313,7 @@ function packView() {
     <div class="field"><span class="lab" id="lblTheme">الثيم</span><div class="seg" role="radiogroup" aria-labelledby="lblTheme" id="themeSeg"></div></div>
     <div class="field"><label for="name">الاسم (بالإنجليزي)</label><input id="name" type="text" value="OMAR" maxlength="11" autocomplete="off" spellcheck="false" inputmode="latin"><p class="hint" id="nameHint">حتى ١١ حرف. الأسماء العربية قريباً.</p></div>
     <div class="field"><span class="lab" id="lblCol">عدد الألوان</span><div class="seg" role="radiogroup" aria-labelledby="lblCol" id="colSeg"></div></div>
+    <div class="field"><span class="lab">ألوان القطع (اختياري)</span><div id="palRows" style="display:grid;gap:.45rem"></div><p class="hint" id="palHint"></p></div>
     <div class="field"><span class="lab">القطع</span><div class="pieces" id="pieces"></div></div>
     <div class="row" style="justify-content:space-between;align-items:baseline;border-top:1px dashed var(--line);padding-top:.8rem"><div><div class="hint">السعر</div><div class="price" id="price">—</div></div><div class="hint" id="priceNote"></div></div>
     <div id="checkout" ${API ? "" : "hidden"}><div class="grid2"><div class="field"><label for="cName">اسمك</label><input id="cName" type="text" autocomplete="name"></div><div class="field"><label for="cPhone">رقم الهاتف</label><input id="cPhone" type="tel" inputmode="tel" dir="ltr" autocomplete="tel"></div>
@@ -307,19 +333,27 @@ function seg(el, name, items, current, onPick) {
 function packMsg() {
   const t = DATA.themes[state.theme], c = t.colours[state.colours], p = priceFor(), q = API ? Number($("cQty").value) || 1 : 1;
   const names = PIECES.filter((x) => state.pieces.has(x[0])).map((x) => x[1]).join("، ");
-  return ["طلب حزمة طالب (حجز مسبق)", `الاسم: ${state.name || "—"}`, `الثيم: ${t.label}`, `الألوان: ${state.colours} (${c.swatches.map((s) => COLOUR_NAMES[s.name] || s.name).join("، ")})`,
+  return ["طلب حزمة طالب (حجز مسبق)", `الاسم: ${state.name || "—"}`, `الثيم: ${t.label}`, `الألوان: ${state.colours} (${c.swatches.map((s) => (COLOUR_NAMES[s.name] || s.name) + (state.pal[s.name] ? " ← " + stockOf(state.pal[s.name])[1] : "")).join("، ")})`,
     `القطع: ${p.pack ? "الباقة كاملة" : names}`, ...(API ? [`عدد الباقات: ${q}`] : []), `السعر: ${money(p.price * q)} دينار`].join("\n");
 }
 function packRender() {
   const keep = document.activeElement && document.activeElement.id, t = DATA.themes[state.theme], c = t.colours[state.colours], p = priceFor();
-  seg($("themeSeg"), "theme", Object.entries(DATA.themes).map(([k, v]) => [k, v.label, v.desc]), state.theme, (v) => { state.theme = v; packRender(); });
-  seg($("colSeg"), "col", ["2", "3", "4"].map((k) => [k, `${k} ألوان`, `${money(t.colours[k].pack)} د.أ`]), state.colours, (v) => { state.colours = v; packRender(); });
+  seg($("themeSeg"), "theme", Object.entries(DATA.themes).map(([k, v]) => [k, v.label, v.desc]), state.theme, (v) => { state.theme = v; state.pal = {}; packRender(); });
+  seg($("colSeg"), "col", ["2", "3", "4"].map((k) => [k, `${k} ألوان`, `${money(t.colours[k].pack)} د.أ`]), state.colours, (v) => { state.colours = v; state.pal = {}; packRender(); });
   $("pieces").innerHTML = PIECES.map(([k, l]) => `<label><input type="checkbox" value="${k}" ${state.pieces.has(k) ? "checked" : ""}> ${l}</label>`).join("");
   $("pieces").onchange = (e) => { e.target.checked ? state.pieces.add(e.target.value) : state.pieces.delete(e.target.value); packRender(); };
   const q = API ? Number($("cQty").value) || 1 : 1;
   $("price").innerHTML = p.price ? `${money(p.price * q)}<small>دينار</small>` : "—";
   $("priceNote").textContent = p.price ? (p.pack ? "سعر الباقة الكاملة" : "سعر القطع المختارة") : "اختار قطعة وحدة على الأقل";
-  $("shot").src = c.img; $("shotCap").textContent = `تصوّر (Concept) · ${t.label} · ${state.colours} ألوان · مثال بالاسم ${t.sample}. نرسل لك معاينة باسمك قبل الطباعة.`;
+  $("palRows").innerHTML = c.swatches.map((s) => `<div class="row" style="gap:.6rem;align-items:center;flex-wrap:nowrap"><span aria-hidden="true" style="width:1.1rem;height:1.1rem;border-radius:50%;border:1px solid var(--line);flex:none;background:${state.pal[s.name] ? stockOf(state.pal[s.name])[2] : s.hex}"></span><label for="pal_${s.name}" style="min-width:4.5rem">${COLOUR_NAMES[s.name] || s.name}</label><select id="pal_${s.name}" data-role="${s.name}" style="flex:1"><option value="">كما بالتصميم</option>${STOCK.map((x) => `<option value="${x[0]}" ${state.pal[s.name] === x[0] ? "selected" : ""}>${x[1]}</option>`).join("")}</select></div>`).join("");
+  $("palRows").onchange = (e) => { const r = e.target.dataset.role; if (r) { e.target.value ? (state.pal[r] = e.target.value) : delete state.pal[r]; packRender(); } };
+  const eff = c.swatches.map((s) => (state.pal[s.name] ? stockOf(state.pal[s.name])[2] : s.hex)); let low = false;
+  for (let i = 0; i < eff.length; i++) for (let j = i + 1; j < eff.length; j++) if (contrast(eff[i], eff[j]) < 1.6) low = true;
+  $("palHint").textContent = low ? "تنبيه: لونين متقاربين، وممكن الاسم أو التفاصيل ما تبين. جرّب ألوان أبعد عن بعض." : "الألوان من الفلامنت المتوفر عندنا (PLA+). بنفس السعر.";
+  $("palHint").className = low ? "hint err" : "hint";
+  const pairs = c.swatches.filter((s) => state.pal[s.name]).map((s) => [s.hex, stockOf(state.pal[s.name])[2]]);
+  if (pairs.length) recolour(c.img, pairs, (u) => { $("shot").src = u; }); else { recToken++; $("shot").src = c.img; }
+  $("shotCap").textContent = `تصوّر (Concept) · ${t.label} · ${state.colours} ألوان · مثال بالاسم ${t.sample}. نرسل لك معاينة باسمك قبل الطباعة.`;
   const zmax = Math.max(...c.swatches.map((s) => s.z));
   $("bars").innerHTML = c.swatches.map((s) => `<div class="bar"><div class="col" style="height:${Math.round((s.z / zmax) * 96)}px;background:${s.hex};--base:${(1.6 / s.z) * 100}%"></div><span>${COLOUR_NAMES[s.name] || s.name}</span><span>${s.z}</span></div>`).join("");
   $("summary").textContent = packMsg(); setSend($("sendWa"), $("orderNote"), packMsg());
@@ -341,7 +375,7 @@ function bindPack() {
     if (!state.pieces.size) return showErr($("orderErr"), "اختار قطعة وحدة على الأقل.");
     b.disabled = true; b.textContent = "جاري الإرسال…";
     const j = await post("/orders", { kind: "pack", name: state.name, theme: state.theme, colours: Number(state.colours), pieces: [...state.pieces], qty: Number($("cQty").value),
-      customer: $("cName").value, phone: $("cPhone").value, area: $("cArea").value, details: $("cNote").value, website: $("cWebsite").value });
+      customer: $("cName").value, phone: $("cPhone").value, area: $("cArea").value, details: (Object.keys(state.pal).length ? "ألوان مخصصة: " + DATA.themes[state.theme].colours[state.colours].swatches.map((s) => (COLOUR_NAMES[s.name] || s.name) + " ← " + (state.pal[s.name] ? stockOf(state.pal[s.name])[1] : "كما بالتصميم")).join("، ") + "\n" : "") + $("cNote").value, website: $("cWebsite").value });
     b.disabled = false; b.textContent = "أكّد الطلب"; if (!j.ok) return showErr($("orderErr"), j.error);
     okBox($("orderOk"), j, "بنتواصل معك على رقمك بمعاينة باسمك والسعر النهائي والعربون قبل ما نبدأ الطباعة.");
   };
