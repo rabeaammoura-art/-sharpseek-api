@@ -27,11 +27,11 @@ def test_sizes_match_spec():
         assert abs(pk["pencil"].size[0] - 85) < 1.5, (name, pk["pencil"].size)
         w, d, _ = pk["ruler"].size
         assert abs(w - 165) < 0.01 and abs(d - 50) < 0.01
-        # layer stack: base 1.6, tops 2.2 / 2.8 / 3.2 / 3.4 (+8.8 on the 10.4 pencil plate)
+        # layer stack: base 1.6, tops 2.2 / 2.8 / 3.2 / 3.4 (plate height layout.PENCIL_BASE under the pencil)
         for k in ("tag", "ruler", "bottle"):
             assert pk[k].base == 1.6
-        assert pk["pencil"].base == 10.4
-        assert abs(max(pk["pencil"].tops.values()) - (10.4 + max(pk["tag"].tops.values()) - 1.6)) < 1e-9
+        assert pk["pencil"].base == layout.PENCIL_BASE
+        assert abs(max(pk["pencil"].tops.values()) - (layout.PENCIL_BASE + max(pk["tag"].tops.values()) - 1.6)) < 1e-9
 
 
 def test_parts_disjoint_and_inside_silhouette():
@@ -57,7 +57,7 @@ def test_pencil_tunnel_teardrop():
     for name, theme, pk in _packs():
         p = pk["pencil"]
         t = p.tunnel
-        assert t["d"] == 7.7                                    # 7.2 pencil + 0.5 clearance
+        assert t["d"] == layout.PENCIL_HOLE_D
         assert p.base - (t["zc"] + t["roof_cut"]) >= 0.79       # roof wall
         assert t["zc"] - t["d"] / 2 >= 1.0                      # floor wall
         # walls in Y: the silhouette must surround the tunnel along its whole length

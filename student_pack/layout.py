@@ -20,12 +20,12 @@ from textgeo import BOLD, EXTRABOLD, STENCIL, text_geom
 from themes import THEMES
 
 BASE = 1.6
-PENCIL_BASE = 10.4
+PENCIL_BASE = 13.0                # tested MakerWorld pencil topper: 13 mm tall body
 MIN_FEATURE = 0.8
 HOLE_D = 5.0                      # hanging hole
-PENCIL_HOLE_D = 7.7               # 7.2 pencil + 0.5 clearance
-TUNNEL_CENTER_Z = 5.2
-TUNNEL_ROOF_CUT = 4.4             # teardrop apex cut this far above the tunnel axis (roof z = 9.6 < 10.4 - 0.8)
+PENCIL_HOLE_D = 8.0               # tested topper: 8.0 mm hole (fits standard hexagonal pencils with rounded corners)
+TUNNEL_CENTER_Z = 6.0             # floor wall 2.0 mm like the tested topper
+TUNNEL_ROOF_CUT = 4.4             # teardrop apex cut this far above the tunnel axis (roof z = 10.4, roof wall 2.6 mm; tested topper: 3.0 with a round hole + supports)
 RULER_W, RULER_H, RULER_MM = 165.0, 50.0, 150
 NAME_FONT = EXTRABOLD
 
@@ -181,7 +181,7 @@ def make_silhouette(ops, extra=None, close=0.6, min_hole=10.0):
     return unary_union(polys)
 
 
-def add_tab(sil, tab_x, hole_d=HOLE_D, wall=2.0):
+def add_tab(sil, tab_x, hole_d=HOLE_D, wall=3.0):      # wall 3.0 mm: measured on the tested Mariachi bag tag (~3 mm around the hole)
     """Hanging tab: rounded stem + ring above the silhouette at tab_x, hole of hole_d.  Returns (tab, hole)."""
     R = hole_d / 2 + wall
     ys = []

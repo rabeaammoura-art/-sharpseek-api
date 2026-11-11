@@ -25,3 +25,11 @@ provided: Personalizable 15 cm Ruler (rulercustom.3mf), Mariachi Bag Tag (mariac
 Our generator and its pieces stay in the repo unchanged (the ruler change above is already in it, not used for the first print).
 Sliced on our H2D profile (0.4, 0.20, Generic PLA): ruler 15 min / 7.5 g, Mariachi 49 min / 15.6 g, topper 33 min / 14.7 g (supports were off in our run;
 the topper's own profile enables them).
+
+## Option (a) applied: numbers measured on the tested designs, our art and themes (agreed)
+Pencil (measured on the tested MakerWorld topper): tunnel hole 8.0 mm (was 7.7), plate height 13.0 mm (was 10.4), floor wall 2.0 mm
+(axis at z 6.0), roof wall 2.6 mm with our teardrop roof (their round hole has 3.0 mm and needs supports; ours needs none).
+Tag and bottle hanging loop: wall around the hole 3.0 mm (was 2.0), measured on the tested Mariachi bag tag (~3 mm).
+NOT copied: Mariachi's hole is ~3.5 mm (a key ring), ours stays 5.0 mm for a strap; Mariachi's loop thickness (~4 mm) is not applied, our loop is 2.2-3.2 mm
+(needs a separate tab height in the generator). Ruler: as agreed above (flat, 2.0 mm).
+Slice (H2D 0.4, 0.20, Generic PLA), cars theme: pencil 3 colours 43 min / 16.1 g (was 40 min / 14.1 g), 4 colours 1h06m / 22.8 g (was 1h02m / 20.5 g); tag unchanged.
