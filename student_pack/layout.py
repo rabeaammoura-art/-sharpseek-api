@@ -121,6 +121,7 @@ def name_block(theme, name, cap_h, max_letters_w, min_cap=5.0):
     return ops, letters, R, notes
 
 
+RULER_TOP = 2.0        # ruler: every colour ends at the same height (flat, painted-style ticks/numbers); slab 1.6 + 0.4 colour layer
 NAME_CUT = False       # ruler: cut the name through the plate (stencil) instead of raising it
 NAME_STENCIL = False   # with NAME_CUT: use a stencil font (no floating islands) instead of bridges
 
@@ -137,7 +138,7 @@ def stencil(letters, bridge=1.4):
 
 
 # ------------------------------------------------------------------ resolve
-def resolve(kind, theme, name, ops, silhouette, holes=(), base=BASE, tunnel=None, notes=(), cutouts=None):
+def resolve(kind, theme, name, ops, silhouette, holes=(), base=BASE, tunnel=None, notes=(), cutouts=None, top=None):
     th = THEMES[theme]
     colors = list(th["heights"])
     canvas = {c: Polygon() for c in colors}
@@ -165,7 +166,7 @@ def resolve(kind, theme, name, ops, silhouette, holes=(), base=BASE, tunnel=None
         g = unary_union(_polys(g.buffer(0))).simplify(0.02)
         if not g.is_empty:
             parts[c] = g
-    tops = {c: base + (h - BASE) for c, h in th["heights"].items()}
+    tops = {c: base + (h - BASE) for c, h in th["heights"].items()} if top is None else {c: top for c in th["heights"]}   # top: one flat height for every colour
     return Piece(kind, theme, name, parts, sil.simplify(0.02), base, tops, th["outline"],
                  [tuple(h) for h in holes], tunnel, list(notes))
 
@@ -284,8 +285,8 @@ def ruler(theme, name):
     outer = box(0, 0, W, H).buffer(-4).buffer(4, 32)                       # R4 corners
     inner = outer.buffer(-rim, join_style=1)
     ops = [(rc["rim"], outer.difference(inner), False)]
-    if rc["body"]:
-        ops.append((rc["body"], inner, False))
+    body_col = rc["body"] or th["outline"]      # the body is always a colour region, so ticks and numbers end flush with it
+    ops.append((body_col, inner, False))
     # --- hazard stripes along the bottom (construction)
     stripe_h = 0.0
     if rc["stripes"]:
@@ -310,8 +311,7 @@ def ruler(theme, name):
         b = t.bounds
         numbers.append(affinity.translate(t, x0 + cm * 10 - (b[0] + b[2]) / 2, num_base))
     layout_top = H - rim + 0.01
-    if rc["body"]:    # keep the 0.5 mm gaps between ticks in the body colour (they are thinner than the 0.8 mm clean-up)
-        ops.append((rc["body"], box(0, num_base - 0.4, W, layout_top).intersection(inner), True))
+    ops.append((body_col, box(0, num_base - 0.4, W, layout_top).intersection(inner), True))   # keep the 0.5 mm gaps between ticks in the body colour (thinner than the 0.8 mm clean-up)
     ops.append((rc["ticks"], unary_union(ticks + numbers), True))
     zone_top = num_base - 0.8
     zone_bot = rim + stripe_h + (0.4 if stripe_h else 1.2)
@@ -346,7 +346,7 @@ def ruler(theme, name):
     # keep everything inside the rim
     ops = [(c, g.intersection(inner) if c not in (rc["rim"],) else g, e) for c, g, e in ops]
     cut = stencil(affinity.translate(letters, nx, ny)) if NAME_CUT else None
-    return resolve("ruler", theme, name, ops, outer, [], notes=notes, cutouts=cut)
+    return resolve("ruler", theme, name, ops, outer, [], notes=notes, cutouts=cut, top=RULER_TOP)
 
 
 KINDS = {"tag": tag, "pencil": pencil, "ruler": ruler, "bottle": bottle}

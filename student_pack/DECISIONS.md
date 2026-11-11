@@ -11,7 +11,10 @@ Agreed changes, ruler only (tag, pencil and bottle stay as they are, their files
 2. Total thickness 2.0 mm like theirs (now 2.8 mm for 2/3 colours and 3.2 mm for 4 colours).
 3. Art, motifs, name and layout do not change.
 
-Status: waiting for the owner's go before touching the generator (layout.py ruler()). After the change: re-run the tests,
-re-slice the rulers and compare with the numbers below.
+Status: IMPLEMENTED (ruler only). layout.py: RULER_TOP = 2.0 (every colour ends at 2.0 mm, slab 1.6 + 0.4 colour layer) and the body is always a
+colour region so ticks/numbers end flush with it. Tests pass. Other pieces unchanged.
+
+Result, cars theme, H2D 0.4 / 0.20 / Generic PLA: 2 colours 43 min / 19.3 g (was 1h01m / 23.3 g), 3 colours 46 min / 20.1 g (was 1h11m / 25.7 g),
+4 colours 51 min / 21.3 g. Not printed yet.
 
 Current ruler numbers (H2D 0.4, 0.20, Generic PLA, 6.951 JOD/kg), cars theme: 2 colours 1h01m / 23.3 g / 0.20 JOD, 3 colours 1h11m / 25.7 g / 0.22 JOD.

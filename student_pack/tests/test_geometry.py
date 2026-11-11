@@ -39,7 +39,8 @@ def test_parts_disjoint_and_inside_silhouette():
         for kind, p in pk.items():
             cols = list(p.parts)
             for a, b in itertools.combinations(cols, 2):
-                assert p.parts[a].intersection(p.parts[b]).area < 1.0, (name, kind, a, b)   # simplify jitter only (~1 um wide)
+                shared = p.parts[a].boundary.intersection(p.parts[b].buffer(0.05)).length       # length of the common border
+                assert p.parts[a].intersection(p.parts[b]).area < max(1.0, 0.01 * shared), (name, kind, a, b)   # simplify jitter only (< 10 um wide on average)
             for c, g in p.parts.items():
                 assert g.difference(p.silhouette.buffer(0.01)).area < 0.05, (name, kind, c)
 

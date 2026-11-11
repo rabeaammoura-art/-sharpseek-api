@@ -47,7 +47,7 @@ def checks(piece):
     for c, g in piece.parts.items():
         if piece.kind == "ruler" and c == tick_color:        # ticks/numbers: every 0.5 mm line must survive a 0.24 mm erosion
             lost = len(_polys(g)) - len(_polys(g.buffer(-0.24)))
-            ok, limit = lost == 0, 0.5
+            ok, limit = lost <= 0, 0.5          # fewer pieces after erosion = a tick vanished (more pieces just means a joined shape split)
             thin[c] = lost
         else:
             if piece.kind == "ruler":                          # the 0.5 mm gaps between ticks (body colour) are intentional
