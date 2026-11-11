@@ -16,7 +16,7 @@ from shapely.geometry import LineString, MultiPolygon, Point, Polygon, box
 from shapely.ops import unary_union
 
 from geo import load_motifs
-from textgeo import BOLD, EXTRABOLD, text_geom
+from textgeo import BOLD, EXTRABOLD, STENCIL, text_geom
 from themes import THEMES
 
 BASE = 1.6
@@ -92,7 +92,10 @@ def name_block(theme, name, cap_h, max_letters_w, min_cap=5.0):
     th = THEMES[theme]
     rings = th["text_rings"]
     R = sum(w for _, w in rings)
-    letters = text_geom(name.upper(), cap_h, NAME_FONT).buffer(0.2, join_style=1)   # slightly bubbly
+    if NAME_CUT and NAME_STENCIL:      # stencil font: counters are already open, no bridges needed
+        letters = text_geom(name.upper(), cap_h, STENCIL)
+    else:
+        letters = text_geom(name.upper(), cap_h, NAME_FONT).buffer(0.2, join_style=1)   # slightly bubbly
     lw = letters.bounds[2] - letters.bounds[0]
     notes = []
     if lw > max_letters_w:
@@ -117,6 +120,7 @@ def name_block(theme, name, cap_h, max_letters_w, min_cap=5.0):
 
 
 NAME_CUT = False       # ruler: cut the name through the plate (stencil) instead of raising it
+NAME_STENCIL = False   # with NAME_CUT: use a stencil font (no floating islands) instead of bridges
 
 
 def stencil(letters, bridge=1.4):

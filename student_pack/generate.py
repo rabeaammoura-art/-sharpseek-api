@@ -141,9 +141,11 @@ def main():
     ap.add_argument("--slice", action="store_true", help="slice every 3MF in Bambu Studio (time + grams)")
     ap.add_argument("--plate", action="store_true", help="also write ONE plate 3MF with every piece of every kid (same theme) - far less colour-change time")
     ap.add_argument("--name-cut", action="store_true", help="ruler: cut the name through the plate (stencil) instead of raising it")
+    ap.add_argument("--stencil-font", action="store_true", help="with --name-cut: stencil font, no bridges needed")
     ap.add_argument("--list-themes", action="store_true")
     a = ap.parse_args()
     layout.NAME_CUT = a.name_cut
+    layout.NAME_STENCIL = a.stencil_font
     if a.list_themes:
         for k, t in THEMES.items():
             print(f"{k:14s} {t['label']}  colours: {', '.join(t['filament_rgb'])}")

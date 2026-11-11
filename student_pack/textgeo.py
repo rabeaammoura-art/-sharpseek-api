@@ -11,6 +11,7 @@ from shapely.ops import unary_union
 FONTS = Path(__file__).parent / "fonts"
 BOLD = FONTS / "Poppins-Bold.ttf"
 EXTRABOLD = FONTS / "Poppins-ExtraBold.ttf"
+STENCIL = FONTS / "SairaStencilOne-Regular.ttf"      # open counters: no floating islands when the name is cut through
 
 
 class _Pen(BasePen):
