@@ -112,6 +112,8 @@ def name_block(theme, name, cap_h, max_letters_w, min_cap=5.0):
         layers.append((color, cum))
     for color, c in reversed(layers):
         ring = letters.buffer(c, join_style=1)
+        if th.get("fill_counters"):         # ring colour also fills the insides of O, A, R ... (no base colour dot showing through)
+            ring = unary_union([Polygon(p.exterior) for p in _polys(ring)])
         if c > 1.5:   # bubble outline: round off the notches between letters
             ring = ring.buffer(1.0, join_style=1).buffer(-1.0, join_style=1)
         ops.append((color, ring, False))

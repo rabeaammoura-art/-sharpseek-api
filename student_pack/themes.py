@@ -118,6 +118,33 @@ THEMES = {
             "ruler_r": dict(box=(662, 898, 792, 1132), bg="black", scale=165 / 800),
         },
     ),
+    "gamer_girl": dict(
+        label="Gamer girl (private: made for Saly), 4 colours",
+        private=True,
+        fill_counters=True,
+        art="art/source_art_gamer_saly.png",
+        outline="yellow",
+        letters="white",
+        detail=None,
+        palette={
+            "white": ((253, 252, 252), "white"), "lpink": ((215, 167, 206), "white"),
+            "yellow": ((252, 199, 3), "yellow"), "lyellow": ((252, 226, 123), "yellow"), "brown": ((173, 106, 41), "yellow"),
+            "purple": ((106, 8, 121), "purple"), "dpurple": ((77, 6, 96), "purple"), "maroon": ((68, 10, 52), "purple"), "mpurple": ((149, 92, 154), "purple"),
+            "pink": ((240, 4, 123), "pink"),
+        },
+        filament_rgb={"yellow": "#F6BA1C", "purple": "#7B3FA0", "pink": "#EC407A", "white": "#F2F2F2"},
+        heights={"yellow": 2.2, "purple": 2.8, "pink": 2.8, "white": 3.2},
+        text_rings=[("purple", 3.0), ("yellow", 1.5)],
+        ruler=dict(band="purple", ticks="white", rim="yellow", rim_w=1.6, stripes=None, body="purple"),
+        motifs={
+            "tag": dict(box=(20, 134, 612, 562), erase=[(600, 134, 612, 562)], bg="flood", seal=["bottom"], scale=70 / 592, tab_x_px=305),
+            "bottle": dict(box=(788, 716, 1252, 1015), bg="flood", seal=["bottom"], clip_circle=(1020, 952, 232), scale=48 / 464, tab_x_px=1020),
+            "pencil_l": dict(box=(632, 366, 764, 498), bg="purple", scale=85 / 660),
+            "pencil_r": dict(box=(1040, 392, 1224, 508), bg="purple", scale=85 / 660),
+            "ruler_l": dict(box=(24, 918, 176, 1138), bg="purple", scale=165 / 800),
+            "ruler_r": dict(box=(660, 918, 785, 1138), bg="purple", scale=165 / 800),
+        },
+    ),
 }
 
 
