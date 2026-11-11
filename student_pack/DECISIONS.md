@@ -18,3 +18,10 @@ Result, cars theme, H2D 0.4 / 0.20 / Generic PLA: 2 colours 43 min / 19.3 g (was
 4 colours 51 min / 21.3 g. Not printed yet.
 
 Current ruler numbers (H2D 0.4, 0.20, Generic PLA, 6.951 JOD/kg), cars theme: 2 colours 1h01m / 23.3 g / 0.20 JOD, 3 colours 1h11m / 25.7 g / 0.22 JOD.
+
+## Direction for the first print (agreed): use tested, already-printed designs
+Do not modify our own pieces further for now (no pencil tunnel / tag loop changes). The first print uses the three tested MakerWorld files the owner
+provided: Personalizable 15 cm Ruler (rulercustom.3mf), Mariachi Bag Tag (mariachi.3mf), Customizable Pencil Topper with emoji (20Penciltopperwthemoji.3mf).
+Our generator and its pieces stay in the repo unchanged (the ruler change above is already in it, not used for the first print).
+Sliced on our H2D profile (0.4, 0.20, Generic PLA): ruler 15 min / 7.5 g, Mariachi 49 min / 15.6 g, topper 33 min / 14.7 g (supports were off in our run;
+the topper's own profile enables them).
