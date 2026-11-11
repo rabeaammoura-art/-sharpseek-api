@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-11 (cloud) — Petra (Treasury) wall art 200 x 200 with `zt_forge.py`
+- Owner's judgement: a 300 x 200 scenery plaque (7.5 h) cannot earn its print time -> ready-made scenery is content only, not a product. Time follows grams (~6.7 min/g at 0.08): dark pictures with a black background are the fast ones.
+- First prompt (flat linocut style) gave two images the owner disliked (my prompt's fault). Second prompt (realistic, candle-lit, like the Jerusalem image): GPT image chosen; the Gemini image is not the real facade. Lanterns removed by fading the ground below the steps to black.
+- Final: black, Walnut PLA, PLA+ orange, PLA+ yellow; base 0.64 / top 1.6; swaps at layers 8 / 13 / 17; dE 7.9; STL closed, 34.0 cm3. Hex / TD of all four are guesses (wood-filled filament: opacity and 0.4 nozzle at 0.08 layers unproven). Slice (PLA Basic, one colour, 0.08, no swaps / tower): 4h59m / 41.9 g; `print_test`: 0 problems (note: details thinner than 0.7 mm). The two rejected flat images sliced 4h03m (Gemini) and ~4h28m (GPT). Outputs in `cad/out/hueforge/petra_final*` (not in git).
+- Left: owner's OK, photos of the spools for real colours, centring the facade (black strip at the bottom), 0.12-layer trial.
+
 ## 2026-11-11 (cloud) — Kromacut tried on the horse picture (owner's request) + thinner version of ours
 - Owner pasted a Kromacut plan with 27 colours / a swap every layer (not printable with 4 AMS slots). Kromacut = open-source web app; `npm ci` of its repo was blocked here, so the live web app was driven with Playwright (headless): horse 1000 x 667 px, 0.3 mm/px, 0.08 / 0.16, Auto-paint with a 4-filament profile (black, blue, cyan, white, our TD guesses), defaults otherwise. Its 3MF download hung; STL downloaded.
 - Kromacut result: 300 x 200 x 1.36 mm, swaps at layers 2 / 6 / 11, black only in the first layer -> the horse comes out BLUE (also in its own preview). Colour error vs the picture with our model: Kromacut 24.8, ours 9.6. Slice (0.08, 100 %, PLA, one colour): 6h52m / 54.0 g. Its settings were not tuned.
