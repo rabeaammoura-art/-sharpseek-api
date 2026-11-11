@@ -116,8 +116,22 @@ def name_block(theme, name, cap_h, max_letters_w, min_cap=5.0):
     return ops, letters, R, notes
 
 
+NAME_CUT = False       # ruler: cut the name through the plate (stencil) instead of raising it
+
+
+def stencil(letters, bridge=1.4):
+    """Letters as a through-cut: the islands inside O, A, R ... stay attached to the plate by two vertical
+    bridges (up and down) of `bridge` mm across the stroke."""
+    bars = []
+    for p in _polys(letters):
+        for ring in p.interiors:
+            c = Polygon(ring).centroid
+            bars.append(LineString([(c.x, p.bounds[1] - 1), (c.x, p.bounds[3] + 1)]).buffer(bridge / 2, cap_style=2))
+    return letters.difference(unary_union(bars)) if bars else letters
+
+
 # ------------------------------------------------------------------ resolve
-def resolve(kind, theme, name, ops, silhouette, holes=(), base=BASE, tunnel=None, notes=()):
+def resolve(kind, theme, name, ops, silhouette, holes=(), base=BASE, tunnel=None, notes=(), cutouts=None):
     th = THEMES[theme]
     colors = list(th["heights"])
     canvas = {c: Polygon() for c in colors}
@@ -132,7 +146,7 @@ def resolve(kind, theme, name, ops, silhouette, holes=(), base=BASE, tunnel=None
             if c != color and not canvas[c].is_empty:
                 canvas[c] = canvas[c].difference(g)
         canvas[color] = canvas[color].union(g)
-    hole_geoms = [Point(cx, cy).buffer(d / 2, 64) for cx, cy, d in holes]
+    hole_geoms = [Point(cx, cy).buffer(d / 2, 64) for cx, cy, d in holes] + ([cutouts] if cutouts is not None and not cutouts.is_empty else [])
     cut = unary_union(hole_geoms) if hole_geoms else Polygon()
     sil = silhouette.difference(cut)
     parts = {}
@@ -325,7 +339,8 @@ def ruler(theme, name):
     ops += nops
     # keep everything inside the rim
     ops = [(c, g.intersection(inner) if c not in (rc["rim"],) else g, e) for c, g, e in ops]
-    return resolve("ruler", theme, name, ops, outer, [], notes=notes)
+    cut = stencil(affinity.translate(letters, nx, ny)) if NAME_CUT else None
+    return resolve("ruler", theme, name, ops, outer, [], notes=notes, cutouts=cut)
 
 
 KINDS = {"tag": tag, "pencil": pencil, "ruler": ruler, "bottle": bottle}
