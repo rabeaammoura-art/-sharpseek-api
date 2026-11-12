@@ -246,8 +246,17 @@ THEMES["gamer_girl5"] = dict(
     art="art/source_art_gamer_saly5.png",
     palette={"purple": ((92, 2, 101), "purple"), "yellow": ((251, 185, 4), "yellow"), "pink": ((251, 50, 123), "pink"), "white": ((253, 253, 253), "white"),
              "dark": ((9, 9, 9), "purple"), "lpink": ((212, 177, 189), "white"), "mpurple": ((146, 75, 105), "purple")},
-    thicken=[dict(motif="tag", colour="purple", amount=0.25, box=(37.0, 15.5, 49.0, 23.0)),     # mouth
-             dict(motif="tag", colour="white", amount=0.2, box=(35.5, 0.0, 52.5, 12.0))],     # hoodie centre: thin white strap pulls and logo square
+    # hoodie centre redrawn clean (the traced straps were jagged): two strap pulls and the logo square, all >= 1 mm
+    redraw=[dict(motif="tag", box=(37.2, 0.0, 50.8, 9.8), shapes=[
+        dict(colour="pink", kind="poly", pts=[(37.2, 0.0), (50.8, 0.0), (50.8, 9.8), (37.2, 9.8)]),
+        dict(colour="purple", kind="line", width=3.8, pts=[(38.8, 9.8), (39.9, 5.0), (40.0, 3.0)]),       # outline of the left strap pull (1.25 mm each side of the white)
+        dict(colour="purple", kind="line", width=3.8, pts=[(45.8, 9.8), (47.6, 5.6), (47.9, 3.8)]),       # outline of the right strap pull
+        dict(colour="purple", kind="poly", pts=[(41.4, 0.0), (49.2, 0.0), (49.2, 7.4), (41.4, 7.4)], round=0.8),   # outline of the logo square
+        dict(colour="white", kind="line", width=1.3, pts=[(38.8, 9.8), (39.9, 5.0), (40.0, 3.0)]),
+        dict(colour="white", kind="line", width=1.3, pts=[(45.8, 9.8), (47.6, 5.6), (47.9, 3.8)]),
+        dict(colour="white", kind="poly", pts=[(42.4, 0.0), (48.2, 0.0), (48.2, 6.4), (42.4, 6.4)], round=0.7),
+        dict(colour="pink", kind="poly", pts=[(44.0, 1.6), (46.6, 1.6), (46.6, 4.4), (44.0, 4.4)], round=0.3)])],
+    thicken=[dict(motif="tag", colour="purple", amount=0.25, box=(37.0, 15.5, 49.0, 23.0))],     # mouth
     motifs={
         "tag": dict(box=(8, 108, 500, 480), bg="flood", seal=["bottom"], scale=70 / 480, tab_x_px=255),
         "bottle": dict(box=(528, 110, 862, 310), bg="flood", seal=["bottom"], scale=48 / 320, tab_x_px=692),
