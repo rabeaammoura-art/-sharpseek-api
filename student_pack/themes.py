@@ -239,6 +239,23 @@ THEMES["gamer_girl4"] = dict(
 THEMES["gamer_girl4"].pop("recolour_near", None)
 THEMES["gamer_girl4"].pop("fill_specks", None)
 
+# Sally, 4 colours, GPT round 2 (thicker lines)
+THEMES["gamer_girl5"] = dict(
+    THEMES["gamer_girl4"],
+    label="Gamer girl (private: made for Sally), 4 colours, GPT round 2",
+    art="art/source_art_gamer_saly5.png",
+    palette={"purple": ((92, 2, 101), "purple"), "yellow": ((251, 185, 4), "yellow"), "pink": ((251, 50, 123), "pink"), "white": ((253, 253, 253), "white"),
+             "dark": ((9, 9, 9), "purple"), "lpink": ((212, 177, 189), "white"), "mpurple": ((146, 75, 105), "purple")},
+    motifs={
+        "tag": dict(box=(8, 108, 500, 480), bg="flood", seal=["bottom"], scale=70 / 480, tab_x_px=255),
+        "bottle": dict(box=(528, 110, 862, 310), bg="flood", seal=["bottom"], scale=48 / 320, tab_x_px=692),
+        "pencil_l": dict(box=(18, 698, 142, 840), bg="flood", scale=0.143),
+        "pencil_r": dict(box=(462, 712, 630, 830), bg="flood", scale=0.143),
+        "ruler_l": dict(box=(60, 990, 268, 1222), bg="purple", scale=0.1422),
+        "ruler_r": dict(box=(972, 990, 1172, 1222), bg="purple", scale=0.1422),
+    },
+)
+
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
 
