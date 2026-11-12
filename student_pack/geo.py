@@ -38,23 +38,6 @@ def load_motifs(theme):
             if src in layers:
                 layers[dst] = unary_union([layers[dst], layers[src]]) if dst in layers else layers[src]
                 del layers[src]
-        for r in th.get("redraw", []):                      # replace everything inside a zone by clean hand-drawn shapes (mm, motif coordinates), painted in the given order
-            if r["motif"] != name:
-                continue
-            zone = box(*r["box"])
-            for c in list(layers):
-                layers[c] = shapely.set_precision(layers[c].buffer(0).difference(zone), 0.002)
-            painted = {}
-            for sh in r["shapes"]:
-                c, kind, pts = sh["colour"], sh["kind"], sh["pts"]
-                geom = (shapely.LineString(pts).buffer(sh["width"] / 2, cap_style=1, join_style=1) if kind == "line"
-                        else Polygon(pts).buffer(sh.get("round", 0.0), join_style=1)).intersection(zone)
-                for c2 in list(painted):
-                    painted[c2] = painted[c2].difference(geom)
-                painted[c] = unary_union([painted[c], geom]) if c in painted else geom
-            for c, geom in painted.items():
-                geom = shapely.set_precision(geom, 0.002)
-                layers[c] = shapely.set_precision(unary_union([layers[c], geom]) if c in layers else geom, 0.002)
         for z in th.get("thicken", []):                     # thicken thin strokes of one colour inside a zone (lines under the 0.8 mm print limit)
             if z["motif"] != name or z["colour"] not in layers:
                 continue
