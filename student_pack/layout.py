@@ -223,7 +223,7 @@ def _tag(theme, name, kind, width, cap_h):
     lw = lb[2] - lb[0]
     nops = [(c, affinity.translate(g, (width - lw) / 2 - R, 0), e) for c, g, e in nops]
     letters = affinity.translate(letters, (width - lw) / 2 - R, 0)
-    overlap = 1.2
+    overlap = th.get("tag_overlap", 1.2)       # how far the name ring rises over the bottom of the artwork (mm)
     my = letters.bounds[3] + R - overlap
     ops = [(c, g, False) for c, g in place(m, -cb[0] * ms, my - cb[1] * 0, ms)] + nops
     spur = th.get("sil_open", 0.4)

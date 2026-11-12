@@ -221,11 +221,12 @@ THEMES["gamer_girl3"] = dict(
 THEMES["gamer_girl4"] = dict(
     THEMES["gamer_girl"],
     label="Gamer girl (private: made for Sally), 4 colours, cleaned by GPT",
+    tag_overlap=0.6,                          # = the 4 px sealed strip: the name ring meets the art bottom without covering it and without a gap
     art="art/source_art_gamer_saly4.png",
     palette={"purple": ((107, 4, 117), "purple"), "yellow": ((251, 185, 4), "yellow"), "pink": ((236, 54, 124), "pink"), "white": ((254, 254, 254), "white"),
              "dark": ((15, 15, 15), "purple"), "lpink": ((218, 182, 183), "white"), "mpurple": ((152, 77, 121), "purple")},
     motifs={
-        "tag": dict(box=(12, 116, 490, 468), bg="flood", seal=["bottom"], scale=70 / 465, tab_x_px=255),
+        "tag": dict(box=(12, 116, 490, 473), bg="flood", seal=["bottom"], scale=70 / 465, tab_x_px=255),   # +4 px: the bottom 4 px strip is sealed and clipped (art ends at 469)
         "bottle": dict(box=(535, 116, 858, 306), bg="flood", seal=["bottom"], scale=48 / 312, tab_x_px=692),
         "pencil_l": dict(box=(24, 702, 138, 826), bg="flood", scale=0.143),
         "pencil_r": dict(box=(460, 722, 620, 815), bg="flood", scale=0.143),
