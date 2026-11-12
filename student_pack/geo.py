@@ -23,7 +23,11 @@ def load_motifs(theme):
             moved = shapely.set_precision(layers[z["src"]].buffer(0).intersection(near.buffer(0)).intersection(zone), 0.002)
             if moved.is_empty:
                 continue
-            layers[z["src"]] = shapely.set_precision(layers[z["src"]].buffer(0).difference(moved), 0.002)
+            if z.get("grow"):                                # thin strokes (< 0.8 mm) would be dropped by the min-feature clean-up: thicken them
+                moved = shapely.set_precision(moved.buffer(z["grow"], join_style=1).intersection(zone), 0.002)
+            for c in list(layers):
+                if c != z["dst"]:
+                    layers[c] = shapely.set_precision(layers[c].buffer(0).difference(moved), 0.002)
             layers[z["dst"]] = shapely.set_precision(unary_union([layers[z["dst"]].buffer(0), moved]) if z["dst"] in layers else moved, 0.002)
         for src, dst in th.get("remap", {}).items():          # fewer-colour variants merge colours
             if src in layers:

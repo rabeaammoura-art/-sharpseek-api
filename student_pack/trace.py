@@ -116,12 +116,27 @@ def trace_motif(img, theme, spec):
         k = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * r + 1, 2 * r + 1))
         closed = cv2.morphologyEx((lab == ci).astype(np.uint8), cv2.MORPH_CLOSE, k) > 0
         lab[closed & (lab == dark)] = ci
-    for colour, max_mm2, into in spec.get("absorb", []):  # small isolated blobs take their neighbour's colour
+    for colour, min_w_mm, into, zone in spec.get("thin", []):   # strips of `colour` thinner than min_w_mm inside a source-px box take `into` (slivers along outlines)
         ci, ti = printed.index(colour), printed.index(into)
-        n_, cc_, st_, _ = cv2.connectedComponentsWithStats((lab == ci).astype(np.uint8), connectivity=8)
+        r = max(1, int(round(min_w_mm / mmpx / 2)))
+        cur = (lab == ci).astype(np.uint8)
+        thin = cur & ~cv2.morphologyEx(cur, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * r + 1, 2 * r + 1)))
+        zm = np.zeros_like(cur)
+        zm[max(0, int((zone[1] - y0) * UP)):max(0, int((zone[3] - y0) * UP)), max(0, int((zone[0] - x0) * UP)):max(0, int((zone[2] - x0) * UP))] = 1
+        lab[(thin > 0) & (zm > 0)] = ti
+    for item in spec.get("absorb", []):                  # small isolated blobs take their neighbour's colour (optional 4th item: source-px box)
+        colour, max_mm2, into = item[:3]
+        zone = item[3] if len(item) > 3 else None
+        ci, ti = printed.index(colour), printed.index(into)
+        n_, cc_, st_, cen_ = cv2.connectedComponentsWithStats((lab == ci).astype(np.uint8), connectivity=8)
         for j in range(1, n_):
-            if st_[j, 4] * mmpx * mmpx < max_mm2:
-                lab[cc_ == j] = ti
+            if st_[j, 4] * mmpx * mmpx >= max_mm2:
+                continue
+            if zone is not None:
+                sx, sy = x0 + cen_[j][0] / UP, y0 + cen_[j][1] / UP
+                if not (zone[0] <= sx <= zone[2] and zone[1] <= sy <= zone[3]):
+                    continue
+            lab[cc_ == j] = ti
     if spec["bg"] == "flood":
         near_white = (up.min(-1) > 232).astype(np.uint8)
         n, cc = cv2.connectedComponents(near_white, connectivity=4)

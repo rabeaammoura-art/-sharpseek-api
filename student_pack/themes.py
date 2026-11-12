@@ -140,8 +140,12 @@ THEMES = {
         text_rings=[("purple", 3.0), ("yellow", 1.5)],
         ruler=dict(band="purple", ticks="white", rim="yellow", rim_w=1.6, stripes=None, body="purple"),
         motifs={
-            "tag": dict(box=(20, 134, 612, 562), erase=[(600, 134, 612, 562)], bg="flood", seal=["bottom"], scale=70 / 592, tab_x_px=305),
-            "bottle": dict(box=(788, 716, 1252, 992), bg="flood", seal=["bottom"], clip_circle=(1020, 952, 232), scale=48 / 464, tab_x_px=1020),   # ends at the chin: no hoodie scraps
+            "tag": dict(box=(20, 134, 612, 562), erase=[(600, 134, 612, 562)], bg="flood", seal=["bottom"], scale=70 / 592, tab_x_px=305,
+                        thin=[("yellow", 0.7, "white", (260, 300, 560, 520))],
+                        absorb=[("yellow", 1.2, "purple", (260, 300, 560, 520))]),   # thin yellow slivers along the face / hand outlines
+            "bottle": dict(box=(788, 716, 1252, 992), bg="flood", seal=["bottom"], clip_circle=(1020, 952, 232), scale=48 / 464, tab_x_px=1020,
+                           thin=[("yellow", 0.7, "white", (880, 790, 1160, 975))],
+                           absorb=[("yellow", 1.0, "purple", (880, 790, 1160, 975))]),   # ends at the chin: no hoodie scraps
             "pencil_l": dict(box=(632, 366, 764, 498), bg="purple", scale=85 / 660),
             "pencil_r": dict(box=(1040, 392, 1224, 508), bg="purple", scale=85 / 660),
             "ruler_l": dict(box=(24, 918, 176, 1138), bg="purple", scale=165 / 800),
@@ -191,8 +195,8 @@ _derive("gamer", "gamer3", "Gamer boy (private), 3 colours: blue merged into red
 _derive("gamer_girl", "gamer_girl3", "Gamer girl (private), 3 colours: purple merged into pink, bow outline kept in white", {"purple": "pink"},
         filament_rgb={"yellow": "#F6BA1C", "pink": "#EC407A", "white": "#F2F2F2"}, heights={"yellow": 2.2, "pink": 2.8, "white": 3.2},
         text_rings=[("pink", 3.0), ("yellow", 1.5)], ruler=dict(THEMES["gamer_girl"]["ruler"], band="pink", body="pink"),
-        recolour_near=[dict(motif="tag", src="purple", dst="white", near="pink", box=(15.5, 32.0, 43.0, 50.7), dist=1.2),
-                       dict(motif="bottle", src="purple", dst="white", near="pink", box=(18.0, 14.0, 40.5, 28.6), dist=1.2)])
+        recolour_near=[dict(motif="tag", src="purple", dst="white", near="pink", box=(15.5, 32.0, 43.0, 50.7), dist=1.2, grow=0.3),
+                       dict(motif="bottle", src="purple", dst="white", near="pink", box=(18.0, 14.0, 40.5, 28.6), dist=1.2, grow=0.3)])
 
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
