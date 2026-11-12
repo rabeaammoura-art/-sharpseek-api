@@ -246,6 +246,8 @@ THEMES["gamer_girl5"] = dict(
     art="art/source_art_gamer_saly5.png",
     palette={"purple": ((92, 2, 101), "purple"), "yellow": ((251, 185, 4), "yellow"), "pink": ((251, 50, 123), "pink"), "white": ((253, 253, 253), "white"),
              "dark": ((9, 9, 9), "purple"), "lpink": ((212, 177, 189), "white"), "mpurple": ((146, 75, 105), "purple")},
+    thicken=[dict(motif="tag", colour="purple", amount=0.25, box=(37.0, 15.5, 49.0, 23.0)),     # mouth
+             dict(motif="tag", colour="white", amount=0.2, box=(35.5, 0.0, 52.5, 12.0))],     # hoodie centre: thin white strap pulls and logo square
     motifs={
         "tag": dict(box=(8, 108, 500, 480), bg="flood", seal=["bottom"], scale=70 / 480, tab_x_px=255),
         "bottle": dict(box=(528, 110, 862, 310), bg="flood", seal=["bottom"], scale=48 / 320, tab_x_px=692),

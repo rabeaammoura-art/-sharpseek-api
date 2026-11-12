@@ -38,6 +38,17 @@ def load_motifs(theme):
             if src in layers:
                 layers[dst] = unary_union([layers[dst], layers[src]]) if dst in layers else layers[src]
                 del layers[src]
+        for z in th.get("thicken", []):                     # thicken thin strokes of one colour inside a zone (lines under the 0.8 mm print limit)
+            if z["motif"] != name or z["colour"] not in layers:
+                continue
+            zone = box(*z["box"]); lay = layers[z["colour"]].buffer(0)
+            add = shapely.set_precision(lay.buffer(z["amount"], join_style=1).intersection(zone).difference(lay), 0.002)
+            if add.is_empty:
+                continue
+            layers[z["colour"]] = shapely.set_precision(unary_union([lay, add]), 0.002)
+            for c in list(layers):
+                if c != z["colour"]:
+                    layers[c] = shapely.set_precision(layers[c].buffer(0).difference(add), 0.002)
         for f in th.get("fill_specks", []):                  # tiny holes of `colour` inside a zone take that colour (yellow specks inside the mouth, between outlines ...)
             if f["motif"] != name or f["colour"] not in layers:
                 continue
