@@ -184,6 +184,13 @@ _derive("cat", "cat2", "Cat, 2 colours (pink, white)", {"lpink": "pink", "black"
         filament_rgb={"pink": "#EC307A", "white": "#FCFCFC"}, detail=None,
         heights={"pink": 2.2, "white": 3.2}, ruler=_cat_ruler)
 
+# 3-colour versions of the private gamer themes (art untouched, one colour merged into a neighbour: chosen by comparing renders)
+_derive("gamer", "gamer3", "Gamer boy (private), 3 colours: blue merged into red", {"blue": "red"},
+        filament_rgb={"black": "#1C1C1C", "red": "#D32F2F", "white": "#F2F2F2"}, heights={"black": 2.2, "red": 2.8, "white": 3.2},
+        text_rings=[("black", 0.8), ("red", 1.5), ("black", 1.5)], ruler=dict(THEMES["gamer"]["ruler"], rim="red"))
+_derive("gamer_girl", "gamer_girl3", "Gamer girl (private), 3 colours: pink merged into purple", {"pink": "purple"},
+        filament_rgb={"yellow": "#F6BA1C", "purple": "#7B3FA0", "white": "#F2F2F2"}, heights={"yellow": 2.2, "purple": 2.8, "white": 3.2})
+
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
 
