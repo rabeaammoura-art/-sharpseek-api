@@ -40,3 +40,8 @@ too many colours, broken white lines such as the headphones), do NOT patch it wi
 ask GPT to change and give a ready prompt (flat colours with exact hex values, no line thinner than ~1.7% of the tag width, thick continuous lines,
 no tiny specks, high resolution), then trace the new image. Converter-side fixes only when the owner asks for them.
 Open item: Sally 3 colours (yellow #F6BA1C, pink #EC407A, white): waiting for the GPT redraw with thicker lines and continuous white headphone lines.
+
+## Sally 4 colours: approved version (owner)
+Approved: the upscaled GPT sheet (round 4, 1911 x 2000), theme `gamer_girl7`, files in packs/gamer-SALLY-APPROVED.zip.
+Slice (H2D 0.4, 0.20, Generic PLA): tag 1h04m 19.4 g, pencil 1h00m 20.1 g, ruler 43m 20.4 g, bottle 46m 13.0 g, total 3h35m 72.8 g.
+Known: a few tiny yellow specks (< 1 mm) remain near the mouth, bow and hoodie; judge them on the first print.
