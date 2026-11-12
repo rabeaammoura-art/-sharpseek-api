@@ -1,0 +1,17 @@
+TASK: Fix the attached 3D-print artwork "sally_gpt_current.png" (sheet: bag tag, bottle tag, pencil plate, 15 cm ruler). Keep EXACTLY the same design, characters, layout, colours and the name "SALLY". Only make lines thicker where listed.
+
+COLOURS (flat, exact, nothing else): purple #7B3FA0, yellow #F6BA1C, pink #EC407A, white #FFFFFF. No gradients, no shadows, no blur, no anti-aliased halos.
+
+WHY: I traced your image and printed-preview it. The attached "*_what_prints_vs_art.png" images show 3 panels (your art | what the printer can make | differences in red boxes). Everything matches except thin lines: a 0.4 mm nozzle cannot print a line thinner than 0.8 mm. Scale: the bag tag is about 465 px wide and prints 70 mm wide, so 1 mm = about 6.6 px. EVERY line, gap and outline must be at least 7 px thick (1 mm), target 8-9 px.
+
+FIX THESE PLACES (see the red boxes in tag_bottom_band_zoom.png):
+1. BAG TAG, bottom of the hoodie (red boxes 5, 11-14, 26, 33, 35): the dark purple outlines around the white backpack straps and around the small white square logo on the hoodie are too thin and get lost. Make each purple outline at least 7 px thick on BOTH sides of every white line, directly touching the pink fill. The white straps must be at least 8 px thick and the white square logo wall at least 8 px, with a clear pink centre.
+2. BAG TAG, bottom-left hair curl and the small white dot at the bottom-left (red boxes 2, 3, 7, 22, 23): make the purple hair strand lines at least 7 px thick and continuous; make the white dot at least 12 px wide.
+3. BAG TAG, the stairs/steps on the right (red boxes 4, 8, 10, 18, 20, 21): the white outline of the stairs and its purple fill must have at least 7 px thick lines and no thin gaps.
+4. BOTTLE TAG: same rules for the hair and headphone outlines and the thumb; no line under 7 px.
+5. PENCIL: the white game controller (joystick and buttons) and the pink square logo at the left: buttons at least 8 px, gaps at least 7 px.
+6. RULER (about 7 px per mm): the flags and the stairs at both ends: all white lines at least 7 px thick, flag pink fill clearly separated by a white line at least 7 px.
+7. Everywhere: no tiny specks or dots under 7 px, and no thin yellow slivers between two other colours.
+
+DO NOT change anything else. Check before answering: only the 4 hex colours; no line, gap or outline under 7 px; same layout; all four items present.
+OUTPUT: one PNG sheet, same layout as the input, at least 2048 px wide.
