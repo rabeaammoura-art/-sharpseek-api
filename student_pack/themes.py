@@ -259,6 +259,23 @@ THEMES["gamer_girl5"] = dict(
     },
 )
 
+# Sally, 4 colours, GPT round 3 (the owner fixed the traced sheet)
+THEMES["gamer_girl6"] = dict(
+    THEMES["gamer_girl4"],
+    label="Gamer girl (private: made for Sally), 4 colours, GPT round 3",
+    art="art/source_art_gamer_saly6.png",
+    palette={"purple": ((96, 3, 94), "purple"), "yellow": ((251, 192, 4), "yellow"), "yellow2": ((241, 186, 68), "yellow"), "pink": ((247, 42, 117), "pink"),
+             "white": ((255, 255, 255), "white"), "lpink": ((191, 144, 186), "white"), "mpurple": ((139, 72, 80), "purple")},
+    motifs={
+        "tag": dict(box=(8, 108, 500, 478), bg="flood", seal=["bottom"], scale=70 / 485, tab_x_px=255),
+        "bottle": dict(box=(522, 110, 858, 308), bg="flood", seal=["bottom"], scale=48 / 327, tab_x_px=692),
+        "pencil_l": dict(box=(16, 700, 142, 846), bg="flood", scale=0.1378),
+        "pencil_r": dict(box=(462, 712, 636, 832), bg="flood", scale=0.1378),
+        "ruler_l": dict(box=(58, 990, 262, 1222), bg="purple", scale=0.1414),
+        "ruler_r": dict(box=(972, 990, 1175, 1222), bg="purple", scale=0.1414),
+    },
+)
+
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
 
