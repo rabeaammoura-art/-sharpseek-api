@@ -33,3 +33,10 @@ Tag and bottle hanging loop: wall around the hole 3.0 mm (was 2.0), measured on 
 NOT copied: Mariachi's hole is ~3.5 mm (a key ring), ours stays 5.0 mm for a strap; Mariachi's loop thickness (~4 mm) is not applied, our loop is 2.2-3.2 mm
 (needs a separate tab height in the generator). Ruler: as agreed above (flat, 2.0 mm).
 Slice (H2D 0.4, 0.20, Generic PLA), cars theme: pencil 3 colours 43 min / 16.1 g (was 40 min / 14.1 g), 4 colours 1h06m / 22.8 g (was 1h02m / 20.5 g); tag unchanged.
+
+## Working rule for artwork (agreed)
+GPT draws and fixes the art, the generator only traces it. When the art has a problem (lines thinner than 0.8 mm at print size, details that vanish,
+too many colours, broken white lines such as the headphones), do NOT patch it with tricks in the converter: tell the owner straight away what to
+ask GPT to change and give a ready prompt (flat colours with exact hex values, no line thinner than ~1.7% of the tag width, thick continuous lines,
+no tiny specks, high resolution), then trace the new image. Converter-side fixes only when the owner asks for them.
+Open item: Sally 3 colours (yellow #F6BA1C, pink #EC407A, white): waiting for the GPT redraw with thicker lines and continuous white headphone lines.
