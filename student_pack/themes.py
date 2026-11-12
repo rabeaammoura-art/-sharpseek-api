@@ -276,6 +276,19 @@ THEMES["gamer_girl6"] = dict(
     },
 )
 
+# Sally, 4 colours, round 4: the same sheet upscaled to 1911 x 2000 (1.5587 x round 3, same layout)
+_F = 1.5587
+THEMES["gamer_girl7"] = dict(
+    THEMES["gamer_girl6"],
+    label="Gamer girl (private: made for Sally), 4 colours, upscaled sheet",
+    art="art/source_art_gamer_saly8.png",
+    palette={"purple": ((96, 3, 91), "purple"), "yellow": ((250, 192, 6), "yellow"), "yellow2": ((240, 173, 59), "yellow"), "pink": ((244, 43, 118), "pink"),
+             "white": ((255, 255, 255), "white"), "lpink": ((244, 197, 199), "white"), "mpurple": ((154, 54, 88), "purple"), "mpink": ((192, 109, 162), "purple")},
+    motifs={k: dict(v, box=tuple(int(round(c * _F)) for c in v["box"]),
+                    **{"scale": v["scale"] / _F}, **({"tab_x_px": int(round(v["tab_x_px"] * _F))} if "tab_x_px" in v else {}))
+            for k, v in THEMES["gamer_girl6"]["motifs"].items()},
+)
+
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
 
