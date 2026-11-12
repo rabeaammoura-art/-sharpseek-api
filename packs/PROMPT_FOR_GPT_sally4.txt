@@ -1,0 +1,23 @@
+TASK: Fix and clean up the attached 3D-print artwork "sally_4colours_current.png" (sheet with 4 items: bag tag, bottle tag, pencil plate, 15 cm ruler).
+It was converted from "sally_original_art.png" (the original) for FLAT 4-colour 3D printing (4 filaments). Keep the SAME characters, poses, layout and name text "SALLY".
+
+THE 4 COLOURS (use ONLY these, flat, exact values):
+- purple  #7B3FA0   (dark outlines, face lines, background of bottle and ruler)
+- yellow  #F6BA1C   (hair, outer border)
+- pink    #EC407A   (bow, hoodie, tablet, logo squares, flags)
+- white   #FFFFFF   (face, headphones, name letters, ruler marks)
+No gradients, no shadows, no blur, no glow, no shading, no extra colours, no anti-aliasing blends. Crisp flat edges. Plain white or light-grey background.
+
+PRINT RULES (the image will be traced and printed with a 0.4 mm nozzle; the bag tag prints 70 mm wide, so 1 mm is about 6.6 px if the tag is 465 px wide):
+1. No line, gap or detail thinner than 6 px (0.9 mm). Target thickness for outlines: 7 to 9 px (1.1 to 1.4 mm).
+2. Every line must be CONTINUOUS and uniform. No breaks, no tapering ends, no wobbles, no wavy edges.
+3. HEADPHONES: the white lines (headband and the ring around each ear cup) must be thick, continuous, uniform, smooth.
+4. BOW: clear dark outline, clear fold lines, separated from the hair, no merged blobs.
+5. FACE: eyes, eyelashes, mouth and hand lines must be clear, thick enough, no tiny dots or specks, no thin yellow slivers along outlines, no thin broken lines. On the small bottle tag simplify the face (fewer details, nothing under 6 px).
+6. Remove every tiny dot, speck and detail smaller than 6 px. Merge small blobs into their neighbour colour.
+7. Colour boundaries must be clean: no halo, no thin stripe of another colour between two areas.
+8. Keep the name "SALLY" in the same bold white lettering, centered, with the same ring around it.
+9. Do NOT change the design, the characters or the layout. Only clean and thicken.
+
+CHECK BEFORE ANSWERING: (a) only the 4 hex colours, (b) no line thinner than 6 px, (c) headphone lines continuous, (d) no specks, (e) all four items present in the same positions.
+OUTPUT: one PNG sheet, same layout as the input, at least 2048 px wide.
