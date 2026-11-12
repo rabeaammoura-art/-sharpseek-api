@@ -226,7 +226,9 @@ THEMES["gamer_girl4"] = dict(
     palette={"purple": ((107, 4, 117), "purple"), "yellow": ((251, 185, 4), "yellow"), "pink": ((236, 54, 124), "pink"), "white": ((254, 254, 254), "white"),
              "dark": ((15, 15, 15), "purple"), "lpink": ((218, 182, 183), "white"), "mpurple": ((152, 77, 121), "purple")},
     motifs={
-        "tag": dict(box=(12, 116, 490, 473), bg="flood", seal=["bottom"], scale=70 / 465, tab_x_px=255),   # +4 px: the bottom 4 px strip is sealed and clipped (art ends at 469)
+        "tag": dict(box=(12, 116, 490, 473), bg="flood", seal=["bottom"], scale=70 / 465, tab_x_px=255,
+                    thin=[("yellow", 0.8, "white", (150, 395, 395, 473))],                 # thin yellow slivers along the strap / logo-square outlines
+                    absorb=[("yellow", 1.5, "white", (150, 395, 395, 473)), ("yellow", 1.5, "purple", (335, 320, 430, 395))]),   # specks; yellow bits inside the star on the hand   # +4 px: the bottom 4 px strip is sealed and clipped (art ends at 469)
         "bottle": dict(box=(535, 116, 858, 306), bg="flood", seal=["bottom"], scale=48 / 312, tab_x_px=692),
         "pencil_l": dict(box=(24, 702, 138, 826), bg="flood", scale=0.143),
         "pencil_r": dict(box=(460, 722, 620, 815), bg="flood", scale=0.143),
