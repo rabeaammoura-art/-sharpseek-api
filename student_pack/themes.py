@@ -289,6 +289,15 @@ THEMES["gamer_girl7"] = dict(
             for k, v in THEMES["gamer_girl6"]["motifs"].items()},
 )
 
+# Sally, 4 colours, round 5: GPT removed the specks (same size and layout as round 3)
+THEMES["gamer_girl8"] = dict(
+    THEMES["gamer_girl6"],
+    label="Gamer girl (private: made for Sally), 4 colours, specks removed by GPT",
+    art="art/source_art_gamer_saly9.png",
+    palette={"purple": ((100, 4, 80), "purple"), "yellow": ((251, 189, 4), "yellow"), "yellow2": ((241, 184, 63), "yellow"), "pink": ((248, 49, 115), "pink"),
+             "white": ((255, 255, 255), "white"), "lpink": ((205, 152, 190), "white"), "mpurple": ((151, 79, 93), "purple")},
+)
+
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
 
