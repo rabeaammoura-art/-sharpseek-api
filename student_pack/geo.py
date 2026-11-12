@@ -38,6 +38,21 @@ def load_motifs(theme):
             if src in layers:
                 layers[dst] = unary_union([layers[dst], layers[src]]) if dst in layers else layers[src]
                 del layers[src]
+        for z in th.get("fill_gaps", []):                    # close narrow gaps between the colours inside a zone (they would print as base-colour slivers)
+            if z["motif"] != name:
+                continue
+            zone = box(*z["box"]); r = z["radius"]
+            cols_ = [c for c in z["priority"] if c in layers]
+            allg = unary_union([layers[c].buffer(0) for c in layers])
+            gap = allg.buffer(r, join_style=1).buffer(-r, join_style=1).difference(allg).intersection(zone)
+            if gap.is_empty:
+                continue
+            for c in cols_:
+                take = gap.intersection(layers[c].buffer(0).buffer(r * 1.6, join_style=1))
+                if take.is_empty:
+                    continue
+                layers[c] = shapely.set_precision(unary_union([layers[c].buffer(0), take]), 0.002)
+                gap = gap.difference(take)
         for z in th.get("thicken", []):                     # thicken thin strokes of one colour inside a zone (lines under the 0.8 mm print limit)
             if z["motif"] != name or z["colour"] not in layers:
                 continue
