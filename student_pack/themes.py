@@ -192,15 +192,30 @@ _derive("cat", "cat2", "Cat, 2 colours (pink, white)", {"lpink": "pink", "black"
 _derive("gamer", "gamer3", "Gamer boy (private), 3 colours: blue merged into red", {"blue": "red"},
         filament_rgb={"black": "#1C1C1C", "red": "#D32F2F", "white": "#F2F2F2"}, heights={"black": 2.2, "red": 2.8, "white": 3.2},
         text_rings=[("black", 0.8), ("red", 1.5), ("black", 1.5)], ruler=dict(THEMES["gamer"]["ruler"], rim="red"))
-_derive("gamer_girl", "gamer_girl3", "Gamer girl (private), 3 colours: purple merged into pink, bow outline kept in white", {"purple": "pink"},
-        filament_rgb={"yellow": "#F6BA1C", "pink": "#EC407A", "white": "#F2F2F2"}, heights={"yellow": 2.2, "pink": 2.8, "white": 3.2},
-        text_rings=[("pink", 3.0), ("yellow", 1.5)], ruler=dict(THEMES["gamer_girl"]["ruler"], band="pink", body="pink"),
-        recolour_near=[dict(motif="tag", src="purple", dst="white", near="pink", box=(15.5, 32.0, 43.0, 50.7), dist=1.2, grow=0.3, smooth=0.3),
-                       dict(motif="bottle", src="purple", dst="white", near="pink", box=(18.0, 14.0, 40.5, 28.6), dist=1.2, grow=0.3, smooth=0.3)],
-        fill_specks=[dict(motif="tag", colour="pink", max_area=2.0, box=(18.0, 4.0, 56.0, 36.0)),
-                     dict(motif="tag", colour="white", max_area=1.2, box=(18.0, 4.0, 56.0, 36.0)),
-                     dict(motif="bottle", colour="pink", max_area=1.5, box=(14.0, 2.0, 40.0, 24.0)),
-                     dict(motif="bottle", colour="white", max_area=1.0, box=(14.0, 2.0, 40.0, 24.0))])
+THEMES["gamer_girl3"] = dict(
+    label="Gamer girl (private: made for Sally), 3 colours, redrawn by GPT for 3 flat colours",
+    private=True,
+    art="art/source_art_gamer_saly3.png",
+    outline="yellow",
+    letters="white",
+    detail=None,
+    fill_counters=True,
+    sil_open=1.0,
+    tab_under_art=True,
+    palette={"yellow": ((253, 192, 15), "yellow"), "pink": ((230, 30, 110), "pink"), "white": ((254, 254, 254), "white")},
+    filament_rgb={"yellow": "#F6BA1C", "pink": "#EC407A", "white": "#F2F2F2"},
+    heights={"yellow": 2.2, "pink": 2.8, "white": 3.2},
+    text_rings=[("pink", 3.0), ("yellow", 1.5)],
+    ruler=dict(band="pink", ticks="white", rim="yellow", rim_w=1.6, stripes=None, body="pink"),
+    motifs={
+        "tag": dict(box=(12, 116, 490, 468), bg="flood", seal=["bottom"], scale=70 / 465, tab_x_px=255),
+        "bottle": dict(box=(535, 116, 858, 306), bg="flood", seal=["bottom"], scale=48 / 312, tab_x_px=692),
+        "pencil_l": dict(box=(24, 702, 138, 826), bg="flood", scale=0.143),
+        "pencil_r": dict(box=(460, 722, 620, 815), bg="flood", scale=0.143),
+        "ruler_l": dict(box=(62, 998, 265, 1215), bg="pink", scale=0.1422),
+        "ruler_r": dict(box=(992, 1000, 1168, 1215), bg="pink", scale=0.1422),
+    },
+)
 
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
