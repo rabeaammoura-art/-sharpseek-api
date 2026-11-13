@@ -101,7 +101,7 @@ def slot_order(theme):
     return [th["outline"]] + sorted([c for c in cols if c != th["outline"]], key=lambda c: (th["heights"][c], c))
 
 
-def write_plate_3mf(path, items, filament_type="PETG"):
+def write_plate_3mf(path, items, filament_type="PLA"):
     """items = [(piece, solids, name, (x, y))] with (x, y) = lower-left of the piece on the plate (mm; the group should be
     centred on (128, 128), verify_slice.py moves it onto the real plate).  One 3MF object per item, one part per colour
     (named by colour, extruder = slot of the colour in the theme's slot order).  Pieces of different themes get their
