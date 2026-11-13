@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-13 (cloud) — new bookmark from the owner's cross-stitch picture (blue flowers), flat preview v1 sent
+- First print result: bookmark "Ommi" printed (52 min, 16.2 g, Generic PLA Silk); owner reported fine strings on top (told: dry the spools, nozzle -5..10 C). The H2D HAS an AMS on the left nozzle (A1, A2 loaded, shown as "?") + an external spool on the right.
+- Picture is 207 x 682 px = 3.4 px per stitch (low). Stitch grid fitted (pitch 3.408 / 3.422 px), cells clustered to 3 colours, 4-fold mirror vote -> clean grid 50 x 182 cells (`cad/out/bookmark_flowers/cells_v1.npy`, not in git; scripts scratchpad-only). Thin vine lines of the picture are lost in v1 (leaves stand alone); border dots came out light blue.
+- Left: owner's OK / marks on the flat preview, then 3D (proposal: 1 mm per cell = 50 x 182 mm), print_test, cost. Open: vines, 2 or 3 colours, hole.
+
 ## 2026-11-13 (cloud) — H2D has arrived: owner printed the bookmark (first print)
 - Walked the owner through Bambu Studio on the laptop: opened the fixed bookmark 3MF, removed slots 3-4, colours + Generic PLA Silk, slice = 52-53 min / 16.2-16.6 g (Generic Silk; the cloud estimate with Bambu Silk was 37 min). Send dialog showed printer 3DP-094-226 (H2D 0.4/0.4) and "filaments not mapped"; told him: Sync info, and without AMS one colour per nozzle. He then reported the print finished (which route he used and the result are not known yet).
 - CLAUDE.md updated: printer arrived. Left: photo/result of the print, AMS yes/no, the 3 personalised variants (waiting for words / size / colours), price sheet.
