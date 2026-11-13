@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-13 (cloud) — bookmark personalised variants, TRIAL (owner asked: other words, other colours)
+- Trial only, not approved: in the gold pattern the word bodies (split indices 8, 9, 10) are replaced by a new word set in Amiri Bold (font fetched with `apt-get download fonts-hosny-amiri` into the scratchpad, not in git), size 11.3 mm, +0.12 mm thickening, rotated 90 deg, centred x 34.4 / y 73.4; heart moved to the same y. Words tried: mother / wife / sister (generic). Scripts were scratchpad-only.
+- `print_test` on each variant: only the old corner-touch "not watertight" finding. Not sliced. Outputs `cad/out/bookmark_ommi/Bookmark_{ommi,zawjati,okhti}.3mf` + `Bookmark_3_variants_preview.png` (not in git).
+- Left: owner's OK on font / size / words / colours, then one plate with the 3 (slice with tower), price sheet still missing. If this becomes a product: move the scratch script into `cad/`.
+
 ## 2026-11-13 (cloud) — `/3d-cost` on the owner's bookmark "Ommi" (60 x 179 x 1.8 mm, 2 colours)
 - Uploaded 3MF (base 1.2 mm slot 1 + gold pattern 0.6 mm slot 2) is a plain 3MF: the Bambu CLI exits silently on it. Re-written through `threemf.write_bambu_3mf` with the 4-filament PLA template (needs 4 `--filament`, 3 gives "Flush volumes matrix" error); file not in git.
 - Slice (0.20 Standard, PLA Silk x4 slots, tower at x 200): 0h37m / 16.7 g (base 14.9 g, gold 1.8 g), one colour change. Gold part mesh is not watertight (sliced fine).
