@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-13 (cloud) — `/3d-cost` on the owner's bookmark "Ommi" (60 x 179 x 1.8 mm, 2 colours)
+- Uploaded 3MF (base 1.2 mm slot 1 + gold pattern 0.6 mm slot 2) is a plain 3MF: the Bambu CLI exits silently on it. Re-written through `threemf.write_bambu_3mf` with the 4-filament PLA template (needs 4 `--filament`, 3 gives "Flush volumes matrix" error); file not in git.
+- Slice (0.20 Standard, PLA Silk x4 slots, tower at x 200): 0h37m / 16.7 g (base 14.9 g, gold 1.8 g), one colour change. Gold part mesh is not watertight (sliced fine).
+- Left: price sheet was missing in this session (cost not given until the owner uploads it); `print_test` not run.
+
 ## 2026-11-11 (cloud) — Petra (Treasury) wall art 200 x 200 with `zt_forge.py`
 - Owner's judgement: a 300 x 200 scenery plaque (7.5 h) cannot earn its print time -> ready-made scenery is content only, not a product. Time follows grams (~6.7 min/g at 0.08): dark pictures with a black background are the fast ones.
 - First prompt (flat linocut style) gave two images the owner disliked (my prompt's fault). Second prompt (realistic, candle-lit, like the Jerusalem image): GPT image chosen; the Gemini image is not the real facade. Lanterns removed by fading the ground below the steps to black.
