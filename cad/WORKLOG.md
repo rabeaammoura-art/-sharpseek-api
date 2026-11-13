@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-13 (cloud) — flower bookmark v3: tassel hole + two-bookmark plate sent to the owner
+- Owner asked for a hole like the "Ommi" one (that one: hole 5.3 mm, ring 7.4 mm) and for the 2 + 3 plate. v3 = v2 + hole 4.4 mm with a main-colour ring 6.2 mm at x 25 / y 176.1 (fits between the top flower's two petals; border dots under it removed). Smaller than Ommi's because of the space. v2 kept. `print_test` on v3: 0 problems.
+- Plate `Bookmarks_2and3_hole_black_right.3mf`: slots 1 white, 2 red, 3 silk gold (left nozzle / AMS), 4 black (right nozzle / external spool). Slice: 1h19m / 34.7 g / 4 filament changes. Also found: the reading grid is 2 x 2 cells per real stitch (pattern = 25 x 91 stitches); harmless.
+- Left: owner prints it; photo of the result. Files in `cad/out/bookmark_flowers/` (not in git).
+
 ## 2026-11-13 (cloud) — flower bookmark: schemes 2 + 3 on one plate (owner's question)
 - Owner chose scheme 3 (black / silk gold / red) and asked about printing 2 and 3 together. Plate built (4 slots: white, red, silk gold, black). Slices (PLA Basic + PLA Silk, tower x 230): all on the left nozzle 1h25m / 35.2 g / 12 filament changes; black on the RIGHT nozzle 1h19m / 34.7 g / 4 changes. One bookmark alone = 0h38m, so two separate prints = 1h16m: no time gain from one plate.
 - Tool note: `bambu_slice.py --nozzle-map` has no effect on a 3MF from `threemf.write_bambu_3mf` unless `filament_maps` in `Metadata/model_settings.config` is changed too (it is written as all 1). Not fixed in the code yet.
