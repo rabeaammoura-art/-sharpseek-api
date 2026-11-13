@@ -52,3 +52,10 @@ New theme options: tab_height (raise the loop, outline colour only) and tab_fill
 Slice (H2D 0.4, 0.20, Generic PLA), Sally tag: 1h04m / 19.4 g -> 1h12m / 21.8 g (extra yellow layers = extra colour changes).
 Tip from the research (sellers' guides, not official): 3+ wall loops in the slicer for the loop, PETG is less brittle than PLA.
 Waiting for the owner's go before regenerating packs/gamer-SALLY-APPROVED.zip.
+
+## Yellow specks inside the art (Sally): cause and fix, files NOT regenerated yet
+Cause: gaps between art colours narrower than 0.8 mm cannot be printed, so the base slab shows through. Sally's base is yellow but the art lines are purple,
+so gaps look yellow; Osayd's base is black like its lines, so the same gaps (3x more area) are invisible.
+Fix (theme option gap_fill): an under-layer of the line colour (purple) inside the art area (closing 1.5 mm, kept 1.5 mm away from the outer rim), tag and bottle only.
+Enabled for gamer_girl7. Thin purple slivers may print as thin lines or be skipped by the slicer.
+Pending: owner's approval, then regenerate packs/gamer-SALLY-APPROVED.zip together with the thicker loop (tab_height 3.2).

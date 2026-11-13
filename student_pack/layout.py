@@ -146,6 +146,15 @@ def stencil(letters, bridge=1.4):
 def resolve(kind, theme, name, ops, silhouette, holes=(), base=BASE, tunnel=None, notes=(), cutouts=None, top=None):
     th = THEMES[theme]
     colors = list(th["heights"])
+    gf = th.get("gap_fill")
+    if gf and kind in gf.get("pieces", ("tag", "bottle", "pencil", "ruler")):
+        # gaps between the artwork colours (narrower than the 0.8 mm print limit) would show the base slab colour: lay an under-layer of the
+        # line colour below everything inside the artwork area, so a gap shows that colour (like the dark-base themes) instead of the base colour
+        art = unary_union([g for c, g, e in ops if c != th["outline"] and not g.is_empty])
+        r = gf.get("close", 1.5)
+        under = art.buffer(r, join_style=1).buffer(-r, join_style=1).intersection(silhouette.buffer(-gf.get("edge", 1.5), join_style=1))   # keep the outer rim in the base colour
+        if not under.is_empty:
+            ops = [(gf["colour"], under, True)] + list(ops)
     canvas = {c: Polygon() for c in colors}
     exempt_geom = {c: Polygon() for c in colors}
     for color, g, exempt in ops:
