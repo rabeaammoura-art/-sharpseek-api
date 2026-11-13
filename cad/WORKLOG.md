@@ -5,6 +5,13 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-13 (cloud) — flower bookmark v2: vines back, 3 colours, 3D built, 4 colour schemes shown
+- Owner approved the flat v1 and asked: vines back, 3 colours, 4 colour schemes from his stock sheet (sheet uploaded, copied to `cad/config/filament_prices.xlsx`, git-ignored).
+- Vines: the vote-from-picture attempt was messy, so they are a clean spline (8 measured points, mirrored 4 ways), 0.75 mm wide, in the main colour. Model: 1 mm per stitch = 50 x 182 mm, base 1.2 mm (slot 1) + raised 0.6 mm pattern: main (slot 2), accent (slot 3). All three meshes watertight; `print_test`: 0 problems.
+- Slice (0.20 Standard, Bambu PLA Basic x4, tower x 200): 0h38m / 17.1 g (13.5 + 2.4 + 1.2), 3 filament changes. On the owner's machine the Generic profile gave ~40 % longer than my estimate on the first bookmark.
+- Schemes shown (base / main / accent): White-Blue-Cyan, White-Red-Black, Black-Silk Gold-Red, White-Purple-Pink. Outputs in `cad/out/bookmark_flowers/` (not in git; build script scratchpad-only).
+- Left: owner picks a scheme and prints; photo of the result; still open: the 3 personalised "Ommi" variants, stringing check.
+
 ## 2026-11-13 (cloud) — new bookmark from the owner's cross-stitch picture (blue flowers), flat preview v1 sent
 - First print result: bookmark "Ommi" printed (52 min, 16.2 g, Generic PLA Silk); owner reported fine strings on top (told: dry the spools, nozzle -5..10 C). The H2D HAS an AMS on the left nozzle (A1, A2 loaded, shown as "?") + an external spool on the right.
 - Picture is 207 x 682 px = 3.4 px per stitch (low). Stitch grid fitted (pitch 3.408 / 3.422 px), cells clustered to 3 colours, 4-fold mirror vote -> clean grid 50 x 182 cells (`cad/out/bookmark_flowers/cells_v1.npy`, not in git; scripts scratchpad-only). Thin vine lines of the picture are lost in v1 (leaves stand alone); border dots came out light blue.
