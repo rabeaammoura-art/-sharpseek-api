@@ -300,7 +300,7 @@ THEMES["gamer_girl8"] = dict(
 
 THEMES["gamer_girl7"].update(tab_height=3.2, tab_fillet=1.5)   # hanging loop 3.2 mm thick (was 2.2) and smooth joins to the outline
 
-THEMES["gamer_girl7"].update(gap_fill=dict(colour="purple", close=1.5, edge=1.5, pieces=("tag", "bottle")))   # gaps between art colours show purple (the line colour), not the yellow base
+THEMES["gamer_girl7"].update(gap_fill=dict(colour="purple", close=1.5, edge=1.5, pieces=("tag", "bottle")), join_fill=3.0)   # gaps between art colours show purple (the line colour), not the yellow base
 
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]

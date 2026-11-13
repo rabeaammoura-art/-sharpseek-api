@@ -239,6 +239,14 @@ def _tag(theme, name, kind, width, cap_h):
     ops = [(c, g, False) for c, g in place(m, -cb[0] * ms, my - cb[1] * 0, ms)] + nops
     spur = th.get("sil_open", 0.4)
     sil = make_silhouette(ops, spur=spur)
+    jf = th.get("join_fill")
+    if jf:                                    # fill the small notches where the artwork's flat bottom meets the (wider) name pill
+        closed = sil.buffer(jf, join_style=1).buffer(-jf, join_style=1)
+        band = box(-5, my - 6.0, width + 5, my + 4.0)
+        extra = closed.difference(sil).intersection(band)
+        if not extra.is_empty:
+            ops.append((th["outline"], extra, False))
+            sil = make_silhouette(ops, spur=spur)
     tab, hole = add_tab(sil, (m["tab_x"] - cb[0]) * ms)
     fil = th.get("tab_fillet")
     if fil:                                   # round the concave corners where the loop meets the outline (no notches)
