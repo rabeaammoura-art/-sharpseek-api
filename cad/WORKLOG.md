@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-13 (cloud) — two-bookmark plate: "Purge volumes matrix do not match" error in Bambu Studio, file fixed
+- Owner's Bambu Studio (GUI) refused the plate: "Purge volumes matrix do not match to the correct size". Cause: my scratch scripts passed the raw 4-filament template to `threemf.write_bambu_3mf` (flush matrix 16 values); with a filament on the right nozzle the H2D needs 2 matrices (32) - `threemf.build_project_settings` already does that, I had skipped it. Also the template's tower position (160, 120) collided with the second bookmark when the file is sliced as-is.
+- `Bookmarks_2and3_hole_v3.3mf`: matrix x2, `flush_multiplier` x2, `filament_map` 1,1,1,2, tower at 230/100, slot colours set. Sliced directly by the CLI with the file's own settings (no overrides): success, 80 min, 4 changes. Not confirmed in the owner's GUI yet.
+- Lesson: always build project settings with `build_project_settings` and test a 3MF with a plain `bambu-studio --slice 0 file.3mf` (as the GUI opens it), not only through `bambu_slice.py`.
+
 ## 2026-11-13 (cloud) — flower bookmark v3: tassel hole + two-bookmark plate sent to the owner
 - Owner asked for a hole like the "Ommi" one (that one: hole 5.3 mm, ring 7.4 mm) and for the 2 + 3 plate. v3 = v2 + hole 4.4 mm with a main-colour ring 6.2 mm at x 25 / y 176.1 (fits between the top flower's two petals; border dots under it removed). Smaller than Ommi's because of the space. v2 kept. `print_test` on v3: 0 problems.
 - Plate `Bookmarks_2and3_hole_black_right.3mf`: slots 1 white, 2 red, 3 silk gold (left nozzle / AMS), 4 black (right nozzle / external spool). Slice: 1h19m / 34.7 g / 4 filament changes. Also found: the reading grid is 2 x 2 cells per real stitch (pattern = 25 x 91 stitches); harmless.
