@@ -30,7 +30,7 @@ The repo is **public** — never commit purchase prices, the price sheet, produc
 
 ## Facts and preferences (decided with the owner)
 - **Cost rule (owner agreed 2026-11-06):** for any design/file the owner brings, do the **cheap quick repair + check first** (merge vertices, fix normals, drop to z=0, `/3d-print-test`); rebuild from scratch only if that fails or the owner asks. Keep answers and tool rounds minimal.
-- **The printer (Bambu Lab H2D) has not arrived yet.** Nothing is print-tested. Never say "print a test" as if they could; prepare files and software checks.
+- **The printer (Bambu Lab H2D) arrived and is connected to Bambu Studio on the laptop (first print 2026-11-13: the "Ommi" bookmark).** Older notes that say "not arrived / nothing print-tested" are outdated; AMS or not is still unconfirmed (ask). Software checks (`/3d-print-test`) still come before printing.
 - Priorities: **print time matters more than cost**; no glue; no thicker base; avoid loose separate pieces; the owner likes things shown as images.
 - Prices come only from `cad/config/filament_prices.xlsx` (git-ignored; ask the owner to upload `3D_ZONE_TECH_Filament.xlsx` if missing). PLA = PLA+.
 - Plaque is printed front face up (relief on top, back on the bed). A 300 mm multi-colour plate + prime tower does not fit the H2D: **max coloured size is about 290 mm** (the generator warns above that; recommended ladder 150/200/250/280).

@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-13 (cloud) — H2D has arrived: owner printed the bookmark (first print)
+- Walked the owner through Bambu Studio on the laptop: opened the fixed bookmark 3MF, removed slots 3-4, colours + Generic PLA Silk, slice = 52-53 min / 16.2-16.6 g (Generic Silk; the cloud estimate with Bambu Silk was 37 min). Send dialog showed printer 3DP-094-226 (H2D 0.4/0.4) and "filaments not mapped"; told him: Sync info, and without AMS one colour per nozzle. He then reported the print finished (which route he used and the result are not known yet).
+- CLAUDE.md updated: printer arrived. Left: photo/result of the print, AMS yes/no, the 3 personalised variants (waiting for words / size / colours), price sheet.
+
 ## 2026-11-13 (cloud) — bookmark personalised variants, TRIAL (owner asked: other words, other colours)
 - Trial only, not approved: in the gold pattern the word bodies (split indices 8, 9, 10) are replaced by a new word set in Amiri Bold (font fetched with `apt-get download fonts-hosny-amiri` into the scratchpad, not in git), size 11.3 mm, +0.12 mm thickening, rotated 90 deg, centred x 34.4 / y 73.4; heart moved to the same y. Words tried: mother / wife / sister (generic). Scripts were scratchpad-only.
 - `print_test` on each variant: only the old corner-touch "not watertight" finding. Not sliced. Outputs `cad/out/bookmark_ommi/Bookmark_{ommi,zawjati,okhti}.3mf` + `Bookmark_3_variants_preview.png` (not in git).
