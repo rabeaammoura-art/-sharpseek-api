@@ -23,7 +23,7 @@ BASE = 1.6
 PENCIL_BASE = 13.0                # tested MakerWorld pencil topper: 13 mm tall body
 MIN_FEATURE = 0.8
 HOLE_D = 5.0                      # hanging hole
-PENCIL_HOLE_D = 8.0               # tested topper: 8.0 mm hole (fits standard hexagonal pencils with rounded corners)
+PENCIL_HOLE_D = 7.7               # tested topper: 8.0 mm hole (fits standard hexagonal pencils with rounded corners)
 TUNNEL_CENTER_Z = 6.0             # floor wall 2.0 mm like the tested topper
 TUNNEL_ROOF_CUT = 4.4             # teardrop apex cut this far above the tunnel axis (roof z = 10.4, roof wall 2.6 mm; tested topper: 3.0 with a round hole + supports)
 RULER_W, RULER_H, RULER_MM = 165.0, 50.0, 150
