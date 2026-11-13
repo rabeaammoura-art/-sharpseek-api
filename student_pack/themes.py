@@ -298,6 +298,8 @@ THEMES["gamer_girl8"] = dict(
              "white": ((255, 255, 255), "white"), "lpink": ((205, 152, 190), "white"), "mpurple": ((151, 79, 93), "purple")},
 )
 
+THEMES["gamer_girl7"].update(tab_height=3.2, tab_fillet=1.5)   # hanging loop 3.2 mm thick (was 2.2) and smooth joins to the outline
+
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
 

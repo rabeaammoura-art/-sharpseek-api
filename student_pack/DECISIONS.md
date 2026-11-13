@@ -45,3 +45,10 @@ Open item: Sally 3 colours (yellow #F6BA1C, pink #EC407A, white): waiting for th
 Approved: the upscaled GPT sheet (round 4, 1911 x 2000), theme `gamer_girl7`, files in packs/gamer-SALLY-APPROVED.zip.
 Slice (H2D 0.4, 0.20, Generic PLA): tag 1h04m 19.4 g, pencil 1h00m 20.1 g, ruler 43m 20.4 g, bottle 46m 13.0 g, total 3h35m 72.8 g.
 Known: a few tiny yellow specks (< 1 mm) remain near the mouth, bow and hoodie; judge them on the first print.
+
+## Hanging loop (Sally tag), proposal implemented in the generator, files NOT regenerated yet
+Measured: tested Mariachi tag loop is ~4 mm thick (estimate from its file and print scale), ours was 2.2 mm; ring wall 3.0 mm and hole 5.0 mm kept.
+New theme options: tab_height (raise the loop, outline colour only) and tab_fillet (round the joins to the outline). Enabled for gamer_girl7: loop 3.2 mm, fillet 1.5 mm.
+Slice (H2D 0.4, 0.20, Generic PLA), Sally tag: 1h04m / 19.4 g -> 1h12m / 21.8 g (extra yellow layers = extra colour changes).
+Tip from the research (sellers' guides, not official): 3+ wall loops in the slicer for the loop, PETG is less brittle than PLA.
+Waiting for the owner's go before regenerating packs/gamer-SALLY-APPROVED.zip.
