@@ -303,7 +303,7 @@ THEMES["gamer_girl7"].update(tab_height=3.2, tab_fillet=1.5)   # hanging loop 3.
 # purple base slab (= the line colour): gaps between art colours show purple, not the yellow; the yellow rim and the loop are yellow regions on top
 THEMES["gamer_girl7"].update(outline="purple", tab_colour="yellow", heights={"purple": 2.2, "yellow": 2.8, "pink": 2.8, "white": 3.2},
                              edge_snap=dict(colour="yellow", width=1.0), join_fill=3.0,
-                             slots=["purple", "white", "yellow", "pink"])   # AMS: 1 purple, 2 white, 3 yellow, 4 pink
+                             slots=["white", "pink", "yellow", "purple"])   # AMS: 1 white, 2 pink, 3 yellow, 4 purple
 
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
