@@ -305,6 +305,8 @@ THEMES["gamer_girl7"].update(outline="purple", tab_colour="yellow", heights={"pu
                              edge_snap=dict(colour="yellow", width=1.0), join_fill=3.0,
                              slots=["white", "pink", "yellow", "purple"])   # AMS: 1 white, 2 pink, 3 yellow, 4 purple
 
+THEMES["gamer"].update(slots=["white", "blue", "red", "black"])   # Osayd AMS order: 1 white, 2 blue, 3 red, 4 black
+
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
 
