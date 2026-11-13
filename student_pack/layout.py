@@ -45,6 +45,7 @@ class Piece:
     notes: list = field(default_factory=list)
     tab: object = None            # hanging-loop footprint (shapely), part of the outline colour
     tab_top: float = None         # if set, the loop is raised to this height (mm) for strength
+    tab_colour: str = None        # colour of the loop (default: the outline colour)
 
     @property
     def bounds(self):
@@ -261,9 +262,9 @@ def _tag(theme, name, kind, width, cap_h):
         zone = box(hole[0] - 11, hole[1] - 12, hole[0] + 11, hole[1] + 4)
         tab = unary_union([tab, joined.buffer(fil, join_style=1).buffer(-fil, join_style=1).difference(joined).intersection(zone)])
     if th.get("tab_under_art"):               # the art stays visible where the hanging loop overlaps it
-        ops.insert(0, (th["outline"], tab, False))
+        ops.insert(0, (th.get("tab_colour") or th["outline"], tab, False))
     else:
-        ops.append((th["outline"], tab, False))
+        ops.append((th.get("tab_colour") or th["outline"], tab, False))
     sil = make_silhouette(ops, spur=spur)
     sb = sil.bounds
     ops, sil, holes, _ = normalise(ops, sil, [hole])
@@ -271,6 +272,7 @@ def _tag(theme, name, kind, width, cap_h):
     if th.get("tab_height"):                   # raise the hanging loop (outline colour only) to this total height: the weak spot of a keychain
         piece.tab = affinity.translate(tab, -sb[0], -sb[1])
         piece.tab_top = th["tab_height"]
+        piece.tab_colour = th.get("tab_colour")
     return piece
 
 

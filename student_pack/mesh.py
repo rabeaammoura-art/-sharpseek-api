@@ -57,11 +57,12 @@ def solids(piece: Piece):
             out[color] = s
     if piece.outline not in out:
         out[piece.outline] = extrude(piece.silhouette, 0, piece.base)
-    if getattr(piece, "tab", None) is not None and piece.tab_top and piece.tab_top > piece.tops[piece.outline]:
-        raised = piece.tab.intersection(piece.parts.get(piece.outline, piece.silhouette)).intersection(piece.silhouette)
-        up = extrude(raised, piece.tops[piece.outline], piece.tab_top) if not raised.is_empty else None
+    tc = getattr(piece, "tab_colour", None) or piece.outline
+    if getattr(piece, "tab", None) is not None and piece.tab_top and piece.tab_top > piece.tops[tc]:
+        raised = piece.tab.intersection(piece.parts.get(tc, piece.silhouette)).intersection(piece.silhouette)
+        up = extrude(raised, piece.tops[tc], piece.tab_top) if not raised.is_empty else None
         if up is not None:
-            out[piece.outline] = out[piece.outline] + up
+            out[tc] = out[tc] + up
     if piece.tunnel:
         out[piece.outline] = out[piece.outline] - tunnel_solid(piece)
     return out
