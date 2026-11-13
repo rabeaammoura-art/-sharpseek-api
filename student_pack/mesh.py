@@ -76,6 +76,8 @@ def to_arrays(m: Manifold):
 def order(piece):
     """AMS slot order: outline colour first, then by height."""
     th = THEMES[piece.theme]
+    if th.get("slots"):
+        return list(th["slots"])
     cols = list(th["heights"])
     return [piece.outline] + sorted([c for c in cols if c != piece.outline], key=lambda c: (th["heights"][c], c))
 
@@ -93,6 +95,8 @@ def write_stl(path, V, F, name="3D ZONE TECH"):
 def slot_order(theme):
     """AMS slot order for a theme (same for every piece, so a mixed plate shares filaments): outline colour first, then by height."""
     th = THEMES[theme]
+    if th.get("slots"):                        # explicit AMS slot order (theme option 'slots')
+        return list(th["slots"])
     cols = list(th["heights"])
     return [th["outline"]] + sorted([c for c in cols if c != th["outline"]], key=lambda c: (th["heights"][c], c))
 
