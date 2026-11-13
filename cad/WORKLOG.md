@@ -8,7 +8,8 @@ Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what wa
 ## 2026-11-13 (cloud) — `/3d-cost` on the owner's bookmark "Ommi" (60 x 179 x 1.8 mm, 2 colours)
 - Uploaded 3MF (base 1.2 mm slot 1 + gold pattern 0.6 mm slot 2) is a plain 3MF: the Bambu CLI exits silently on it. Re-written through `threemf.write_bambu_3mf` with the 4-filament PLA template (needs 4 `--filament`, 3 gives "Flush volumes matrix" error); file not in git.
 - Slice (0.20 Standard, PLA Silk x4 slots, tower at x 200): 0h37m / 16.7 g (base 14.9 g, gold 1.8 g), one colour change. Gold part mesh is not watertight (sliced fine).
-- Left: price sheet was missing in this session (cost not given until the owner uploads it); `print_test` not run.
+- `print_test` (two parts as STL): size / bed / islands / overhangs / thin features clean; 1 problem = gold pattern not watertight: 12 open edges in two T-junction seams (zero-width, x 10.4-11.8 y 141.5 and x 14.6-16.2 y 158.0, z 1.2-1.8). Slicer gave no warning and the gold weight matches the volume, so nothing was dropped. Run on the 3MF itself the test reports a false 9534 mm2 overhang at Z 0.6 (union of the open mesh) - use the STLs.
+- Left: price sheet was missing in this session (cost not given until the owner uploads it); seams not repaired (owner's OK needed).
 
 ## 2026-11-11 (cloud) — Petra (Treasury) wall art 200 x 200 with `zt_forge.py`
 - Owner's judgement: a 300 x 200 scenery plaque (7.5 h) cannot earn its print time -> ready-made scenery is content only, not a product. Time follows grams (~6.7 min/g at 0.08): dark pictures with a black background are the fast ones.
