@@ -155,6 +155,13 @@ def resolve(kind, theme, name, ops, silhouette, holes=(), base=BASE, tunnel=None
         under = art.buffer(r, join_style=1).buffer(-r, join_style=1).intersection(silhouette.buffer(-gf.get("edge", 1.5), join_style=1))   # keep the outer rim in the base colour
         if not under.is_empty:
             ops = [(gf["colour"], under, True)] + list(ops)
+    ec = th.get("edge_snap")
+    if ec and kind in ec.get("pieces", ("tag", "bottle")):
+        # the art colour that forms the outer rim stops a hair short of the silhouette edge, leaving an unprintable base-colour line: extend it to the edge
+        ycol = unary_union([g for c, g, e in ops if c == ec["colour"] and not g.is_empty])
+        strip = silhouette.difference(silhouette.buffer(-ec.get("width", 1.0), join_style=1)).intersection(ycol.buffer(ec.get("width", 1.0), join_style=1))
+        if not strip.is_empty:
+            ops = [(ec["colour"], strip.union(ycol), False)] + list(ops)
     canvas = {c: Polygon() for c in colors}
     exempt_geom = {c: Polygon() for c in colors}
     for color, g, exempt in ops:
