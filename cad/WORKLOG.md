@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-13 (cloud) — flower bookmark: schemes 2 + 3 on one plate (owner's question)
+- Owner chose scheme 3 (black / silk gold / red) and asked about printing 2 and 3 together. Plate built (4 slots: white, red, silk gold, black). Slices (PLA Basic + PLA Silk, tower x 230): all on the left nozzle 1h25m / 35.2 g / 12 filament changes; black on the RIGHT nozzle 1h19m / 34.7 g / 4 changes. One bookmark alone = 0h38m, so two separate prints = 1h16m: no time gain from one plate.
+- Tool note: `bambu_slice.py --nozzle-map` has no effect on a 3MF from `threemf.write_bambu_3mf` unless `filament_maps` in `Metadata/model_settings.config` is changed too (it is written as all 1). Not fixed in the code yet.
+- Left: owner prints scheme 3 alone first (advice given); files in `cad/out/bookmark_flowers/` (not in git).
+
 ## 2026-11-13 (cloud) — flower bookmark v2: vines back, 3 colours, 3D built, 4 colour schemes shown
 - Owner approved the flat v1 and asked: vines back, 3 colours, 4 colour schemes from his stock sheet (sheet uploaded, copied to `cad/config/filament_prices.xlsx`, git-ignored).
 - Vines: the vote-from-picture attempt was messy, so they are a clean spline (8 measured points, mirrored 4 ways), 0.75 mm wide, in the main colour. Model: 1 mm per stitch = 50 x 182 mm, base 1.2 mm (slot 1) + raised 0.6 mm pattern: main (slot 2), accent (slot 3). All three meshes watertight; `print_test`: 0 problems.
