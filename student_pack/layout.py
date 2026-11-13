@@ -253,7 +253,7 @@ def _tag(theme, name, kind, width, cap_h):
         band = box(-5, my - 6.0, width + 5, my + 4.0)
         extra = closed.difference(sil).intersection(band)
         if not extra.is_empty:
-            ops.append((th["outline"], extra, False))
+            ops.append(((th.get("edge_snap") or {}).get("colour", th["outline"]), extra, False))
             sil = make_silhouette(ops, spur=spur)
     tab, hole = add_tab(sil, (m["tab_x"] - cb[0]) * ms)
     fil = th.get("tab_fillet")

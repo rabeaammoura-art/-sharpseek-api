@@ -59,3 +59,6 @@ so gaps look yellow; Osayd's base is black like its lines, so the same gaps (3x 
 Fix (theme option gap_fill): an under-layer of the line colour (purple) inside the art area (closing 1.5 mm, kept 1.5 mm away from the outer rim), tag and bottle only.
 Enabled for gamer_girl7. Thin purple slivers may print as thin lines or be skipped by the slicer.
 Pending: owner's approval, then regenerate packs/gamer-SALLY-APPROVED.zip together with the thicker loop (tab_height 3.2).
+
+## Sally (gamer_girl7): purple base slab
+Base slab + outline colour is now purple (the line colour), as for Osayd, so narrow gaps between art colours print purple instead of showing the yellow base. The yellow rim (edge_snap) and the 3.2 mm loop (tab_colour) are yellow regions on top. gap_fill is no longer used by this theme. The ruler body is now purple (was yellow).
