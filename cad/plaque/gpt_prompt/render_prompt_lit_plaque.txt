@@ -1,0 +1,16 @@
+ATTACH: image 1 = flat design of the plaque (example_ar_gpt_blue_280.png), image 2 = side view of the stand (kickstand_renders.png, middle panel).
+
+Create a photorealistic PRODUCT RENDER of the newborn keepsake plaque in image 1.
+KEEP THE DESIGN EXACTLY: same layout, shapes and colours; same Arabic text (the name and the four info boxes with their icons). Do not redraw, add, remove or translate anything and do not change any letter or digit.
+
+OBJECT
+- Square plaque 280 x 280 mm, rounded corners, only 4 mm thick, standing in a shallow white 3D-printed light box (14 mm deep, same outline), leaning back about 12 degrees on a thin flat folding leg at the back (image 2 shows the leg and the angle). A thin white USB cable leaves the bottom edge of the box.
+- Materials: 3D-printed PETG with faint print layer lines. The plate is OPAQUE WHITE. The blue parts (frame, name, text, icons, bear, boxes outlines) and the yellow parts (moon, stars, heart) are TRANSLUCENT glossy PETG, raised about 1.2 mm above the plate (the frame about 1.8 mm).
+
+TWO VERSIONS
+A) Lights ON: a soft warm-white LED strip inside the box; the blue and yellow translucent parts glow gently from within, the white plate stays opaque and calm. Dim cosy nursery at night, shallow depth of field.
+B) Lights OFF: daylight on a light wooden table, soft window light, the translucent parts look like glossy coloured glass.
+
+CAMERAS (one image each): 1) three-quarter front view, slightly from above; 2) straight-on front view; 3) back view showing the folding leg open and the cable.
+
+NO watermark, no brand logos, no people, no extra text. Put a small label "Concept render" in a bottom corner.
