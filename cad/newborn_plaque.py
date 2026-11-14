@@ -964,6 +964,43 @@ def layout_balloons(data, add, layers, k, lang, rtl):
     add("accent", heart(0, -108, 10), BASE_H, TOP)
 
 
+def _gpt_row_boxes(data, add, lang, rtl):
+    """GPT-render style info row: four portrait boxes side by side (date, weight, length, time), each with its ICON on top and the value
+    below (number big, unit small); NO label words. Design units (plate 300), y up."""
+    conv = (lambda t: t.translate(ARABIC_DIGITS)) if lang == "ar" else (lambda t: t)
+    ampm = AMPM[lang][data.get("ampm", "AM").upper()]
+    items = [("date", [(conv(data["date"]), 10, "num")], None),
+             ("weight", [(conv(data["weight"]), 10, "num")], UNITS[lang]["weight"]),
+             ("length", [(conv(data["length"]), 10, "num")], UNITS[lang]["length"]),
+             ("time", [(conv(data["time"]), 10, "num")], ampm)]
+    inner, margin, gap = SIZE / 2 - 10.3, float(data.get("row_margin", 12)), 6.0
+    bw = (2 * inner - 2 * margin - 3 * gap) / 4
+    bh, y_top = float(data.get("box_h", 82)), float(data.get("row_top", -46))
+    def fit(g, cx, cy, w, h):
+        b = g.bounds
+        sc = min(w / (b[2] - b[0]), h / (b[3] - b[1]))
+        g = affinity.scale(g, sc, sc, origin=(0, 0))
+        b = g.bounds
+        return affinity.translate(g, cx - (b[0] + b[2]) / 2, cy - (b[1] + b[3]) / 2)
+    for i, (key, num, unit) in enumerate(items):
+        cx = -inner + margin + bw / 2 + i * (bw + gap)
+        cy = y_top - bh / 2
+        add("main", ring(rrect(cx, cy, bw, bh, 12), 2.4), BASE_H, TOP)
+        add("main", fit(ICONS[key](1.0), cx, y_top - 0.24 * bh, bw * 0.46, bh * 0.30), BASE_H, TOP)
+        ng, _ = text_line(num, lang, rtl)
+        if key == "date":                      # day/month big, the year below (same look as number + unit)
+            parts_ = conv(data["date"]).split("/")
+            l1, _ = text_line([("/".join(parts_[:2]), 10, "num")], lang, rtl)
+            add("main", fit(l1, cx, y_top - 0.57 * bh, bw - 14, bh * 0.19), BASE_H, TOP + 0.4)
+            if len(parts_) > 2:
+                l2, _ = text_line([(parts_[2], 10, "num")], lang, rtl)
+                add("main", fit(l2, cx, y_top - 0.81 * bh, bw - 16, bh * 0.15), BASE_H, TOP + 0.4)
+        else:
+            add("main", fit(ng, cx, y_top - 0.57 * bh, bw - 14, bh * 0.21), BASE_H, TOP + 0.4)
+            ug, _ = text_line([(unit, 10, "word")], lang, rtl)
+            add("main", fit(ug, cx, y_top - 0.81 * bh, bw - 16, bh * 0.15), BASE_H, TOP + 0.4)
+
+
 def layout_gpt(data, add, layers, k, lang, rtl):
     """The owner's GPT design, traced faithfully (cad/poses/gpt_cell_export.py -> gpt_sleep.json): frame, one-colour teddy asleep on a cloud,
     blue star, the 4 info boxes and their icons, yellow moon / stars / heart. Only the TEXT is typeset with the real font, at the size and
@@ -974,7 +1011,14 @@ def layout_gpt(data, add, layers, k, lang, rtl):
     add("base", plate, 0, BASE_H)
     add("main", ring(plate, 10.3), BASE_H, TOP)
     own_bear = data.get("bear", "gpt") == "own"
-    main_poly = unary_union([Polygon(pp[0], pp[1:]).buffer(0) for pp in asset["main_nobear" if own_bear else "main"]])
+    rowmode = bool(data.get("row_boxes"))        # GPT-render style row of 4 portrait boxes (icons + values, no label words); everything above moves down
+    dy = float(data.get("upper_dy", -22)) if rowmode else 0.0
+    _mp = [Polygon(pp[0], pp[1:]).buffer(0) for pp in asset["main_nobear" if own_bear else "main"]]
+    if rowmode:
+        _mp = [q_ for q_ in _mp if q_.bounds[1] > -2]          # keep the cloud and the blue star, drop the traced 2 x 2 boxes and icons
+    main_poly = unary_union(_mp)
+    if dy:
+        main_poly = affinity.translate(main_poly, 0, dy)
     if own_bear:                   # our own teddy (cad/poses/poses.json, 4 poses) in the plaque colour, sitting in the top of the GPT cloud
         nb_ = main_poly.intersection(box(-25, 20, 35, 130))
         cloud_top = nb_.bounds[3] if not nb_.is_empty else 70.0
@@ -984,7 +1028,10 @@ def layout_gpt(data, add, layers, k, lang, rtl):
         solid = unary_union(_fill(pose["body"]) + _fill(pose["cream"]) + _fill(pose["navy"]) + _fill(pose["yellow"])).buffer(0.3).buffer(-0.3)      # the whole teddy incl. muzzle / ear insides, no gaps for the cloud line
         main_poly = main_poly.difference(solid.buffer(0.6))        # the cloud outline does not show through the teddy's cream parts
     add("main", main_poly, BASE_H, TOP)
-    add("accent", unary_union([Polygon(pp[0], pp[1:]).buffer(0) for pp in asset["accent"]]), BASE_H, TOP)
+    _ac = [Polygon(pp[0], pp[1:]).buffer(0) for pp in asset["accent"]]
+    if rowmode:
+        _ac = [q_ for q_ in _ac if q_.bounds[3] > -100]         # the heart at the bottom gives its place to the row of boxes
+    add("accent", affinity.translate(unary_union(_ac), 0, dy), BASE_H, TOP)
     if own_bear:
         navy_ = pose["navy"]
         if data.get("bear_details", "navy") == "navy":
@@ -1035,12 +1082,15 @@ def layout_gpt(data, add, layers, k, lang, rtl):
         return affinity.translate(geom, x_, y_)
 
     name_geom, _ = text_line([(data["name"], asset["name_size"] if lang == "ar" else asset["name_size"] * 0.8, "name" if lang == "ar" else "word")], lang, rtl)
-    nb = tb["name"]
+    nb = [tb["name"][0], tb["name"][1] + dy, tb["name"][2], tb["name"][3] + dy]
     maxw = (nb[2] - nb[0]) * float(data.get("name_fit", 1.12))
     if name_geom.bounds[2] - name_geom.bounds[0] > maxw:
         f_ = maxw / (name_geom.bounds[2] - name_geom.bounds[0])
         name_geom = affinity.scale(name_geom, f_, f_, origin=(0, 0))
     add("main", put(name_geom, nb, "center"), BASE_H, TOP + 0.4)
+    if rowmode:
+        _gpt_row_boxes(data, add, lang, rtl)
+        return
     weight, length, time, date = data["weight"], data["length"], data["time"], data["date"]
     ampm = AMPM[lang][data.get("ampm", "AM").upper()]
     conv = (lambda s_: s_.translate(ARABIC_DIGITS)) if lang == "ar" else (lambda s_: s_)

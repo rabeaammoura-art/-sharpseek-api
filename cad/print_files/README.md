@@ -68,7 +68,7 @@ Not print-tested: the detent (0.45 mm bumps) and the pin/barrel clearances (0.2-
 **`nightcap_200/` (2026-11-14): the boy's plaque with the owner's nightcap bear on the new cartoon cloud, 200 x 200, backlit, 4 AD-PETG slots:**
 slot 1 Opaque White (base + the box set), slot 2 Translucent Blue (frame, cloud line, text, icons, bear outline / eyes / nose), slot 3 Translucent Yellow
 (moon, stars, heart), slot 4 Translucent Light Blue (bear body + cap). `nightcap_plaque_ar_200.3mf` (plate 1, tower x = 207) and
-`nightcap_box_and_kickstand_200.3mf` (plate 2: box + leg + module + pin, one colour). CLI slice (PETG 0.24): plaque 3h40m / 101 g,
-box set 2h01m / 90.5 g (total 5h41m / 192 g). Name / values are examples. Config: `cad/plaque/example_ar_gpt_nightcap_200.json`
+`nightcap_box_and_kickstand_200.3mf` (plate 2: box + leg + module + pin, one colour). CLI slice (PETG 0.24): plaque 3h34m / 101 g,
+box set 2h01m / 90.5 g (total 5h35m / 192 g). Info row = 4 portrait boxes with ICONS + values only (no label words), `"row_boxes": true`. Name / values are examples. Config: `cad/plaque/example_ar_gpt_nightcap_200.json`
 (`"pose": "nightcap"`, `"bear_details": "twoblue"`, theme `gpt_nightcap`). Not print-tested.
 

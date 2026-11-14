@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-14 (cloud) — nightcap plaque v2: GPT-style row of 4 boxes, icons + values only, cap clear of the frame
+- Owner: the GPT render's boxes look better; remove the label words (keep icons), lower the bear so the cap does not touch the frame line. New `"row_boxes": true` in `layout_gpt` (`_gpt_row_boxes`): 4 portrait boxes in one row (date, weight, length, time; icon on top, number big + unit small, date = day/month + year), everything above shifted down 22 units (`upper_dy`), traced 2 x 2 boxes / icons / bottom heart dropped; bear 116 x 84.
+- Checks: 4 meshes watertight, 0 uncovered opening, base islands 20 (smallest 7.8 mm2), widest bridge 14.8 mm, `print_test` 0 problems (1 note: strokes under 0.7 mm somewhere in the raised text / details), interference with `glow_box_200.stl` 0. Slice: plaque 3h34m / 101 g (was 3h40m). Units (كغم / سم / ص) kept; the label words are gone.
+
 ## 2026-11-14 (cloud) — boy's plaque: nightcap bear (owner's GPT flat picture) on the new cloud, 200 x 200, 4 AD-PETG slots
 - Owner sent a GPT render with a bear in a night cap, asked for the bear like it, 4 colours and 200 as the base size. Stock sheet uploaded to the git-ignored `cad/config/filament_prices.xlsx` (prices / stock stay out of git): the owner has translucent light blue AND translucent blue, so the bear gets two translucent blues like the picture.
 - `cad/poses/nightcap_export.py <flat.png>` writes the pose `nightcap` into `poses.json` (body = light blue, cream = muzzle / cap band / pompom, navy = outline / eyes / nose). `layout_gpt` got `"bear_details": "twoblue"` (body -> 4th slot, outline -> main slot, white parts cut out, 0.1 / -0.05 buffer against vertex-touching edges) and theme `gpt_nightcap`; glow_cap keeps this theme for the preview / 3MF colours.
