@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-14 (cloud) — torso pen holder: visible hand in the pedestal colour (owner's request) costs about 1 h
+- Owner wants the hands in the pedestal colour. In this sculpt the arms are crossed: only the four fingers of one hand show (front, x 23-38, z 53-64.5 at 100 mm); the other hand is hidden. Hand part = torso x prism of a traced finger outline (front only, y < -15) minus a core 1.6 mm under the surface (voxel erosion) -> a 1.6 mm coloured skin, 1.8 cm3, one body.
+- Slices (same fast settings, tower 30 mm): 2 colours (torso / pedestal + hand, name in torso colour) 5h20m / 120.4 g; 3 colours 5h15m / 116.4 g. Without the hand colour it was 4h18-4h23m, single colour 3h56m. The hand makes swaps (and the tower) run up to z 64.
+- Left: owner decides: printed hand colour (+~55 min) or paint the fingers by hand; real colours; final files for both names.
+
 ## 2026-11-14 (cloud) — torso pen holder 100 mm: 2 / 3 colour examples and their time
 - Owner asked how much time 2 or 3 colours add, with examples. Three example 3MFs via `threemf.write_bambu_3mf` (parts cut with `manifold3d`: name inlay 0.5 mm deep + 0.8 proud, pedestal / torso split by a plane at z 21.5): (1) body + name, (2) torso + pedestal, name in the torso colour, (3) torso + pedestal + name. Rendered side by side for the owner. Files not in git.
 - Slices (PLA Basic x4 slots, 0.28, 8 %, 2 loops, tree supports, prime tower 30 mm at x 215): (1) 4h22m / 105.8 g, (2) 4h23m / 106.0 g, (3) 4h18m / 102.1 g; single colour was 3h56m / 100.5 g. So +22-27 min whatever the number of colours, because swaps happen only in the ~25 layers of the name (the pedestal / torso change is one swap). `--nozzle-map 1,2,1,1` gave the same 4h23m (two-nozzle gain not visible in the CLI estimate).
