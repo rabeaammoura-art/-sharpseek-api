@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-14 (cloud) — cut-out (pierced, single colour) bookmarks: my drawings rejected, GPT prompt packs made
+- Owner showed a picture of laser-cut style bookmarks with tassels and marked 3 (rose + arch, leafy vine, dense floral). My parametric shapely designs (stem + almond leaves) were rejected: "do not look like it at all". Deleted, not committed. Lesson: organic lace-like ornament is not for parametric code; let GPT draw, then convert.
+- New: `cad/bookmarks/gpt_prompt/` = `1_blueprint.png` (45 x 165 mm, frame 2.6, top band 15, hole 4.6) + `PROMPT.md` (3 prompts: black/white stencil, black = printed, one connected piece, >= 12 ties to the frame, min black 1/45 of width, min gap 1/70). The 3 zips (blueprint + reference crop + prompt) are in `cad/out/bookmark_cutout/gpt_packs/` (not in git: the reference crops are a third-party picture).
+- Bookmarks are a side line, outside the agreed launch focus (plaque, car wall art, car parts); no Jordan market data yet.
+- Left: owner brings the GPT images; then image -> clean polygon -> STL (check connected piece, min widths), `print_test`, `/3d-cost-pla`. Earlier open items unchanged (duo plate print result, external spool unload, Ommi variants).
+
 ## 2026-11-13 (cloud) — two-bookmark plate: "Purge volumes matrix do not match" error in Bambu Studio, file fixed
 - Owner's Bambu Studio (GUI) refused the plate: "Purge volumes matrix do not match to the correct size". Cause: my scratch scripts passed the raw 4-filament template to `threemf.write_bambu_3mf` (flush matrix 16 values); with a filament on the right nozzle the H2D needs 2 matrices (32) - `threemf.build_project_settings` already does that, I had skipped it. Also the template's tower position (160, 120) collided with the second bookmark when the file is sliced as-is.
 - `Bookmarks_2and3_hole_v3.3mf`: matrix x2, `flush_multiplier` x2, `filament_map` 1,1,1,2, tower at 230/100, slot colours set. Sliced directly by the CLI with the file's own settings (no overrides): success, 80 min, 4 changes. Not confirmed in the owner's GUI yet.
