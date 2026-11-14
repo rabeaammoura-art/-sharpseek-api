@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-14 (cloud) — cut-out bookmark: GPT rose stencil converted, converter added
+- Owner brought GPT's rose stencil (724 x 2172 px as pasted; looks very close to the reference style). New `cad/bookmarks/stencil_to_stl.py`: smooth trace (contourpy) -> scale to 45 mm wide -> widen white lines under 0.5 mm -> tie loose islands in with 2 small bridges each (GPT draws the rose petals with a white line all around = 8 islands, 15 bridges) -> checks -> STL + preview.
+- Rose result: 45 x 150.9 x 1.0 mm, one piece, watertight; `print_test` 0 problems; slice PLA Basic single colour: 0h23m / 5.0 g. Weak points: 26 spots under 1.0 mm (16 under 0.6), edges slightly jagged from the low-res pasted image (ask for the original file; `--grow 0.1` helps).
+- Owner wants to try Gemini too: prompt given in chat (same blueprint + reference). Outputs in `cad/out/bookmark_cutout/` (not in git).
+
 ## 2026-11-14 (cloud) — cut-out (pierced, single colour) bookmarks: my drawings rejected, GPT prompt packs made
 - Owner showed a picture of laser-cut style bookmarks with tassels and marked 3 (rose + arch, leafy vine, dense floral). My parametric shapely designs (stem + almond leaves) were rejected: "do not look like it at all". Deleted, not committed. Lesson: organic lace-like ornament is not for parametric code; let GPT draw, then convert.
 - New: `cad/bookmarks/gpt_prompt/` = `1_blueprint.png` (45 x 165 mm, frame 2.6, top band 15, hole 4.6) + `PROMPT.md` (3 prompts: black/white stencil, black = printed, one connected piece, >= 12 ties to the frame, min black 1/45 of width, min gap 1/70). The 3 zips (blueprint + reference crop + prompt) are in `cad/out/bookmark_cutout/gpt_packs/` (not in git: the reference crops are a third-party picture).
