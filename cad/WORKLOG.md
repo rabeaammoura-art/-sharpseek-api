@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-14 (cloud) — owner's Meshy torso "pen holder" 3MF checked: NOT hollow
+- Owner uploaded a Meshy AI torso (prompt asked for a hollow pen holder) and asked to check whether it is hollow. File not in git (third-party).
+- Result: 69.7 x 67.9 x 75 mm, 1.3 M faces, volume 151.7 cm3 = fully solid; horizontal slices at 19 heights and two vertical cuts show no cavity and no opening at the neck. Mesh not watertight, 803 fragments (801 tiny), one 19 k-face loose patch near the base.
+- Left: owner's answer on final height (75 mm is too short for pens) and OK to carve the cavity ourselves (boolean pocket from the neck) + repair, then `print_test` and `/3d-cost`.
+
 ## 2026-11-14 (cloud) — nightcap plaque v2: GPT-style row of 4 boxes, icons + values only, cap clear of the frame
 - Owner: the GPT render's boxes look better; remove the label words (keep icons), lower the bear so the cap does not touch the frame line. New `"row_boxes": true` in `layout_gpt` (`_gpt_row_boxes`): 4 portrait boxes in one row (date, weight, length, time; icon on top, number big + unit small, date = day/month + year), everything above shifted down 22 units (`upper_dy`), traced 2 x 2 boxes / icons / bottom heart dropped; bear 116 x 84.
 - Checks: 4 meshes watertight, 0 uncovered opening, base islands 20 (smallest 7.8 mm2), widest bridge 14.8 mm, `print_test` 0 problems (1 note: strokes under 0.7 mm somewhere in the raised text / details), interference with `glow_box_200.stl` 0. Slice: plaque 3h34m / 101 g (was 3h40m). Units (كغم / سم / ص) kept; the label words are gone.
