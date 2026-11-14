@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-14 (cloud) — owner's `bookmark_rose_arch.3mf` checked (source tool not stated)
+- Plain 3MF, one mesh: 45 x 165 x 1.0 mm, one body, watertight; `print_test` 0 problems; slice PLA Basic single colour 0h24m / 5.1 g.
+- Detail check on the top face: 240 spots thinner than 1.0 mm (142 under 0.6), 75 mm2 of white cut lines narrower than 0.5 mm (leaf veins, serrated leaf edges, rose petal lines) -> they will mostly fuse shut, leaves print as plain blobs. Breaks into 9 pieces if every neck under 0.8 mm fails.
+- Quick repair tried (widen lines under 0.6 mm by 0.13 per side): made it worse (3 pieces, more weak necks) -> discarded. The fix has to be in the drawing (bolder lines), not in the mesh. For comparison the earlier GPT rose stencil has 26 spots under 1.0 mm.
+- Left: owner says which tool made it; choose GPT stencil route or a redraw with thicker lines.
+
 ## 2026-11-14 (cloud) — owner's rule: every hand-off as one zip
 - Owner asked to always get everything needed in a zip (he mixed things up when the Gemini prompt came as chat text). Added to CLAUDE.md. Gemini packs made for the 3 bookmarks (`cad/out/bookmark_cutout/gemini_packs/`, not in git): blueprint + reference + PROMPT.txt + README.txt.
 
