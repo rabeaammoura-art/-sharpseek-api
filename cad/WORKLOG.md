@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-14 (cloud) — kids' rings (personal, for the owner's children): two MakerWorld rings resized + opened at the back
+- Owner uploaded two MakerWorld 3MF rings (a rose ring and a lion ring, adult size, hole 18.7 / 21.2 mm as placed). Third-party files under the Standard Digital File License: personal use only, NOT in git, not for sale.
+- Cheap path: rose mesh repaired with `pymeshfix` (11 open edges; volume unchanged), both scaled to a 14 mm hole (estimate for age 5, no finger measured) and a 3 mm slot cut opposite the head with `manifold3d`. Results closed, one body each: rose 12 x 23 x 24 mm, lion 21 x 20 x 31 mm.
+- `print_test` (lying on the side, 0.12): bed contact under 1 mm2, overhangs, strokes under 0.7 mm -> needs supports + brim. Slices (0.12 Fine, tree supports, default ASA profile, one colour): rose 25 min / 1.5 g on the side (38 min standing), lion 34 min / 1.9 g on the side (50 min standing). Not print-tested.
+- Left: owner's OK on the preview, real finger sizes, filament choice (PETG flexes more for an open ring), whether the initial letter is still wanted.
+
 ## 2026-11-14 (cloud) — nightcap plaque v2: GPT-style row of 4 boxes, icons + values only, cap clear of the frame
 - Owner: the GPT render's boxes look better; remove the label words (keep icons), lower the bear so the cap does not touch the frame line. New `"row_boxes": true` in `layout_gpt` (`_gpt_row_boxes`): 4 portrait boxes in one row (date, weight, length, time; icon on top, number big + unit small, date = day/month + year), everything above shifted down 22 units (`upper_dy`), traced 2 x 2 boxes / icons / bottom heart dropped; bear 116 x 84.
 - Checks: 4 meshes watertight, 0 uncovered opening, base islands 20 (smallest 7.8 mm2), widest bridge 14.8 mm, `print_test` 0 problems (1 note: strokes under 0.7 mm somewhere in the raised text / details), interference with `glow_box_200.stl` 0. Slice: plaque 3h34m / 101 g (was 3h40m). Units (كغم / سم / ص) kept; the label words are gone.
