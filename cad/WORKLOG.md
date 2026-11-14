@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-14 (cloud) — rose arch 3MF came from Gemini; fix-request pack sent
+- Owner: the `bookmark_rose_arch.3mf` was made by Gemini. Sent `bookmark_rose_arch_GEMINI_FIX_pack.zip` (check picture with the thin spots + PROMPT.txt + README): same design, min solid 1.0 mm, min cut 0.6 mm, smooth leaves with one vein, petals joined, output 3MF + black/white PNG. Left: owner brings v2 (3MF + PNG) -> check again.
+
 ## 2026-11-14 (cloud) — owner's `bookmark_rose_arch.3mf` checked (source tool not stated)
 - Plain 3MF, one mesh: 45 x 165 x 1.0 mm, one body, watertight; `print_test` 0 problems; slice PLA Basic single colour 0h24m / 5.1 g.
 - Detail check on the top face: 240 spots thinner than 1.0 mm (142 under 0.6), 75 mm2 of white cut lines narrower than 0.5 mm (leaf veins, serrated leaf edges, rose petal lines) -> they will mostly fuse shut, leaves print as plain blobs. Breaks into 9 pieces if every neck under 0.8 mm fails.
