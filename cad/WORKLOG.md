@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-14 (cloud) — bookmark (leafy vine, 45 x 165 mm) Gemini prompt pack reviewed
+- Owner uploaded a pack from another chat: blueprint PNG + style reference + prompt for a black/white stencil image. Blueprint scale checked: 20 px/mm, frame 2.6 mm, matches the prompt.
+- Prompt fixed (copy given to the owner, not in git): leftover flower / petal rules removed (design is leaves only), "green bookmark" removed (reference shows one bookmark), 1:3 ratio replaced by "tallest available", minimum cut width 1/70 -> 1/55 of the width (0.64 -> 0.8 mm).
+- Left: the Gemini image -> take only the inside design, frame / hole from CAD, software check of islands and minimum widths (the image model's own check cannot be trusted), then print_test and slicing. Thickness (1 mm vs 0.8) not decided.
+
 ## 2026-11-11 (cloud) — Petra (Treasury) wall art 200 x 200 with `zt_forge.py`
 - Owner's judgement: a 300 x 200 scenery plaque (7.5 h) cannot earn its print time -> ready-made scenery is content only, not a product. Time follows grams (~6.7 min/g at 0.08): dark pictures with a black background are the fast ones.
 - First prompt (flat linocut style) gave two images the owner disliked (my prompt's fault). Second prompt (realistic, candle-lit, like the Jerusalem image): GPT image chosen; the Gemini image is not the real facade. Lanterns removed by fading the ground below the steps to black.
