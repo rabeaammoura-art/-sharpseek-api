@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-14 (cloud) — torso pen holder: time-reduction trials (owner: 7h25m is far too long)
+- Rebuilt a true 110 mm version (102 x 100 x 110, wall 2 mm, opening 45 mm, depth 88 mm, 160 cm3). Slices, PLA Basic, tree supports: 0.20 = 5h18m / 119 g; 0.28 = 4h53m; 0.28 + 8 % infill + 2 loops + 3 top/bottom = 4h38m / 122 g; 0.20 without supports = 4h29m; lean walls / infill alone = 5h04m; mesh simplified 0.15 mm = no gain (5h25m).
+- Finding: time follows grams and size; settings give only ~40 min. Supports cost ~50 min. Parallel `bambu_slice.py` runs overwrite each other's `out/bambu/process.json` -> slice one at a time.
+- Left: owner's decision (accept ~4.5 h at 110, go smaller, or drop / change the pedestal); not tried: thinner wall (1.2 mm), 0.6 nozzle.
+
 ## 2026-11-14 (cloud) — Meshy torso hollowed into a pen holder (130 mm, 2 mm wall)
 - Owner: height 130-150 is fine, walls 2 mm. Scaled 75 -> 130 mm (120.8 x 117.7 x 130). Outer mesh repaired with `pymeshfix`; cavity built from a 0.4 mm voxel grid (2 mm inside the surface, 3 mm floor, grows at most ~40 degrees going down from the collar opening, so it needs no inner support) and subtracted with `manifold3d`; underside flattened. Scripts were one-off (scratchpad), model not in git (third-party).
 - Result: one body, opening ~53 mm, depth 105 mm, 252.9 cm3 (solid was 790). `print_test`: cavity alone 0 overhangs; whole model = overhangs / islands of the ORIGINAL sculpt (hanging arms / elbow, shoulders, pedestal panels) -> needs tree supports outside.
