@@ -64,3 +64,11 @@ CLI estimates of the whole plate (0.24 mm, PETG): 280 mm 2h57m / 145 g, 200 mm 2
 At 280 mm the plate is tight: the leg lies along x in the 32 mm strip above the box (so the foot is 28 mm wide), the pin stands in the right strip
 (x up to 300); box 1.5 mm from the front edge. Re-check the placement in Bambu Studio (left nozzle reaches about x = 305).
 Not print-tested: the detent (0.45 mm bumps) and the pin/barrel clearances (0.2-0.35 mm) are parameters in `cad/kickstand.py` to tune on the printer.
+
+**`nightcap_200/` (2026-11-14): the boy's plaque with the owner's nightcap bear on the new cartoon cloud, 200 x 200, backlit, 4 AD-PETG slots:**
+slot 1 Opaque White (base + the box set), slot 2 Translucent Blue (frame, cloud line, text, icons, bear outline / eyes / nose), slot 3 Translucent Yellow
+(moon, stars, heart), slot 4 Translucent Light Blue (bear body + cap). `nightcap_plaque_ar_200.3mf` (plate 1, tower x = 207) and
+`nightcap_box_and_kickstand_200.3mf` (plate 2: box + leg + module + pin, one colour). CLI slice (PETG 0.24): plaque 3h40m / 101 g,
+box set 2h01m / 90.5 g (total 5h41m / 192 g). Name / values are examples. Config: `cad/plaque/example_ar_gpt_nightcap_200.json`
+(`"pose": "nightcap"`, `"bear_details": "twoblue"`, theme `gpt_nightcap`). Not print-tested.
+

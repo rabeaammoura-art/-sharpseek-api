@@ -58,6 +58,7 @@ THEMES = {
     "purple":    {"base": "#f2f0ea", "main": "#8e739f", "accent": "#e8c24a", "animal": "#9a6a3a"},
     "sky":       {"base": "#f2f0ea", "main": "#3aa8c8", "accent": "#f0c446", "animal": "#8c96a0"},
     "gpt_blue":   {"base": "#faf9f6", "main": "#004395", "accent": "#fdba05", "animal": "#12181f"},    # owner's GPT design: bear + cloud + frame are ONE colour
+    "gpt_nightcap": {"base": "#faf9f6", "main": "#1f4fd0", "accent": "#fdba05", "animal": "#78b9ff"},   # 4 filaments: opaque white / translucent blue / translucent yellow / translucent light blue (the bear)
     "gpt_pink":   {"base": "#faf9f6", "main": "#ef0269", "accent": "#fdba05", "animal": "#12181f"},
     "gpt_green":  {"base": "#faf9f6", "main": "#137f27", "accent": "#fdba05", "animal": "#12181f"},
     "gpt_purple": {"base": "#faf9f6", "main": "#6c1282", "accent": "#fdba05", "animal": "#12181f"},
@@ -87,6 +88,7 @@ THEME_FILAMENTS = {
     "train_lit": ["PETG Blue", "AD-PETG Translucent White", "AD-PETG Translucent Yellow", "AD-PETG Translucent Orange-Red"],
     "train":     ["PLA+ Blue", "PLA+ White", "PLA+ Yellow", "Wood PLA"],
 }
+THEME_FILAMENTS["gpt_nightcap"] = ["AD-PETG Opaque White", "AD-PETG Translucent Blue", "AD-PETG Translucent Yellow", "AD-PETG Translucent Light Blue"]
 for _t, _f in (("gpt_blue", "PLA+ Blue"), ("gpt_pink", "PLA+ Pink"), ("gpt_green", "PLA+ Green"), ("gpt_purple", "PLA+ Purple")):
     THEME_FILAMENTS[_t] = ["PLA+ White", _f, "PLA+ Yellow", "PLA+ Black"]      # filament match to be confirmed against the stock sheet
 THEME_FILAMENTS["blue_tan"] = ["PLA+ White", "PLA+ Blue", "PLA+ Yellow", "Walnut PLA"]
@@ -990,6 +992,13 @@ def layout_gpt(data, add, layers, k, lang, rtl):
             add("main", solid.difference(pose["cream"]).difference(navy_).difference(pose["yellow"]), BASE_H, TOP)
             add("animal", navy_, BASE_H, TOP)
             add("accent", pose["yellow"], BASE_H, TOP)
+        elif data.get("bear_details") == "twoblue":
+            # nightcap bear (pose "nightcap"): light-blue body + cap in the 4th filament, dark-blue outline / eyes / nose in the plaque colour,
+            # the white parts (muzzle, cap band, pompom) are cut out so the opaque white base shows
+            body_ = solid.difference(pose["cream"]).difference(navy_)
+            body_ = only_polygons(body_.buffer(0.1, join_style=1).buffer(-0.05, join_style=1))      # no vertex-touching pieces (non-manifold edges)
+            add("animal", body_, BASE_H, TOP)
+            add("main", navy_, BASE_H, TOP + 0.4)
         elif data.get("bear_details") == "yellow":
             # eyes + paw / arm lines on the body in the star colour (3 filaments only); nose / mouth on the cream muzzle in the plaque colour
             fill_ = lambda g_: unary_union([Polygon(q.exterior) for q in (g_.geoms if hasattr(g_, "geoms") else [g_]) if not q.is_empty])
@@ -1903,7 +1912,7 @@ def main():
         theme = "lit"
     elif data.get("glow") or data.get("glow_cap"):
         stem += "_glow" if data.get("glow") else "_glowcap"
-        theme = theme if theme == "train_lit" else "glow"
+        theme = theme if theme in ("train_lit", "gpt_nightcap") else "glow"
     parts = []
     for slot, role in enumerate(("base", "main", "accent", "animal"), start=1):
         m = to_mesh(layers[role])
