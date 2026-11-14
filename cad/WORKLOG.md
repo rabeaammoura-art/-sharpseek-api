@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-14 (cloud) — torso pen holder: owner went back to example 3 + coloured buildings
+- Owner's choice: example 3 (torso blue, pedestal black, name yellow) with the buildings coloured too; no printed gloves. Built for both names at 100 mm: slot 1 torso (crane above the pedestal stays blue), slot 2 pedestal + crane mast, slot 3 buildings + name. Files not in git.
+- Slice (0.28, 8 %, 2 loops, tree supports, tower 30 mm): 4h50m / 106.6 g (example 3 without the buildings was 4h18m; single colour 3h56m). Bambu Studio: 3 overhang regions without support. No price (sheet not in this session). Not print-tested.
+- Left: owner's OK, real filament colours from stock, price.
+
 ## 2026-11-14 (cloud) — torso pen holder coloured like the owner's reference render (blue / black / yellow)
 - Owner sent a render: blue jacket, black pedestal, black gloves, blue crane, yellow buildings and name. Built at 100 mm for both names (3 slots: 1 blue = torso + crane mast, 2 black = pedestal + gloves, 3 yellow = buildings + name). Files not in git.
 - How: gloves = two traced front outlines (right fingers x 23-38 / z 53-64.5, left glove + cuff bands x -21..-3 / z 45-58) as a 1.6 mm skin; buildings / crane mast = pedestal relief above the local wall surface (unrolled radius map from sections every 0.5 mm, wall = 10th percentile per angle, running minimum, +0.45 / 0.7 mm) inside angle wedges (-164..-132.8, -132.5..-124.8, -50.5..-21.5).
