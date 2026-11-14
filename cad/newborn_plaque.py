@@ -57,6 +57,14 @@ THEMES = {
     "green":     {"base": "#f2f0ea", "main": "#5b8a72", "accent": "#e58a2b", "animal": "#8a5a36"},
     "purple":    {"base": "#f2f0ea", "main": "#8e739f", "accent": "#e8c24a", "animal": "#9a6a3a"},
     "sky":       {"base": "#f2f0ea", "main": "#3aa8c8", "accent": "#f0c446", "animal": "#8c96a0"},
+    "gpt_blue":   {"base": "#faf9f6", "main": "#004395", "accent": "#fdba05", "animal": "#12181f"},    # owner's GPT design: bear + cloud + frame are ONE colour
+    "gpt_pink":   {"base": "#faf9f6", "main": "#ef0269", "accent": "#fdba05", "animal": "#12181f"},
+    "gpt_green":  {"base": "#faf9f6", "main": "#137f27", "accent": "#fdba05", "animal": "#12181f"},
+    "gpt_purple": {"base": "#faf9f6", "main": "#6c1282", "accent": "#fdba05", "animal": "#12181f"},
+    "blue_tan":   {"base": "#f2f0ea", "main": "#3e628a", "accent": "#f0c446", "animal": "#c8a078"},   # the original blue with the light teddy
+    "soft_blue":  {"base": "#f5ecd7", "main": "#6f8fb3", "accent": "#f0c446", "animal": "#c8a078"},   # round C: soft colourways + tan teddy
+    "soft_green": {"base": "#f5ecd7", "main": "#7fa08a", "accent": "#e8b24a", "animal": "#c8a078"},
+    "soft_pink":  {"base": "#f5ecd7", "main": "#d98c9a", "accent": "#f4c95d", "animal": "#c8a078"},
     "gold_dark": {"base": "#26262a", "main": "#d4af37", "accent": "#c98b7b", "animal": "#a0703a"},
     "boy":       {"base": "#f2f0ea", "main": "#3e628a", "accent": "#f0c446", "animal": "#8a5a36"},
     "girl":      {"base": "#f2f0ea", "main": "#d9808c", "accent": "#f4c95d", "animal": "#8a5a36"},
@@ -79,6 +87,12 @@ THEME_FILAMENTS = {
     "train_lit": ["PETG Blue", "AD-PETG Translucent White", "AD-PETG Translucent Yellow", "AD-PETG Translucent Orange-Red"],
     "train":     ["PLA+ Blue", "PLA+ White", "PLA+ Yellow", "Wood PLA"],
 }
+for _t, _f in (("gpt_blue", "PLA+ Blue"), ("gpt_pink", "PLA+ Pink"), ("gpt_green", "PLA+ Green"), ("gpt_purple", "PLA+ Purple")):
+    THEME_FILAMENTS[_t] = ["PLA+ White", _f, "PLA+ Yellow", "PLA+ Black"]      # filament match to be confirmed against the stock sheet
+THEME_FILAMENTS["blue_tan"] = ["PLA+ White", "PLA+ Blue", "PLA+ Yellow", "Walnut PLA"]
+THEME_FILAMENTS["soft_blue"] = ["PLA+ White", "PLA+ Blue", "PLA+ Yellow", "Walnut PLA"]      # stock match for the soft colours still to be chosen
+THEME_FILAMENTS["soft_green"] = ["PLA+ White", "PLA+ Green", "PLA+ Orange", "Walnut PLA"]
+THEME_FILAMENTS["soft_pink"] = ["PLA+ White", "PLA+ Pink", "PLA+ Yellow", "Walnut PLA"]
 THEME_FILAMENTS["boy"], THEME_FILAMENTS["girl"] = THEME_FILAMENTS["blue"], THEME_FILAMENTS["pink"]
 
 ARABIC_DIGITS = str.maketrans("0123456789.", "٠١٢٣٤٥٦٧٨٩٫")
@@ -723,6 +737,322 @@ def layout_train(data, add, layers, k, lang, rtl):
     add("animal", only_polygons(geo["animal2"].buffer(0.08)), BASE_H, TOP)           # its darker details (inner ears, toes) are lower
 
 # --------------------------------------------------------------- layout ----
+# ------------------------------------------------------- "balloons" layout (improvement round C) ----
+_POSES = None
+
+
+def load_poses():
+    global _POSES
+    if _POSES is None:
+        import json as _json
+        _POSES = _json.loads((Path(__file__).parent / "poses" / "poses.json").read_text())
+    return _POSES
+
+
+def place_pose(name, cx, y_bottom, h_max, w_max):
+    """The original teddy in one of its poses (cad/poses/poses.json, px y up, origin bottom centre) scaled into a box.
+    Returns role -> geometry in design units."""
+    d = load_poses()[name]
+    w, h = d["size"]
+    sc = min(h_max / h, w_max / w)
+    out = {}
+    for role, polys in d["roles"].items():
+        gs = [Polygon(pp[0], pp[1:]).buffer(0) for pp in polys]
+        g = unary_union(gs) if gs else Polygon()
+        out[role] = affinity.translate(affinity.scale(g, sc, sc, origin=(0, 0)), cx, y_bottom)
+    out["_scale"] = sc
+    return out
+
+
+def balloon_shape(cx, cy, r):
+    """Hot-air balloon: (body parts, stripe, rope + basket) in design units."""
+    body = circle(cx, cy, r)
+    stripe = affinity.scale(circle(cx, cy, r), 0.42, 1.0, origin=(cx, cy)).intersection(body)
+    ropes = unary_union([LineString([(cx + sx * r * 0.55, cy - r * 0.8), (cx + sx * r * 0.28, cy - r * 1.75)]).buffer(rw(0.8)) for sx in (-1, 1)])
+    basket = rrect(cx, cy - r * 1.75 - 3.0, r * 0.75, 6.0, 1.5)
+    return body.difference(stripe), stripe, unary_union([ropes, basket])
+
+
+def small_cloud(cx, cy, w):
+    s = w / 30.0
+    return unary_union([rrect(cx, cy, 30 * s, 9 * s, 4.5 * s), circle(cx - 6 * s, cy + 4 * s, 6 * s), circle(cx + 4 * s, cy + 5 * s, 7.5 * s)])
+
+
+def info_item(key, values, lang, rtl, h=19.0):
+    """One inline info item (icon + value) for the birth-announcement lines. Left edge x=0, vertically centred on y=0."""
+    ic = ICONS[key](1.0)
+    b = ic.bounds
+    sc = h / (b[3] - b[1])
+    ic = affinity.translate(affinity.scale(ic, sc, sc, origin=(0, 0)), -b[0] * sc, -(b[1] + b[3]) / 2 * sc)
+    iw = (b[2] - b[0]) * sc
+    txt, tw = text_line(values, lang, rtl)
+    txt = affinity.translate(txt, 0, -0.36 * h)
+    gap = 3.0
+    if rtl:
+        return unary_union([txt, affinity.translate(ic, tw + gap, 0)]), tw + gap + iw
+    return unary_union([ic, affinity.translate(txt, iw + gap, 0)]), iw + gap + tw
+
+
+def info_line(items, y, rtl, sep_geom=None, sep_w=8.0, gap=6.0):
+    """items = [(geom, width)] in logical order; centred on x=0 at height y; returns (main geometry, separators)."""
+    seq = items[::-1] if rtl else items
+    total = sum(w for _, w in seq) + (len(seq) - 1) * (sep_w + 2 * gap)
+    x = -total / 2
+    main, seps = [], []
+    for i, (g, w) in enumerate(seq):
+        main.append(affinity.translate(g, x, y))
+        x += w
+        if i < len(seq) - 1:
+            seps.append(affinity.translate(sep_geom, x + gap + sep_w / 2, y) if sep_geom is not None else None)
+            x += sep_w + 2 * gap
+    return unary_union(main), unary_union([g for g in seps if g is not None])
+
+
+def layout_moon(data, add, layers, k, lang, rtl):
+    """Round C, calm version: the teddy nests in a crescent moon, the name is big with no frame around it, the facts are two
+    centred lines (like a birth announcement) instead of boxes."""
+    plate = rrect(0, 0, SIZE, SIZE, 30)
+    add("base", plate, 0, BASE_H)
+    add("main", ring(plate, 12), BASE_H, BASE_H + FRAME_RAISE)
+    style = data.get("style", "moon")
+    pose_name = data.get("pose", "sleep")
+    name_y, line_y, hearts = -16, (-62, -96), True
+    if style == "arch":
+        # night-window arch: a solid arch in the main colour, stars + moon inside, the teddy sits on a cream hill at its foot
+        shape = unary_union([box(-66, 16, 66, 68), circle(0, 68, 66)])
+        hill = affinity.translate(affinity.scale(circle(0, 0, 1), 66, 20, origin=(0, 0)), 0, 14).intersection(shape)
+        pose = place_pose(pose_name, 0, 30, 68, 100)
+        add("main", shape.difference(hill), BASE_H, TOP)
+        add("base", hill, BASE_H, TOP)
+        add("accent", crescent(-36, 112, 12), BASE_H, TOP)
+        for (x, y, r) in [(30, 118, 7), (-46, 84, 5.5), (46, 92, 8), (8, 126, 4.5)]:
+            add("accent", star(x, y, r), BASE_H, TOP)
+        cover = Polygon()
+        name_y, line_y, hearts = -17, (-52, -84), True
+        extras = []
+    elif style == "rainbow":
+        cy = 34
+        up = box(-120, cy, 120, 150)
+        band_b = circle(0, cy, 100, ).difference(circle(0, cy, 84)).intersection(up)
+        band_y = circle(0, cy, 84).difference(circle(0, cy, 68)).intersection(up)
+        mound = affinity.translate(affinity.scale(circle(0, 0, 1), 66, 11, origin=(0, 0)), 0, cy - 7)
+        add("main", band_b, BASE_H, TOP)
+        add("accent", band_y, BASE_H, TOP)
+        add("main", mound, BASE_H, TOP)
+        pose = place_pose(pose_name, 0, cy - 2, 64, 100)
+        cover = Polygon()
+        for (x, y, r) in [(-122, 112, 7), (124, 104, 9), (-124, 60, 5), (122, 58, 6)]:
+            add("accent", star(x, y, r), BASE_H, TOP)
+        name_y, line_y, hearts = -8, (-48, -80), True
+    else:
+        outer_m = affinity.translate(affinity.scale(circle(0, 0, 1), 104, 50, origin=(0, 0)), 0, 66)
+        inner_m = affinity.translate(affinity.scale(circle(0, 0, 1), 104 * 0.93, 44, origin=(0, 0)), 0, 78)
+        cover = outer_m.difference(inner_m)
+        pose = place_pose(pose_name, 0, 36, 94, 128)
+        name_y, line_y = -16, (-62, -96)
+        add("accent", cover.difference(pose["yellow"]), BASE_H, TOP)
+        for (x, y, r) in [(-112, 120, 7), (114, 112, 9), (122, 70, 5.5), (-124, 66, 5)]:
+            add("accent", star(x, y, r), BASE_H, TOP)
+    solid = unary_union([Polygon(q.exterior) for q in (pose["body"].geoms if hasattr(pose["body"], "geoms") else [pose["body"]])])   # no see-through holes
+    body = solid.difference(pose["yellow"]).difference(cover)
+    yellow = pose["yellow"].difference(cover)
+    on_body = unary_union([solid, pose["yellow"]]).buffer(0.2)
+    add("animal", body, BASE_H, TOP)
+    add("accent", yellow, BASE_H, TOP)
+    for role_src, role in (("cream", "base"), ("navy", "main")):
+        g = pose[role_src].difference(cover)
+        add(role, g.intersection(on_body), TOP, TOP + 0.6)
+        add(role, g.difference(on_body), BASE_H, TOP + 0.6)
+    add("main", put_text([(data["name"], 38 if lang == "ar" else 31, "word")], lang, rtl, 0, name_y, max_width=200), BASE_H, TOP + 0.4)
+    conv = (lambda s_: s_.translate(ARABIC_DIGITS)) if lang == "ar" else (lambda s_: s_)
+    ampm = AMPM[lang][data.get("ampm", "AM").upper()]
+    it = {
+        "date": info_item("date", [(conv(data["date"]), 20, "num")], lang, rtl, 19.0),
+        "time": info_item("time", [(conv(data["time"]), 20, "num"), (ampm, 11, "word")], lang, rtl),
+        "weight": info_item("weight", [(conv(data["weight"]), 20, "num"), (UNITS[lang]["weight"], 11, "word")], lang, rtl),
+        "length": info_item("length", [(conv(data["length"]), 20, "num"), (UNITS[lang]["length"], 11, "word")], lang, rtl),
+    }
+    sep = heart(0, 0, 7)
+    for y, pair in ((line_y[0], ("date", "time")), (line_y[1], ("weight", "length"))):
+        m, sp = info_line([it[pair[0]], it[pair[1]]], y, rtl, sep_geom=sep)
+        add("main", m, BASE_H, TOP)
+        add("accent", sp, BASE_H, TOP)
+    if hearts:
+        add("accent", unary_union([heart(-26, -126, 7), heart(0, -123, 10), heart(26, -126, 7)]), BASE_H, TOP)
+
+
+def layout_balloons(data, add, layers, k, lang, rtl):
+    if data.get("style", "moon") in ("moon", "arch", "rainbow"):
+        return layout_moon(data, add, layers, k, lang, rtl)
+    plate = rrect(0, 0, SIZE, SIZE, 30)
+    add("base", plate, 0, BASE_H)
+    add("main", ring(plate, 12), BASE_H, BASE_H + FRAME_RAISE)
+    boxes = data.get("boxes", True)
+    # name cloud (lower than the original layout so the whole teddy fits above it)
+    by0 = 30
+    banner = unary_union([rrect(0, by0, 196, 38, 19), circle(0, by0 + 21, 17), circle(-38, by0 + 19, 13), circle(38, by0 + 19, 13),
+                          circle(-72, by0 + 14, 10), circle(72, by0 + 14, 10)])
+    # teddy in the chosen pose, sitting behind the top of the cloud
+    pose = place_pose(data.get("pose", "sleep"), 0, by0 + 21 + 17 - 7, 78, 100)
+    cover = banner
+    body = pose["body"].difference(pose["yellow"]).difference(cover)      # star / balloon sit in front of the body
+    yellow = pose["yellow"].difference(cover)
+    on_body = unary_union([pose["body"], pose["yellow"]]).buffer(0.2)
+    add("animal", body, BASE_H, TOP)
+    add("accent", yellow, BASE_H, TOP)
+    for role_src, role in (("cream", "base"), ("navy", "main")):
+        g = pose[role_src].difference(cover)
+        on, off = g.intersection(on_body), g.difference(on_body)
+        add(role, on, TOP, TOP + 0.6)
+        add(role, off, BASE_H, TOP + 0.6)
+    add("base", banner, BASE_H, TOP)
+    add("main", ring(banner, rw(1.4)), BASE_H, TOP)
+    name = data["name"]
+    add("main", put_text([(name, 25 if lang == "ar" else 21, "word")], lang, rtl, 0, by0 - 8.5, max_width=160), BASE_H, TOP + 0.4)
+
+    # sky: "simple" (default) = one crescent + a few stars (calm); "balloons" = hot-air balloons + small clouds too
+    if data.get("decor", "simple") == "balloons":
+        for (bx_, by_, br_) in [(-100, 112, 17), (-70, 98, 10.5), (104, 108, 19)]:
+            bod, stripe, rope = balloon_shape(bx_, by_, br_)
+            add("accent", bod, BASE_H, TOP)
+            add("main", unary_union([stripe, rope]), BASE_H, TOP)
+        for (cx_, cy_, w_) in [(-112, 72, 26), (110, 70, 28)]:
+            sc_ = small_cloud(cx_, cy_, w_)
+            add("base", sc_, BASE_H, TOP)
+            add("main", ring(sc_, rw(1.2)), BASE_H, TOP)
+        add("accent", crescent(66, 102, 11), BASE_H, TOP)
+        for (x, y, r) in [(-56, 126, 5.5), (60, 128, 6), (-124, 90, 5), (126, 82, 5)]:
+            add("accent", star(x, y, r), BASE_H, TOP)
+    else:
+        add("accent", crescent(-96, 106, 17), BASE_H, TOP)
+        for (x, y, r) in [(-70, 124, 7), (92, 112, 10), (112, 80, 6)]:
+            add("accent", star(x, y, r), BASE_H, TOP)
+        add("main", star(-118, 74, 5.5), BASE_H, TOP)
+
+    # info badges (date badge = pill)
+    weight, length, time, date = data["weight"], data["length"], data["time"], data["date"]
+    ampm = AMPM[lang][data.get("ampm", "AM").upper()]
+    conv = (lambda s_: s_.translate(ARABIC_DIGITS)) if lang == "ar" else (lambda s_: s_)
+    values = {
+        "weight": [(conv(weight), 17, "num"), (UNITS[lang]["weight"], 9, "word")],
+        "length": [(conv(length), 17, "num"), (UNITS[lang]["length"], 9, "word")],
+        "date": [(conv(date), 14.5, "num")],
+        "time": [(conv(time), 17, "num"), (ampm, 9, "word")],
+    }
+    order = ["weight", "length", "date", "time"]
+    r1, r2 = -14, -60
+    slots = [(66, r1), (-66, r1), (66, r2), (-66, r2)] if rtl else [(-66, r1), (66, r1), (-66, r2), (66, r2)]
+    for key, (bx, by) in zip(order, slots):
+        if boxes:
+            add("main", ring(rrect(bx, by, 124, 40, 20 if key == "date" else 10), rw(1.2)), BASE_H, TOP)
+        add("main", affinity.translate(ICONS[key](1.0), bx - 39, by), BASE_H, TOP)
+        tx_right, tx_left = bx + 55, bx - 19
+        if k >= 0.6:
+            lab, _ = text_line([(LABELS[lang][key], 7.5, "word")], lang, rtl)
+            lw = max(lab.bounds[2], 1)
+            scale = min(1, 70 / lw)
+            lab = affinity.scale(lab, scale, scale, origin=(0, 0))
+            x0 = (tx_right - lw * scale) if rtl else tx_left
+            add("main", affinity.translate(lab, x0, by + 6.5), BASE_H, TOP)
+        vy = by - 13 if k >= 0.6 else by - 7
+        add("main", put_text(values[key], lang, rtl, tx_right if rtl else tx_left, vy, "right" if rtl else "left", 72), BASE_H, TOP)
+    pad = rrect(0, -108, 124, 44, 12)
+    if boxes:
+        add("main", ring(pad, rw(1.2)), BASE_H, TOP)
+    add("accent", heart(0, -108, 10), BASE_H, TOP)
+
+
+def layout_gpt(data, add, layers, k, lang, rtl):
+    """The owner's GPT design, traced faithfully (cad/poses/gpt_cell_export.py -> gpt_sleep.json): frame, one-colour teddy asleep on a cloud,
+    blue star, the 4 info boxes and their icons, yellow moon / stars / heart. Only the TEXT is typeset with the real font, at the size and
+    place it has in the picture. Bear, cloud, boxes and frame share the main colour; muzzle / ears / eyes are cut-outs (cream shows)."""
+    import json as _json
+    asset = _json.loads((Path(__file__).parent / "poses" / ("gpt_cloud.json" if data.get("bear") == "own" else "gpt_sleep.json")).read_text())
+    plate = rrect(0, 0, SIZE, SIZE, 30)
+    add("base", plate, 0, BASE_H)
+    add("main", ring(plate, 10.3), BASE_H, TOP)
+    own_bear = data.get("bear", "gpt") == "own"
+    main_poly = unary_union([Polygon(pp[0], pp[1:]).buffer(0) for pp in asset["main_nobear" if own_bear else "main"]])
+    if own_bear:                   # our own teddy (cad/poses/poses.json, 4 poses) in the plaque colour, sitting in the top of the GPT cloud
+        nb_ = main_poly.intersection(box(-25, 20, 35, 130))
+        cloud_top = nb_.bounds[3] if not nb_.is_empty else 70.0
+        by_ = float(data["bear_y"]) if "bear_y" in data else cloud_top - float(data.get("bear_sink", 28))
+        pose = place_pose(data.get("pose", "sleep"), float(data.get("bear_x", 4)), by_, float(data["bear_h"]) if "bear_h" in data else min(92.0, 133 - by_), float(data.get("bear_w", 118)))
+        _fill = lambda g_: [Polygon(q.exterior) for q in (g_.geoms if hasattr(g_, "geoms") else [g_]) if not q.is_empty and q.geom_type == "Polygon"]
+        solid = unary_union(_fill(pose["body"]) + _fill(pose["cream"]) + _fill(pose["navy"]) + _fill(pose["yellow"])).buffer(0.3).buffer(-0.3)      # the whole teddy incl. muzzle / ear insides, no gaps for the cloud line
+        main_poly = main_poly.difference(solid.buffer(0.6))        # the cloud outline does not show through the teddy's cream parts
+    add("main", main_poly, BASE_H, TOP)
+    add("accent", unary_union([Polygon(pp[0], pp[1:]).buffer(0) for pp in asset["accent"]]), BASE_H, TOP)
+    if own_bear:
+        navy_ = pose["navy"]
+        if data.get("bear_details", "navy") == "navy":
+            # as in the first version: the teddy's dark details (eyes, nose, mouth, paw lines) in the 4th filament (dark navy), flush with the body
+            add("main", solid.difference(pose["cream"]).difference(navy_).difference(pose["yellow"]), BASE_H, TOP)
+            add("animal", navy_, BASE_H, TOP)
+            add("accent", pose["yellow"], BASE_H, TOP)
+        elif data.get("bear_details") == "yellow":
+            # eyes + paw / arm lines on the body in the star colour (3 filaments only); nose / mouth on the cream muzzle in the plaque colour
+            fill_ = lambda g_: unary_union([Polygon(q.exterior) for q in (g_.geoms if hasattr(g_, "geoms") else [g_]) if not q.is_empty])
+            light_ = unary_union([fill_(pose["cream"]), fill_(pose["yellow"])]).buffer(0.8)
+            parts_ = list(navy_.geoms) if hasattr(navy_, "geoms") else [navy_]
+            small_ = [q for q in parts_ if not q.is_empty and light_.contains(q.representative_point()) and q.area < 30]
+            on_light = unary_union([affinity.scale(q, 0.75, 0.75, origin=q.centroid) for q in small_])
+            on_body_ = navy_.difference(unary_union(small_).buffer(0.1)).difference(pose["yellow"])
+            add("main", solid.difference(pose["cream"]).difference(on_body_).difference(pose["yellow"]), BASE_H, TOP)
+            add("main", on_light, BASE_H, TOP)
+            add("accent", unary_union([on_body_, pose["yellow"].difference(on_light)]), BASE_H, TOP)
+        else:
+            # details on the body are CUT OUT (cream shows); on the muzzle / on the yellow they keep the plaque colour. No 4th filament.
+            fill_ = lambda g_: unary_union([Polygon(q.exterior) for q in (g_.geoms if hasattr(g_, "geoms") else [g_]) if not q.is_empty])
+            light_ = unary_union([fill_(pose["cream"]), fill_(pose["yellow"])]).buffer(0.8)
+            parts_ = list(navy_.geoms) if hasattr(navy_, "geoms") else [navy_]
+            on_light = unary_union([affinity.scale(q, 0.75, 0.75, origin=q.centroid) for q in parts_ if not q.is_empty and light_.contains(q.representative_point()) and q.area < 30])
+            on_body_ = navy_.difference(on_light.buffer(0.05))
+            add("main", solid.difference(pose["cream"]).difference(on_body_).difference(pose["yellow"]), BASE_H, TOP)
+            add("main", on_light, BASE_H, TOP)
+            add("accent", pose["yellow"].difference(on_light), BASE_H, TOP)
+    elif asset.get("navy"):          # the bear's dark details (closed eyes, nose + mouth, paw outlines) in the 4th filament, flush with the body
+        add("animal", unary_union([Polygon(pp[0], pp[1:]).buffer(0) for pp in asset["navy"]]), BASE_H, TOP)
+    tb = asset["text"]
+    if data.get("exact", False) and asset.get("text_traced"):
+        # the picture exactly as it is (name + numbers traced too). Set "exact": false to typeset another name / other values with the real font.
+        add("main", unary_union([Polygon(pp[0], pp[1:]).buffer(0) for pp in asset["text_traced"]]), BASE_H, TOP + 0.4)
+        return
+
+    def put(geom, bbox, align):
+        b_ = geom.bounds
+        x_ = bbox[2] - b_[2] if align == "right" else (bbox[0] + bbox[2]) / 2 - (b_[0] + b_[2]) / 2
+        y_ = (bbox[1] + bbox[3]) / 2 - (b_[1] + b_[3]) / 2
+        return affinity.translate(geom, x_, y_)
+
+    name_geom, _ = text_line([(data["name"], asset["name_size"] if lang == "ar" else asset["name_size"] * 0.8, "name" if lang == "ar" else "word")], lang, rtl)
+    nb = tb["name"]
+    maxw = (nb[2] - nb[0]) * float(data.get("name_fit", 1.12))
+    if name_geom.bounds[2] - name_geom.bounds[0] > maxw:
+        f_ = maxw / (name_geom.bounds[2] - name_geom.bounds[0])
+        name_geom = affinity.scale(name_geom, f_, f_, origin=(0, 0))
+    add("main", put(name_geom, nb, "center"), BASE_H, TOP + 0.4)
+    weight, length, time, date = data["weight"], data["length"], data["time"], data["date"]
+    ampm = AMPM[lang][data.get("ampm", "AM").upper()]
+    conv = (lambda s_: s_.translate(ARABIC_DIGITS)) if lang == "ar" else (lambda s_: s_)
+    vf, lf = asset["value_factor"], asset["label_factor"]
+    values = {
+        "weight": [(conv(weight), 17 * vf["weight"], "num"), (UNITS[lang]["weight"], 9 * vf["weight"], "word")],
+        "length": [(conv(length), 17 * vf["length"], "num"), (UNITS[lang]["length"], 9 * vf["length"], "word")],
+        "date": [(conv(date), 14.5 * vf["date"], "num")],
+        "time": [(conv(time), 17 * vf["time"], "num"), (ampm, 9 * vf["time"], "word")],
+    }
+    for key in ("weight", "length", "date", "time"):
+        lab, _ = text_line([(LABELS[lang][key], 7.5 * lf[key], "word")], lang, rtl)
+        add("main", put(lab, tb[key]["label"], "right"), BASE_H, TOP)
+        val, _ = text_line(values[key], lang, rtl)
+        vb = tb[key]["value"]
+        if val.bounds[2] - val.bounds[0] > (vb[2] - vb[0]) * 1.1:
+            f_ = (vb[2] - vb[0]) * 1.1 / (val.bounds[2] - val.bounds[0])
+            val = affinity.scale(val, f_, f_, origin=(0, 0))
+        add("main", put(val, vb, "right"), BASE_H, TOP)
+
+
 def build(data):
     global _K, BASE_H, TOP
     size = float(data.get("size", 300))
@@ -746,6 +1076,10 @@ def build(data):
         layout_horse(data, add, layers, k, lang, rtl)
     elif data.get("layout") == "train":
         layout_train(data, add, layers, k, lang, rtl)
+    elif data.get("layout") == "balloons":
+        layout_balloons(data, add, layers, k, lang, rtl)
+    elif data.get("layout") == "gpt":
+        layout_gpt(data, add, layers, k, lang, rtl)
     else:
         plate = rrect(0, 0, SIZE, SIZE, 30)
         add("base", plate, 0, BASE_H)
@@ -754,15 +1088,52 @@ def build(data):
         # name banner (cloud) + animal peeking over it
         banner = unary_union([rrect(0, 58, 196, 38, 19), circle(0, 79, 17), circle(-38, 77, 13), circle(38, 77, 13),
                               circle(-72, 72, 10), circle(72, 72, 10)])
-        animal = ANIMALS[data.get("animal", "bear")](0, 111, banner)
-        paws = animal.pop("_paws")
-        for role, items in animal.items():
-            for g, z0, z1 in items:
-                add(role, g, z0, z1)
+        peak_x, cloud_cy = 0.0, 49.5 + 8
+        if data.get("cloud") == "soft":      # round C: calmer cloud, 3 big round bumps, no small ones
+            banner = unary_union([rrect(0, 58, 200, 38, 19), circle(0, 76, 18), circle(-42, 72, 14), circle(42, 72, 14)])
+        elif data.get("cloud") == "real":
+            # the owner's cartoon cloud (5 round lobes measured on his picture, px y down) stretched to `cloud_w` x `cloud_h` mm
+            lobes = [(140, 380, 65), (210, 292, 70), (310, 265, 82), (415, 345, 92), (285, 395, 73)]
+            hull = Polygon([(140, -380), (210, -292), (310, -265), (415, -345), (405, -385), (285, -395)])
+            cs = unary_union([hull] + [Point(x_, -y_).buffer(r_, 64) for x_, y_, r_ in lobes])
+            cx0, cy0, cx1, cy1 = cs.bounds
+            cw, ch = float(data.get("cloud_w", 190)), float(data.get("cloud_h", 62))
+            sc_ = ch / (cy1 - cy0)                                   # UNIFORM scale: the arcs keep exactly the shape of the picture
+            cs = affinity.scale(affinity.translate(cs, -cx0, -cy0), sc_, sc_, origin=(0, 0))
+            w0 = (cx1 - cx0) * sc_
+            xc = (300 - cx0) * sc_                                   # cut just left of the tallest lobe: there both the top and the bottom are nearly flat
+            dw = max(0.0, cw - w0)                                   # width control = widening of this middle slice only
+            left_ = cs.intersection(box(-1e3, -1e3, xc, 1e3))
+            right_ = affinity.translate(cs.intersection(box(xc, -1e3, 1e3, 1e3)), dw, 0)
+            cut_ = cs.intersection(LineString([(xc, -10), (xc, 1e3)]))
+            mid_ = box(xc - 0.05, cut_.bounds[1], xc + dw + 0.05, cut_.bounds[3])
+            banner = unary_union([left_, right_, mid_])
+            banner = affinity.translate(banner, -(xc + dw / 2), 32)  # slice centre on the plate centre line
+            peak_x = 0.0                                             # the teddy sits on the flat top of the tallest lobe
+            cloud_cy = banner.centroid.y
+        if data.get("pose"):                 # round C: the original teddy in one of its poses (cad/poses/poses.json)
+            top = banner.bounds[3]
+            hide = {"sleep": 14, "cheer": 22, "balloon": 20, "star": 8}.get(data["pose"], 14)      # part of the teddy hidden behind the cloud (peeking)
+            pose = place_pose(data["pose"], peak_x, top - hide, 134 - (top - hide), 100)
+            solid = unary_union([Polygon(q.exterior) for q in (pose["body"].geoms if hasattr(pose["body"], "geoms") else [pose["body"]])])
+            on_body = unary_union([solid, pose["yellow"]]).buffer(0.2)
+            add("animal", solid.difference(pose["yellow"]).difference(banner), BASE_H, TOP)
+            add("accent", pose["yellow"].difference(banner), BASE_H, TOP)
+            for role_src, role_ in (("cream", "base"), ("navy", "main")):
+                g_ = pose[role_src].difference(banner)
+                add(role_, g_.intersection(on_body), TOP, TOP + 0.6)
+                add(role_, g_.difference(on_body), BASE_H, TOP + 0.6)
+            paws = Polygon()
+        else:
+            animal = ANIMALS[data.get("animal", "bear")](0, 111, banner)
+            paws = animal.pop("_paws")
+            for role, items in animal.items():
+                for g, z0, z1 in items:
+                    add(role, g, z0, z1)
         add("base", banner.difference(paws), BASE_H, TOP)  # cream fill hides animal parts behind the cloud
         add("main", ring(banner, rw(1.4)).difference(paws.buffer(1.0)), BASE_H, TOP)
         name = data["name"]
-        add("main", put_text([(name, 25 if lang == "ar" else 21, "word")], lang, rtl, 0, 49.5, max_width=160), BASE_H, TOP + 0.4)
+        add("main", put_text([(name, 25 if lang == "ar" else 21, "word")], lang, rtl, 0, (cloud_cy - 8) if data.get("cloud") == "real" else 49.5, max_width=min(160, 0.62 * float(data.get("cloud_w", 190))) if data.get("cloud") == "real" else 160), BASE_H, TOP + 0.4)
 
         # sky decoration
         add("accent", crescent(-98, 110, 19), BASE_H, TOP)
@@ -785,6 +1156,9 @@ def build(data):
         }
         order = ["weight", "length", "date", "time"]
         slots = [(66, 14), (-66, 14), (66, -34), (-66, -34)] if rtl else [(-66, 14), (66, 14), (-66, -34), (66, -34)]
+        dr = -6 if data.get("cloud") == "real" else 0          # the bigger cloud takes 6 units more room
+        slots = [(x_, y_ + dr) for x_, y_ in slots]
+        pad_y = -97 - dr * 0 - (0 if dr == 0 else 0)
         for key, (bx, by) in zip(order, slots):
             if boxes:
                 add("main", ring(rrect(bx, by, 124, 40, 10), rw(1.2)), BASE_H, TOP)
@@ -802,11 +1176,25 @@ def build(data):
             g = put_text(values[key], lang, rtl, tx_right if rtl else tx_left, vy, "right" if rtl else "left", 72)
             add("main", g, BASE_H, TOP)
 
-        # footprint area: raised rim, flat inside for a sticker / ink print
-        pad = rrect(0, -97, 124, 62, 12)
-        if boxes:
+        # footprint area: raised rim, flat inside for a sticker / ink print  (round C "real" cloud: no box, optional free text instead)
+        real_c = data.get("cloud") == "real"
+        pad = rrect(0, pad_y, 124, 58 if dr else 62, 12)
+        if boxes and not real_c:
             add("main", ring(pad, rw(1.2)), BASE_H, TOP)
-        add("accent", heart(0, -97, 12), BASE_H, TOP)
+        if data.get("blessing"):          # buyer's choice: a dua, the meaning of the name, an ayah ... (1-2 lines, separate lines with \n)
+            lines_ = str(data["blessing"]).split("\n")[:2]
+            n_ = len(lines_)
+            sz_ = (21 if lang == "ar" else 17) if n_ == 1 else (16.5 if lang == "ar" else 13.5)
+            gs_ = []
+            for i_, ln_ in enumerate(lines_):
+                yb_ = pad_y - 8 + (n_ - 1) * 10 - i_ * 20
+                gs_.append(put_text([(ln_, sz_, "word")], lang, rtl, 0, yb_, max_width=200))
+            add("main", unary_union(gs_), BASE_H, TOP)
+            if n_ == 1:
+                x0_, _, x1_, _ = gs_[0].bounds
+                add("accent", unary_union([heart(x0_ - 11, pad_y, 7), heart(x1_ + 11, pad_y, 7)]), BASE_H, TOP)
+        else:
+            add("accent", heart(0, pad_y, 12), BASE_H, TOP)
     if data.get("stand") == "rails" and data.get("layout") not in ("night", "train", "horse"):
         # T-shaped rails recessed in the two side frame bands (see STANDS.md): cut the base and the frame ring
         opening, cavity = rail_cutters(size)
@@ -835,7 +1223,10 @@ def build(data):
             layers[role] = capped
         nut_name, nut = fix_spec(size)
         pockets = unary_union([hexagon(x / k, y / k, (nut["af"] + 0.3) / k) for x, y in fix_points(size)])
-        layers["base"][0] = (only_polygons(plate_g.difference(unary_union(openings)).difference(pockets)), 0, BASE_H)
+        base_g = only_polygons(plate_g.difference(unary_union(openings)).difference(pockets))
+        if data.get("layout") == "gpt":      # closing: removes vertex-touching edges (the slicer / mesh would be non-manifold)
+            base_g = only_polygons(base_g.buffer(0.2 / k, join_style=1).buffer(-0.2 / k, join_style=1).simplify(0.02 / k))
+        layers["base"][0] = (base_g, 0, BASE_H)
     if glow:
         # backlit coloured glass: opaque base, every coloured part flush with it and through its full thickness
         plate_g = layers["base"][0][0]                 # the first base item is the plate itself
