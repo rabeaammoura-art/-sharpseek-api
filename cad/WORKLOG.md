@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-14 (cloud) — cut-out name tried with the owner's 3 fonts
+- Owner uploaded Aref Ruqaa Regular, Dima Sina, Al Battar (kept in the scratchpad only, NOT in git: licences unknown; ask him to re-upload in a new session). All three shape Arabic correctly through `shape_run`. To keep every cut at least 0.6 mm wide the letters were thickened per side: Aref Ruqaa 0.30, Dima Sina 0.24, Al Battar 0.30 mm (so they look bolder than the original fonts). Text sizes 18.6 x 9.0 / 24.9 x 8.9 / 22.8 x 9.0 mm; Al Battar needs 1 bridge (meem centre). Preview `cad/out/bookmark_cutout/rose_name_cutout_fonts.png`.
+- Left: owner picks the font + frame colour -> 3MF, print_test, slice, zip.
+
 ## 2026-11-14 (cloud) — rose bookmark: owner wants the name CUT THROUGH (preview sent)
 - Preview `cad/out/bookmark_cutout/rose_name_cutout_options.png`: name cut through the 14 mm bottom plate. C1 Baloo ExtraBold 29.4 x 8.4 mm (centre of the meem tied with one 0.9 mm bridge), C2 Amiri Bold grown 0.18 mm, 16 x 8.8 mm (no closed letter centres in this word). Both: no cut narrower than 0.6 mm, frame stays one piece. Other names need the bridge step for closed letters (meem, ha, waw, fa, qaf...): it is automatic in the scratch script.
 - Left: owner picks C1 / C2 and the frame colour -> 3MF, print_test, slice, zip.
