@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-14 (cloud) — owner's rule: every hand-off as one zip
+- Owner asked to always get everything needed in a zip (he mixed things up when the Gemini prompt came as chat text). Added to CLAUDE.md. Gemini packs made for the 3 bookmarks (`cad/out/bookmark_cutout/gemini_packs/`, not in git): blueprint + reference + PROMPT.txt + README.txt.
+
 ## 2026-11-14 (cloud) — cut-out bookmark: GPT rose stencil converted, converter added
 - Owner brought GPT's rose stencil (724 x 2172 px as pasted; looks very close to the reference style). New `cad/bookmarks/stencil_to_stl.py`: smooth trace (contourpy) -> scale to 45 mm wide -> widen white lines under 0.5 mm -> tie loose islands in with 2 small bridges each (GPT draws the rose petals with a white line all around = 8 islands, 15 bridges) -> checks -> STL + preview.
 - Rose result: 45 x 150.9 x 1.0 mm, one piece, watertight; `print_test` 0 problems; slice PLA Basic single colour: 0h23m / 5.0 g. Weak points: 26 spots under 1.0 mm (16 under 0.6), edges slightly jagged from the low-res pasted image (ask for the original file; `--grow 0.1` helps).
