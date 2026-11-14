@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-14 (cloud) — rose bookmark: owner wants the name CUT THROUGH (preview sent)
+- Preview `cad/out/bookmark_cutout/rose_name_cutout_options.png`: name cut through the 14 mm bottom plate. C1 Baloo ExtraBold 29.4 x 8.4 mm (centre of the meem tied with one 0.9 mm bridge), C2 Amiri Bold grown 0.18 mm, 16 x 8.8 mm (no closed letter centres in this word). Both: no cut narrower than 0.6 mm, frame stays one piece. Other names need the bridge step for closed letters (meem, ha, waw, fa, qaf...): it is automatic in the scratch script.
+- Left: owner picks C1 / C2 and the frame colour -> 3MF, print_test, slice, zip.
+
 ## 2026-11-14 (cloud) — rose bookmark: name options shown (preview only, no print file yet)
 - Owner asked where / how to add a name; test word given. Preview `cad/out/bookmark_cutout/rose_name_options.png`: A1 = 14 mm name plate added at the bottom, name inlaid in the rose colour, Amiri Bold (16 x 8.8 mm, a few strokes under 0.6 mm); A2 = same plate, Baloo Bhaijaan ExtraBold (30 x 8.8 mm, sturdy); B = name in the top band under the hole (15 x 4.3 mm, small). Name is real font text through `newborn_plaque.shape_run`, inlay = same thickness, different colour slot (no extra colour).
 - Left: owner picks placement + font + frame colour; then smooth the plate/corner joint, build the 3MF, print_test, slice, zip.
