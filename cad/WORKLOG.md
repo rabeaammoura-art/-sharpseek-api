@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-14 (cloud) — torso pen holder: tower crane coloured too
+- Owner asked for the tower crane as well. Whole crane (mast on the pedestal + the part in front of the jacket, z 21.5-34) moved to slot 3 with the buildings and the name (yellow); colour not specified by the owner, yellow chosen to keep 2 colours per layer. Crane top = torso inside a traced angle / z outline (-150..-104 deg) and more than 2.6 mm outside the back-side radius, largest piece only. Both names built, files not in git.
+- Slice (same fast settings, tower 30 mm): 5h42m / 114.2 g (without the crane colour 4h50m / 106.6 g). The crane keeps colour swaps running up to z 34. Bambu Studio: 3 overhang regions without support. Not print-tested, no price.
+- Left: owner's OK on crane colour, real filament colours, price sheet.
+
 ## 2026-11-14 (cloud) — torso pen holder: owner went back to example 3 + coloured buildings
 - Owner's choice: example 3 (torso blue, pedestal black, name yellow) with the buildings coloured too; no printed gloves. Built for both names at 100 mm: slot 1 torso (crane above the pedestal stays blue), slot 2 pedestal + crane mast, slot 3 buildings + name. Files not in git.
 - Slice (0.28, 8 %, 2 loops, tree supports, tower 30 mm): 4h50m / 106.6 g (example 3 without the buildings was 4h18m; single colour 3h56m). Bambu Studio: 3 overhang regions without support. No price (sheet not in this session). Not print-tested.
