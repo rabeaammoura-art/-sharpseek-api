@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-14 (cloud) — torso pen holder coloured like the owner's reference render (blue / black / yellow)
+- Owner sent a render: blue jacket, black pedestal, black gloves, blue crane, yellow buildings and name. Built at 100 mm for both names (3 slots: 1 blue = torso + crane mast, 2 black = pedestal + gloves, 3 yellow = buildings + name). Files not in git.
+- How: gloves = two traced front outlines (right fingers x 23-38 / z 53-64.5, left glove + cuff bands x -21..-3 / z 45-58) as a 1.6 mm skin; buildings / crane mast = pedestal relief above the local wall surface (unrolled radius map from sections every 0.5 mm, wall = 10th percentile per angle, running minimum, +0.45 / 0.7 mm) inside angle wedges (-164..-132.8, -132.5..-124.8, -50.5..-21.5).
+- Slices (0.28, 8 %, 2 loops, tree supports, tower 30 mm): as the picture 7h30m / 141 g; crane mast on the pedestal black instead of blue 6h27m / 131 g. Reference: one glove only + name 5h15m; colours only on the pedestal about 4h20m; single colour 3h56m. Three colours in the pedestal layers and gloves up to z 64 are what costs the time.
+- Left: owner's decision between the full-colour print and the faster variants (gloves painted by hand); real filament colours; price sheet.
+
 ## 2026-11-14 (cloud) — torso pen holder: visible hand in the pedestal colour (owner's request) costs about 1 h
 - Owner wants the hands in the pedestal colour. In this sculpt the arms are crossed: only the four fingers of one hand show (front, x 23-38, z 53-64.5 at 100 mm); the other hand is hidden. Hand part = torso x prism of a traced finger outline (front only, y < -15) minus a core 1.6 mm under the surface (voxel erosion) -> a 1.6 mm coloured skin, 1.8 cm3, one body.
 - Slices (same fast settings, tower 30 mm): 2 colours (torso / pedestal + hand, name in torso colour) 5h20m / 120.4 g; 3 colours 5h15m / 116.4 g. Without the hand colour it was 4h18-4h23m, single colour 3h56m. The hand makes swaps (and the tower) run up to z 64.
