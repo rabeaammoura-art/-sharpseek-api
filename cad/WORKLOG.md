@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-14 (cloud) — torso pen holder: crane back to blue (owner's decision)
+- After the fixes the yellow-crane version sliced 5h41m / 114.1 g. Owner then asked for the crane in blue: whole crane (mast on the pedestal included) in slot 1 with the torso; buildings + name yellow, pedestal black, no printed gloves. Both names built at 100 mm, files not in git.
+- Slice (0.28, 8 %, 2 loops, tree supports, tower 30 mm): 5h53m / 116.7 g; Bambu Studio: 3 overhang regions without support. Not print-tested, no price (sheet not in this session).
+- Left: owner's final OK, real filament colours from stock, price sheet for the cost.
+
 ## 2026-11-14 (cloud) — torso pen holder: owner's two marks fixed (jib tip, specks above the right building)
 - Owner circled the blue jib end of the crane and small yellow specks above the right building. Crane outline widened over the top of the jib (to -94.5 deg, up to z 28-31.5, threshold 2.4 mm) -> whole crane yellow; building parts under 3 mm3 dropped and the right wedge starts at -49.2 deg (plate tip sliver gone). Both names rebuilt; re-sliced (time in the next entry / chat). Files not in git.
 
