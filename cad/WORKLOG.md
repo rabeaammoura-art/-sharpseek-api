@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-14 (cloud) — named rose bookmark built (font 1 = Aref Ruqaa, cut-through name), zip sent
+- Owner chose font 1. `Bookmark_Rose_Asmaa.3mf`: 45 x 165 x 1.0 mm, slot 1 frame + 14 mm name plate (right nozzle), slot 2 rose, slot 3 stem (left / AMS). Name cut through, letters thickened 0.30 mm per side. Two spikes where the plate meets the old rounded corners removed. All parts watertight, `print_test` 0 problems / 0 notes, plain CLI slice of the file: 36 min, 8.3 g, 5 changes.
+- Note for next time: opening (buffer -0.3 / +0.3) on one colour part breaks the exact shared seams with the other parts and makes `print_test` report "not watertight" on the union; cut the bad bits explicitly instead.
+- Sent `bookmark_rose_Asmaa_print_pack.zip`. Frame colour still not chosen (file works with any). Scripts are scratchpad-only (hand zones for this drawing). Left: print + photo; seam strength unknown until printed.
+
 ## 2026-11-14 (cloud) — cut-out name tried with the owner's 3 fonts
 - Owner uploaded Aref Ruqaa Regular, Dima Sina, Al Battar (kept in the scratchpad only, NOT in git: licences unknown; ask him to re-upload in a new session). All three shape Arabic correctly through `shape_run`. To keep every cut at least 0.6 mm wide the letters were thickened per side: Aref Ruqaa 0.30, Dima Sina 0.24, Al Battar 0.30 mm (so they look bolder than the original fonts). Text sizes 18.6 x 9.0 / 24.9 x 8.9 / 22.8 x 9.0 mm; Al Battar needs 1 bridge (meem centre). Preview `cad/out/bookmark_cutout/rose_name_cutout_fonts.png`.
 - Left: owner picks the font + frame colour -> 3MF, print_test, slice, zip.
