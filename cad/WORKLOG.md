@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-14 (cloud) — torso pen holder: owner's two marks fixed (jib tip, specks above the right building)
+- Owner circled the blue jib end of the crane and small yellow specks above the right building. Crane outline widened over the top of the jib (to -94.5 deg, up to z 28-31.5, threshold 2.4 mm) -> whole crane yellow; building parts under 3 mm3 dropped and the right wedge starts at -49.2 deg (plate tip sliver gone). Both names rebuilt; re-sliced (time in the next entry / chat). Files not in git.
+
 ## 2026-11-14 (cloud) — torso pen holder: tower crane coloured too
 - Owner asked for the tower crane as well. Whole crane (mast on the pedestal + the part in front of the jacket, z 21.5-34) moved to slot 3 with the buildings and the name (yellow); colour not specified by the owner, yellow chosen to keep 2 colours per layer. Crane top = torso inside a traced angle / z outline (-150..-104 deg) and more than 2.6 mm outside the back-side radius, largest piece only. Both names built, files not in git.
 - Slice (same fast settings, tower 30 mm): 5h42m / 114.2 g (without the crane colour 4h50m / 106.6 g). The crane keeps colour swaps running up to z 34. Bambu Studio: 3 overhang regions without support. Not print-tested, no price.
