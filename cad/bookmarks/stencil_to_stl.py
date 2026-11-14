@@ -83,6 +83,7 @@ print("pieces if necks under 0.8 mm break:", len(core.geoms) if isinstance(core,
 import trimesh
 m = trimesh.creation.extrude_polygon(main, a.thick)
 m.export(f"{a.out}/{a.name}.stl")
+open(f"{a.out}/{a.name}.wkt", "w").write(main.wkt)          # the flat shape, for colour splitting
 print(f"watertight {m.is_watertight}, volume {m.volume / 1000:.2f} cm3")
 import matplotlib
 matplotlib.use("Agg")

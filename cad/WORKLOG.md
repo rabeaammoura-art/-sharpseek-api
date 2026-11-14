@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-14 (cloud) — GPT rose bookmark split into 3 colours (owner's idea)
+- Owner: stem green, rose red, frame a third colour (colour not chosen yet). `stencil_to_stl.py` now also writes `NAME.wkt` (the flat shape). The split itself is hand-drawn zones for this drawing (scratchpad script): frame zone (side bands 2.3 mm, top above y 117.4 / 112.5 at the sides, bottom lattice triangles), rose zone (bloom + 2 buds), the rest = stem + leaves; fragments under 1.5 mm2 go to the neighbour. Areas: frame 1811, rose 831, green 1371 mm2.
+- `Bookmark_Rose_3colours.3mf` (built with `build_project_settings`): slot 1 frame on the RIGHT nozzle, slots 2 rose / 3 green on the left (AMS), slot 4 unused. Plain CLI slice of the file as-is: success, 34 min, 7.5 g, 5 filament changes (single colour was 23 min). `print_test` 0 problems.
+- Sent as `bookmark_rose_3colours_print_pack.zip` (3MF + preview with black / silk gold / white frame + README). Colours sit side by side in the same layers: the seams between colours are the weak lines (told the owner). Left: owner picks the frame colour and prints; photo.
+
 ## 2026-11-14 (cloud) — rose arch 3MF came from Gemini; fix-request pack sent
 - Owner: the `bookmark_rose_arch.3mf` was made by Gemini. Sent `bookmark_rose_arch_GEMINI_FIX_pack.zip` (check picture with the thin spots + PROMPT.txt + README): same design, min solid 1.0 mm, min cut 0.6 mm, smooth leaves with one vein, petals joined, output 3MF + black/white PNG. Left: owner brings v2 (3MF + PNG) -> check again.
 
