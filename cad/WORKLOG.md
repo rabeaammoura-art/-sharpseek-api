@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-14 (cloud) — torso pen holder 100 mm: 2 / 3 colour examples and their time
+- Owner asked how much time 2 or 3 colours add, with examples. Three example 3MFs via `threemf.write_bambu_3mf` (parts cut with `manifold3d`: name inlay 0.5 mm deep + 0.8 proud, pedestal / torso split by a plane at z 21.5): (1) body + name, (2) torso + pedestal, name in the torso colour, (3) torso + pedestal + name. Rendered side by side for the owner. Files not in git.
+- Slices (PLA Basic x4 slots, 0.28, 8 %, 2 loops, tree supports, prime tower 30 mm at x 215): (1) 4h22m / 105.8 g, (2) 4h23m / 106.0 g, (3) 4h18m / 102.1 g; single colour was 3h56m / 100.5 g. So +22-27 min whatever the number of colours, because swaps happen only in the ~25 layers of the name (the pedestal / torso change is one swap). `--nozzle-map 1,2,1,1` gave the same 4h23m (two-nozzle gain not visible in the CLI estimate).
+- Left: owner picks the example and the real colours from stock; then final files for both names + price.
+
 ## 2026-11-14 (cloud) — torso pen holder: 100 mm with the pedestal, two gift copies with a raised name
 - Owner: gift for a cousin, 100 mm with the pedestal, the name must be on it, two copies (two names; names and files stay out of git). The Meshy pedestal has an empty name plate on the front (about 56 degrees wide, z 7-20.5 mm at this size) between a crane and buildings.
 - Built at 100 mm: 92.9 x 90.6 x 100, wall 2 mm, floor 3 mm, opening ~41 mm, depth 80 mm, 125 cm3, one body. Name = Baloo Bhaijaan (`shape_run`, font `ar_name`), fitted in 38 x 6.6 mm, raised 0.8 mm, wrapped on the measured plate radius profile (the plate is not a true cylinder: 40.7 mm in the middle, 41.5 at the ends).
