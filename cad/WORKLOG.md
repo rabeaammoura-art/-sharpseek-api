@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-14 (cloud) — Meshy torso hollowed into a pen holder (130 mm, 2 mm wall)
+- Owner: height 130-150 is fine, walls 2 mm. Scaled 75 -> 130 mm (120.8 x 117.7 x 130). Outer mesh repaired with `pymeshfix`; cavity built from a 0.4 mm voxel grid (2 mm inside the surface, 3 mm floor, grows at most ~40 degrees going down from the collar opening, so it needs no inner support) and subtracted with `manifold3d`; underside flattened. Scripts were one-off (scratchpad), model not in git (third-party).
+- Result: one body, opening ~53 mm, depth 105 mm, 252.9 cm3 (solid was 790). `print_test`: cavity alone 0 overhangs; whole model = overhangs / islands of the ORIGINAL sculpt (hanging arms / elbow, shoulders, pedestal panels) -> needs tree supports outside.
+- Slice (PLA Basic, 0.4, tree supports, one colour): 7h25m / 175.3 g; Bambu Studio warns of 5 overhang regions that got no support. No price (sheet not in this session). Not print-tested.
+- Left: owner's choice of height (110 mm is about 5.5 h by area scaling, not sliced), filament, then re-slice + price.
+
 ## 2026-11-14 (cloud) — owner's Meshy torso "pen holder" 3MF checked: NOT hollow
 - Owner uploaded a Meshy AI torso (prompt asked for a hollow pen holder) and asked to check whether it is hollow. File not in git (third-party).
 - Result: 69.7 x 67.9 x 75 mm, 1.3 M faces, volume 151.7 cm3 = fully solid; horizontal slices at 19 heights and two vertical cuts show no cavity and no opening at the neck. Mesh not watertight, 803 fragments (801 tiny), one 19 k-face loose patch near the base.
