@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-14 (cloud) — torso pen holder: 100 mm with the pedestal, two gift copies with a raised name
+- Owner: gift for a cousin, 100 mm with the pedestal, the name must be on it, two copies (two names; names and files stay out of git). The Meshy pedestal has an empty name plate on the front (about 56 degrees wide, z 7-20.5 mm at this size) between a crane and buildings.
+- Built at 100 mm: 92.9 x 90.6 x 100, wall 2 mm, floor 3 mm, opening ~41 mm, depth 80 mm, 125 cm3, one body. Name = Baloo Bhaijaan (`shape_run`, font `ar_name`), fitted in 38 x 6.6 mm, raised 0.8 mm, wrapped on the measured plate radius profile (the plate is not a true cylinder: 40.7 mm in the middle, 41.5 at the ends).
+- `print_test`: same islands / overhangs as before, all from the original sculpt (arms, pedestal decor) -> tree supports. Slice (PLA Basic, 0.28, 8 % infill, 2 loops, tree supports): 3h56m / 100.5 g each; Bambu Studio: 3 overhang regions without support. No price (sheet not in this session). Not print-tested.
+- Left: owner's OK on the preview, filament / colour, price sheet for the cost.
+
 ## 2026-11-14 (cloud) — torso pen holder: time-reduction trials (owner: 7h25m is far too long)
 - Rebuilt a true 110 mm version (102 x 100 x 110, wall 2 mm, opening 45 mm, depth 88 mm, 160 cm3). Slices, PLA Basic, tree supports: 0.20 = 5h18m / 119 g; 0.28 = 4h53m; 0.28 + 8 % infill + 2 loops + 3 top/bottom = 4h38m / 122 g; 0.20 without supports = 4h29m; lean walls / infill alone = 5h04m; mesh simplified 0.15 mm = no gain (5h25m).
 - Finding: time follows grams and size; settings give only ~40 min. Supports cost ~50 min. Parallel `bambu_slice.py` runs overwrite each other's `out/bambu/process.json` -> slice one at a time.
