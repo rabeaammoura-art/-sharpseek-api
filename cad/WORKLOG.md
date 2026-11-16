@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-16 (cloud) — owner: the cleaned D5 / D1 previews "are obviously bad" -> redone, my smoothing was the mistake
+- Verdict: right. The smoothed rebuild (`clean_gemini_voxel.py`) made the outer edges ragged and kept stray pink / red bits, i.e. WORSE than Gemini's original pictures; I sent it without comparing it with the original view. Lesson: compare cleaned vs original side by side before claiming "cleaned".
+- New `cad/bookmarks/gemini_voxel_exact.py` keeps Gemini's exact pixel shapes (run-length boxes of the 0.25 mm mask, no smoothing); only: specks < 0.8 mm2 go to the background colour, silhouette = outer outline minus the tassel hole, relief structure (plate 1.2 + two raised colours 0.6). D5 only (env): `SMOOTH_SIL=1.0` opens/closes the ragged silhouette, `BAND=3.5` removes the stray colour-3 outline lines within 3.5 mm of the edge (they were ragged hairlines in the source).
+- Results: D5 37 min / 16.5 g / 3 changes, 0.3 MB; D1 41 min / 17.8 g / 3 changes, 0.17 MB; parts watertight; `print_test` clean (thin-feature note only). Packs `Design5_Floral_EXACT_print_pack.zip`, `Design1_Palestinian_EXACT_print_pack.zip`. The earlier CLEAN packs are superseded.
+- Left: owner's verdict; D2 / D3 / D4 the same way.
+
 ## 2026-11-16 (cloud) — Gemini designs 5 and 1 cleaned; why the Gemini files are slow
 - Why 62-99 min (ours 36-46): (a) their top is a FLAT INLAY: the background colour is raised too, so all 3 colours print in each of the 3 top layers = 5 filament changes + longer flush (7.1 vs 4.6 min); (b) 0.25 mm voxel edges: outer walls 10.6 vs 2.8 min, travel 13.6 vs 7.2 min, ~300 specks; (c) 2.0 mm instead of 1.8; (d) bridges 6.5 min in D3 (cause not found).
 - `cad/bookmarks/clean_gemini_voxel.py` (args: scratch dir with `Dn_1/2/3.stl` of the three parts, out dir, tag, name, 3 hex colours, mode `relief|inlay`; env `OPEN3=1` removes hairline colour-3 strokes): masks from the faces at z 2.0 (0.25 mm grid), one label per pixel, specks < 0.8 mm2 reassigned, upsample x4 + gaussian 0.19 mm + argmax, contours -> polygons, slab = outer outline minus the tassel hole (small tassel hole only, filled other holes), everything clipped to the slab, 4 parts, `build_project_settings`.
