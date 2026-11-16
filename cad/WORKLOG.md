@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-16 (cloud) — verse bookmark: bottom cross removed; verse written "like embroidery" (owner)
+- Removed the small cross at the bottom centre (grid rows 168-176, cols 19-31). Stitch-look text: at the 1 mm grid the letters are unreadable (Aref Ruqaa 1 mm cells, then Baloo 15 mm tall, both broken: Arabic needs more than ~20 cells of height and the usable width is 32 mm, so a 1 mm cell cannot hold it). Solution: 0.5 mm squares (coverage threshold 0.30, letters grown 0.55 mm per side before rasterising): readable, stitch look.
+- `Bookmark_Dhikr_Fine_182.3mf`: base 1 / main 14 / accent 8 pieces, watertight, `print_test` 0 problems / 0 notes, slice 37 min / 17.7 g / 3 changes. Caveat: 0.5 mm steps are below nozzle resolution (edges look rounded), letters ~2-3 mm strokes. Pack `bookmark_dhikr_FINE_STITCH_print_pack.zip` (not in git). Script updated: `cad/bookmarks/stitch_frame_verse.py` (args: scratch dir, out dir, threshold, font, grow).
+- Left: owner's verdict; print test of the fine edges; alternative = smooth text.
+
 ## 2026-11-16 (cloud) — owner: empty the inside of the navy/pink stitch bookmark and write "ألا بذكر الله تطمئن القلوب" along its length
 - Grid v4 cleared inside (rows 15-157 x cols 9-40 + lower-star leftovers + stray pink), frame / zigzag / corners kept. Text: one line, Aref Ruqaa (owner's font, scratchpad only), real shaped Arabic via `shape_run`, scale 1.54, 124 x 21 mm, rotated 90 deg CCW (reads top to bottom), centred (y 31-156 mm), +0.2 mm per side, raised 0.6 mm navy, no diacritics. A two-line layout was too short (only 42 mm long at the 13.5 mm height limit): one long line fills the length.
 - `cad/out/bookmark_emb/Bookmark_Dhikr_182.3mf`: base 1 piece, main 21, accent 8 pieces, all watertight; `print_test` 0 problems / 0 notes; plain CLI slice 36 min / 17.5 g / 3 changes. Pack `bookmark_dhikr_182_print_pack.zip` (not in git). Script `cad/bookmarks/stitch_frame_verse.py` (needs the owner's font file path and `stitch_grid_182_v4.npy`).
