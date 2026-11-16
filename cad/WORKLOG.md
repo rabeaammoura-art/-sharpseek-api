@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-16 (cloud) — owner: "نسق المسافات" (even out the spacing) on the 182-row stitch preview
+- Inner motif blocks re-placed with equal gaps (8 / 7 / 7 / 7 / 8 rows between top corners, tree block, band 1, star 1, band 2, star 2): tree block rows 23-62, band 1 70-75, star 1 83-113, band 2 121-126, star 2 unchanged at 135. Outer frame columns untouched. `stitch_grid_182_v4.npy`, preview `stitch_182_rows_v4_preview.png` (cad/out/bookmark_emb, not in git). Crosses are still the draft's broken ones.
+- Left: owner's OK -> 3MF 50 x 182 (base 1.2 + navy / pink 0.6, `build_project_settings`, slots 1,2,3 + unused 4, map 1,1,1,2), `print_test`, slice, zip.
+
 ## 2026-11-16 (cloud) — owner circled the small-motif band between the stars: "repeat this up top"
 - Band = grid rows 120-125 (pink 4-petal flowers, navy x pieces, pink bud), copied into the empty gap under the tree (rows 70-75) with 2 edge cells removed. `stitch_grid_182_v3.npy`, preview `stitch_182_rows_v3_preview.png` (cad/out/bookmark_emb, not in git). The x pieces are still the draft's broken crosses (copied as they are). Left: owner's OK, maybe fix the crosses and the 9 mm gap under star 1, then 3MF (50 x 182) + test + slice + zip.
 
