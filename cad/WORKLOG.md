@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-16 (cloud) — owner: "I want it in the style of THIS file" (`Bookmarks_2and3_hole_v3.3mf`): stitch version of the embroidery built by me, no GPT
+- Owner was angry that I kept sending other things. The style = our flower bookmark files (white base 1.2 + raised 0.6 stitches, 1 mm per stitch, 4 slots, map 1,1,1,2, tower 230/100). Built the navy / pink embroidery in that style: photo -> 50 x 139 cell grid (majority colour per cell, left-right symmetry average, lone cells dropped), tassel hole 4.4 mm + ring, parts offset 0.02 mm so corner-touching cells stay watertight.
+- `cad/out/bookmark_emb/Bookmark_Embroidery_Stitch.3mf`: 50 x 139 x 1.8; parts watertight, `print_test` 0 problems / 0 notes; plain CLI slice 39 min / 14.9 g / 3 changes. Pack `bookmark_embroidery_STITCH_print_pack.zip`.
+- Honest quality: at 1 mm per stitch the two 8-point snowflakes lose their points (read as blobs with a pink X), tree chevrons coarse, left-right symmetry made some corner details approximate. Fix = hand-draw those motifs on the grid (exact staircases), not a better trace.
+- Left: owner's verdict; hand-edit the grid for stars / tree if he wants. The earlier GPT stitch pack (50 x 139 chart) is now optional.
+
 ## 2026-11-16 (cloud) — embroidery bookmark as CROSS-STITCH squares: GPT pack (owner's request)
 - Owner wants the embroidery design redone as square cross-stitch (like our first flower bookmark), by GPT. `cad/out/bookmark_emb/bookmark_embroidery_STITCH_pack.zip` (not in git: has the owner's photo): reference photo + my automatic draft grid (50 x 139 cells, navy / pink / white by majority colour per cell; it has errors: broken diagonals, merged buds, lost small details, hole ring drawn by hand-less sampling) + PROMPT.txt (exact 50 x 139 chart, 4 colours incl. #00FF00 tassel hole, left-right symmetric, whole squares only, 45-degree staircases, outputs 1px / 12x / 12x with grid) + README.
 - Next when GPT's chart arrives: read the 1 px PNG as cells -> 1 mm per stitch (50 x 139 mm), base 1.2 white + navy / pink 0.6 raised, hole cut, `build_project_settings`, print_test, slice, zip. The 1 px PNG must be exactly 50 x 139 (check).
