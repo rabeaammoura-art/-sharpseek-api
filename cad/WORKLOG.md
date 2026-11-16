@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-16 (cloud) — owner's two cross-stitch bookmarks checked (`Bookmark_1_Blue_Pink_White_v2.3mf`, `Bookmark_2_Green_Red_White_v2.3mf`, made elsewhere)
+- Both are Bambu-format projects (H2D, 4 x PLA Basic, flush matrix 32, tower 230/100, map 1,1,1,2 with slot 4 black unused): 50 x 182 x 1.8 mm, white base 1.2 (slot 1) + raised 0.6 main (slot 2) + accent (slot 3), tassel hole with ring. Every part watertight, no open bodies, nothing thinner than 0.7 mm; `print_test` 0 problems / 0 notes on both.
+- Plain CLI slice of each file as-is: BM1 43 min / 18.7 g / 3 changes; BM2 37 min / 18.2 g / 3 changes; no slicer warnings. Cosmetic only: two tiny stray main-colour cells in the bottom corners of each, main colour overhangs the base edge by 0.01 mm.
+- Told the owner: his white is on the external spool, so either move slot 1 to the right nozzle in the grouping or load white in the AMS. Earlier open items: Flexible PLA AMS feed test, TPU version, named rose print result.
+
 ## 2026-11-14 (cloud) — named rose bookmark built (font 1 = Aref Ruqaa, cut-through name), zip sent
 - Owner chose font 1. `Bookmark_Rose_Asmaa.3mf`: 45 x 165 x 1.0 mm, slot 1 frame + 14 mm name plate (right nozzle), slot 2 rose, slot 3 stem (left / AMS). Name cut through, letters thickened 0.30 mm per side. Two spikes where the plate meets the old rounded corners removed. All parts watertight, `print_test` 0 problems / 0 notes, plain CLI slice of the file: 36 min, 8.3 g, 5 changes.
 - Note for next time: opening (buffer -0.3 / +0.3) on one colour part breaks the exact shared seams with the other parts and makes `print_test` report "not watertight" on the union; cut the bad bits explicitly instead.
