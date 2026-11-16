@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-16 (cloud) — owner marked strays to erase on the 182-row preview
+- His markup was drawn on the FIRST row-insertion picture (duplicated rows: stretched crosses / long bars / long pink stems), which I had viewed but replaced by the blank-row version before sending. All marked bits are absent in the blank-row version; only 2 tiny navy strays remained (row 14, cols 13-14 and 35-36) and were erased -> `stitch_182_rows_clean_preview.png`, grid `stitch_grid_182_v2.npy` (cad/out/bookmark_emb, not in git).
+- Still open: big empty bands (rows 65-82 and 111-119), broken small x-crosses between the stars (rows ~120-124). Owner decides: fill with motifs / stretch version / keep. No 3MF yet.
+
 ## 2026-11-16 (cloud) — stitch embroidery bookmark at 182 mm, two preview options (pictures only, no file)
 - Owner's reference file `Bookmarks_2and3_hole_v3.3mf` (uploaded twice, byte-identical) = two bookmarks of 50 x 182 x 1.8 mm; my embroidery is 50 x 139 (photo proportion). Previews `cad/out/bookmark_emb/stitch_182_stretch_preview.png` (rows stretched 1.31x, rectangular stitches 1 x 1.31 mm) and `stitch_182_rows_preview.png` (43 blank rows inserted after grid rows 14 / 54 / 85 / 91, borders + centre stem kept, stitches stay square).
 - Verdict: the row version leaves big empty bands (16 mm between tree and first star, 9 mm between the stars) and a few stray bits (a small mark under the hole, split crosses between the stars). Needs hand-drawn filler motifs (e.g. repeat the small crosses / pink flowers) if the owner picks it. Left: owner's choice.
