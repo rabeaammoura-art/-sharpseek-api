@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-16 (cloud) — verse bookmark: owner chose the SMOOTH text (stitch-look text "did not work") and asked to remove the red-marked bottom cross
+- Rebuilt the smooth Aref Ruqaa version (124 x 21 mm, 0.2 mm grown) with the bottom cross removed (grid rows 168-176, cols 19-31). `Bookmark_Dhikr_Smooth_182.3mf`: watertight, `print_test` 0 problems / 0 notes, slice 35 min / 17.5 g / 3 changes. Pack `bookmark_dhikr_SMOOTH_print_pack.zip` (cad/out/bookmark_emb, not in git); script `cad/bookmarks/stitch_frame_verse_smooth.py`. The fine-stitch text version stays as an alternative (`stitch_frame_verse.py`).
+- Left: owner's print + photo; text colour / pink accents if wanted.
+
 ## 2026-11-16 (cloud) — verse bookmark: bottom cross removed; verse written "like embroidery" (owner)
 - Removed the small cross at the bottom centre (grid rows 168-176, cols 19-31). Stitch-look text: at the 1 mm grid the letters are unreadable (Aref Ruqaa 1 mm cells, then Baloo 15 mm tall, both broken: Arabic needs more than ~20 cells of height and the usable width is 32 mm, so a 1 mm cell cannot hold it). Solution: 0.5 mm squares (coverage threshold 0.30, letters grown 0.55 mm per side before rasterising): readable, stitch look.
 - `Bookmark_Dhikr_Fine_182.3mf`: base 1 / main 14 / accent 8 pieces, watertight, `print_test` 0 problems / 0 notes, slice 37 min / 17.7 g / 3 changes. Caveat: 0.5 mm steps are below nozzle resolution (edges look rounded), letters ~2-3 mm strokes. Pack `bookmark_dhikr_FINE_STITCH_print_pack.zip` (not in git). Script updated: `cad/bookmarks/stitch_frame_verse.py` (args: scratch dir, out dir, threshold, font, grow).
