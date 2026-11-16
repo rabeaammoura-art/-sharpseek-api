@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-16 (cloud) — owner: Gemini prompt for 3 new FRAMES around the verse (same size, same stitch style)
+- Pack `cad/out/bookmark_emb/gemini_frames/bookmark_frames_GEMINI_pack.zip` (not in git): reference with verse, the current frame as an exact 50 x 182 px grid (white / navy / pink / green hole), a zones guide, PROMPT.txt (3 frames A geometric tatreez / B floral vine / C stars; verse zone cols 9-40 rows 15-157 must stay EMPTY: the verse is added by us with the real font; hole fixed; 4 flat colours; left-right symmetric; one connected navy shape; outputs 1 px / 12x / preview) + README.
+- When the 1 px PNGs come back: check 50 x 182 + 4 colours + symmetry, put them into the dhikr builder (`cad/bookmarks/stitch_frame_verse_smooth.py` takes `stitch_grid_182_v4.npy`; needs a variant that loads the new frame grid instead), build 3 x 3MF, print_test, slice, zip.
+
 ## 2026-11-16 (cloud) — verse bookmark: my cross removal had also cut part of the frame (owner noticed) -> fixed
 - Mistake: I cleared a rectangle (rows 168-176, cols 19-31) for the bottom cross, but the frame's converging inner V lines run through that area (cols 15-23 / 26-34, rows 171-179); also the "lower star leftovers" rectangle (cols 13-36, rows 158-167) nicked the side diagonals. Now only the cross cells are cleared (rows 169-174, cols 22-27 shape) and the leftover rectangle is cols 15-34; verified by diffing the grids: only pink buds, star remnants and the cross differ. Lesson: remove a motif by its own cells / component, never by a bounding rectangle that crosses the frame; diff before and after.
 - Rebuilt `Bookmark_Dhikr_Smooth_182.3mf`, `print_test` clean, slice 35 min / 17.5 g / 3 changes, pack regenerated. The fine-stitch text version (`stitch_frame_verse.py`) still has the old rectangles.
