@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-16 (cloud) — verse bookmark: my cross removal had also cut part of the frame (owner noticed) -> fixed
+- Mistake: I cleared a rectangle (rows 168-176, cols 19-31) for the bottom cross, but the frame's converging inner V lines run through that area (cols 15-23 / 26-34, rows 171-179); also the "lower star leftovers" rectangle (cols 13-36, rows 158-167) nicked the side diagonals. Now only the cross cells are cleared (rows 169-174, cols 22-27 shape) and the leftover rectangle is cols 15-34; verified by diffing the grids: only pink buds, star remnants and the cross differ. Lesson: remove a motif by its own cells / component, never by a bounding rectangle that crosses the frame; diff before and after.
+- Rebuilt `Bookmark_Dhikr_Smooth_182.3mf`, `print_test` clean, slice 35 min / 17.5 g / 3 changes, pack regenerated. The fine-stitch text version (`stitch_frame_verse.py`) still has the old rectangles.
+
 ## 2026-11-16 (cloud) — verse bookmark: owner chose the SMOOTH text (stitch-look text "did not work") and asked to remove the red-marked bottom cross
 - Rebuilt the smooth Aref Ruqaa version (124 x 21 mm, 0.2 mm grown) with the bottom cross removed (grid rows 168-176, cols 19-31). `Bookmark_Dhikr_Smooth_182.3mf`: watertight, `print_test` 0 problems / 0 notes, slice 35 min / 17.5 g / 3 changes. Pack `bookmark_dhikr_SMOOTH_print_pack.zip` (cad/out/bookmark_emb, not in git); script `cad/bookmarks/stitch_frame_verse_smooth.py`. The fine-stitch text version stays as an alternative (`stitch_frame_verse.py`).
 - Left: owner's print + photo; text colour / pink accents if wanted.

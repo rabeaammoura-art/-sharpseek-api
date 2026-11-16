@@ -12,9 +12,10 @@ from matplotlib.path import Path as MPath
 S, O = sys.argv[1], sys.argv[2]
 G = np.load(f"{O}/stitch_grid_182_v4.npy"); H, NW = G.shape
 G[15:158, 9:41] = 0                                                  # empty the inside (keep frame, zigzag, corners)
-G[158:168, 13:37] = 0                                                # leftovers of the lower star
+G[158:168, 15:35] = 0                                                # leftovers of the lower star (frame diagonals are at the sides: kept)
 sub = G[15:168, 6:44]; sub[sub == 2] = 0                             # stray pink cells beside the frame
-G[168:177, 19:32] = 0                                              # the small cross at the bottom (owner's mark)
+for r, c0, c1 in ((169, 24, 26), (170, 24, 26), (171, 23, 27), (172, 22, 28), (173, 24, 26), (174, 24, 26)):   # only the cross itself (rows 169-174)
+    G[r, c0:c1] = 0
 np.save(f"{O}/dhikr_grid.npy", G)
 font = npq.Font(f"{S}/userfonts/ArefRuqaa.ttf")
 lines = ["ألا بذكر الله تطمئن القلوب"]
