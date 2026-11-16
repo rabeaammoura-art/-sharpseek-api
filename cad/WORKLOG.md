@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-16 (cloud) — embroidery bookmark: traced straight from the owner's photo by colour (works much better)
+- Owner: even my redraw did not look like the embroidery. Honest cause: I drew the motifs by hand from rough coordinates instead of extracting them from the photo. New `cad/bookmarks/trace_embroidery_photo.py` (own code; photo path passed in, photo not in git): navy = blue-dominant dark pixels, pink = red-minus-green mask, gaussian 1.6 px, contours -> shapely, +0.12 mm thickening, hole taken from the photo's own ring, pink wins over navy. 50 x 139 mm (0.103 mm/px). Result: 19 navy pieces, 37 pink pieces, 5.6 mm2 thinner than 0.7 mm.
+- Visual verdict: same design as the photo (tree, both snowflakes, zigzags, corner diagonals, crosses, corner pinks, tassel ring). Flaws: edges slightly wavy (thread texture), neighbouring pink buds merge, inner edge of the frame band bumpy, small black specks at the left edge of the overlay. Preview `cad/out/bookmark_emb/photo_trace_preview.png`, parts as `photo_{base,main,accent}.wkt`. No 3MF yet. The GPT layer-mask pack becomes optional.
+- Left: owner's yes / marks; smooth edges (sigma / opening), then 3MF + print_test + slice + zip.
+
 ## 2026-11-16 (cloud) — embroidery bookmark: owner wants it to look like the ORIGINAL embroidery photo; layer-mask pack for GPT
 - Clarified: "like the original design" = the navy/pink embroidery photo (not the cross-stitch grid, not the blobby trace). Wrongly sent the cross-stitch EXACT pack first (grid CSV + vines); ignore it for this job.
 - Plan: GPT draws 3 aligned pure black/white masks (outline, navy, pink) on the same 1200 x 3338 canvas (50 x 139 mm), solid areas, crisp, min line 0.8 mm / gap 0.6 mm; Claude converts with `stencil_to_stl.py` (needs a `--like OUTLINE` option so all layers share the outline's bbox scale; not written yet) into white base 1.2 + navy 0.6 + pink 0.6, 3MF with `build_project_settings`. Pack: `cad/out/bookmark_emb/bookmark_embroidery_LAYERS_pack.zip` (not in git: contains the owner's reference photo).
