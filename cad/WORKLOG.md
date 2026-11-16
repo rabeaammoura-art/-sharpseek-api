@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-16 (cloud) — navy/pink embroidery bookmark: clean redraw started (flat preview only)
+- Owner showed the original embroidery picture (the one GPT traced) and asked for a crisp version instead of the blobby cleaned trace. Reference box 486 x 1352 px -> 50 x 139 mm (the picture is 1:2.8, the earlier files were 50 x 182). New script `cad/bookmarks/embroidery_navy_pink.py` (own code, the reference picture stays out of git): base white 1.2, navy 0.6, pink 0.6 cutting the navy; frame + hole ring, zigzag borders, corner diagonals, tree, two 8-point stars, buds, crosses; everything sits on the solid base (no islands).
+- Status: draft 3 shown to the owner as side-by-side + overlay (`cad/out/bookmark_emb/emb_preview.png`, not in git). Honest verdict: layout right, shapes simpler than the reference (stars read as 6-point, tree less feathered, corner pinks flat, diagonal corner lines only approximate). No 3D file, no slicing yet.
+- Left: owner's marks / yes -> refine, then 3MF (slots 1 white / 2 navy / 3 pink, `build_project_settings`), print_test, slice, zip. Open: height 139 vs 182.
+
 ## 2026-11-16 (cloud) — owner's GPT-made `Bookmark_1_Navy_Pink.3mf` / `Bookmark_2_Green_Red.3mf` checked and cleaned
 - GPT traced two product photos (cross-stitch style, tree + stars / roses + poinsettias) into voxel meshes (0.25 mm pixels): 64 MB XML each, ~950k faces (base alone 581k), coloured parts not watertight (corner-touching voxels), single-pixel specks (0.037 mm3), project flush matrix 16 with `filament_map` all 1 (purge-matrix error as soon as a filament goes to the right nozzle). They do slice as-is on one nozzle: 52 min / 18.6 g and 48 min / 18.1 g, 3 changes; `print_test`: not watertight + thin-feature note.
 - Cheap repair (scratch script): top faces -> 0.25 mm mask -> smoothed contour -> polygons; base = filled outline of the frame (no white corners outside it) minus the hole; opening 0.2 mm + pieces under 1 mm2 dropped; `simplify(0.04)` (without it one degenerate sliver made a part non-watertight); project via `build_project_settings`, map 1,1,1,2, tower 230/100.
