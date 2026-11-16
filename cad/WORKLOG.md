@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-16 (cloud) — green / red bookmark in stitch style at 182 mm (owner: "do this one with the same idea, same length")
+- Source: the owner's green/red embroidery photo (765 x 1024, bookmark box x 255-530, y 78-988, 3.3:1). Same pipeline as the navy one but sampled straight to 50 x 182 cells (vertical stretch 1.1, no inserted rows): green = G-R > 22 mask, red = R-G > 70, thresholds 0.30 (green) / 0.40 (red; 0.52 kept the rose lines but broke the stars, 0.30 lost the rose spirals), left-right symmetry average, lone cells dropped, base = filled outline of the green frame minus the hole (without the -0.02 buffer: that made the base non-watertight here).
+- `cad/out/bookmark_grn/Bookmark_GreenRed_Stitch_182.3mf`: 50 x 182 x 1.8; base 1 piece, green 6, red 9 pieces, all watertight; `print_test` 0 problems / 0 notes; plain CLI slice 46 min / 18.6 g / 3 changes. Pack `bookmark_greenred_STITCH_182_print_pack.zip` (not in git). Known flaws: both roses become blobs with a few white marks (spirals lost at 1 mm per stitch), poinsettias less pointed, lattice diamonds partly merged, tassel ring thin. Left: owner's verdict; hand-drawing roses / flowers on the grid is the fix.
+
 ## 2026-11-16 (cloud) — 182 mm stitch embroidery bookmark: 3MF built (owner said "make the file")
 - From `stitch_grid_182_v4.npy`: base follows the navy frame outline, main navy 15 pieces, accent pink 42 pieces, all watertight; `print_test` 0 problems / 0 notes; plain CLI slice of the file: 44 min / 18.5 g / 3 changes (single filament type PLA Basic in the file). `Bookmark_Embroidery_Stitch_182.3mf` + `bookmark_embroidery_STITCH_182_print_pack.zip` in cad/out/bookmark_emb (not in git). Known cosmetic flaws: broken small crosses in the two bands, corner steps. Left: owner's print + photo.
 
