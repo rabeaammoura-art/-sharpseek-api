@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-16 (cloud) — owner's five Gemini-made verse bookmarks checked ("HTPWIL" = "افحصهن" typed on the English layout)
+- Files `Design_1..5_..._50x182mm_FIXED.3mf`: plain 3MF (no project settings, 3 separate objects, no filament slots), 60-74 MB XML each, ~900k faces (0.25 mm voxel meshes). 50 x 182 x 2.0 mm (base 1.4 + raised 0.6 = 0.2 mm thicker than our 1.8), the verse is inside the design (text drawn by Gemini, reads correctly), colours by name: D1 white/purple/pink, D2 white/green/red, D3 black/gold/red, D4 olive/white/green (name also says gold, no gold visible), D5 black/white/red.
+- Meshes: all parts watertight, no open bodies. Specks: Color3 has ~300 single-pixel bodies (< 0.1 mm3, 0.25 mm squares) in D1 / D3 / D4, D5 Color2 has 278, D2 almost none; D5 also has hair-thin red outline lines at the frame edges. Not `print_test`-ed (too heavy), checked by slicing.
+- Slices (our project wrapper, PLA Basic, tower, as-is geometry): D1 70 min / 22.2 g, D2 87 min / 22.6 g, D3 62 min / 22.1 g, D4 99 min / 22.4 g, D5 80 min / 22.0 g; 5 filament changes each; about 0.20 JOD each at PLA+ price. Preview `cad/out/gemini_designs/all5_top.png` (not in git).
+- Left: owner's pick; cleaned versions (trace -> polygons -> light 3MF with slots, specks removed, thickness 1.8 if wanted) if he asks.
+
 ## 2026-11-16 (cloud) — Gemini (phone app) could not read the zip pack: sent the images and PROMPT.txt as loose files
 - Gemini replied "contains binary or file data listings" to the zip upload. For GPT / Gemini the files must be uploaded one by one and the prompt pasted as text. CLAUDE.md hand-off rule updated with this exception.
 
