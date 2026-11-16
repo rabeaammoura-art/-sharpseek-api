@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-16 (cloud) — 182 mm stitch embroidery bookmark: 3MF built (owner said "make the file")
+- From `stitch_grid_182_v4.npy`: base follows the navy frame outline, main navy 15 pieces, accent pink 42 pieces, all watertight; `print_test` 0 problems / 0 notes; plain CLI slice of the file: 44 min / 18.5 g / 3 changes (single filament type PLA Basic in the file). `Bookmark_Embroidery_Stitch_182.3mf` + `bookmark_embroidery_STITCH_182_print_pack.zip` in cad/out/bookmark_emb (not in git). Known cosmetic flaws: broken small crosses in the two bands, corner steps. Left: owner's print + photo.
+
 ## 2026-11-16 (cloud) — owner: "نسق المسافات" (even out the spacing) on the 182-row stitch preview
 - Inner motif blocks re-placed with equal gaps (8 / 7 / 7 / 7 / 8 rows between top corners, tree block, band 1, star 1, band 2, star 2): tree block rows 23-62, band 1 70-75, star 1 83-113, band 2 121-126, star 2 unchanged at 135. Outer frame columns untouched. `stitch_grid_182_v4.npy`, preview `stitch_182_rows_v4_preview.png` (cad/out/bookmark_emb, not in git). Crosses are still the draft's broken ones.
 - Left: owner's OK -> 3MF 50 x 182 (base 1.2 + navy / pink 0.6, `build_project_settings`, slots 1,2,3 + unused 4, map 1,1,1,2), `print_test`, slice, zip.
