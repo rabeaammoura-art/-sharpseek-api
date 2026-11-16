@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-16 (cloud) — owner rejected my parametric embroidery redraw ("does not look like our previous design at all")
+- "Previous design" = the cleaned GPT trace (it resembled the picture, only its edges were soft). The parametric draft (`cad/bookmarks/embroidery_navy_pink.py`) is parked. Lesson: for organic/embroidery pictures keep the traced shapes, do not redraw them by hand.
+- Sharper re-trace of the two GPT files (8x upsample, sigma 4.5 = 0.14 mm, opening 0.12 mm): `cad/out/bookmark_flowers/gpt_sharp/`: BM1 50 min / 18.7 g, BM2 45 min / 18.1 g, 3 changes each, watertight, `print_test` 0 problems. Only marginally crisper: the softness comes from GPT's 0.25 mm voxel source. Known flaw from GPT's data: the tassel hole is cut into the edge of the navy frame (crescent), no ring around it; an attempt to add a ring found no closed hole in the base trace (0 rings) and was reverted.
+- Left: owner's verdict; for truly crisp edges ask GPT for a crisp black/white or flat-colour image per colour (our stencil route) and convert with `cad/bookmarks/stencil_to_stl.py`.
+
 ## 2026-11-16 (cloud) — navy/pink embroidery bookmark: clean redraw started (flat preview only)
 - Owner showed the original embroidery picture (the one GPT traced) and asked for a crisp version instead of the blobby cleaned trace. Reference box 486 x 1352 px -> 50 x 139 mm (the picture is 1:2.8, the earlier files were 50 x 182). New script `cad/bookmarks/embroidery_navy_pink.py` (own code, the reference picture stays out of git): base white 1.2, navy 0.6, pink 0.6 cutting the navy; frame + hole ring, zigzag borders, corner diagonals, tree, two 8-point stars, buds, crosses; everything sits on the solid base (no islands).
 - Status: draft 3 shown to the owner as side-by-side + overlay (`cad/out/bookmark_emb/emb_preview.png`, not in git). Honest verdict: layout right, shapes simpler than the reference (stars read as 6-point, tree less feathered, corner pinks flat, diagonal corner lines only approximate). No 3D file, no slicing yet.
