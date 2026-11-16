@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-16 (cloud) — Gemini (phone app) could not read the zip pack: sent the images and PROMPT.txt as loose files
+- Gemini replied "contains binary or file data listings" to the zip upload. For GPT / Gemini the files must be uploaded one by one and the prompt pasted as text. CLAUDE.md hand-off rule updated with this exception.
+
 ## 2026-11-16 (cloud) — owner: Gemini prompt for 3 new FRAMES around the verse (same size, same stitch style)
 - Pack `cad/out/bookmark_emb/gemini_frames/bookmark_frames_GEMINI_pack.zip` (not in git): reference with verse, the current frame as an exact 50 x 182 px grid (white / navy / pink / green hole), a zones guide, PROMPT.txt (3 frames A geometric tatreez / B floral vine / C stars; verse zone cols 9-40 rows 15-157 must stay EMPTY: the verse is added by us with the real font; hole fixed; 4 flat colours; left-right symmetric; one connected navy shape; outputs 1 px / 12x / preview) + README.
 - When the 1 px PNGs come back: check 50 x 182 + 4 colours + symmetry, put them into the dhikr builder (`cad/bookmarks/stitch_frame_verse_smooth.py` takes `stitch_grid_182_v4.npy`; needs a variant that loads the new frame grid instead), build 3 x 3MF, print_test, slice, zip.
