@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-16 (cloud) — owner: empty the inside of the navy/pink stitch bookmark and write "ألا بذكر الله تطمئن القلوب" along its length
+- Grid v4 cleared inside (rows 15-157 x cols 9-40 + lower-star leftovers + stray pink), frame / zigzag / corners kept. Text: one line, Aref Ruqaa (owner's font, scratchpad only), real shaped Arabic via `shape_run`, scale 1.54, 124 x 21 mm, rotated 90 deg CCW (reads top to bottom), centred (y 31-156 mm), +0.2 mm per side, raised 0.6 mm navy, no diacritics. A two-line layout was too short (only 42 mm long at the 13.5 mm height limit): one long line fills the length.
+- `cad/out/bookmark_emb/Bookmark_Dhikr_182.3mf`: base 1 piece, main 21, accent 8 pieces, all watertight; `print_test` 0 problems / 0 notes; plain CLI slice 36 min / 17.5 g / 3 changes. Pack `bookmark_dhikr_182_print_pack.zip` (not in git). Script `cad/bookmarks/stitch_frame_verse.py` (needs the owner's font file path and `stitch_grid_182_v4.npy`).
+- Left: owner's verdict (font, size, text colour, diacritics, pink accents).
+
 ## 2026-11-16 (cloud) — green/red stitch bookmark: both roses redrawn (owner circled the blobby roses: "make the roses closer to the original")
 - Tried extracting the roses with a fitted stitch grid per rose (cell 4.75-5.6 px, purity ~0.43): the photo's grid is not regular (AI image), result noisy -> dropped. Replaced by a parametric stitch-style rose (18 x 19 cells, octagon metric: ring d 4.9-9.3, white gap, bowl d < 3.7 + T for the top rose / arch + bud for the bottom rose, notches), placed at rows 20-38 / 145-163, cols 16-33. In `cad/out/bookmark_grn/` (script scratchpad-only).
 - Result: roses read as heavy rings with a notch and inner shapes, but still simplified (look a bit like faces); not the photo's swirl. Honest next step: hand-drawn pixel art of each rose with the owner marking what to change.
