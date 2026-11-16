@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-16 (cloud) — owner's GPT-made `Bookmark_1_Navy_Pink.3mf` / `Bookmark_2_Green_Red.3mf` checked and cleaned
+- GPT traced two product photos (cross-stitch style, tree + stars / roses + poinsettias) into voxel meshes (0.25 mm pixels): 64 MB XML each, ~950k faces (base alone 581k), coloured parts not watertight (corner-touching voxels), single-pixel specks (0.037 mm3), project flush matrix 16 with `filament_map` all 1 (purge-matrix error as soon as a filament goes to the right nozzle). They do slice as-is on one nozzle: 52 min / 18.6 g and 48 min / 18.1 g, 3 changes; `print_test`: not watertight + thin-feature note.
+- Cheap repair (scratch script): top faces -> 0.25 mm mask -> smoothed contour -> polygons; base = filled outline of the frame (no white corners outside it) minus the hole; opening 0.2 mm + pieces under 1 mm2 dropped; `simplify(0.04)` (without it one degenerate sliver made a part non-watertight); project via `build_project_settings`, map 1,1,1,2, tower 230/100.
+- Result `cad/out/bookmark_flowers/gpt_fixed/`: BM1 48 min / 18.6 g, BM2 44 min / 18.2 g, 3 changes each, all parts watertight, `print_test` 0 problems / 0 notes, files 1.3 MB and 0.9 MB. Shapes are the GPT trace (edges soft / blobby, not crisp like the photos). Sent `bookmarks_GPT_fixed_print_pack.zip`.
+- Left: owner's verdict on the look; a crisp version would need a clean redraw (pixel grid + straight diagonals), not a trace.
+
 ## 2026-11-16 (cloud) — owner's two cross-stitch bookmarks checked (`Bookmark_1_Blue_Pink_White_v2.3mf`, `Bookmark_2_Green_Red_White_v2.3mf`, made elsewhere)
 - Both are Bambu-format projects (H2D, 4 x PLA Basic, flush matrix 32, tower 230/100, map 1,1,1,2 with slot 4 black unused): 50 x 182 x 1.8 mm, white base 1.2 (slot 1) + raised 0.6 main (slot 2) + accent (slot 3), tassel hole with ring. Every part watertight, no open bodies, nothing thinner than 0.7 mm; `print_test` 0 problems / 0 notes on both.
 - Plain CLI slice of each file as-is: BM1 43 min / 18.7 g / 3 changes; BM2 37 min / 18.2 g / 3 changes; no slicer warnings. Cosmetic only: two tiny stray main-colour cells in the bottom corners of each, main colour overhangs the base edge by 0.01 mm.
