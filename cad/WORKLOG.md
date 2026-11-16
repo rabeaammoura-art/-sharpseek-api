@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-16 (cloud) — Gemini designs 5 and 1 cleaned; why the Gemini files are slow
+- Why 62-99 min (ours 36-46): (a) their top is a FLAT INLAY: the background colour is raised too, so all 3 colours print in each of the 3 top layers = 5 filament changes + longer flush (7.1 vs 4.6 min); (b) 0.25 mm voxel edges: outer walls 10.6 vs 2.8 min, travel 13.6 vs 7.2 min, ~300 specks; (c) 2.0 mm instead of 1.8; (d) bridges 6.5 min in D3 (cause not found).
+- `cad/bookmarks/clean_gemini_voxel.py` (args: scratch dir with `Dn_1/2/3.stl` of the three parts, out dir, tag, name, 3 hex colours, mode `relief|inlay`; env `OPEN3=1` removes hairline colour-3 strokes): masks from the faces at z 2.0 (0.25 mm grid), one label per pixel, specks < 0.8 mm2 reassigned, upsample x4 + gaussian 0.19 mm + argmax, contours -> polygons, slab = outer outline minus the tassel hole (small tassel hole only, filled other holes), everything clipped to the slab, 4 parts, `build_project_settings`.
+- Results (PLA Basic, as-is slice): D5 relief 40 min / 16.8 g / 3 changes (inlay 67 min / 22.4 g / 5), D1 relief 44 min / 18.2 g / 3 changes (inlay 63 min / 22.2 g / 5); files 1.1-1.3 MB (were 60-74 MB). `print_test` clean (D5 has a thin-feature note: some colour strokes under 0.7 mm). Packs `Design5_Floral_CLEAN_print_pack.zip`, `Design1_Palestinian_CLEAN_print_pack.zip` in `cad/out/gemini_clean/` (not in git).
+- Left: owner's verdict; D2 / D3 / D4 can be cleaned the same way (D4: name says gold, no gold part).
+
 ## 2026-11-16 (cloud) — owner's five Gemini-made verse bookmarks checked ("HTPWIL" = "افحصهن" typed on the English layout)
 - Files `Design_1..5_..._50x182mm_FIXED.3mf`: plain 3MF (no project settings, 3 separate objects, no filament slots), 60-74 MB XML each, ~900k faces (0.25 mm voxel meshes). 50 x 182 x 2.0 mm (base 1.4 + raised 0.6 = 0.2 mm thicker than our 1.8), the verse is inside the design (text drawn by Gemini, reads correctly), colours by name: D1 white/purple/pink, D2 white/green/red, D3 black/gold/red, D4 olive/white/green (name also says gold, no gold visible), D5 black/white/red.
 - Meshes: all parts watertight, no open bodies. Specks: Color3 has ~300 single-pixel bodies (< 0.1 mm3, 0.25 mm squares) in D1 / D3 / D4, D5 Color2 has 278, D2 almost none; D5 also has hair-thin red outline lines at the frame edges. Not `print_test`-ed (too heavy), checked by slicing.
