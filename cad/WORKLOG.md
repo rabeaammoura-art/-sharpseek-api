@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-16 (cloud) — embroidery bookmark: owner wants it to look like the ORIGINAL embroidery photo; layer-mask pack for GPT
+- Clarified: "like the original design" = the navy/pink embroidery photo (not the cross-stitch grid, not the blobby trace). Wrongly sent the cross-stitch EXACT pack first (grid CSV + vines); ignore it for this job.
+- Plan: GPT draws 3 aligned pure black/white masks (outline, navy, pink) on the same 1200 x 3338 canvas (50 x 139 mm), solid areas, crisp, min line 0.8 mm / gap 0.6 mm; Claude converts with `stencil_to_stl.py` (needs a `--like OUTLINE` option so all layers share the outline's bbox scale; not written yet) into white base 1.2 + navy 0.6 + pink 0.6, 3MF with `build_project_settings`. Pack: `cad/out/bookmark_emb/bookmark_embroidery_LAYERS_pack.zip` (not in git: contains the owner's reference photo).
+- Left: owner brings A/B/C images -> convert, print_test, slice, zip.
+
 ## 2026-11-16 (cloud) — owner rejected my parametric embroidery redraw ("does not look like our previous design at all")
 - "Previous design" = the cleaned GPT trace (it resembled the picture, only its edges were soft). The parametric draft (`cad/bookmarks/embroidery_navy_pink.py`) is parked. Lesson: for organic/embroidery pictures keep the traced shapes, do not redraw them by hand.
 - Sharper re-trace of the two GPT files (8x upsample, sigma 4.5 = 0.14 mm, opening 0.12 mm): `cad/out/bookmark_flowers/gpt_sharp/`: BM1 50 min / 18.7 g, BM2 45 min / 18.1 g, 3 changes each, watertight, `print_test` 0 problems. Only marginally crisper: the softness comes from GPT's 0.25 mm voxel source. Known flaw from GPT's data: the tassel hole is cut into the edge of the navy frame (crescent), no ring around it; an attempt to add a ring found no closed hole in the base trace (0 rings) and was reverted.
