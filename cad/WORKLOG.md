@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-16 (cloud) — stitch embroidery bookmark: white corners removed (owner: "الزوتيا البيضة بلاها" = understood as the white corners outside the rounded navy frame; not confirmed)
+- Base now = filled outline of the navy frame minus the hole (6885 mm2 instead of the 6950 mm2 rectangle). Same results: watertight, `print_test` 0 problems, slice 39 min / 14.9 g / 3 changes. Pack regenerated.
+
 ## 2026-11-16 (cloud) — owner: "I want it in the style of THIS file" (`Bookmarks_2and3_hole_v3.3mf`): stitch version of the embroidery built by me, no GPT
 - Owner was angry that I kept sending other things. The style = our flower bookmark files (white base 1.2 + raised 0.6 stitches, 1 mm per stitch, 4 slots, map 1,1,1,2, tower 230/100). Built the navy / pink embroidery in that style: photo -> 50 x 139 cell grid (majority colour per cell, left-right symmetry average, lone cells dropped), tassel hole 4.4 mm + ring, parts offset 0.02 mm so corner-touching cells stay watertight.
 - `cad/out/bookmark_emb/Bookmark_Embroidery_Stitch.3mf`: 50 x 139 x 1.8; parts watertight, `print_test` 0 problems / 0 notes; plain CLI slice 39 min / 14.9 g / 3 changes. Pack `bookmark_embroidery_STITCH_print_pack.zip`.
