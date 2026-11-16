@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-16 (cloud) — green/red stitch bookmark: both roses redrawn (owner circled the blobby roses: "make the roses closer to the original")
+- Tried extracting the roses with a fitted stitch grid per rose (cell 4.75-5.6 px, purity ~0.43): the photo's grid is not regular (AI image), result noisy -> dropped. Replaced by a parametric stitch-style rose (18 x 19 cells, octagon metric: ring d 4.9-9.3, white gap, bowl d < 3.7 + T for the top rose / arch + bud for the bottom rose, notches), placed at rows 20-38 / 145-163, cols 16-33. In `cad/out/bookmark_grn/` (script scratchpad-only).
+- Result: roses read as heavy rings with a notch and inner shapes, but still simplified (look a bit like faces); not the photo's swirl. Honest next step: hand-drawn pixel art of each rose with the owner marking what to change.
+- Re-test: parts watertight, `print_test` clean, slice re-run (see chat numbers); pack regenerated.
+
 ## 2026-11-16 (cloud) — green / red bookmark in stitch style at 182 mm (owner: "do this one with the same idea, same length")
 - Source: the owner's green/red embroidery photo (765 x 1024, bookmark box x 255-530, y 78-988, 3.3:1). Same pipeline as the navy one but sampled straight to 50 x 182 cells (vertical stretch 1.1, no inserted rows): green = G-R > 22 mask, red = R-G > 70, thresholds 0.30 (green) / 0.40 (red; 0.52 kept the rose lines but broke the stars, 0.30 lost the rose spirals), left-right symmetry average, lone cells dropped, base = filled outline of the green frame minus the hole (without the -0.02 buffer: that made the base non-watertight here).
 - `cad/out/bookmark_grn/Bookmark_GreenRed_Stitch_182.3mf`: 50 x 182 x 1.8; base 1 piece, green 6, red 9 pieces, all watertight; `print_test` 0 problems / 0 notes; plain CLI slice 46 min / 18.6 g / 3 changes. Pack `bookmark_greenred_STITCH_182_print_pack.zip` (not in git). Known flaws: both roses become blobs with a few white marks (spirals lost at 1 mm per stitch), poinsettias less pointed, lattice diamonds partly merged, tassel ring thin. Left: owner's verdict; hand-drawing roses / flowers on the grid is the fix.
