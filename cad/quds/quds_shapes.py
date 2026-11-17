@@ -2,7 +2,7 @@
 
 All numbers are in the picture's own pixels (1086 x 1448, y down), measured on zoomed crops / mask profiles.
 Black = one connected cut-out piece, cream = through holes, gold = plate under the dome grid.
-The olive branches are the only traced part (organic silhouettes); they come from quds_leaves.py (needs the picture).
+The olive branches are drawn in quds_branches.py (clean leaves on measured spines).
 """
 import numpy as np
 from shapely import affinity
@@ -235,21 +235,16 @@ def frame():
     return box(*FRAME_OUT).difference(box(*FRAME_IN))
 
 
-def build(leaves=None):
-    """-> dict(black, gold, plate) in picture pixels.  `leaves` = traced olive branches (quds_leaves.py)."""
+def build():
+    """-> dict(black, gold, plate, veins) in picture pixels."""
+    from quds_branches import branches
     d_black, gold, plate = dome()
     parts = [frame(), d_black, floor()]
     for body, holes in (drum(), front()):
         parts.append(body.difference(holes))
     wb, wh = wing()
     parts += [wb.difference(wh), mir(wb.difference(wh), 557.0 - FX)]
-    black = unary_union(parts)
-    if leaves is not None:
-        black = unary_union([black, leaves.buffer(0.7)])
-        black = black.buffer(1.0, join_style=2).buffer(-1.0, join_style=2)      # close hairline gaps at the seams
-        near = leaves.buffer(3.0)                                               # tiny leftover holes next to the leaves
-        black = unary_union([Polygon(g.exterior, [r for r in g.interiors
-                                                  if not (Polygon(r).area < 60 and Polygon(r).intersects(near))])
-                             for g in getattr(black, "geoms", [black])])
-    black = black.intersection(box(*FRAME_OUT)).buffer(0)
-    return {"black": black, "gold": gold.difference(black), "plate": plate}
+    leaves, veins = branches()
+    inside = box(*FRAME_OUT)
+    black = unary_union(parts + [leaves]).intersection(inside).buffer(0)
+    return {"black": black, "gold": gold.difference(black), "plate": plate, "veins": veins.intersection(box(*FRAME_IN))}
