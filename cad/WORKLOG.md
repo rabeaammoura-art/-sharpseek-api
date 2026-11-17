@@ -11,6 +11,7 @@ Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what wa
 - Owner: it is for himself, not for sale; asked to cut the time. Slices (H2D, PLA, tower): 0.24 + 8 % infill 4h38m; 0.28 + 8 % 4h11m; 0.28 + lightning infill 10 % + 3 top layers 3h47m / 92 g (0.24 with the same 4h15m); same fast settings at 130 mm 2h43m / 66 g. Colour swaps cost little here (single colour 0.28 was 4h20m without the hollow); the second nozzle for yellow changed nothing.
 - Second third-party file (Dome of the Rock 4 colours, licence BY-SA, colours = 3 separate parts + painting): 119 x 119 x 70 mm; designer's P1S slice 0.12 mm 4h55m / 101 g. On H2D with the fast settings (0.28, lightning 10 %, 3 top layers, tower): as-is 2h16m / 52 g; scaled to 150 mm wide (88 mm high) 3h18m / 83 g, floating-cantilever warning. Not print-tested.
 - Same 4-colour model, lightning 10 % + 3 top layers + tower, other layer heights: 150 mm 0.20 3h58m / 81 g, 0.24 3h36m / 86 g (0.28 3h18m); 120 mm 0.20 2h30m, 0.24 2h18m (0.28 2h16m).
+- 150 mm, 0.24, 15 % infill, 3 top layers: gyroid (designer's pattern) 6h34m / 165 g; lightning 3h39m / 88 g (lightning 10 % was 3h36m).
 - `cad/bambu_slice.py`: the flush matrix is now rebuilt to the right size for any filament count (3 colours used to fail with "Flush volumes matrix do not match").
 - Drum squares of the wall art (v3): owner asked to tie them at the top too; mock-up with 2 short bridges per square shown, waiting for his yes.
 
