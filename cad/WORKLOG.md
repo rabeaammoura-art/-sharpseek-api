@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-17 (cloud) — Dome of the Rock wall art (new product idea): flat 2D preview
+- Owner sent a reference picture (black cut-out frame, Dome of the Rock, olive branches, gold dome) and a MakerWorld-style 3MF (flat 3 mm line-art decor, 192 x 292 mm) as the style to follow. Decision: black = one cut-out piece, dome gold printed in the same part (no glue).
+- `cad/quds/quds_shapes.py`: clean parametric redraw in picture pixels (frame, dome grid, drum panels, frieze lattice, arcade, side faces in perspective, paving lines), left half mirrored. `cad/quds/quds_leaves.py`: olive branches traced from the picture (needs the picture; picture and trace are NOT in git). Result: black is 1 connected piece; thinnest black line 1.2 mm at 290 mm height (drum diamond ties 1.05 mm); target size about 200 x 290 mm.
+- Changes vs the picture on purpose: floating black diamonds (drum, frieze) got ties / became plain lattice so nothing is loose; right half of the building = mirror of the left; dome meridians evenly spaced.
+- Left: owner's marks on the 2D preview, then 3D (3 mm black + thin gold layer under the dome grid), `/3d-print-test`, `/3d-cost`. Not sliced, not print-tested. Launch plan unchanged (this is an extra design, not ahead of the three launch products).
+
 ## 2026-11-14 (cloud) — torso pen holder: crane back to blue (owner's decision)
 - After the fixes the yellow-crane version sliced 5h41m / 114.1 g. Owner then asked for the crane in blue: whole crane (mast on the pedestal included) in slot 1 with the torso; buildings + name yellow, pedestal black, no printed gloves. Both names built at 100 mm, files not in git.
 - Slice (0.28, 8 %, 2 loops, tree supports, tower 30 mm): 5h53m / 116.7 g; Bambu Studio: 3 overhang regions without support. Not print-tested, no price (sheet not in this session).
