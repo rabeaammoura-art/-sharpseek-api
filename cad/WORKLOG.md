@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-17 (cloud) — Dome of the Rock wall art: owner's final picture (v3) traced
+- Owner rejected the redraw of the first picture (leaves) and made a new flat picture with GPT (his bold design + outlined olive leaves, less black). He chose it as the best version. His marks: thicken thin lines (OK), leaf tips only a little, crescent instead of the ring on the dome.
+- `cad/quds/quds_v3.py picture.png out.json`: direct trace of the flat picture (4x upsampling, white gaps under 0.8 mm closed, dome grid kept whole and slightly fattened, ring replaced by a parametric crescent). Result: black = 1 piece, no loose parts (the arch stars are openings, not islands); frame 1043 x 1410 px -> about 215 x 290 mm; thinnest black about 1.2 mm. The picture is not in git.
+- `quds_shapes.py` / `quds_branches.py` (first picture) are kept but parked.
+- Left: owner's OK on the v3 2D preview, then 3D (3 mm black + thin gold layer under the dome grid), `/3d-print-test`, `/3d-cost`. Not sliced, not print-tested.
+
 ## 2026-11-17 (cloud) — Dome of the Rock wall art (new product idea): flat 2D preview
 - Owner sent a reference picture (black cut-out frame, Dome of the Rock, olive branches, gold dome) and a MakerWorld-style 3MF (flat 3 mm line-art decor, 192 x 292 mm) as the style to follow. Decision: black = one cut-out piece, dome gold printed in the same part (no glue).
 - `cad/quds/quds_shapes.py`: clean parametric redraw in picture pixels (frame, dome grid, drum panels, frieze lattice, arcade, side faces in perspective, paving lines), left half mirrored. Result: black is 1 connected piece; thinnest black line 1.2 mm at 290 mm height (drum diamond ties 1.05 mm); target size about 200 x 290 mm.
