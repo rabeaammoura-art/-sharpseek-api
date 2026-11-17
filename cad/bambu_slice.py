@@ -93,7 +93,7 @@ def flatten(kind: str, name: str) -> dict:
 
 def plate_center(machine: dict) -> tuple:
     """Centre of the first extruder's area (an object must fit one nozzle's area on H2D)."""
-    area = machine.get("extruder_printable_area", [",".join(machine["printable_area"])])[0]
+    area = (machine.get("extruder_printable_area") or [",".join(machine["printable_area"])])[0]
     pts = [tuple(map(float, p.split("x"))) for p in area.split(",")]
     xs, ys = [p[0] for p in pts], [p[1] for p in pts]
     return (min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2
