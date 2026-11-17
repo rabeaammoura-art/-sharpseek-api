@@ -35,6 +35,7 @@ The repo is **public** — never commit purchase prices, the price sheet, produc
 - **CLI vs GUI times differ (both ways, up to about 20-30 %):** dome 150 mm fast file: CLI 3h22m, laptop GUI 3h46m (2026-11-17). Treat CLI times as rough; the owner's Bambu Studio number wins.
 - **Owner's printer setup:** one AMS (4 slots) on the **left** nozzle, nothing on the right. Multi-colour files for him: filament map Manual, all colours on nozzle 1.
 - **3MF files for the laptop GUI:** list every changed process key in `different_settings_to_system` (first entry, `;`-separated), otherwise Bambu Studio resets them to the stock preset.
+- **Before the owner presses Print** (owner was angry 2026-11-17 when I suggested a test-first order only after the print had started): when sending files for a new, untested design, say up front in the same message which part to print first as a test and why, never afterwards.
 - Priorities: **print time matters more than cost**; no glue; no thicker base; avoid loose separate pieces; the owner likes things shown as images.
 - Prices come only from `cad/config/filament_prices.xlsx` (git-ignored; ask the owner to upload `3D_ZONE_TECH_Filament.xlsx` if missing). PLA = PLA+.
 - Plaque is printed front face up (relief on top, back on the bed). A 300 mm multi-colour plate + prime tower does not fit the H2D: **max coloured size is about 290 mm** (the generator warns above that; recommended ladder 150/200/250/280).
