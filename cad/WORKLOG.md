@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-17 (cloud) — mini Dome of the Rock 3D model (third-party file) checked at 150 mm; slicer fix
+- Owner sent a MakerWorld 3MF (mini Dome of the Rock, painted 3 colours, licence BY-NC-ND = no selling, no changes). In the file: 70 x 70 x 52 mm (35 % of 200 x 200 x 150). File not in git.
+- Scaled copy to 150 x 150 x 112 mm, sliced H2D 0.20 Standard, PLA, prime tower: 5h30m / 137 g (third painted colour came out 0 g, so a little more time with it). Bambu Studio warns: floating cantilever (may need supports). Not print-tested.
+- `cad/bambu_slice.py`: the flush matrix is now rebuilt to the right size for any filament count (3 colours used to fail with "Flush volumes matrix do not match").
+- Drum squares of the wall art (v3): owner asked to tie them at the top too; mock-up with 2 short bridges per square shown, waiting for his yes.
+
 ## 2026-11-17 (cloud) — Dome of the Rock wall art: owner's final picture (v3) traced
 - Owner rejected the redraw of the first picture (leaves) and made a new flat picture with GPT (his bold design + outlined olive leaves, less black). He chose it as the best version. His marks: thicken thin lines (OK), leaf tips only a little, crescent instead of the ring on the dome.
 - `cad/quds/quds_v3.py picture.png out.json`: direct trace of the flat picture (4x upsampling, white gaps under 0.8 mm closed, dome grid kept whole and slightly fattened, ring replaced by a parametric crescent). Result: black = 1 piece, no loose parts (the arch stars are openings, not islands); frame 1043 x 1410 px -> about 215 x 290 mm; thinnest black about 1.2 mm. The picture is not in git.

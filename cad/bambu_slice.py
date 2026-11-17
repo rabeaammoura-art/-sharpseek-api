@@ -122,6 +122,12 @@ def prepare_3mf(src: Path, filament_files: list, part_dir: Path, base_cmd: list,
     for k in PER_FILAMENT_SINGLES:
         if isinstance(cfg.get(k), list) and len(cfg[k]) == 1:
             cfg[k] = cfg[k] * n
+    # flush matrix: one n x n block per extruder; the cube project keeps a 16-entry default that only fits 4 filaments
+    n_ext = max(1, len(cfg.get("nozzle_diameter", ["0.4"])))
+    fm = cfg.get("flush_volumes_matrix")
+    if isinstance(fm, list) and len(fm) not in (n * n, n_ext * n * n):
+        cfg["flush_volumes_matrix"] = ["0" if i == j else "280" for _ in range(n_ext) for i in range(n) for j in range(n)]
+        cfg["flush_multiplier"] = ["1"] * n_ext
     # nozzle: one number = every colour on that nozzle (1 left, 2 right); a list = one nozzle per filament slot, e.g. [1, 1, 2, 2]
     nz = [str(v) for v in nozzle] if isinstance(nozzle, (list, tuple)) else [str(nozzle)] * n
     cfg["filament_map_mode"], cfg["filament_map"] = "Manual", nz
