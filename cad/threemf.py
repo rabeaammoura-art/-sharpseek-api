@@ -55,6 +55,9 @@ def build_project_settings(template_bytes, colours, tower=None, nozzle=1):
     fm = cfg.get("flush_volumes_matrix")
     if fm and len(fm) == n * n:       # H2D has two nozzles: Bambu Studio wants one flush matrix per nozzle (else "partial purging volume set to 0")
         cfg["flush_volumes_matrix"] = list(fm) * 2
+    elif fm and len(fm) != 2 * n * n:  # template made for another filament count (e.g. 4): rebuild, or the CLI stops with "Flush volumes matrix do not match"
+        cfg["flush_volumes_matrix"] = ["0" if i == j else "280" for _ in range(2) for i in range(n) for j in range(n)]
+        cfg["flush_multiplier"] = ["1", "1"]
     cfg["skirt_loops"], cfg["brim_type"] = "0", "no_brim"
     cfg["enable_prime_tower"] = "1" if tower else "0"
     if tower:

@@ -5,6 +5,13 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-17 (cloud) — lit Dome of the Rock (owner's personal piece): hollow PETG body + PLA lid, 5 mm LED
+- Owner's idea: translucent blue PETG, hollow, 5 mm LED inside; roof + dome as a separate lid for maintenance. Built from the BY-SA 4-colour model at 150 mm (third-party mesh and outputs in scratch only, not in git).
+- Body: walls 3.4 mm, floor 2.4 mm, centre LED holder (5.3 mm hole, legs through the floor), cable groove under the base, 2 mm locating lip on top (lid groove, 0.35 mm clearance, no glue). Split 4 mm (unscaled) under the roof recess so the lid keeps a solid floor.
+- Glow plan approved by the owner (flat wall drawings): every arched window and the 4 entrance doors thinned from inside to about 0.8-1.3 mm (outside unchanged); lower panels about 1.2 mm; the small door on the plain sides is a through hole in the source mesh -> plugged to panel thickness (owner did not want it to glow). First try that opened the windows right through was rejected. Ray check: 0 through-holes.
+- Files: Dome_LED_BODY_PETG.3mf (0.24, 6 walls, 0 % infill) CLI 2h52m / 64 g; Dome_LED_LID_PLA.3mf (blue PLA + Silk gold dome, lightning 15 %, 5 top layers, fast speeds) CLI 2h09m / 64 g. Both in one job on two nozzles: CLI 5h47m (slower than two jobs). Overhang warnings come from the source model (designer prints it without supports). Not print-tested.
+- `cad/threemf.py`: flush matrix rebuilt when the template was made for another filament count (2-colour files failed to slice).
+
 ## 2026-11-17 (cloud) — mini Dome of the Rock 3D model (third-party file) checked at 150 mm; slicer fix
 - Owner sent a MakerWorld 3MF (mini Dome of the Rock, painted 3 colours, licence BY-NC-ND = no selling, no changes). In the file: 70 x 70 x 52 mm (35 % of 200 x 200 x 150). File not in git.
 - Scaled copy to 150 x 150 x 112 mm, sliced H2D 0.20 Standard, PLA, prime tower: 5h30m / 137 g (third painted colour came out 0 g, so a little more time with it). Bambu Studio warns: floating cantilever (may need supports). Not print-tested.
