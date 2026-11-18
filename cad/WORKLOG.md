@@ -11,6 +11,62 @@ Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what wa
 - `"frame_glow": true` (glow_cap): opening under the frame ring; base kept around the 2 nut pockets (r = pocket + 1.8 mm) and 6 bridges (4 corners + top / bottom middle, 3.6 units). Opening area 4387 -> 8691 mm2, uncovered 0, base pieces 23, watertight, `print_test` 0 problems, interference with the box 0. Base is thinner now: plaque slice 2h56m / 93 g (was 3h34m / 101 g). The 0.4 mm outer rim of the base around the frame opening is only one extrusion line wide: check in Studio that it is not dropped.
 - Left: hardware photos -> decide fixing, Fusion verification of box pocket / module / leg / pin, real print of the coupon.
 
+## 2026-11-14 (cloud) — torso pen holder: crane back to blue (owner's decision)
+- After the fixes the yellow-crane version sliced 5h41m / 114.1 g. Owner then asked for the crane in blue: whole crane (mast on the pedestal included) in slot 1 with the torso; buildings + name yellow, pedestal black, no printed gloves. Both names built at 100 mm, files not in git.
+- Slice (0.28, 8 %, 2 loops, tree supports, tower 30 mm): 5h53m / 116.7 g; Bambu Studio: 3 overhang regions without support. Not print-tested, no price (sheet not in this session).
+- Left: owner's final OK, real filament colours from stock, price sheet for the cost.
+
+## 2026-11-14 (cloud) — torso pen holder: owner's two marks fixed (jib tip, specks above the right building)
+- Owner circled the blue jib end of the crane and small yellow specks above the right building. Crane outline widened over the top of the jib (to -94.5 deg, up to z 28-31.5, threshold 2.4 mm) -> whole crane yellow; building parts under 3 mm3 dropped and the right wedge starts at -49.2 deg (plate tip sliver gone). Both names rebuilt; re-sliced (time in the next entry / chat). Files not in git.
+
+## 2026-11-14 (cloud) — torso pen holder: tower crane coloured too
+- Owner asked for the tower crane as well. Whole crane (mast on the pedestal + the part in front of the jacket, z 21.5-34) moved to slot 3 with the buildings and the name (yellow); colour not specified by the owner, yellow chosen to keep 2 colours per layer. Crane top = torso inside a traced angle / z outline (-150..-104 deg) and more than 2.6 mm outside the back-side radius, largest piece only. Both names built, files not in git.
+- Slice (same fast settings, tower 30 mm): 5h42m / 114.2 g (without the crane colour 4h50m / 106.6 g). The crane keeps colour swaps running up to z 34. Bambu Studio: 3 overhang regions without support. Not print-tested, no price.
+- Left: owner's OK on crane colour, real filament colours, price sheet.
+
+## 2026-11-14 (cloud) — torso pen holder: owner went back to example 3 + coloured buildings
+- Owner's choice: example 3 (torso blue, pedestal black, name yellow) with the buildings coloured too; no printed gloves. Built for both names at 100 mm: slot 1 torso (crane above the pedestal stays blue), slot 2 pedestal + crane mast, slot 3 buildings + name. Files not in git.
+- Slice (0.28, 8 %, 2 loops, tree supports, tower 30 mm): 4h50m / 106.6 g (example 3 without the buildings was 4h18m; single colour 3h56m). Bambu Studio: 3 overhang regions without support. No price (sheet not in this session). Not print-tested.
+- Left: owner's OK, real filament colours from stock, price.
+
+## 2026-11-14 (cloud) — torso pen holder coloured like the owner's reference render (blue / black / yellow)
+- Owner sent a render: blue jacket, black pedestal, black gloves, blue crane, yellow buildings and name. Built at 100 mm for both names (3 slots: 1 blue = torso + crane mast, 2 black = pedestal + gloves, 3 yellow = buildings + name). Files not in git.
+- How: gloves = two traced front outlines (right fingers x 23-38 / z 53-64.5, left glove + cuff bands x -21..-3 / z 45-58) as a 1.6 mm skin; buildings / crane mast = pedestal relief above the local wall surface (unrolled radius map from sections every 0.5 mm, wall = 10th percentile per angle, running minimum, +0.45 / 0.7 mm) inside angle wedges (-164..-132.8, -132.5..-124.8, -50.5..-21.5).
+- Slices (0.28, 8 %, 2 loops, tree supports, tower 30 mm): as the picture 7h30m / 141 g; crane mast on the pedestal black instead of blue 6h27m / 131 g. Reference: one glove only + name 5h15m; colours only on the pedestal about 4h20m; single colour 3h56m. Three colours in the pedestal layers and gloves up to z 64 are what costs the time.
+- Left: owner's decision between the full-colour print and the faster variants (gloves painted by hand); real filament colours; price sheet.
+
+## 2026-11-14 (cloud) — torso pen holder: visible hand in the pedestal colour (owner's request) costs about 1 h
+- Owner wants the hands in the pedestal colour. In this sculpt the arms are crossed: only the four fingers of one hand show (front, x 23-38, z 53-64.5 at 100 mm); the other hand is hidden. Hand part = torso x prism of a traced finger outline (front only, y < -15) minus a core 1.6 mm under the surface (voxel erosion) -> a 1.6 mm coloured skin, 1.8 cm3, one body.
+- Slices (same fast settings, tower 30 mm): 2 colours (torso / pedestal + hand, name in torso colour) 5h20m / 120.4 g; 3 colours 5h15m / 116.4 g. Without the hand colour it was 4h18-4h23m, single colour 3h56m. The hand makes swaps (and the tower) run up to z 64.
+- Left: owner decides: printed hand colour (+~55 min) or paint the fingers by hand; real colours; final files for both names.
+
+## 2026-11-14 (cloud) — torso pen holder 100 mm: 2 / 3 colour examples and their time
+- Owner asked how much time 2 or 3 colours add, with examples. Three example 3MFs via `threemf.write_bambu_3mf` (parts cut with `manifold3d`: name inlay 0.5 mm deep + 0.8 proud, pedestal / torso split by a plane at z 21.5): (1) body + name, (2) torso + pedestal, name in the torso colour, (3) torso + pedestal + name. Rendered side by side for the owner. Files not in git.
+- Slices (PLA Basic x4 slots, 0.28, 8 %, 2 loops, tree supports, prime tower 30 mm at x 215): (1) 4h22m / 105.8 g, (2) 4h23m / 106.0 g, (3) 4h18m / 102.1 g; single colour was 3h56m / 100.5 g. So +22-27 min whatever the number of colours, because swaps happen only in the ~25 layers of the name (the pedestal / torso change is one swap). `--nozzle-map 1,2,1,1` gave the same 4h23m (two-nozzle gain not visible in the CLI estimate).
+- Left: owner picks the example and the real colours from stock; then final files for both names + price.
+
+## 2026-11-14 (cloud) — torso pen holder: 100 mm with the pedestal, two gift copies with a raised name
+- Owner: gift for a cousin, 100 mm with the pedestal, the name must be on it, two copies (two names; names and files stay out of git). The Meshy pedestal has an empty name plate on the front (about 56 degrees wide, z 7-20.5 mm at this size) between a crane and buildings.
+- Built at 100 mm: 92.9 x 90.6 x 100, wall 2 mm, floor 3 mm, opening ~41 mm, depth 80 mm, 125 cm3, one body. Name = Baloo Bhaijaan (`shape_run`, font `ar_name`), fitted in 38 x 6.6 mm, raised 0.8 mm, wrapped on the measured plate radius profile (the plate is not a true cylinder: 40.7 mm in the middle, 41.5 at the ends).
+- `print_test`: same islands / overhangs as before, all from the original sculpt (arms, pedestal decor) -> tree supports. Slice (PLA Basic, 0.28, 8 % infill, 2 loops, tree supports): 3h56m / 100.5 g each; Bambu Studio: 3 overhang regions without support. No price (sheet not in this session). Not print-tested.
+- Left: owner's OK on the preview, filament / colour, price sheet for the cost.
+
+## 2026-11-14 (cloud) — torso pen holder: time-reduction trials (owner: 7h25m is far too long)
+- Rebuilt a true 110 mm version (102 x 100 x 110, wall 2 mm, opening 45 mm, depth 88 mm, 160 cm3). Slices, PLA Basic, tree supports: 0.20 = 5h18m / 119 g; 0.28 = 4h53m; 0.28 + 8 % infill + 2 loops + 3 top/bottom = 4h38m / 122 g; 0.20 without supports = 4h29m; lean walls / infill alone = 5h04m; mesh simplified 0.15 mm = no gain (5h25m).
+- Finding: time follows grams and size; settings give only ~40 min. Supports cost ~50 min. Parallel `bambu_slice.py` runs overwrite each other's `out/bambu/process.json` -> slice one at a time.
+- Left: owner's decision (accept ~4.5 h at 110, go smaller, or drop / change the pedestal); not tried: thinner wall (1.2 mm), 0.6 nozzle.
+
+## 2026-11-14 (cloud) — Meshy torso hollowed into a pen holder (130 mm, 2 mm wall)
+- Owner: height 130-150 is fine, walls 2 mm. Scaled 75 -> 130 mm (120.8 x 117.7 x 130). Outer mesh repaired with `pymeshfix`; cavity built from a 0.4 mm voxel grid (2 mm inside the surface, 3 mm floor, grows at most ~40 degrees going down from the collar opening, so it needs no inner support) and subtracted with `manifold3d`; underside flattened. Scripts were one-off (scratchpad), model not in git (third-party).
+- Result: one body, opening ~53 mm, depth 105 mm, 252.9 cm3 (solid was 790). `print_test`: cavity alone 0 overhangs; whole model = overhangs / islands of the ORIGINAL sculpt (hanging arms / elbow, shoulders, pedestal panels) -> needs tree supports outside.
+- Slice (PLA Basic, 0.4, tree supports, one colour): 7h25m / 175.3 g; Bambu Studio warns of 5 overhang regions that got no support. No price (sheet not in this session). Not print-tested.
+- Left: owner's choice of height (110 mm is about 5.5 h by area scaling, not sliced), filament, then re-slice + price.
+
+## 2026-11-14 (cloud) — owner's Meshy torso "pen holder" 3MF checked: NOT hollow
+- Owner uploaded a Meshy AI torso (prompt asked for a hollow pen holder) and asked to check whether it is hollow. File not in git (third-party).
+- Result: 69.7 x 67.9 x 75 mm, 1.3 M faces, volume 151.7 cm3 = fully solid; horizontal slices at 19 heights and two vertical cuts show no cavity and no opening at the neck. Mesh not watertight, 803 fragments (801 tiny), one 19 k-face loose patch near the base.
+- Left: owner's answer on final height (75 mm is too short for pens) and OK to carve the cavity ourselves (boolean pocket from the neck) + repair, then `print_test` and `/3d-cost`.
+
 ## 2026-11-14 (cloud) — nightcap plaque v2: GPT-style row of 4 boxes, icons + values only, cap clear of the frame
 - Owner: the GPT render's boxes look better; remove the label words (keep icons), lower the bear so the cap does not touch the frame line. New `"row_boxes": true` in `layout_gpt` (`_gpt_row_boxes`): 4 portrait boxes in one row (date, weight, length, time; icon on top, number big + unit small, date = day/month + year), everything above shifted down 22 units (`upper_dy`), traced 2 x 2 boxes / icons / bottom heart dropped; bear 116 x 84.
 - Checks: 4 meshes watertight, 0 uncovered opening, base islands 20 (smallest 7.8 mm2), widest bridge 14.8 mm, `print_test` 0 problems (1 note: strokes under 0.7 mm somewhere in the raised text / details), interference with `glow_box_200.stl` 0. Slice: plaque 3h34m / 101 g (was 3h40m). Units (كغم / سم / ص) kept; the label words are gone.
