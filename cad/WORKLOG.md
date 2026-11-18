@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-18 (cloud) — mechanics re-checked in Fusion (owner's request) + chamber clearance +0.2
+- Built an independent B-rep model in Autodesk Fusion (cloud session, `cad/fusion/verify_kickstand.ts`, STEP `cad/fusion/kickstand_check_200.step`): pocket block + module + leg + pin + M2 nut / screw / post of the 200 box. Fusion interference / min-distance agree with the mesh checks: module slide 0 (0.07 mm3 detent bump), leg 0 at 0-24 degrees, 4.22 mm3 at 26 (stop first touches at 24.0 degrees), pin 0, M2 fixing 0 (nut pocket gap 0.15, screw hole gap 0.2).
+- Finding: the flange rested on the lip with 0 clearance and only 0.2 mm slack behind (printing +0.1 would bind). `kickstand.py`: `CH_TOP = MOD_T + 0.4` (pad top 6.9). Regenerated the box / kickstand files for glow_cap 150 / 200 / 280 and nightcap_200; mesh checks unchanged (interference 0).
+- Fixing length (from the model): 200 = M2 nut + M2 x 14 screw (post 8 mm, hole 2.4, pocket af 4.3); 280 = M3 x 16 (post 9, hole 3.4, pocket af 5.8). Owner's nuts / screws: photos pending. Fusion verifies geometry only, not printer tolerance: a printed coupon is still needed.
+
 ## 2026-11-18 (cloud) — nightcap plaque v3: the frame glows (owner), cable = 3.4 mm slit
 - Owner's decisions: frame should glow ("خليه يضوي أفضل"); big-opening question settled (this plaque has none, widest 14.8 mm = bear body); cable slot: no plug through it, just a 3 mm full slit; hardware photos (nuts / screws) coming; wants the mechanics re-checked in Fusion.
 - Correction of my earlier statement: the glow box slot was 10 x 4.5 mm (the 14 x 8 mm was the train tray). Now `make_lit_box(glow=True)` has a 3.4 mm slit at the bottom-wall centre from z = 3 to the rim (checked by probing the mesh: no wall at x = 0 for z >= 3.5, wall intact at x = 2.5).

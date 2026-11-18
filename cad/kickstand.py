@@ -40,7 +40,7 @@ FOOT_W, FOOT_L = 28.0, 10.0
 STOP_Y0, STOP_Y1, STOP_T = 14.0, 8.0, 3.0   # stop bar between the ears, this far below the axis (from-to), thickness
 DET_X, DET_R, DET_Y = 12.0, 0.45, 5.0  # detent: bump on the neck side face, local y of the bump
 DIMPLE_R = 0.9
-LIP_T, CH_TOP, PAD_TOP = NECK_T, MOD_T + 0.2, MOD_T + 0.2 + 2.0   # pocket z levels (box frame)
+LIP_T, CH_TOP, PAD_TOP = NECK_T, MOD_T + 0.4, MOD_T + 0.4 + 2.0   # pocket z levels (box frame)
 
 
 OVERRIDE = None    # {"y_axis": .., "y_bot": ..} for non-square boxes (wedding heart); None = the square plaque box
