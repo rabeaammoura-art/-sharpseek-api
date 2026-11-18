@@ -1266,13 +1266,33 @@ def build(data):
         # a plain raised band (nothing could hold it up over an opening).
         plate_g = layers["base"][0][0]
         openings = []
+        keep_frame = None
+        if data.get("frame_glow"):
+            # the frame band glows too: its opening keeps base material around the two nut pockets and 6 bridges (4 corners + top / bottom middle), 3.6 units wide
+            nut_k = fix_spec(size)[1]
+            kr = (nut_k["af"] + 0.3) / 1.732 + 1.8
+            parts_k = [circle(x / k, y / k, kr / k) for x, y in fix_points(size)]
+            half_ = SIZE / 2
+            for sx in (-1, 1):
+                for sy in (-1, 1):
+                    c0 = (sx * (half_ - 30), sy * (half_ - 30))
+                    r0 = 30 - 5.15
+                    ang = math.atan2(sy, sx)
+                    mid = (c0[0] + r0 * math.cos(ang), c0[1] + r0 * math.sin(ang))
+                    bar = box(-1.8, -9, 1.8, 9)
+                    parts_k.append(affinity.translate(affinity.rotate(bar, math.degrees(ang) - 90, origin=(0, 0)), *mid))
+            for sy in (-1, 1):
+                parts_k.append(box(-9, sy * (half_ - 5.15) - 1.8, 9, sy * (half_ - 5.15) + 1.8))
+            keep_frame = unary_union(parts_k)
         for role in ("main", "accent", "animal"):
             capped = []
             for i, (g, z0, z1) in enumerate(layers[role]):
-                if role == "main" and i == 0 and data.get("layout") not in ("train", "horse"):
+                if role == "main" and i == 0 and data.get("layout") not in ("train", "horse") and not data.get("frame_glow"):
                     capped.append((g, z0, z1))
                 elif abs(z0 - BASE_H) < 1e-6:
                     hole = g.buffer(-CAP_OVERLAP / k, join_style=1)   # opening a bit smaller than the part itself
+                    if role == "main" and i == 0 and keep_frame is not None:
+                        hole = hole.difference(keep_frame)
                     for part in (hole.geoms if hasattr(hole, "geoms") else [hole]):
                         if not part.is_empty:
                             openings.append(add_ribs(part, k))
@@ -1400,6 +1420,9 @@ def make_lit_box(size, glow=False, leg=True, kick=False):
     ledge_top = depth - plate_t
     slot = box(-5, -half - BOX_WALL - 1, 5, -half + 1)
     z0, z1 = (4.0, 8.5) if glow else (10.0, 14.5)   # USB-C slot height band
+    if glow:                                        # owner's choice: only the cable passes (the plug stays outside): a 3.4 mm full slit, open to the top rim
+        slot = box(-1.7, -half - BOX_WALL - 1, 1.7, -half + 1)
+        z0, z1 = 3.0, depth
     tabs = unary_union([t for off in (-0.33 * size, 0, 0.33 * size) for t in (
         box(off - 15, -half - 0.1, off + 15, -half + 2.5), box(off - 15, half - 2.5, off + 15, half + 0.1),
         box(-half - 0.1, off - 15, -half + 2.5, off + 15), box(half - 2.5, off - 15, half + 0.1, off + 15))])

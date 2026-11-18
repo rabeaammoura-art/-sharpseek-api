@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-18 (cloud) — nightcap plaque v3: the frame glows (owner), cable = 3.4 mm slit
+- Owner's decisions: frame should glow ("خليه يضوي أفضل"); big-opening question settled (this plaque has none, widest 14.8 mm = bear body); cable slot: no plug through it, just a 3 mm full slit; hardware photos (nuts / screws) coming; wants the mechanics re-checked in Fusion.
+- Correction of my earlier statement: the glow box slot was 10 x 4.5 mm (the 14 x 8 mm was the train tray). Now `make_lit_box(glow=True)` has a 3.4 mm slit at the bottom-wall centre from z = 3 to the rim (checked by probing the mesh: no wall at x = 0 for z >= 3.5, wall intact at x = 2.5).
+- `"frame_glow": true` (glow_cap): opening under the frame ring; base kept around the 2 nut pockets (r = pocket + 1.8 mm) and 6 bridges (4 corners + top / bottom middle, 3.6 units). Opening area 4387 -> 8691 mm2, uncovered 0, base pieces 23, watertight, `print_test` 0 problems, interference with the box 0. Base is thinner now: plaque slice 2h56m / 93 g (was 3h34m / 101 g). The 0.4 mm outer rim of the base around the frame opening is only one extrusion line wide: check in Studio that it is not dropped.
+- Left: hardware photos -> decide fixing, Fusion verification of box pocket / module / leg / pin, real print of the coupon.
+
 ## 2026-11-14 (cloud) — nightcap plaque v2: GPT-style row of 4 boxes, icons + values only, cap clear of the frame
 - Owner: the GPT render's boxes look better; remove the label words (keep icons), lower the bear so the cap does not touch the frame line. New `"row_boxes": true` in `layout_gpt` (`_gpt_row_boxes`): 4 portrait boxes in one row (date, weight, length, time; icon on top, number big + unit small, date = day/month + year), everything above shifted down 22 units (`upper_dy`), traced 2 x 2 boxes / icons / bottom heart dropped; bear 116 x 84.
 - Checks: 4 meshes watertight, 0 uncovered opening, base islands 20 (smallest 7.8 mm2), widest bridge 14.8 mm, `print_test` 0 problems (1 note: strokes under 0.7 mm somewhere in the raised text / details), interference with `glow_box_200.stl` 0. Slice: plaque 3h34m / 101 g (was 3h40m). Units (كغم / سم / ص) kept; the label words are gone.
