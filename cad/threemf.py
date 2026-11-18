@@ -68,6 +68,8 @@ def build_project_settings(template_bytes, colours, tower=None, nozzle=1):
 
 def write_bambu_3mf(path, parts, center, name, project_settings):
     n = len(parts)
+    # filament slots on the plate: every slot of the project (e.g. a support-only filament no part uses), not just the parts' slots
+    n_fil = max(max(s for _, _, s in parts), len(json.loads(project_settings).get("filament_colour", [])))
     obj_id = n + 1
     cx, cy = center
     objects = "".join(f'  <object id="{i}" p:UUID="{_uuid()}" type="model">\n{_mesh_xml(m)}\n  </object>\n'
@@ -110,8 +112,8 @@ def write_bambu_3mf(path, parts, center, name, project_settings):
     <metadata key="plater_name" value=""/>
     <metadata key="locked" value="false"/>
     <metadata key="filament_map_mode" value="Manual"/>
-    <metadata key="filament_maps" value="{' '.join('1' for _ in range(max(s for _, _, s in parts)))}"/>
-    <metadata key="filament_volume_maps" value="{' '.join('0' for _ in range(max(s for _, _, s in parts)))}"/>
+    <metadata key="filament_maps" value="{' '.join('1' for _ in range(n_fil))}"/>
+    <metadata key="filament_volume_maps" value="{' '.join('0' for _ in range(n_fil))}"/>
   </plate>
   <assemble>
   </assemble>
@@ -120,7 +122,7 @@ def write_bambu_3mf(path, parts, center, name, project_settings):
     # would be "unprintable" for it
     cfg = json.loads(project_settings)
     cfg["filament_map_mode"] = "Manual"
-    cfg["filament_map"] = ["1"] * max(s for _, _, s in parts)
+    cfg["filament_map"] = ["1"] * n_fil
     project_settings = json.dumps(cfg, indent=4)
     with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as z:
         z.writestr("[Content_Types].xml", CONTENT_TYPES)
