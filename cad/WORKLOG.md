@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-18 (cloud) — lit dome: first assembled print, list of mistakes (owner: collect only, fixes to be agreed later)
+- Fit / design: roof gives no click (2 mm lip too short); a base lug broke (0.6 mm root); cable groove under the base too shallow (rubbing); wire notch in the LED ring not open to the plate; USB plug cannot pass the cable hole (owner cut an open slot); walls 3.4 mm too thick to glow well; cable exit in the wall is a 44 deg wide arc (light leak, bridge sag) and its position vs the entrances was not chosen; roof hollow only in the centre (outer roof solid: glows weakly, slow); total print about 6 h.
+- My process mistakes: test-print order given after the print had started; time estimates (said under 3 h, GUI 3h46m); first 3MF lost its settings in the GUI; colours auto-grouped on the right nozzle (no AMS) twice; assumed a 5 mm LED (it is a 50 mm board); screw pillars first placed in front of windows and the shadow was bigger than I said; windows opened right through without asking; one-piece shell built before checking it needs internal supports (13h46m); explanations too technical.
+- Not yet tested: base v6, dome snap, latch release pin, real glow in the dark.
+
 ## 2026-11-17 (cloud) — lit Dome of the Rock (owner's personal piece): hollow PETG body + PLA lid, 5 mm LED
 - Owner's idea: translucent blue PETG, hollow, 5 mm LED inside; roof + dome as a separate lid for maintenance. Built from the BY-SA 4-colour model at 150 mm (third-party mesh and outputs in scratch only, not in git).
 - Body: walls 3.4 mm, floor 2.4 mm, centre LED holder (5.3 mm hole, legs through the floor), cable groove under the base, 2 mm locating lip on top (lid groove, 0.35 mm clearance, no glue). Split 4 mm (unscaled) under the roof recess so the lid keeps a solid floor.
