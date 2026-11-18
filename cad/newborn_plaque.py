@@ -1114,6 +1114,7 @@ def layout_gpt(data, add, layers, k, lang, rtl):
 
 def build(data):
     global _K, BASE_H, TOP
+    FIX_MODE.update({"layout": data.get("fix_layout", "sides"), "count": int(data.get("fix_count", 2))})
     size = float(data.get("size", 300))
     _K = k = size / SIZE
     lit = bool(data.get("lit"))
@@ -1271,18 +1272,27 @@ def build(data):
             # the frame band glows too: its opening keeps base material around the two nut pockets and 6 bridges (4 corners + top / bottom middle), 3.6 units wide
             nut_k = fix_spec(size)[1]
             kr = (nut_k["af"] + 0.3) / 1.732 + 1.8
-            parts_k = [circle(x / k, y / k, kr / k) for x, y in fix_points(size)]
+            fp_ = fix_points(size)
+            parts_k = [circle(x / k, y / k, kr / k) for x, y in fp_]
             half_ = SIZE / 2
-            for sx in (-1, 1):
+            if FIX_MODE["layout"] == "topbottom":
+                # owner: 2 bridges on the top band and 2 on the bottom band; the nuts sit in some of those places, the others are plain bridges
+                for sx in (-1, 1):
+                    for sy in (-1, 1):
+                        px_, py_ = sx * 0.2 * SIZE, sy * (half_ - 5.15)
+                        if not any(abs(px_ - x / k) < 1 and abs(py_ - y / k) < 1 for x, y in fp_):
+                            parts_k.append(box(px_ - 1.8, py_ - 9, px_ + 1.8, py_ + 9))
+            else:
+                for sx in (-1, 1):
+                    for sy in (-1, 1):
+                        c0 = (sx * (half_ - 30), sy * (half_ - 30))
+                        r0 = 30 - 5.15
+                        ang = math.atan2(sy, sx)
+                        mid = (c0[0] + r0 * math.cos(ang), c0[1] + r0 * math.sin(ang))
+                        bar = box(-1.8, -9, 1.8, 9)
+                        parts_k.append(affinity.translate(affinity.rotate(bar, math.degrees(ang) - 90, origin=(0, 0)), *mid))
                 for sy in (-1, 1):
-                    c0 = (sx * (half_ - 30), sy * (half_ - 30))
-                    r0 = 30 - 5.15
-                    ang = math.atan2(sy, sx)
-                    mid = (c0[0] + r0 * math.cos(ang), c0[1] + r0 * math.sin(ang))
-                    bar = box(-1.8, -9, 1.8, 9)
-                    parts_k.append(affinity.translate(affinity.rotate(bar, math.degrees(ang) - 90, origin=(0, 0)), *mid))
-            for sy in (-1, 1):
-                parts_k.append(box(-9, sy * (half_ - 5.15) - 1.8, 9, sy * (half_ - 5.15) + 1.8))
+                    parts_k.append(box(-9, sy * (half_ - 5.15) - 1.8, 9, sy * (half_ - 5.15) + 1.8))
             keep_frame = unary_union(parts_k)
         for role in ("main", "accent", "animal"):
             capped = []
@@ -1395,8 +1405,14 @@ def fix_spec(size):
     return name, NUTS[name]
 
 
+FIX_MODE = {"layout": "sides", "count": 2}     # set from the JSON ("fix_layout": "sides" | "topbottom", "fix_count": 2 | 4) by build()
+
+
 def fix_points(size):
     band = 12.0 * size / SIZE
+    if FIX_MODE["layout"] == "topbottom":             # nuts in the top / bottom frame band, 0.2 x size left / right of the middle
+        x_, y_ = 0.2 * size, size / 2 - band / 2
+        return [(-x_, y_), (x_, -y_)] if FIX_MODE["count"] == 2 else [(-x_, y_), (x_, y_), (-x_, -y_), (x_, -y_)]
     return [(sx * (size / 2 - band / 2), 0.0) for sx in (-1, 1)]
 
 
