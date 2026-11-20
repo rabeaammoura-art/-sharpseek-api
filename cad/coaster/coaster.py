@@ -137,6 +137,7 @@ PICKS = {"bird_2hearts": [("blue", 660, 370, (0.02, -0.10), 0.58),
                           ("red", 1130, 480, (0.25, 0.17), 0.22)],
          # owner 2026-11-20: swallow (--shape-pic) higher up, the hearts trailing behind its tail
          "swallow_trail": [("blue", 660, 370, (0.07, 0.08), 0.58),
+                           ("red", 790, 830, (-0.25, 0.17), 0.24),      # owner: one more, a bit bigger, above the tail
                            ("red", 670, 195, (-0.22, -0.13), 0.19),
                            ("red", 1130, 480, (0.0, -0.27), 0.14)]}
 
