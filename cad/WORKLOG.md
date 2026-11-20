@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-20 (cloud) — heart coaster 65: upper shapes enlarged into the lobes
+- Owner asked to fill the empty top. `fill_top` grows each upper shape (up to 1.6x, small ones capped at 55% of the biggest) and shifts it up/outward, gaps >= 1.3 mm. `print_test` 0 problems, slice 35 min / 11.9 g. File replaced.
+
 ## 2026-11-20 (cloud) — heart coaster 65: drawings from the owner's heart picture
 - Owner: my re-packed shapes had broken edges; keep my heart + loop, take the drawings from his ChatGPT heart picture (not in git).
 - `coaster.py --heart 65 --heart-art PIC`: trace without buffer passes (they made beaded edges), shapes 65% / places 85%, gaps >= 1.4 mm. `print_test` 0 problems, slice 35 min / 11.9 g. Replaced `coaster_heart65.3mf`.

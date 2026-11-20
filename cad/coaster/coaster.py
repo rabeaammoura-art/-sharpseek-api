@@ -76,7 +76,7 @@ def extrude(geom, z0, z1):
     return trimesh.util.concatenate(out)
 
 
-def heart_picture_art(picture, outline, loop_keep, edge=2.4, gap=1.2):
+def heart_picture_art(picture, outline, loop_keep, edge=2.4, gap=1.2, grow_top=True):
     """drawings from the owner's heart picture (cream heart with flat red / blue / orange shapes), kept at their places,
     scaled by the picture's heart width and then fitted (common shrink + shift) inside our own heart outline"""
     img = np.array(Image.open(picture).convert("RGB")).astype(float)
@@ -118,6 +118,8 @@ def heart_picture_art(picture, outline, loop_keep, edge=2.4, gap=1.2):
     print(f"heart picture {img.shape[1]}x{img.shape[0]} px, heart {x1 - x0} px wide; shapes at {f * 100:.0f}%, places at {pos * 100:.0f}% "
           f"(height x{sq:.2f}) shifted {dy:+.1f} mm")
     placed = layout(f, sq, dy, pos)
+    if grow_top:
+        placed = fill_top(placed, inner, gap, outline)
     gaps = min(a.distance(b) for i, (_, a) in enumerate(placed) for _, b in placed[i + 1:])
     print(f"  smallest gap between shapes {gaps:.2f} mm")
     out = {}
@@ -125,6 +127,39 @@ def heart_picture_art(picture, outline, loop_keep, edge=2.4, gap=1.2):
         geo = unary_union([g for kk, g in placed if kk == k])
         out[k] = geo                                    # traced edge kept as is (no buffer passes: they make the edge beaded)
     return out
+
+
+def fill_top(placed, inner, gap, outline, max_grow=1.6, rounds=3):
+    """owner 2026-11-20: enlarge the shapes in the upper half and push them into the empty lobes.
+    Each upper shape (top first) takes the biggest scale (about its centre, up to max_grow) and a shift within 8 mm,
+    preferring up / outward, that stays inside the heart with `gap` to every other shape."""
+    ymid = outline.centroid.y
+    placed = list(placed)
+    shifts = sorted(((dx, dy) for dx in np.arange(-8, 8.01, 0.5) for dy in np.arange(-3, 8.01, 0.5)),
+                    key=lambda d: d[0] ** 2 + d[1] ** 2)
+    for _ in range(rounds):
+        order = sorted((i for i, (_, g) in enumerate(placed) if g.centroid.y > ymid), key=lambda i: -placed[i][1].centroid.y)
+        for i in order:
+            k, g = placed[i]
+            others = unary_union([h for j, (_, h) in enumerate(placed) if j != i]).buffer(gap)
+            c = g.centroid
+            best = None
+            amax = max(h.area for _, h in placed)
+            cap = min(max_grow, np.sqrt(0.55 * amax / g.area)) if g.area < 0.55 * amax else 1.15   # small shapes stay small-ish
+            for sc in np.arange(cap, 1.0, -0.05):
+                gs = affinity.scale(g, sc, sc, origin=c)
+                for dx, dy in shifts:
+                    if dx * np.sign(c.x) < -2:          # do not move towards the centre line by more than 2 mm
+                        continue
+                    gg = affinity.translate(gs, dx, dy)
+                    if inner.contains(gg) and not others.intersects(gg):
+                        best = gg
+                        break
+                if best is not None:
+                    break
+            if best is not None:
+                placed[i] = (k, best)
+    return placed
 
 
 def build(picture, heart=None, heart_art=None):

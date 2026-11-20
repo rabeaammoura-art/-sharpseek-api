@@ -26,7 +26,8 @@ Also give the same image in pure black on white.
 ## Heart version (test size)
     python cad/coaster/coaster.py PICTURE.png --heart 65 --heart-art HEART_PICTURE.png --out cad/print_files/coaster/coaster_heart65.3mf
 Current file (owner 2026-11-20): our heart outline + loop, drawings and their places from the owner's ChatGPT heart picture
-(not in git), traced with smooth edges and fitted inside (shapes 65%, places 85%, gaps >= 1.4 mm). 35 min / 11.9 g.
+(not in git), traced with smooth edges and fitted inside (shapes 65%, places 85%, gaps >= 1.3 mm); then the upper shapes
+are enlarged and pushed into the empty lobes (`fill_top`, small shapes capped). 35 min / 11.9 g.
 Older variant without --heart-art (shapes re-packed from the round picture):
 Heart 65 x 56 mm (+ hanging loop in the top notch, hole 3.6 x 5 mm, owner's mark), the same 12 shapes re-placed one by one
 inside (43% of their round size); after shrinking, gaps under 0.8 mm are closed and thin parts thickened (the butterfly
