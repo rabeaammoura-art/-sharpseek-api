@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-20 (cloud) — letter hearts A S S Y (35 mm, one letter each, one plate)
+- Owner: letters instead of the swallow, letter in the middle. `coaster.py --letters ASSY` (Baloo ExtraBold, real font), hearts kept around. Owner approved Y as is; asked A/S higher: letters may now go up to the notch (only the loop part outside the heart is kept clear), tops aligned to Y where possible (A/S apex at x=0 limit +2.9 vs Y +4.7).
+- File `heart35_ASSY.3mf` (4 objects on one plate). print_test 0 problems each. Not sliced (owner slices).
+
 ## 2026-11-20 (cloud) — hanging heart 35 with the owner's swallow
 - Owner sent a swallow picture (transparent webp, kept out of git): `--shape-pic` replaces the main shape; preset `swallow_trail` = swallow up/right + 3 red hearts trailing behind the tail (big one top-left added by owner). Shapes placed one by one at full size.
 - Files `heart35_swallow.3mf` and `heart35_swallow_set4.3mf`, print_test 0 problems. Not sliced: owner slices himself in Studio (faster for him).

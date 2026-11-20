@@ -153,7 +153,24 @@ def trace_shape(picture, smooth=1.6):
     return max(getattr(g, "geoms", [g]), key=lambda q: q.area)
 
 
-def heart_picks(picture, outline, loop_keep, preset, edge=1.6, gap=1.0, shape_pic=None):
+LETTER_TOP = 4.69   # mm above the heart centroid: top of the letter Y the owner approved (35 mm heart); all letters share it
+
+
+def letter_shape(ch, font=HERE.parent / "fonts" / "BalooBhaijaan2-ExtraBold.ttf"):
+    """one letter from a real font (never traced) -> shapely geometry centred at (0, 0)"""
+    from matplotlib.textpath import TextPath
+    from matplotlib.font_manager import FontProperties
+    tp = TextPath((0, 0), ch, size=100, prop=FontProperties(fname=str(font)))
+    rings = [Polygon(r).buffer(0) for r in tp.to_polygons() if len(r) > 3]
+    rings = sorted((r for r in rings if r.area > 1), key=lambda r: -r.area)
+    depth = [sum(1 for q in rings if q.area > r.area and q.contains(r)) for r in rings]
+    g = unary_union([r for r, d in zip(rings, depth) if d % 2 == 0]).difference(
+        unary_union([r for r, d in zip(rings, depth) if d % 2 == 1]))
+    c = g.centroid
+    return affinity.translate(g, -c.x, -c.y)
+
+
+def heart_picks(picture, outline, loop_keep, preset, edge=1.6, gap=1.0, shape_pic=None, letter=None):
     """a few shapes from the heart picture, placed at fixed spots and scaled together as big as the heart allows"""
     img = np.array(Image.open(picture).convert("RGB")).astype(float)
     r, g, b = (img[..., i] for i in range(3))
@@ -167,7 +184,10 @@ def heart_picks(picture, outline, loop_keep, preset, edge=1.6, gap=1.0, shape_pi
     mm = width / (x1 - x0)
     art = {k: mask_to_mm(m & inside, cx, cy, rpx, up=4, smooth=0.8, clean=False) for k, m in colour_masks(img).items()}
     from shapely.prepared import prep
-    inner = prep(outline.buffer(-edge).difference(loop_keep.buffer(edge)))
+    if letter:   # letters may go up to the notch: only the part of the loop outside the heart is kept clear
+        inner = prep(outline.buffer(-edge).difference(loop_keep.difference(outline).buffer(edge)))
+    else:
+        inner = prep(outline.buffer(-edge).difference(loop_keep.buffer(edge)))
     chosen = []
     for k, px, py, (tx, ty), size in PICKS[preset]:
         p = Point((px - cx) * mm, -(py - cy) * mm)
@@ -175,30 +195,40 @@ def heart_picks(picture, outline, loop_keep, preset, edge=1.6, gap=1.0, shape_pi
         c = g.centroid; bx = g.bounds
         g = affinity.translate(g, -c.x, -c.y)
         chosen.append((k, g, max(bx[2] - bx[0], bx[3] - bx[1]), (tx * width, ty * width), size * width))
-    if shape_pic:                                       # replace the first (main) shape by the owner's own picture
+    if shape_pic or letter:                             # replace the first (main) shape by the owner's picture or a letter
         k, _, _, t, sz = chosen[0]
-        g = trace_shape(shape_pic); bx = g.bounds
+        g = letter_shape(letter) if letter else trace_shape(shape_pic); bx = g.bounds
         chosen[0] = (k, g, max(bx[2] - bx[0], bx[3] - bx[1]), t, sz)
+        if letter:   # owner 2026-11-20: the letter in the middle (sized by its height), the hearts placed around it
+            chosen[0] = (k, g, bx[3] - bx[1], (0.0, 0.03 * width), 0.50 * width)
     oc = outline.centroid
 
     # one shape at a time (main shape first, at its full target size): the free spot nearest its target,
     # shrinking that shape 4% at a time only if no spot fits
     grid = [(x, y) for x in np.arange(-width / 2, width / 2, 0.25) for y in np.arange(-width / 2, width / 2, 0.25)]
     L, occ = [], None
-    for k, g, d, t, sz in chosen:
+    for i, (k, g, d, t, sz) in enumerate(chosen):
         tx, ty = oc.x + t[0], oc.y + t[1]
-        cand = sorted(grid, key=lambda p: (p[0] - tx) ** 2 + (p[1] - ty) ** 2)[:4000]
-        m = 1.0
-        while m > 0.5:
+        if letter and i == 0:            # the letter stays on the centre line (owner): only vertical moves
+            cand = sorted(((0.0, y) for y in np.arange(-width / 2, width / 2, 0.1)), key=lambda p: abs(p[1] - ty))
+        else:
+            cand = sorted(grid, key=lambda p: (p[0] - tx) ** 2 + (p[1] - ty) ** 2)[:4000]
+        m, hit = 1.0, None
+        while m > 0.3:
             g0 = affinity.scale(g, m * sz / d, m * sz / d, origin=(0, 0))
+            if letter and i == 0:        # owner 2026-11-20: every letter's top at the height of the approved Y (+4.69)
+                cand = [(0.0, oc.y + LETTER_TOP - g0.bounds[3] + dy) for dy in np.arange(0, -2.01, -0.1)]
             hit = next((q for q in (affinity.translate(g0, x, y) for x, y in cand)
                         if inner.contains(q) and (occ is None or not occ.intersects(q))), None)
             if hit is not None:
                 break
-            m -= 0.04
+            m -= 0.02
+        if hit is None:
+            print(f"  {k}: no room, left out")
+            continue
         L.append((k, hit)); occ = unary_union([q for _, q in L]).buffer(gap)
         c = hit.centroid
-        print(f"  {k}: size {m * 100:.0f}% of target, {np.hypot(c.x - tx, c.y - ty):.1f} mm from its target spot")
+        print(f"  {k}: size {m * 100:.0f}% of target, {np.hypot(c.x - tx, c.y - ty):.1f} mm from its target spot, centre y {c.y - oc.y:+.2f}, top {hit.bounds[3] - oc.y:+.2f}")
     print(f"picked {len(L)} shapes ({preset})")
     return {k: unary_union([q for kk, q in L if kk == k]) for k in COLOURS}
 
@@ -236,7 +266,7 @@ def fill_top(placed, inner, gap, outline, max_grow=1.6, rounds=3):
     return placed
 
 
-def build(picture, heart=None, heart_art=None, picks=None, shape_pic=None):
+def build(picture, heart=None, heart_art=None, picks=None, shape_pic=None, letter=None):
     img = np.array(Image.open(picture).convert("RGB")).astype(float)
     img = img[:, : img.shape[1] // 2]                       # left half = colour version
     cx, cy, rpx = find_circle(img)
@@ -247,7 +277,7 @@ def build(picture, heart=None, heart_art=None, picks=None, shape_pic=None):
     if heart and heart_art:
         outline = heart_outline(heart)
         loop, ring = hang_loop(outline, (5.6, 7.0), (2.8, 3.6)) if heart < 50 else hang_loop(outline)
-        art = heart_picks(heart_art, outline, ring, picks, shape_pic=shape_pic) if picks else heart_picture_art(heart_art, outline, ring)
+        art = heart_picks(heart_art, outline, ring, picks, shape_pic=shape_pic, letter=letter) if picks else heart_picture_art(heart_art, outline, ring)
         disc = outline.union(loop)
     elif heart:
         disc, art = pack_heart(art, heart)
@@ -350,6 +380,7 @@ def main():
     ap.add_argument("--heart-art", metavar="PICTURE", help="with --heart: take the drawings and their places from this heart picture")
     ap.add_argument("--picks", choices=sorted(PICKS), help="with --heart-art: only these few shapes (small hanging heart)")
     ap.add_argument("--shape-pic", metavar="PICTURE", help="with --picks: replace the main shape by this flat picture (one colour on white)")
+    ap.add_argument("--letters", help="with --picks: one heart per letter in place of the main shape, all on one plate, e.g. ASSY")
     ap.add_argument("--layers", default="1.6,0.6,0.8", help="TPU under, PETG drawing, TPU over (mm), e.g. 0.6,0.6,0.6 = "
                     "drawing in the middle, seen from both sides (owner 2026-11-20 for the hanging heart)")
     ap.add_argument("--round", type=float, default=0.0, help="round the outer edges top and bottom with this radius (mm)")
@@ -358,6 +389,24 @@ def main():
     global Z0, Z1, T, ROUND
     lo, mid, hi = (float(v) for v in a.layers.split(","))
     Z0, Z1, T, ROUND = lo, lo + mid, lo + mid + hi, a.round
+    if a.letters:
+        objs = []
+        for i, ch in enumerate(a.letters):
+            parts, _ = build(a.picture, a.heart, a.heart_art, a.picks, None, ch)
+            sx, sy = a.heart + 10, a.heart + 5
+            objs.append((f"heart_{i + 1}_{ch}", parts, (150 + sx * (i % 2), 110 + sy * (i // 2))))
+            if a.stl:
+                for n, m, _ in parts:
+                    m.export(Path(a.out).with_name(f"{Path(a.out).stem}_{i + 1}{ch}_{n}.stl"))
+        cfg = json.loads((HERE.parent / "config" / "bambu_project_4fil_petg.config").read_text())
+        cfg["filament_colour"] = [TPU_COLOUR] + list(COLOURS.values())
+        cfg["filament_map_mode"], cfg["filament_map"] = "Manual", ["2", "1", "1", "1"]
+        cfg["filament_type"] = ["TPU", "PETG", "PETG", "PETG"]
+        cfg["sparse_infill_density"], cfg["sparse_infill_pattern"] = "100%", "zig-zag"
+        Path(a.out).parent.mkdir(parents=True, exist_ok=True)
+        write_bambu_3mf_multi(Path(a.out), objs, json.dumps(cfg, indent=4))
+        print("->", a.out)
+        return
     parts, _ = build(a.picture, a.heart, a.heart_art, a.picks, a.shape_pic)
     for n, m, _ in parts:
         print(f"  part {n}: watertight={m.is_watertight} z {m.bounds[0][2]:.2f}-{m.bounds[1][2]:.2f}")
