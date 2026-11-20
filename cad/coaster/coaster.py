@@ -134,7 +134,11 @@ def heart_picture_art(picture, outline, loop_keep, edge=2.4, gap=1.2, grow_top=T
 # (colour, picture x, picture y, target centre as fraction of the heart width (x, y), target size as fraction of width)
 PICKS = {"bird_2hearts": [("blue", 660, 370, (0.02, -0.10), 0.58),
                           ("red", 670, 195, (-0.25, 0.17), 0.22),
-                          ("red", 1130, 480, (0.25, 0.17), 0.22)]}
+                          ("red", 1130, 480, (0.25, 0.17), 0.22)],
+         # owner 2026-11-20: swallow (--shape-pic) higher up, the hearts trailing behind its tail
+         "swallow_trail": [("blue", 660, 370, (0.07, 0.08), 0.58),
+                           ("red", 670, 195, (-0.22, -0.13), 0.19),
+                           ("red", 1130, 480, (0.0, -0.27), 0.14)]}
 
 
 def trace_shape(picture, smooth=1.6):
@@ -176,21 +180,25 @@ def heart_picks(picture, outline, loop_keep, preset, edge=1.6, gap=1.0, shape_pi
         chosen[0] = (k, g, max(bx[2] - bx[0], bx[3] - bx[1]), t, sz)
     oc = outline.centroid
 
-    def lay(m, dy):
-        return [(k, affinity.translate(affinity.scale(g, m * s / d, m * s / d, origin=(0, 0)), oc.x + t[0], oc.y + t[1] + dy))
-                for k, g, d, t, s in chosen]
-    best = None
-    for dy in np.arange(-3, 3.01, 0.25):
-        lo, hi = 0.4, 1.6
-        for _ in range(16):
-            m = (lo + hi) / 2
-            L = lay(m, dy)
-            ok = all(inner.contains(q) for _, q in L) and all(a.distance(b) >= gap for i, (_, a) in enumerate(L) for _, b in L[i + 1:])
-            lo, hi = (m, hi) if ok else (lo, m)
-        if best is None or lo > best[0]:
-            best = (lo, dy)
-    L = lay(*best)
-    print(f"picked {len(L)} shapes ({preset}), size x{best[0]:.2f} of the targets, shifted {best[1]:+.2f} mm")
+    # one shape at a time (main shape first, at its full target size): the free spot nearest its target,
+    # shrinking that shape 4% at a time only if no spot fits
+    grid = [(x, y) for x in np.arange(-width / 2, width / 2, 0.25) for y in np.arange(-width / 2, width / 2, 0.25)]
+    L, occ = [], None
+    for k, g, d, t, sz in chosen:
+        tx, ty = oc.x + t[0], oc.y + t[1]
+        cand = sorted(grid, key=lambda p: (p[0] - tx) ** 2 + (p[1] - ty) ** 2)[:4000]
+        m = 1.0
+        while m > 0.5:
+            g0 = affinity.scale(g, m * sz / d, m * sz / d, origin=(0, 0))
+            hit = next((q for q in (affinity.translate(g0, x, y) for x, y in cand)
+                        if inner.contains(q) and (occ is None or not occ.intersects(q))), None)
+            if hit is not None:
+                break
+            m -= 0.04
+        L.append((k, hit)); occ = unary_union([q for _, q in L]).buffer(gap)
+        c = hit.centroid
+        print(f"  {k}: size {m * 100:.0f}% of target, {np.hypot(c.x - tx, c.y - ty):.1f} mm from its target spot")
+    print(f"picked {len(L)} shapes ({preset})")
     return {k: unary_union([q for kk, q in L if kk == k]) for k in COLOURS}
 
 
