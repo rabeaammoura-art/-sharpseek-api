@@ -122,6 +122,13 @@ def prepare_3mf(src: Path, filament_files: list, part_dir: Path, base_cmd: list,
     for k in PER_FILAMENT_SINGLES:
         if isinstance(cfg.get(k), list) and len(cfg[k]) == 1:
             cfg[k] = cfg[k] * n
+    # more filaments than the CLI default (4): rebuild the flush matrix n x n per nozzle (else "Flush volumes matrix do not match")
+    fm = cfg.get("flush_volumes_matrix") or []
+    if len(fm) not in (n * n, 2 * n * n):
+        off = next((x for x in fm if str(x) != "0"), "280")
+        cfg["flush_volumes_matrix"] = [("0" if i == j else str(off)) for i in range(n) for j in range(n)]
+        fv = cfg.get("flush_volumes_vector") or ["1", "1"]
+        cfg["flush_volumes_vector"] = [fv[0], fv[1]] * n
     # nozzle: one number = every colour on that nozzle (1 left, 2 right); a list = one nozzle per filament slot, e.g. [1, 1, 2, 2]
     nz = [str(v) for v in nozzle] if isinstance(nozzle, (list, tuple)) else [str(nozzle)] * n
     cfg["filament_map_mode"], cfg["filament_map"] = "Manual", nz

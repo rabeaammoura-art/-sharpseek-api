@@ -20,7 +20,7 @@ from shapely import affinity
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
-from threemf import build_project_settings, write_bambu_3mf  # noqa: E402
+from threemf import build_project_settings, write_bambu_3mf, write_bambu_3mf_multi, widen_filaments  # noqa: E402
 
 # ---- size and look --------------------------------------------------------------------------------------------------
 W, H, P = 50.0, 170.0, 2.0      # mm, stitch pitch (25 x 85 cells)
@@ -171,6 +171,32 @@ def _settings(template, colours, tower):
     return json.dumps(cfg, indent=4)
 
 
+# colour options from stock (owner, 2026-11-20): (name, fabric slot, thread slot)
+OPTION_SLOTS = [("PLA+ White", "#F2F0EA"), ("Silk Red/Gold", "#B0182B"), ("PLA+ Black", "#1C1C1E"), ("Silk Gold", "#C9A23C"),
+                ("Silk Blue/Green", "#1F4FA3"), ("Wood PLA", "#C8A27A"), ("PLA+ Red", "#A3162B")]
+OPTIONS = [("1_white_redgold", 1, 2), ("2_black_gold", 3, 4), ("3_white_bluegreen", 1, 5), ("4_wood_red", 6, 7)]
+
+
+def write_options(out, layer="0.16"):
+    """all 4 colour options on one plate, each bookmark its own object (delete the ones not wanted in Studio)."""
+    import json
+    fabric, stitches = build()
+    objs = []
+    for k, (name, fs, ts) in enumerate(OPTIONS):
+        x = 45 + k * 58
+        objs.append((f"bookmark_{name}", [("fabric", fabric, fs), ("stitches", stitches, ts)], (x, 160.0)))
+    n = len(OPTION_SLOTS)
+    cfg = json.loads(build_project_settings((HERE.parent / "config" / "bambu_project_4fil_pla.config").read_bytes(),
+                                            [c for _, c in OPTION_SLOTS[:4]], (262, 120, 20)))
+    cfg = widen_filaments(cfg, n, (HERE.parent / "config" / "bambu_project_settings.config").read_bytes())
+    cfg["filament_colour"] = [c.upper() for _, c in OPTION_SLOTS]
+    cfg["filament_map"] = ["1"] * n
+    cfg["layer_height"] = layer
+    path = Path(out) / "bookmark_4_options.3mf"
+    write_bambu_3mf_multi(path, objs, json.dumps(cfg, indent=4))
+    print("wrote", path)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--fabric", default="#F4EFE2", help="slot 1 colour (only the default shown in Studio)")
@@ -179,8 +205,11 @@ def main():
     ap.add_argument("--out", default=str(HERE.parent / "out" / "bookmark"))
     ap.add_argument("--plate-x", type=float, default=128.0)
     ap.add_argument("--plate-y", type=float, default=160.0)
+    ap.add_argument("--options", action="store_true", help="write the 4 colour options on one plate (0.16 mm)")
     a = ap.parse_args()
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
+    if a.options:
+        return write_options(out)
     fabric, stitches = build()
     for n, m in (("fabric", fabric), ("stitches", stitches)):
         print(f"{n}: {len(m.faces)} faces, watertight {m.is_watertight}, volume {m.volume:.0f} mm^3, "
