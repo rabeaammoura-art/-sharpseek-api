@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-20 (cloud) — bookmark: stitched text "اقرأ وارتقِ" preview (not in the file yet)
+- Owner chose the text and the stitched look. Hand-drawn one-stitch-per-cell Kufi-style letters (auto-rasterised fonts were unreadable at 11 cells), vertical, reading top -> bottom, between two stitch lines moved to cols 5 / 19; alef 16 mm tall. Preview in the 4 colours sent (scratch, not in git).
+- Left: owner's OK (reading direction, kasra left out), then add to `bookmark.py` and regenerate both 3MFs.
+
 ## 2026-11-20 (cloud) — bookmark: all 4 colour options in one 3MF (0.16)
 - `bookmark.py --options` -> `cad/print_files/bookmark/bookmark_4_options.3mf`: 4 separate objects, 7 slots (colours from stock), layer 0.16; owner deletes what he does not want. New `threemf.write_bambu_3mf_multi` + `widen_filaments` (more than 4 filaments).
 - `bambu_slice.py`: rebuilds the flush matrix n x n when more than 4 filaments (CLI failed "Flush volumes matrix do not match"). Slice: all 4 = 4h07m / 60 g; one alone 0.16 = 54 min.
