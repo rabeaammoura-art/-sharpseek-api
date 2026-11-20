@@ -30,7 +30,7 @@ The repo is **public** — never commit purchase prices, the price sheet, produc
 
 ## Facts and preferences (decided with the owner)
 - **Cost rule (owner agreed 2026-11-06):** for any design/file the owner brings, do the **cheap quick repair + check first** (merge vertices, fix normals, drop to z=0, `/3d-print-test`); rebuild from scratch only if that fails or the owner asks. Keep answers and tool rounds minimal.
-- **The printer (Bambu Lab H2D) has not arrived yet.** Nothing is print-tested. Never say "print a test" as if they could; prepare files and software checks.
+- **The printer (Bambu Lab H2D) arrived and is connected (2026-11-20: first print = heart TPU/PETG coaster).** Real print tests are now possible; designs made before that date are still untested until printed. Owner's Bambu Studio GUI times are the reference (CLI estimated 35 min where the GUI said 1h02m for the TPU + PETG coaster).
 - Priorities: **print time matters more than cost**; no glue; no thicker base; avoid loose separate pieces; the owner likes things shown as images.
 - Prices come only from `cad/config/filament_prices.xlsx` (git-ignored; ask the owner to upload `3D_ZONE_TECH_Filament.xlsx` if missing). PLA = PLA+.
 - Plaque is printed front face up (relief on top, back on the bed). A 300 mm multi-colour plate + prime tower does not fit the H2D: **max coloured size is about 290 mm** (the generator warns above that; recommended ladder 150/200/250/280).
