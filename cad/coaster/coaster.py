@@ -137,7 +137,18 @@ PICKS = {"bird_2hearts": [("blue", 660, 370, (0.02, -0.10), 0.58),
                           ("red", 1130, 480, (0.25, 0.17), 0.22)]}
 
 
-def heart_picks(picture, outline, loop_keep, preset, edge=1.6, gap=1.0):
+def trace_shape(picture, smooth=1.6):
+    """one flat dark/coloured shape on white (e.g. the owner's swallow) -> shapely geometry centred at (0, 0), size arbitrary"""
+    im = Image.open(picture)
+    rgba = np.array(im.convert("RGBA")).astype(float)
+    m = (rgba[..., :3].min(2) < 160) & (rgba[..., 3] > 128)          # not white and not transparent
+    ys, xs = np.nonzero(m)
+    cx, cy = (xs.min() + xs.max()) / 2, (ys.min() + ys.max()) / 2
+    g = mask_to_mm(m, cx, cy, D / 2 / 0.05, up=2, smooth=smooth, clean=False)   # 1 px = 0.05 mm before rescaling
+    return max(getattr(g, "geoms", [g]), key=lambda q: q.area)
+
+
+def heart_picks(picture, outline, loop_keep, preset, edge=1.6, gap=1.0, shape_pic=None):
     """a few shapes from the heart picture, placed at fixed spots and scaled together as big as the heart allows"""
     img = np.array(Image.open(picture).convert("RGB")).astype(float)
     r, g, b = (img[..., i] for i in range(3))
@@ -159,6 +170,10 @@ def heart_picks(picture, outline, loop_keep, preset, edge=1.6, gap=1.0):
         c = g.centroid; bx = g.bounds
         g = affinity.translate(g, -c.x, -c.y)
         chosen.append((k, g, max(bx[2] - bx[0], bx[3] - bx[1]), (tx * width, ty * width), size * width))
+    if shape_pic:                                       # replace the first (main) shape by the owner's own picture
+        k, _, _, t, sz = chosen[0]
+        g = trace_shape(shape_pic); bx = g.bounds
+        chosen[0] = (k, g, max(bx[2] - bx[0], bx[3] - bx[1]), t, sz)
     oc = outline.centroid
 
     def lay(m, dy):
@@ -212,7 +227,7 @@ def fill_top(placed, inner, gap, outline, max_grow=1.6, rounds=3):
     return placed
 
 
-def build(picture, heart=None, heart_art=None, picks=None):
+def build(picture, heart=None, heart_art=None, picks=None, shape_pic=None):
     img = np.array(Image.open(picture).convert("RGB")).astype(float)
     img = img[:, : img.shape[1] // 2]                       # left half = colour version
     cx, cy, rpx = find_circle(img)
@@ -223,7 +238,7 @@ def build(picture, heart=None, heart_art=None, picks=None):
     if heart and heart_art:
         outline = heart_outline(heart)
         loop, ring = hang_loop(outline, (5.6, 7.0), (2.8, 3.6)) if heart < 50 else hang_loop(outline)
-        art = heart_picks(heart_art, outline, ring, picks) if picks else heart_picture_art(heart_art, outline, ring)
+        art = heart_picks(heart_art, outline, ring, picks, shape_pic=shape_pic) if picks else heart_picture_art(heart_art, outline, ring)
         disc = outline.union(loop)
     elif heart:
         disc, art = pack_heart(art, heart)
@@ -325,6 +340,7 @@ def main():
     ap.add_argument("--heart", type=float, metavar="WIDTH", help="heart-shaped coaster this wide (mm), same drawings re-placed inside")
     ap.add_argument("--heart-art", metavar="PICTURE", help="with --heart: take the drawings and their places from this heart picture")
     ap.add_argument("--picks", choices=sorted(PICKS), help="with --heart-art: only these few shapes (small hanging heart)")
+    ap.add_argument("--shape-pic", metavar="PICTURE", help="with --picks: replace the main shape by this flat picture (one colour on white)")
     ap.add_argument("--layers", default="1.6,0.6,0.8", help="TPU under, PETG drawing, TPU over (mm), e.g. 0.6,0.6,0.6 = "
                     "drawing in the middle, seen from both sides (owner 2026-11-20 for the hanging heart)")
     ap.add_argument("--round", type=float, default=0.0, help="round the outer edges top and bottom with this radius (mm)")
@@ -333,7 +349,7 @@ def main():
     global Z0, Z1, T, ROUND
     lo, mid, hi = (float(v) for v in a.layers.split(","))
     Z0, Z1, T, ROUND = lo, lo + mid, lo + mid + hi, a.round
-    parts, _ = build(a.picture, a.heart, a.heart_art, a.picks)
+    parts, _ = build(a.picture, a.heart, a.heart_art, a.picks, a.shape_pic)
     for n, m, _ in parts:
         print(f"  part {n}: watertight={m.is_watertight} z {m.bounds[0][2]:.2f}-{m.bounds[1][2]:.2f}")
     cfg = json.loads((HERE.parent / "config" / "bambu_project_4fil_petg.config").read_text())
