@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-20 (cloud) — small hanging heart 35 mm (bird + 2 hearts)
+- Owner: as a hanging piece the 65 is too big, about half; worried the drawings get spoiled. Options given (1 shape / 3 shapes / letter + shape); owner chose bird + 2 hearts.
+- `coaster.py --picks bird_2hearts` (blue bird + 2 red hearts from his heart picture), 35 mm, 0.6/0.6/0.6, rounded edges, small loop. print_test 0 problems. CLI: 1 = 16 min / 3.8 g; 4 on a plate = 28 min (7 min each). Files `heart35_bird_2hearts*.3mf`.
+- Left: owner prints (set of 4 recommended); then letter/name version for selling.
+
 ## 2026-11-20 (cloud) — first real print feedback -> heart v2
 - Owner printed `coaster_heart65.3mf`: nice overall, but from the back the drawings barely show (wrong for a hanging heart), thinner TPU = clearer, smooth-plate face came out glossy, outer edges too sharp.
 - `coaster.py --layers 0.6,0.6,0.6 --round 0.6` -> `coaster_heart65_v2.3mf` (1.8 mm, drawing centred, rounded edges). `print_test` 0 problems, CLI 30 min / 7.8 g (owner's GUI was ~1.8x the CLI on v1). v1 kept.

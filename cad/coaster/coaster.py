@@ -130,6 +130,55 @@ def heart_picture_art(picture, outline, loop_keep, edge=2.4, gap=1.2, grow_top=T
     return out
 
 
+# small hanging heart (owner 2026-11-20): only a few shapes, picked from the heart picture by their pixel position there.
+# (colour, picture x, picture y, target centre as fraction of the heart width (x, y), target size as fraction of width)
+PICKS = {"bird_2hearts": [("blue", 660, 370, (0.02, -0.10), 0.58),
+                          ("red", 670, 195, (-0.25, 0.17), 0.22),
+                          ("red", 1130, 480, (0.25, 0.17), 0.22)]}
+
+
+def heart_picks(picture, outline, loop_keep, preset, edge=1.6, gap=1.0):
+    """a few shapes from the heart picture, placed at fixed spots and scaled together as big as the heart allows"""
+    img = np.array(Image.open(picture).convert("RGB")).astype(float)
+    r, g, b = (img[..., i] for i in range(3))
+    cream = (r > 235) & (g > 220) & (b > 185)
+    ys, xs = np.nonzero(cream)
+    x0, x1, y0, y1 = xs.min(), xs.max(), ys.min(), ys.max()
+    inside = np.zeros_like(cream); inside[y0:y1 + 1, x0:x1 + 1] = True
+    width = outline.bounds[2] - outline.bounds[0]
+    rpx = (x1 - x0) / width * D / 2
+    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    mm = width / (x1 - x0)
+    art = {k: mask_to_mm(m & inside, cx, cy, rpx, up=4, smooth=0.8, clean=False) for k, m in colour_masks(img).items()}
+    from shapely.prepared import prep
+    inner = prep(outline.buffer(-edge).difference(loop_keep.buffer(edge)))
+    chosen = []
+    for k, px, py, (tx, ty), size in PICKS[preset]:
+        p = Point((px - cx) * mm, -(py - cy) * mm)
+        g = min(getattr(art[k], "geoms", [art[k]]), key=lambda q: q.distance(p))
+        c = g.centroid; bx = g.bounds
+        g = affinity.translate(g, -c.x, -c.y)
+        chosen.append((k, g, max(bx[2] - bx[0], bx[3] - bx[1]), (tx * width, ty * width), size * width))
+    oc = outline.centroid
+
+    def lay(m, dy):
+        return [(k, affinity.translate(affinity.scale(g, m * s / d, m * s / d, origin=(0, 0)), oc.x + t[0], oc.y + t[1] + dy))
+                for k, g, d, t, s in chosen]
+    best = None
+    for dy in np.arange(-3, 3.01, 0.25):
+        lo, hi = 0.4, 1.6
+        for _ in range(16):
+            m = (lo + hi) / 2
+            L = lay(m, dy)
+            ok = all(inner.contains(q) for _, q in L) and all(a.distance(b) >= gap for i, (_, a) in enumerate(L) for _, b in L[i + 1:])
+            lo, hi = (m, hi) if ok else (lo, m)
+        if best is None or lo > best[0]:
+            best = (lo, dy)
+    L = lay(*best)
+    print(f"picked {len(L)} shapes ({preset}), size x{best[0]:.2f} of the targets, shifted {best[1]:+.2f} mm")
+    return {k: unary_union([q for kk, q in L if kk == k]) for k in COLOURS}
+
+
 def fill_top(placed, inner, gap, outline, max_grow=1.6, rounds=3):
     """owner 2026-11-20: enlarge the shapes in the upper half and push them into the empty lobes.
     Each upper shape (top first) takes the biggest scale (about its centre, up to max_grow) and a shift within 8 mm,
@@ -163,7 +212,7 @@ def fill_top(placed, inner, gap, outline, max_grow=1.6, rounds=3):
     return placed
 
 
-def build(picture, heart=None, heart_art=None):
+def build(picture, heart=None, heart_art=None, picks=None):
     img = np.array(Image.open(picture).convert("RGB")).astype(float)
     img = img[:, : img.shape[1] // 2]                       # left half = colour version
     cx, cy, rpx = find_circle(img)
@@ -173,8 +222,8 @@ def build(picture, heart=None, heart_art=None):
     disc = Point(0, 0).buffer(D / 2, 256)
     if heart and heart_art:
         outline = heart_outline(heart)
-        loop, ring = hang_loop(outline)
-        art = heart_picture_art(heart_art, outline, ring)
+        loop, ring = hang_loop(outline, (5.6, 7.0), (2.8, 3.6)) if heart < 50 else hang_loop(outline)
+        art = heart_picks(heart_art, outline, ring, picks) if picks else heart_picture_art(heart_art, outline, ring)
         disc = outline.union(loop)
     elif heart:
         disc, art = pack_heart(art, heart)
@@ -199,7 +248,8 @@ def build(picture, heart=None, heart_art=None):
     else:
         tpu = trimesh.boolean.union([extrude(disc, 0, Z0), extrude(disc.difference(allart), Z0 - 0.01, Z1 + 0.01),
                                      extrude(disc, Z1, T)], engine="manifold")
-    parts = [("clear_tpu", tpu, 1)] + [(f"petg_{k}", extrude(art[k], Z0, Z1), i) for i, k in enumerate(COLOURS, start=2)]
+    parts = [("clear_tpu", tpu, 1)] + [(f"petg_{k}", extrude(art[k], Z0, Z1), i) for i, k in enumerate(COLOURS, start=2)
+                                       if not art[k].is_empty]                 # slots stay 2 red / 3 blue / 4 orange
     return parts, art
 
 
@@ -274,6 +324,7 @@ def main():
     ap.add_argument("--set4", action="store_true", help="4 coasters on one plate (45 min each instead of 58); slice with --tower-x 270 --tower-y 140 --tower-width 30")
     ap.add_argument("--heart", type=float, metavar="WIDTH", help="heart-shaped coaster this wide (mm), same drawings re-placed inside")
     ap.add_argument("--heart-art", metavar="PICTURE", help="with --heart: take the drawings and their places from this heart picture")
+    ap.add_argument("--picks", choices=sorted(PICKS), help="with --heart-art: only these few shapes (small hanging heart)")
     ap.add_argument("--layers", default="1.6,0.6,0.8", help="TPU under, PETG drawing, TPU over (mm), e.g. 0.6,0.6,0.6 = "
                     "drawing in the middle, seen from both sides (owner 2026-11-20 for the hanging heart)")
     ap.add_argument("--round", type=float, default=0.0, help="round the outer edges top and bottom with this radius (mm)")
@@ -282,7 +333,7 @@ def main():
     global Z0, Z1, T, ROUND
     lo, mid, hi = (float(v) for v in a.layers.split(","))
     Z0, Z1, T, ROUND = lo, lo + mid, lo + mid + hi, a.round
-    parts, _ = build(a.picture, a.heart, a.heart_art)
+    parts, _ = build(a.picture, a.heart, a.heart_art, a.picks)
     for n, m, _ in parts:
         print(f"  part {n}: watertight={m.is_watertight} z {m.bounds[0][2]:.2f}-{m.bounds[1][2]:.2f}")
     cfg = json.loads((HERE.parent / "config" / "bambu_project_4fil_petg.config").read_text())
@@ -292,7 +343,7 @@ def main():
     cfg["sparse_infill_density"], cfg["sparse_infill_pattern"] = "100%", "zig-zag"   # solid = clearer TPU (grid fails at 100%)
     out = Path(a.out); out.parent.mkdir(parents=True, exist_ok=True)
     if a.set4:
-        sx, sy = (75, 70) if a.heart else (100, 100)
+        sx, sy = (a.heart + 10, a.heart + 5) if a.heart else (100, 100)
         write_bambu_3mf_multi(out, [(f"coaster_{i + 1}", parts, (205 - sx - 5 + sx * (i % 2), 110 + sy * (i // 2))) for i in range(4)],
                               json.dumps(cfg, indent=4))
     else:

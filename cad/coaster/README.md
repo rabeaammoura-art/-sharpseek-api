@@ -39,3 +39,9 @@ thinner TPU looked clearer, the face on the smooth plate came out glossy, the ou
     python cad/coaster/coaster.py PICTURE.png --heart 65 --heart-art HEART_PICTURE.png --layers 0.6,0.6,0.6 --round 0.6 --out cad/print_files/coaster/coaster_heart65_v2.3mf
 TPU 0.6 / PETG 0.6 / TPU 0.6 = 1.8 mm, drawing in the middle, outer edges rounded r 0.6 top and bottom (0.1 mm slab stack).
 CLI 30 min / 7.8 g. Delete `cad/out/bambu/<name>` before re-slicing a changed file: a stale folder gave bogus results twice.
+
+## Small hanging heart 35 mm: bird + 2 hearts (owner 2026-11-20)
+    python cad/coaster/coaster.py PICTURE.png --heart 35 --heart-art HEART_PICTURE.png --picks bird_2hearts --layers 0.6,0.6,0.6 --round 0.6 [--set4]
+At half size all 13 shapes would lose their holes and rims, so only 3 shapes (`PICKS`, chosen by their pixel spot in the
+heart picture), smaller loop (hole 2.8 x 3.6). Files `heart35_bird_2hearts.3mf` (CLI 16 min / 3.8 g) and
+`heart35_bird_2hearts_set4.3mf` (4 on a plate, CLI 28 min / 8.3 g = 7 min each). print_test 0 problems.
