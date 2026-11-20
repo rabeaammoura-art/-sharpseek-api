@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-20 (cloud) — tatreez bookmark (new product idea, owner's reference picture)
+- Owner sent a picture of an embroidered thobe-shaped bookmark (third-party shop photo, kept out of git) and wants it to look like real embroidery, colours swappable.
+- New `cad/bookmark/bookmark.py` (own parametric pattern, nothing traced): 50 x 170 mm, part `fabric` (slot 1, plate 1.2 + aida weave 0.16) and part `stitches` (slot 2, X stitches made of two rounded threads, top one lifted 0.25 at the crossing; crests thinner than 0.7 mm removed). File `cad/print_files/bookmark/bookmark.3mf`.
+- Checks: both parts watertight, overlap 0, `print_test` 0 problems (thin-feature note = 0.02 mm2 rounding slivers). CLI slice PLA + tower: 0.20 41 min / 14 g, 0.12 1h14m / 15 g, 0.08 1h34m. The CLI needs 4 `--filament` slots for this 3MF (2 slots -> "Failed slicing").
+- Left: owner's look at the 3D file in Studio, layer choice (0.12 recommended), optional name under the pattern, silk thread filament, price (sheet not in this session). Not print-tested.
+
 ## 2026-11-18 (cloud) — frame bridges: 2 on top + 2 on the bottom, nuts moved into the top / bottom band (owner)
 - Owner asked what the dark spots in the lit frame are (6 bridges + 2 nut keeps) and chose 2 bridges on the top band and 2 on the bottom; asked why the nuts cannot go inside the field. Answer: the plate base is only 2.4 mm, a blind pocket would leave 0.6 mm front skin and the M2 screw length does not fit (M2 x 14 pierces it, M2 x 12 engages 0.4 mm of the nut); in the frame band the 1.8 mm frame cap hides the through pocket.
 - New `"fix_layout": "topbottom"` (+ `"fix_count": 2 | 4`): nuts at (-0.2 size, +band centre) and (+0.2 size, -band centre) (200: (-40, 96) and (40, -96)); the other two places are plain 2.4 mm bridges. `FIX_MODE` global, `fix_points()` and the frame-glow keep zones follow it; the box posts follow `fix_points()` (post found at (-40, 96) and (40, -96) in the mesh). Sides left / right of the frame now glow without any gap; the LED strip along the left / right walls is no longer cut by the posts (top / bottom walls still are).
