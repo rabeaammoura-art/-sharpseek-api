@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-20 (cloud) — bookmark: 4 colour options from stock (owner's sheet)
+- From the stock sheet (PLA family only, prints together): 1 PLA+ White + Silk Red/Gold, 2 PLA+ Black + Silk Gold, 3 PLA+ White + Silk Blue/Green, 4 Wood PLA + PLA+ Red. Shaded previews sent (scratch, not in git). Rose Gold on white dropped: too pale.
+- Left: owner's pick; then regenerate the 3MF with those default colours.
+
 ## 2026-11-20 (cloud) — tatreez bookmark (new product idea, owner's reference picture)
 - Owner sent a picture of an embroidered thobe-shaped bookmark (third-party shop photo, kept out of git) and wants it to look like real embroidery, colours swappable.
 - New `cad/bookmark/bookmark.py` (own parametric pattern, nothing traced): 50 x 170 mm, part `fabric` (slot 1, plate 1.2 + aida weave 0.16) and part `stitches` (slot 2, X stitches made of two rounded threads, top one lifted 0.25 at the crossing; crests thinner than 0.7 mm removed). File `cad/print_files/bookmark/bookmark.3mf`.
