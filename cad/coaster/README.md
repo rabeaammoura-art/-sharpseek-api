@@ -32,3 +32,10 @@ Older variant without --heart-art (shapes re-packed from the round picture):
 Heart 65 x 56 mm (+ hanging loop in the top notch, hole 3.6 x 5 mm, owner's mark), the same 12 shapes re-placed one by one
 inside (43% of their round size); after shrinking, gaps under 0.8 mm are closed and thin parts thickened (the butterfly
 antennae merge at this size). Slice: 38 min / 12.6 g (TPU 10 g), print_test 0 problems.
+
+## Heart v2 (owner's first print, 2026-11-20)
+Seen from the back the drawings hardly showed (1.6 mm TPU under them); as a hanging heart it must show from both sides,
+thinner TPU looked clearer, the face on the smooth plate came out glossy, the outer edges were sharp. v2:
+    python cad/coaster/coaster.py PICTURE.png --heart 65 --heart-art HEART_PICTURE.png --layers 0.6,0.6,0.6 --round 0.6 --out cad/print_files/coaster/coaster_heart65_v2.3mf
+TPU 0.6 / PETG 0.6 / TPU 0.6 = 1.8 mm, drawing in the middle, outer edges rounded r 0.6 top and bottom (0.1 mm slab stack).
+CLI 30 min / 7.8 g. Delete `cad/out/bambu/<name>` before re-slicing a changed file: a stale folder gave bogus results twice.

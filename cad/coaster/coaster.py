@@ -27,7 +27,8 @@ sys.path.insert(0, str(HERE.parent))
 from threemf import write_bambu_3mf, write_bambu_3mf_multi  # noqa: E402
 
 D, T = 95.0, 3.0                  # coaster diameter, thickness (owner, 2026-11-20)
-Z0, Z1 = 1.6, 2.2                 # PETG drawing between these heights (TPU cover 0.8 on top)
+Z0, Z1 = 1.6, 2.2                 # PETG drawing between these heights (TPU cover 0.8 on top); --layers changes all three
+ROUND = 0.0                       # radius of the rounded outer edges (--round)
 MIN_W = 0.7                       # narrowest printable feature
 COLOURS = {"red": "#C8102E", "blue": "#1F5FA8", "orange": "#E07A1F"}
 TPU_COLOUR = "#E8F1F5"            # clear
@@ -183,8 +184,21 @@ def build(picture, heart=None, heart_art=None):
     for k, g in art.items():
         thin = g.difference(g.buffer(-0.35).buffer(0.35))
         print(f"  {k}: {len(getattr(g, 'geoms', [g]))} shapes, {g.area:.0f} mm2, under 0.7 mm: {thin.area:.2f} mm2")
-    tpu = trimesh.boolean.union([extrude(disc, 0, Z0), extrude(disc.difference(allart), Z0 - 0.01, Z1 + 0.01),
-                                 extrude(disc, Z1, T)], engine="manifold")
+    if ROUND > 0:   # rounded outer edges top and bottom (owner 2026-11-20: the heart edges were sharp): stack of 0.1 mm slabs
+        n = int(round(T / 0.1)); slabs = []
+        for i in range(n):
+            za, zb = i * T / n, (i + 1) * T / n
+            zm = (za + zb) / 2
+            d = max(0.0, ROUND - zm, zm - (T - ROUND))
+            inset = ROUND - np.sqrt(max(ROUND ** 2 - d ** 2, 0.0))
+            sh = disc.buffer(-inset, 32)
+            if Z0 < zm < Z1:
+                sh = sh.difference(allart)
+            slabs.append(extrude(sh, za - (0.005 if i else 0), zb + (0.005 if i < n - 1 else 0)))
+        tpu = trimesh.boolean.union(slabs, engine="manifold")
+    else:
+        tpu = trimesh.boolean.union([extrude(disc, 0, Z0), extrude(disc.difference(allart), Z0 - 0.01, Z1 + 0.01),
+                                     extrude(disc, Z1, T)], engine="manifold")
     parts = [("clear_tpu", tpu, 1)] + [(f"petg_{k}", extrude(art[k], Z0, Z1), i) for i, k in enumerate(COLOURS, start=2)]
     return parts, art
 
@@ -260,8 +274,14 @@ def main():
     ap.add_argument("--set4", action="store_true", help="4 coasters on one plate (45 min each instead of 58); slice with --tower-x 270 --tower-y 140 --tower-width 30")
     ap.add_argument("--heart", type=float, metavar="WIDTH", help="heart-shaped coaster this wide (mm), same drawings re-placed inside")
     ap.add_argument("--heart-art", metavar="PICTURE", help="with --heart: take the drawings and their places from this heart picture")
+    ap.add_argument("--layers", default="1.6,0.6,0.8", help="TPU under, PETG drawing, TPU over (mm), e.g. 0.6,0.6,0.6 = "
+                    "drawing in the middle, seen from both sides (owner 2026-11-20 for the hanging heart)")
+    ap.add_argument("--round", type=float, default=0.0, help="round the outer edges top and bottom with this radius (mm)")
     ap.add_argument("--stl", action="store_true", help="also write one STL per part (for print_test.py)")
     a = ap.parse_args()
+    global Z0, Z1, T, ROUND
+    lo, mid, hi = (float(v) for v in a.layers.split(","))
+    Z0, Z1, T, ROUND = lo, lo + mid, lo + mid + hi, a.round
     parts, _ = build(a.picture, a.heart, a.heart_art)
     for n, m, _ in parts:
         print(f"  part {n}: watertight={m.is_watertight} z {m.bounds[0][2]:.2f}-{m.bounds[1][2]:.2f}")

@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-20 (cloud) — first real print feedback -> heart v2
+- Owner printed `coaster_heart65.3mf`: nice overall, but from the back the drawings barely show (wrong for a hanging heart), thinner TPU = clearer, smooth-plate face came out glossy, outer edges too sharp.
+- `coaster.py --layers 0.6,0.6,0.6 --round 0.6` -> `coaster_heart65_v2.3mf` (1.8 mm, drawing centred, rounded edges). `print_test` 0 problems, CLI 30 min / 7.8 g (owner's GUI was ~1.8x the CLI on v1). v1 kept.
+- Stale `cad/out/bambu/<name>` folder gave bogus slice numbers twice (14h55m, 1h03m/27 g): delete it before re-slicing.
+- Left: owner prints v2; idea: print v2 on the smooth plate so the back is glossy too (top stays lined unless ironed).
+
 ## 2026-11-20 (cloud) — PRINTER ARRIVED: first print = heart coaster 65
 - Owner sent `coaster_heart65.3mf` from Bambu Studio to the H2D. Pre-print check asked for a cold pull before TPU and flagged unknown filaments in the AMS mapping (spools without RFID). Advised: cold pull on the right nozzle from the printer's maintenance menu, set the AMS slots to PETG + colours, dry the clear TPU. CLAUDE.md updated (printer here).
 
