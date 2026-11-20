@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-20 (cloud) — heart coaster 65: owner's Studio says 1h02m (CLI said 35 min), time options
+- Owner's Bambu Studio (GUI) slice of `coaster_heart65.3mf`: 1h02m / 11.66 g, TPU right nozzle, 3 PETG left. CLI says 35 min: GUI/CLI about 1.8x for this TPU + nozzle-switch job (cause not confirmed: TPU profile chosen in the GUI, start sequence, nozzle heat-up).
+- CLI comparison: 1 heart 35 min; 1 colour PETG 26 min; 0.28 layers 26 min; 4 hearts on a plate 1h26m (22 min each, file `coaster_heart65_set4.3mf`); 4 hearts 1 colour 1h17m. One CLI run gave a bogus 14h55m / 526 g, re-run fine.
+- Left: owner slices the set of 4 in Studio to calibrate; check his TPU profile (Bambu TPU 95A HF vs generic).
+
 ## 2026-11-20 (cloud) — heart coaster 65: upper shapes enlarged into the lobes
 - Owner asked to fill the empty top. `fill_top` grows each upper shape (up to 1.6x, small ones capped at 55% of the biggest) and shifts it up/outward, gaps >= 1.3 mm. `print_test` 0 problems, slice 35 min / 11.9 g. File replaced.
 

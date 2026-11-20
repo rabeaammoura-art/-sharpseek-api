@@ -272,7 +272,8 @@ def main():
     cfg["sparse_infill_density"], cfg["sparse_infill_pattern"] = "100%", "zig-zag"   # solid = clearer TPU (grid fails at 100%)
     out = Path(a.out); out.parent.mkdir(parents=True, exist_ok=True)
     if a.set4:
-        write_bambu_3mf_multi(out, [(f"coaster_{i + 1}", parts, (105 + 100 * (i % 2), 110 + 100 * (i // 2))) for i in range(4)],
+        sx, sy = (75, 70) if a.heart else (100, 100)
+        write_bambu_3mf_multi(out, [(f"coaster_{i + 1}", parts, (205 - sx - 5 + sx * (i % 2), 110 + sy * (i // 2))) for i in range(4)],
                               json.dumps(cfg, indent=4))
     else:
         write_bambu_3mf(out, parts, (175.0, 160.0), out.stem, json.dumps(cfg, indent=4))
