@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-20 (cloud) — clear TPU coaster with PETG drawings inside (new product)
+- Owner: Ø95 x 3.0, clear TPU + PETG drawing sealed mid-layer. My hand drawings rejected ("ugly"); owner made the art with ChatGPT from my 2D prompt (prompt in `cad/coaster/README.md`, picture kept out of git).
+- `cad/coaster/coaster.py` traces the 3 colours -> 3MF: TPU 1.6 / PETG 0.6 / TPU 0.8, TPU nozzle 2, PETG nozzle 1. 12 shapes, edge margin 3.5 mm, nothing < 0.7 mm. `print_test` 0 problems.
+- CLI slice (0.20, 100% infill, tower): 1 = 58 min / 29 g; 4 on a plate (`coaster_birds_set4.3mf`) 2h58m / 107 g = 45 min each. Files in `cad/print_files/coaster/`.
+- Left: owner opens in Studio, set price (sheet not in this session), real print when the H2D arrives (TPU clarity, TPU-PETG bond untested).
+
 ## 2026-11-20 (cloud) — bookmark: fewer visible lines (owner's aim), ironing timed
 - Hilbert top pattern rejected (+11 min, no fewer lines). Advice: smooth PEI for the back, infill_direction 0 (top lines along the weave grid), silk thread.
 - `bookmark_iqra` at 0.16: infill_direction 0 = 55 min; + ironing all top surfaces = 1h25m (+30 min); ironing topmost only = 57 min (crests only, little effect).
