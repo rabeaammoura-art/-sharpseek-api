@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-20 (cloud) — ASSY hearts printed face down
+- Owner: print them on their face (glossy smooth-plate side = front). `--face-down` mirrors every part left-right (layers are symmetric 0.6/0.6/0.6), so the letters read right after turning the piece over. `heart35_ASSY.3mf` replaced; meshes watertight, print_test 0 problems.
+
 ## 2026-11-20 (cloud) — letter hearts A S S Y (35 mm, one letter each, one plate)
 - Owner: letters instead of the swallow, letter in the middle. `coaster.py --letters ASSY` (Baloo ExtraBold, real font), hearts kept around. Owner approved Y as is; asked A/S higher: letters may now go up to the notch (only the loop part outside the heart is kept clear), tops aligned to Y where possible (A/S apex at x=0 limit +2.9 vs Y +4.7).
 - File `heart35_ASSY.3mf` (4 objects on one plate). print_test 0 problems each. Not sliced (owner slices).

@@ -371,6 +371,12 @@ def pack_heart(art, width, gap=2.0, edge=2.6):
     raise SystemExit("shapes do not fit in the heart")
 
 
+def mirror_x(m):
+    m = m.copy()
+    m.apply_transform(np.diag([-1.0, 1.0, 1.0, 1.0]))     # trimesh flips the faces back for a mirroring transform
+    return m
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("picture")
@@ -381,6 +387,8 @@ def main():
     ap.add_argument("--picks", choices=sorted(PICKS), help="with --heart-art: only these few shapes (small hanging heart)")
     ap.add_argument("--shape-pic", metavar="PICTURE", help="with --picks: replace the main shape by this flat picture (one colour on white)")
     ap.add_argument("--letters", help="with --picks: one heart per letter in place of the main shape, all on one plate, e.g. ASSY")
+    ap.add_argument("--face-down", action="store_true", help="print face down on the smooth plate (owner 2026-11-20: glossy face): "
+                    "everything mirrored left-right so it reads right after turning the piece over (needs symmetric --layers)")
     ap.add_argument("--layers", default="1.6,0.6,0.8", help="TPU under, PETG drawing, TPU over (mm), e.g. 0.6,0.6,0.6 = "
                     "drawing in the middle, seen from both sides (owner 2026-11-20 for the hanging heart)")
     ap.add_argument("--round", type=float, default=0.0, help="round the outer edges top and bottom with this radius (mm)")
@@ -393,6 +401,8 @@ def main():
         objs = []
         for i, ch in enumerate(a.letters):
             parts, _ = build(a.picture, a.heart, a.heart_art, a.picks, None, ch)
+            if a.face_down:
+                parts = [(n, mirror_x(m), sl) for n, m, sl in parts]
             sx, sy = a.heart + 10, a.heart + 5
             objs.append((f"heart_{i + 1}_{ch}", parts, (150 + sx * (i % 2), 110 + sy * (i // 2))))
             if a.stl:
@@ -408,6 +418,8 @@ def main():
         print("->", a.out)
         return
     parts, _ = build(a.picture, a.heart, a.heart_art, a.picks, a.shape_pic)
+    if a.face_down:
+        parts = [(n, mirror_x(m), sl) for n, m, sl in parts]
     for n, m, _ in parts:
         print(f"  part {n}: watertight={m.is_watertight} z {m.bounds[0][2]:.2f}-{m.bounds[1][2]:.2f}")
     cfg = json.loads((HERE.parent / "config" / "bambu_project_4fil_petg.config").read_text())
