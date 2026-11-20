@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-20 (cloud) — heart coaster 65: drawings from the owner's heart picture
+- Owner: my re-packed shapes had broken edges; keep my heart + loop, take the drawings from his ChatGPT heart picture (not in git).
+- `coaster.py --heart 65 --heart-art PIC`: trace without buffer passes (they made beaded edges), shapes 65% / places 85%, gaps >= 1.4 mm. `print_test` 0 problems, slice 35 min / 11.9 g. Replaced `coaster_heart65.3mf`.
+- Render tip: draw the TPU as a plain slab, else the pocket walls flicker and the edges look jagged.
+
 ## 2026-11-20 (cloud) — heart coaster 65 mm with hanging loop (test size)
 - Owner: smaller heart for the first test, same drawings, loop in the top notch (owner's mark) to also use it as a hanging ornament.
 - `coaster.py --heart 65`: 12 shapes re-placed inside the heart at 43%, thin parts fixed (butterfly antennae merge at this size), loop hole 3.6 x 5 clear of the lobes. `print_test` 0 problems. Slice 38 min / 12.6 g. File `cad/print_files/coaster/coaster_heart65.3mf`.

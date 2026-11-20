@@ -49,8 +49,9 @@ def find_circle(img):
     return (xs.min() + xs.max()) / 2, (ys.min() + ys.max()) / 2, (xs.max() - xs.min()) / 2
 
 
-def mask_to_mm(m, cx, cy, rpx, up=4, smooth=1.3):
-    """mask -> shapely geometry in mm, centre (0, 0), y up. Upsample + gaussian = smooth edges, even-odd for holes."""
+def mask_to_mm(m, cx, cy, rpx, up=4, smooth=1.3, clean=True):
+    """mask -> shapely geometry in mm, centre (cx, cy) -> (0, 0), y up, rpx pixels = D/2 mm.
+    Upsample + gaussian = smooth edges, even-odd for holes."""
     f = gaussian_filter(zoom(m.astype(float), up, order=1), up * smooth)
     lines = contourpy.contour_generator(z=f, line_type="Separate").lines(0.5)
     shapes = sorted((p for p in (Polygon(l).buffer(0) for l in lines if len(l) > 8) if p.area > 20), key=lambda p: -p.area)
@@ -59,6 +60,8 @@ def mask_to_mm(m, cx, cy, rpx, up=4, smooth=1.3):
     res = res.difference(unary_union([p for p, d in zip(shapes, depth) if d % 2 == 1]))
     s = D / (2 * rpx) / up
     res = affinity.translate(affinity.scale(res, s, -s, origin=(0, 0)), -cx * D / (2 * rpx), cy * D / (2 * rpx))
+    if not clean:
+        return res.simplify(0.02)
     h = MIN_W / 2
     return res.buffer(-h).buffer(h).buffer(h).buffer(-h).simplify(0.03)   # drop features and gaps < 0.7 mm
 
@@ -73,7 +76,58 @@ def extrude(geom, z0, z1):
     return trimesh.util.concatenate(out)
 
 
-def build(picture, heart=None):
+def heart_picture_art(picture, outline, loop_keep, edge=2.4, gap=1.2):
+    """drawings from the owner's heart picture (cream heart with flat red / blue / orange shapes), kept at their places,
+    scaled by the picture's heart width and then fitted (common shrink + shift) inside our own heart outline"""
+    img = np.array(Image.open(picture).convert("RGB")).astype(float)
+    r, g, b = (img[..., i] for i in range(3))
+    cream = (r > 235) & (g > 220) & (b > 185)
+    ys, xs = np.nonzero(cream)
+    x0, x1, y0, y1 = xs.min(), xs.max(), ys.min(), ys.max()
+    inside = np.zeros_like(cream); inside[y0:y1 + 1, x0:x1 + 1] = True
+    width = outline.bounds[2] - outline.bounds[0]
+    rpx = (x1 - x0) / width * D / 2                     # so that mask_to_mm maps the picture's heart width to ours
+    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    art = {k: mask_to_mm(m & inside, cx, cy, rpx, up=3, smooth=0.8, clean=False) for k, m in colour_masks(img).items()}
+    from shapely.prepared import prep
+    inner = prep(outline.buffer(-edge).difference(loop_keep.buffer(edge)))
+    pieces = [(k, g) for k, geo in art.items() for g in getattr(geo, "geoms", [geo])]
+
+    def layout(f, sq, dy, pos):                        # shapes scaled f about their own centre, places scaled pos (x) / pos*sq (y)
+        out = []
+        for k, g in pieces:
+            c = g.centroid
+            out.append((k, affinity.translate(affinity.scale(g, f, f, origin=c), c.x * pos - c.x, c.y * pos * sq + dy - c.y)))
+        return out
+    best = None
+    for pos in np.arange(0.80, 1.301, 0.05):
+        for sq in (1.0, 0.95, 0.9, 0.85):
+            for dy in np.arange(-6, 6.01, 0.5):
+                lo, hi = 0.4, pos
+                if best and hi <= best[0]:
+                    continue
+                for _ in range(12):
+                    f = (lo + hi) / 2
+                    L = layout(f, sq, dy, pos)
+                    ok = all(inner.contains(g) for _, g in L) and all(
+                        a.distance(b) >= gap for i, (_, a) in enumerate(L) for _, b in L[i + 1:])
+                    lo, hi = (f, hi) if ok else (lo, f)
+                if best is None or lo > best[0] + 1e-3:
+                    best = (lo, dy, sq, pos)
+    f, dy, sq, pos = best
+    print(f"heart picture {img.shape[1]}x{img.shape[0]} px, heart {x1 - x0} px wide; shapes at {f * 100:.0f}%, places at {pos * 100:.0f}% "
+          f"(height x{sq:.2f}) shifted {dy:+.1f} mm")
+    placed = layout(f, sq, dy, pos)
+    gaps = min(a.distance(b) for i, (_, a) in enumerate(placed) for _, b in placed[i + 1:])
+    print(f"  smallest gap between shapes {gaps:.2f} mm")
+    out = {}
+    for k in art:
+        geo = unary_union([g for kk, g in placed if kk == k])
+        out[k] = geo                                    # traced edge kept as is (no buffer passes: they make the edge beaded)
+    return out
+
+
+def build(picture, heart=None, heart_art=None):
     img = np.array(Image.open(picture).convert("RGB")).astype(float)
     img = img[:, : img.shape[1] // 2]                       # left half = colour version
     cx, cy, rpx = find_circle(img)
@@ -81,7 +135,12 @@ def build(picture, heart=None):
     inside = (xs - cx) ** 2 + (ys - cy) ** 2 < (rpx - 12) ** 2
     art = {k: mask_to_mm(m & inside, cx, cy, rpx) for k, m in colour_masks(img).items()}
     disc = Point(0, 0).buffer(D / 2, 256)
-    if heart:
+    if heart and heart_art:
+        outline = heart_outline(heart)
+        loop, ring = hang_loop(outline)
+        art = heart_picture_art(heart_art, outline, ring)
+        disc = outline.union(loop)
+    elif heart:
         disc, art = pack_heart(art, heart)
     allart = unary_union(list(art.values()))
     margin = min(disc.exterior.distance(Point(c)) for g in allart.geoms for c in g.exterior.coords)
@@ -165,9 +224,10 @@ def main():
     ap.add_argument("--out", default=str(HERE.parent / "print_files" / "coaster" / "coaster_birds.3mf"))
     ap.add_argument("--set4", action="store_true", help="4 coasters on one plate (45 min each instead of 58); slice with --tower-x 270 --tower-y 140 --tower-width 30")
     ap.add_argument("--heart", type=float, metavar="WIDTH", help="heart-shaped coaster this wide (mm), same drawings re-placed inside")
+    ap.add_argument("--heart-art", metavar="PICTURE", help="with --heart: take the drawings and their places from this heart picture")
     ap.add_argument("--stl", action="store_true", help="also write one STL per part (for print_test.py)")
     a = ap.parse_args()
-    parts, _ = build(a.picture, a.heart)
+    parts, _ = build(a.picture, a.heart, a.heart_art)
     for n, m, _ in parts:
         print(f"  part {n}: watertight={m.is_watertight} z {m.bounds[0][2]:.2f}-{m.bounds[1][2]:.2f}")
     cfg = json.loads((HERE.parent / "config" / "bambu_project_4fil_petg.config").read_text())
