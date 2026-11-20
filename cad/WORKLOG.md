@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-20 (cloud) — hanging heart 35 with the owner's swallow
+- Owner sent a swallow picture (transparent webp, kept out of git): `--shape-pic` replaces the main shape; preset `swallow_trail` = swallow up/right + 3 red hearts trailing behind the tail (big one top-left added by owner). Shapes placed one by one at full size.
+- Files `heart35_swallow.3mf` and `heart35_swallow_set4.3mf`, print_test 0 problems. Not sliced: owner slices himself in Studio (faster for him).
+- Swallow tail/wing tips taper under 0.7 mm (tips print slightly shorter), left as drawn.
+
 ## 2026-11-20 (cloud) — small hanging heart 35 mm (bird + 2 hearts)
 - Owner: as a hanging piece the 65 is too big, about half; worried the drawings get spoiled. Options given (1 shape / 3 shapes / letter + shape); owner chose bird + 2 hearts.
 - `coaster.py --picks bird_2hearts` (blue bird + 2 red hearts from his heart picture), 35 mm, 0.6/0.6/0.6, rounded edges, small loop. print_test 0 problems. CLI: 1 = 16 min / 3.8 g; 4 on a plate = 28 min (7 min each). Files `heart35_bird_2hearts*.3mf`.
