@@ -37,8 +37,8 @@ RES = 0.04                      # heightmap resolution for the thread contours
 NC, NR = int(W / P), int(H / P)
 
 
-def pattern():
-    """set of (col, row) stitched cells; row 0 = top."""
+def pattern(text=False):
+    """set of (col, row) stitched cells; row 0 = top. text=True: stitched "اقرأ وارتقِ" between two lines (cols 5 / 19)."""
     cells = set()
 
     def add(c, r):
@@ -62,8 +62,15 @@ def pattern():
     for c in range(mid - 3, mid + 4):
         add(c, 8)
     cells -= {(c, r) for c in range(mid - 2, mid + 3) for r in range(0, 8)}
-    for r in range(42, 80):                     # two vertical stitch lines
-        add(6, r); add(NC - 7, r)
+    if text:
+        import stitch_text
+        for r in range(33, 80):                 # two lines framing the text
+            add(5, r); add(NC - 6, r)
+        t, w = stitch_text.cells(7, 33 + (47 - 44) // 2)
+        cells |= t
+    else:
+        for r in range(42, 80):                 # two vertical stitch lines
+            add(6, r); add(NC - 7, r)
     return cells
 
 
@@ -125,8 +132,8 @@ def union(meshes):
     return trimesh.boolean.union(meshes, engine="manifold")
 
 
-def build():
-    cells = pattern()
+def build(text=False):
+    cells = pattern(text)
     x, y, hs = thread_heightmap(cells)
     plate = box(0, 0, W, H).buffer(-CORNER).buffer(CORNER, resolution=16)
     hole = Point(W / 2, H - HOLE_Y).buffer(HOLE_R, resolution=48)
@@ -164,10 +171,10 @@ def build():
     return fabric, stitches
 
 
-def _settings(template, colours, tower):
+def _settings(template, colours, tower, layer="0.12"):
     import json
     cfg = json.loads(build_project_settings(template, colours, tower))
-    cfg["layer_height"] = "0.12"          # 0.12 = round threads in 1h14m; 0.08 = 1h34m, 0.16 = 54 min (coarser threads)
+    cfg["layer_height"] = layer          # 0.12 = round threads in 1h14m; 0.08 = 1h34m, 0.16 = 54 min (coarser threads)
     return json.dumps(cfg, indent=4)
 
 
@@ -205,23 +212,26 @@ def main():
     ap.add_argument("--out", default=str(HERE.parent / "out" / "bookmark"))
     ap.add_argument("--plate-x", type=float, default=128.0)
     ap.add_argument("--plate-y", type=float, default=160.0)
+    ap.add_argument("--text", action="store_true", help='stitched "اقرأ وارتقِ" in the free space')
+    ap.add_argument("--layer", default="0.12")
     ap.add_argument("--options", action="store_true", help="write the 4 colour options on one plate (0.16 mm)")
     a = ap.parse_args()
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
     if a.options:
         return write_options(out)
-    fabric, stitches = build()
+    fabric, stitches = build(a.text)
+    stem = "bookmark_iqra" if a.text else "bookmark"
     for n, m in (("fabric", fabric), ("stitches", stitches)):
         print(f"{n}: {len(m.faces)} faces, watertight {m.is_watertight}, volume {m.volume:.0f} mm^3, "
               f"z {m.bounds[0][2]:.2f}..{m.bounds[1][2]:.2f}")
-        m.export(out / f"bookmark_{n}.stl")
+        m.export(out / f"{stem}_{n}.stl")
     template = (HERE.parent / "config" / f"bambu_project_4fil_{a.material}.config").read_bytes()
     colours = [a.fabric, a.thread, "#000000", "#FFFFFF"]
     tower = (a.plate_x + W / 2 + 10, a.plate_y - 40, 20)
-    write_bambu_3mf(out / "bookmark.3mf", [("fabric", fabric, 1), ("stitches", stitches, 2)],
-                    center=(a.plate_x, a.plate_y), name="bookmark",
-                    project_settings=_settings(template, colours, tower))
-    print("wrote", out / "bookmark.3mf")
+    write_bambu_3mf(out / f"{stem}.3mf", [("fabric", fabric, 1), ("stitches", stitches, 2)],
+                    center=(a.plate_x, a.plate_y), name=stem,
+                    project_settings=_settings(template, colours, tower, a.layer))
+    print("wrote", out / f"{stem}.3mf")
 
 
 if __name__ == "__main__":

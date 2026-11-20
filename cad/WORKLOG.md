@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-20 (cloud) — bookmark with stitched «اقرأ وارتقِ»: single file
+- `bookmark.py --text` (letters in `cad/bookmark/stitch_text.py`) -> `cad/print_files/bookmark/bookmark_iqra.3mf`, one piece, 2 slots (white + red default), 0.16. Overlap 0, watertight, `print_test` 0 problems. Slice PLA + tower 20: 57 min / 14 g.
+- Left: owner opens it in Studio; text not yet in the 4-options file (owner asked for one piece only).
+
 ## 2026-11-20 (cloud) — bookmark: stitched text "اقرأ وارتقِ" preview (not in the file yet)
 - Owner chose the text and the stitched look. Hand-drawn one-stitch-per-cell Kufi-style letters (auto-rasterised fonts were unreadable at 11 cells), vertical, reading top -> bottom, between two stitch lines moved to cols 5 / 19; alef 16 mm tall. Preview in the 4 colours sent (scratch, not in git).
 - Left: owner's OK (reading direction, kasra left out), then add to `bookmark.py` and regenerate both 3MFs.

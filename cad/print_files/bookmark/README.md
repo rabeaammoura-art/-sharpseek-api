@@ -17,3 +17,7 @@ Regenerate / other default colours: `python cad/bookmark/bookmark.py --fabric "#
 do not want), 7 filament slots, layer 0.16: 1 PLA+ White, 2 Silk Red/Gold, 3 PLA+ Black, 4 Silk Gold, 5 Silk Blue/Green,
 6 Wood PLA, 7 PLA+ Red. Options: 1 = slots 1+2, 2 = 3+4, 3 = 1+5, 4 = 6+7. All profiles are PLA Basic: pick the real spools
 in Studio. Time 0.16: one alone 54 min; all four together 4h07m / 60 g. Regenerate: `python cad/bookmark/bookmark.py --options --out cad/print_files/bookmark`.
+
+`bookmark_iqra.3mf`: one bookmark with the stitched text «اقرأ وارتقِ» (hand-drawn one-stitch letters, `cad/bookmark/stitch_text.py`),
+read top -> bottom, layer 0.16, colours of option 1 (white + red), 2 slots, swap freely. 57 min / 14 g.
+Regenerate: `python cad/bookmark/bookmark.py --text --layer 0.16 --fabric "#F2F0EA" --thread "#B0182B" --out cad/print_files/bookmark`.
