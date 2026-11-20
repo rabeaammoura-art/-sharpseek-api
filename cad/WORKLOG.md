@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-20 (cloud) — bookmark: fewer visible lines (owner's aim), ironing timed
+- Hilbert top pattern rejected (+11 min, no fewer lines). Advice: smooth PEI for the back, infill_direction 0 (top lines along the weave grid), silk thread.
+- `bookmark_iqra` at 0.16: infill_direction 0 = 55 min; + ironing all top surfaces = 1h25m (+30 min); ironing topmost only = 57 min (crests only, little effect).
+
 ## 2026-11-20 (cloud) — bookmark with stitched «اقرأ وارتقِ»: single file
 - `bookmark.py --text` (letters in `cad/bookmark/stitch_text.py`) -> `cad/print_files/bookmark/bookmark_iqra.3mf`, one piece, 2 slots (white + red default), 0.16. Overlap 0, watertight, `print_test` 0 problems. Slice PLA + tower 20: 57 min / 14 g.
 - Left: owner opens it in Studio; text not yet in the 4-options file (owner asked for one piece only).
