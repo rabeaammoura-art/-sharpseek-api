@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-20 (cloud) — bookmark print times (CLI, PLA, tower 20 mm)
+- 1 bookmark (2 colours): 0.12 1h14m / 15 g, 0.20 41 min / 14 g. 2 on one plate, 4 colours: 0.12 2h42m / 32 g, 0.20 1h33m / 30 g. 2 on one plate, same 2 colours: 0.12 2h24m, 0.20 1h21m.
+- Two different colour pairs on one plate is slower than two separate prints (4 colour swaps per layer): batch same colours together.
+
 ## 2026-11-20 (cloud) — bookmark: 4 colour options from stock (owner's sheet)
 - From the stock sheet (PLA family only, prints together): 1 PLA+ White + Silk Red/Gold, 2 PLA+ Black + Silk Gold, 3 PLA+ White + Silk Blue/Green, 4 Wood PLA + PLA+ Red. Shaded previews sent (scratch, not in git). Rose Gold on white dropped: too pale.
 - Left: owner's pick; then regenerate the 3MF with those default colours.
