@@ -73,7 +73,7 @@ def extrude(geom, z0, z1):
     return trimesh.util.concatenate(out)
 
 
-def build(picture):
+def build(picture, heart=None):
     img = np.array(Image.open(picture).convert("RGB")).astype(float)
     img = img[:, : img.shape[1] // 2]                       # left half = colour version
     cx, cy, rpx = find_circle(img)
@@ -81,15 +81,82 @@ def build(picture):
     inside = (xs - cx) ** 2 + (ys - cy) ** 2 < (rpx - 12) ** 2
     art = {k: mask_to_mm(m & inside, cx, cy, rpx) for k, m in colour_masks(img).items()}
     disc = Point(0, 0).buffer(D / 2, 256)
+    if heart:
+        disc, art = pack_heart(art, heart)
     allart = unary_union(list(art.values()))
-    margin = D / 2 - max(Point(0, 0).distance(Point(c)) for g in allart.geoms for c in g.exterior.coords)
+    margin = min(disc.exterior.distance(Point(c)) for g in allart.geoms for c in g.exterior.coords)
     print(f"picture {img.shape[1]}x{img.shape[0]} px (left half), ring r={rpx:.0f} px, TPU margin to edge {margin:.1f} mm")
     for k, g in art.items():
-        print(f"  {k}: {len(getattr(g, 'geoms', [g]))} shapes, {g.area:.0f} mm2")
+        thin = g.difference(g.buffer(-0.35).buffer(0.35))
+        print(f"  {k}: {len(getattr(g, 'geoms', [g]))} shapes, {g.area:.0f} mm2, under 0.7 mm: {thin.area:.2f} mm2")
     tpu = trimesh.boolean.union([extrude(disc, 0, Z0), extrude(disc.difference(allart), Z0 - 0.01, Z1 + 0.01),
                                  extrude(disc, Z1, T)], engine="manifold")
     parts = [("clear_tpu", tpu, 1)] + [(f"petg_{k}", extrude(art[k], Z0, Z1), i) for i, k in enumerate(COLOURS, start=2)]
     return parts, art
+
+
+def heart_outline(width):
+    """classic heart curve scaled to `width`, centred, tip and top notch rounded (1.5 mm)"""
+    t = np.linspace(0, 2 * np.pi, 600)
+    x = 16 * np.sin(t) ** 3
+    y = 13 * np.cos(t) - 5 * np.cos(2 * t) - 2 * np.cos(3 * t) - np.cos(4 * t)
+    h = Polygon(np.c_[x, y]).buffer(0)
+    h = affinity.scale(h, width / 32, width / 32, origin=(0, 0)).buffer(-1.5).buffer(1.5)
+    h = affinity.scale(h, width / (h.bounds[2] - h.bounds[0]), width / (h.bounds[2] - h.bounds[0]), origin=(0, 0))
+    b = h.bounds
+    return affinity.translate(h, -(b[0] + b[2]) / 2, -(b[1] + b[3]) / 2)
+
+
+def printable(g):
+    """after shrinking: thicken a little, close gaps < 0.8 mm (they would fuse anyway), keep everything >= 0.7 mm"""
+    g = g.buffer(0.15).buffer(0.4).buffer(-0.4)
+    thin = g.difference(g.buffer(-0.36).buffer(0.36))
+    if thin.area > 0.01:
+        g = g.union(thin.buffer(0.3)).buffer(0.4).buffer(-0.4)
+    return g
+
+
+def hang_loop(outline, outer=(7.0, 9.0), hole=(3.6, 5.0)):
+    """oval TPU loop in the top notch of the heart (owner's mark 2026-11-20) -> (loop ring, keep-out for the drawings)"""
+    from shapely.geometry import LineString
+    top = outline.intersection(LineString([(0, -200), (0, 200)])).bounds[3]      # bottom of the notch on the centre line
+    cy = top                                                                       # raise the loop until its hole is clear of the
+    while True:                                                                    # two lobes (0.8 mm TPU wall at least)
+        ring = affinity.scale(Point(0, cy).buffer(1, 64), outer[0] / 2, outer[1] / 2)
+        hole_ = affinity.scale(Point(0, cy + 0.5).buffer(1, 64), hole[0] / 2, hole[1] / 2)
+        if not hole_.intersects(outline.buffer(0.8)):
+            break
+        cy += 0.1
+    ring = ring.union(Point(0, top).buffer(1.2)).convex_hull                     # fill the V between loop and notch
+    return ring.difference(hole_), ring
+
+
+def pack_heart(art, width, gap=2.0, edge=2.6):
+    """re-place every shape inside a heart, biggest first, as near as possible to its spot on the round picture;
+    the largest common shrink factor that fits all shapes wins"""
+    from shapely.prepared import prep
+    outline = heart_outline(width)
+    loop, ring = hang_loop(outline)
+    inner = prep(outline.buffer(-edge).difference(ring.buffer(edge)))
+    outline = outline.union(loop)
+    items = sorted(((k, g) for k, geo in art.items() for g in geo.geoms), key=lambda kg: -kg[1].area)
+    grid = [(x, y) for x in np.arange(-width / 2, width / 2, 0.5) for y in np.arange(-width / 2, width / 2, 0.5)]
+    for f in np.arange(0.85, 0.30, -0.02):
+        placed, occ = [], None
+        for k, g in items:
+            c = g.centroid
+            g0 = printable(affinity.translate(affinity.scale(g, f, f, origin=c), -c.x, -c.y))
+            tx, ty = c.x * width / D, c.y * width / D * 0.95
+            for x, y in sorted(grid, key=lambda p: (p[0] - tx) ** 2 + (p[1] - ty) ** 2):
+                gg = affinity.translate(g0, x, y)
+                if inner.contains(gg) and (occ is None or not occ.intersects(gg)):
+                    placed.append((k, gg)); occ = unary_union([p for _, p in placed]).buffer(gap); break
+            else:
+                break
+        if len(placed) == len(items):
+            print(f"heart {width:.0f} mm: {len(placed)} shapes at {f * 100:.0f}% of their round-coaster size")
+            return outline, {k: unary_union([g for kk, g in placed if kk == k]) for k in art}
+    raise SystemExit("shapes do not fit in the heart")
 
 
 def main():
@@ -97,9 +164,10 @@ def main():
     ap.add_argument("picture")
     ap.add_argument("--out", default=str(HERE.parent / "print_files" / "coaster" / "coaster_birds.3mf"))
     ap.add_argument("--set4", action="store_true", help="4 coasters on one plate (45 min each instead of 58); slice with --tower-x 270 --tower-y 140 --tower-width 30")
+    ap.add_argument("--heart", type=float, metavar="WIDTH", help="heart-shaped coaster this wide (mm), same drawings re-placed inside")
     ap.add_argument("--stl", action="store_true", help="also write one STL per part (for print_test.py)")
     a = ap.parse_args()
-    parts, _ = build(a.picture)
+    parts, _ = build(a.picture, a.heart)
     for n, m, _ in parts:
         print(f"  part {n}: watertight={m.is_watertight} z {m.bounds[0][2]:.2f}-{m.bounds[1][2]:.2f}")
     cfg = json.loads((HERE.parent / "config" / "bambu_project_4fil_petg.config").read_text())
@@ -112,7 +180,7 @@ def main():
         write_bambu_3mf_multi(out, [(f"coaster_{i + 1}", parts, (105 + 100 * (i % 2), 110 + 100 * (i // 2))) for i in range(4)],
                               json.dumps(cfg, indent=4))
     else:
-        write_bambu_3mf(out, parts, (175.0, 160.0), "coaster_birds", json.dumps(cfg, indent=4))
+        write_bambu_3mf(out, parts, (175.0, 160.0), out.stem, json.dumps(cfg, indent=4))
     if a.stl:
         for n, m, _ in parts:
             m.export(out.with_name(f"{out.stem}_{n}.stl"))

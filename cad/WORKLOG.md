@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-20 (cloud) — heart coaster 65 mm with hanging loop (test size)
+- Owner: smaller heart for the first test, same drawings, loop in the top notch (owner's mark) to also use it as a hanging ornament.
+- `coaster.py --heart 65`: 12 shapes re-placed inside the heart at 43%, thin parts fixed (butterfly antennae merge at this size), loop hole 3.6 x 5 clear of the lobes. `print_test` 0 problems. Slice 38 min / 12.6 g. File `cad/print_files/coaster/coaster_heart65.3mf`.
+- Left: owner's look; for selling, 85 mm or more (a glass base does not sit on 65).
+
 ## 2026-11-20 (cloud) — clear TPU coaster with PETG drawings inside (new product)
 - Owner: Ø95 x 3.0, clear TPU + PETG drawing sealed mid-layer. My hand drawings rejected ("ugly"); owner made the art with ChatGPT from my 2D prompt (prompt in `cad/coaster/README.md`, picture kept out of git).
 - `cad/coaster/coaster.py` traces the 3 colours -> 3MF: TPU 1.6 / PETG 0.6 / TPU 0.8, TPU nozzle 2, PETG nozzle 1. 12 shapes, edge margin 3.5 mm, nothing < 0.7 mm. `print_test` 0 problems.

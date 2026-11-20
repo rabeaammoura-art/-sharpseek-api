@@ -22,3 +22,9 @@ one thin light-grey circle (90% of the canvas) = the edge. Inside: 8-12 small sh
 flowers), each a SOLID silhouette in ONE flat colour: red #C8102E, blue #1F5FA8, orange #E07A1F only. Details are cut-out
 holes (at least 2% of the canvas), nothing thinner than 1%, shapes do not touch (2% gap), 6% away from the circle, no text.
 Also give the same image in pure black on white.
+
+## Heart version (test size)
+    python cad/coaster/coaster.py PICTURE.png --heart 65 --out cad/print_files/coaster/coaster_heart65.3mf
+Heart 65 x 56 mm (+ hanging loop in the top notch, hole 3.6 x 5 mm, owner's mark), the same 12 shapes re-placed one by one
+inside (43% of their round size); after shrinking, gaps under 0.8 mm are closed and thin parts thickened (the butterfly
+antennae merge at this size). Slice: 38 min / 12.6 g (TPU 10 g), print_test 0 problems.
