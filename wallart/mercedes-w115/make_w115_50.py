@@ -1,7 +1,7 @@
 """W115 50 cm wall art: adds the number plate (white floor + black raised digits) and the glue-free half-lap joints.
   python make_w115_50.py [NUMBER]          (or env PLATE_NUMBER; default is a dummy so the public repo carries no real number)
 Input : stl/mb_small_1x1.stl (front, has the plate) and stl/mb_small_2x1.stl (rear)
-Output: out_50/ (git-ignored):
+Output: out_50/ (git-ignored): front_2colour.3mf (black + white, PETG, prime tower) and rear.3mf, plus the STLs:
   front_black.stl   art + plate frame + digits + ledges + pins  -> print FRONT FACE UP (as is)
   front_white.stl   plate floor 1 mm                            -> same position, 2nd colour (white)
   rear.stl          rear piece, already flipped                 -> print FRONT FACE DOWN (as is)
@@ -93,3 +93,21 @@ rear.apply_translation([2 * SEAM, 0, T])               # back to x 0..250, z 0..
 for n, m in (('front_black', front), ('front_white', white), ('rear', rear)):
     m.export(os.path.join(OUT, n + '.stl'))
     print(n, m.extents.round(1), 'watertight', m.is_watertight, 'z', round(m.bounds[0][2], 2), round(m.bounds[1][2], 2))
+
+# ---------- 3MF (Bambu Studio, H2D): front = 2 colours in ONE file, rear = 1 colour ----------
+sys.path.insert(0, os.path.join(HERE, '..', '..', 'cad'))
+from threemf import build_project_settings, write_bambu_3mf
+from pathlib import Path
+tpl = (Path(HERE) / '..' / '..' / 'cad' / 'config' / 'bambu_project_4fil_petg.config').read_bytes()
+def centred(m):
+    m = m.copy(); c = m.bounds.mean(axis=0); m.apply_translation([-c[0], -c[1], 0]); return m, c
+fb, c = centred(front); fw = white.copy(); fw.apply_translation([-c[0], -c[1], 0])
+X0, Y0 = 4.0, 160.0                                  # front piece: left edge 4 mm from the bed edge, centred in y
+tower = (round(float(X0 + front.extents[0] + 3), 1), 120, 14)
+write_bambu_3mf(os.path.join(OUT, 'front_2colour.3mf'), [('black', fb, 1), ('white_plate', fw, 2)],
+                center=(X0 + front.extents[0] / 2, Y0), name='W115_front_50',
+                project_settings=build_project_settings(tpl, ['#000000', '#FFFFFF', '#000000', '#000000'], tower))
+rr, c2 = centred(rear)
+write_bambu_3mf(os.path.join(OUT, 'rear.3mf'), [('black', rr, 1)], center=(4 + rear.extents[0] / 2, 160.0), name='W115_rear_50',
+                project_settings=build_project_settings(tpl, ['#000000'] * 4, None))
+print('3mf written; tower x/y/w', tower)
