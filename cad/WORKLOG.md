@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-21 (cloud) — classic Mercedes W115 front photo -> filament painting (zt_forge)
+- Owner asked for a HueForge print of a W115 photo; used our `zt_forge.py` (no HueForge licence). Car cut out with rembg (isnet-general-use, scratch venv), background black, colour boosted x1.7 (the photo is washed out by reflections).
+- Chosen: black / grey #6E6E6E / olive #7C8A4E / white, base 0.64 top 2.0, 150 x 117 mm, swaps at layers 8 / 14 / 17, dE 11.2. STL closed. CLI slice (PLA Basic, one colour, 0.08, 100 % zig-zag, no tower): 2h57m / 21.6 g (0.12 layers = 2h03m but needs regenerating with `--lh 0.12`). GUI is usually longer than CLI.
+- Hex / TD of grey and olive are guesses. Photo, plate and outputs stay out of git (`cad/out/hueforge/w115_*`).
+- Left: owner's pick of the real green spool, slice in Studio with the 3 swaps, first test print.
+
 ## 2026-11-21 (cloud) — whole alphabet A-Z on one plate
 - Owner wanted every letter, all in one file: `coaster.py --letters ABCDEFGHIJKLMNOPQRSTUVWXYZ` -> `heart35_AZ.3mf`, 26 hearts in a 7 x 4 grid inside x 25-325 (both nozzles), face down (mirrored), letters centred on their box. Build takes ~6 min.
 - G, K, U first came out with an open TPU mesh (slivers when cutting the pocket per 0.1 mm slab): TPU is now the full rounded shell minus the drawing in one boolean -> all 78 parts watertight (inner shells = sealed pockets), print_test 0 problems on all 26.
