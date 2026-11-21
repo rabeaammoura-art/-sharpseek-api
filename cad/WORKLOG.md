@@ -8,7 +8,7 @@ Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what wa
 ## 2026-11-21 (cloud) — W115 50 cm: number plate + half-lap joints
 - `wallart/mercedes-w115/make_w115_50.py [NUMBER]` (number from argv/env `PLATE_NUMBER`, default dummy; outputs in git-ignored `out_50/`): plate on the bumper (50x11 mm, follows the bumper slope, centre 68,49 of the front piece) = white floor 1 mm + black frame/raised digits to 3 mm; 3 half-lap joints (8 mm lap + 2.4 mm pin, clearance 0.10 = coupon pair with 1 dot) at y 30 / 126 / 167. Front piece prints front up, rear piece comes already flipped (front down). Double-sided tape on the back.
 - print_test 0 problems; PETG single-colour estimate without tower: front 2h17m 47 g, rear 1h31m 35 g. Two-colour (white floor) time not estimated yet.
-- Script now also writes `out_50/front_2colour.3mf` (black + white plate, PETG, prime tower x265 w14; sliced 2h26m, 49.7 g, white 1.5 g) and `rear.3mf`.
+- Redesign (owner): plate printed ALONE as an insert (`plate_insert.3mf`: white floor + black raised digits, flange 0.7 mm drops in from the back behind a 1.8 mm frame); front and rear both print FRONT FACE DOWN. The 3 ledges/pins of the front piece hang in the air -> PLA support (slot 2, PETG model) under them; `front_down.3mf` has support_filament=2. CLI estimates (PETG, supports in PETG because the CLI cannot take slot 2): front 2h17m 47 g, rear 1h31m 35 g, insert 8 min 1.7 g. PLA-support time not measured, check in the GUI.
 - Left: owner prints and checks plate + joints; Arabic/JORDAN text is tiny (check legibility); same for 70/94 cm sizes later.
 
 ## 2026-11-21 (cloud) — W115 50 cm: joint clearance test coupon

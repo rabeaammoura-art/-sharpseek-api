@@ -1,11 +1,13 @@
-"""W115 50 cm wall art: adds the number plate (white floor + black raised digits) and the glue-free half-lap joints.
-  python make_w115_50.py [NUMBER]          (or env PLATE_NUMBER; default is a dummy so the public repo carries no real number)
-Input : stl/mb_small_1x1.stl (front, has the plate) and stl/mb_small_2x1.stl (rear)
-Output: out_50/ (git-ignored): front_2colour.3mf (black + white, PETG, prime tower) and rear.3mf, plus the STLs:
-  front_black.stl   art + plate frame + digits + ledges + pins  -> print FRONT FACE UP (as is)
-  front_white.stl   plate floor 1 mm                            -> same position, 2nd colour (white)
-  rear.stl          rear piece, already flipped                 -> print FRONT FACE DOWN (as is)
+"""W115 50 cm wall art: number plate (separate insert, white floor + black raised digits) and glue-free half-lap joints.
+  python make_w115_50.py [NUMBER]       (or env PLATE_NUMBER; default is a dummy so the public repo carries no real number)
+Input : stl/mb_small_1x1.stl (front) and stl/mb_small_2x1.stl (rear)
+Output: out_50/ (git-ignored)
+  front_down.3mf     front piece, FRONT FACE DOWN, PETG + PLA supports (slot 2) under the 3 ledges/pins
+  rear.3mf           rear piece, FRONT FACE DOWN, PETG
+  plate_insert.3mf   the number plate, printed alone, face up, black digits + white floor (PETG)
+  (same parts as STL)
 Joint = half-lap (8 mm) + 2.4 mm pin in a 2.6 mm hole (clearance 0.10 = the coupon pair with 1 dot that fitted).
+The plate insert drops in from the back: a 0.7 mm flange sits in a pocket behind the 1.8 mm front frame.
 """
 import sys, os, numpy as np, trimesh
 from shapely.geometry import box, Point
@@ -20,7 +22,7 @@ T, H = 3.0, 1.5                     # thickness, half
 C, L, PD, PH, HD = 0.10, 8.0, 2.4, 1.0, 1.1
 SEAM = 250.0
 JOINTS = [(30.0, 5.0), (126.0, 6.0), (167.2, 5.0)]     # (y, tongue width) chosen where both strokes cover the 8 mm lap
-PLATE = dict(W=50.0, H=11.0, cx=68.0, cy=49.0, slope=-0.068, frame=1.2, floor=1.0)
+PLATE = dict(W=50.0, H=11.0, cx=68.0, cy=49.0, slope=-0.068, frame=1.8, floor=1.0, flange=0.7)
 
 def section(name):
     m = trimesh.load(os.path.join(HERE, 'stl', name + '.stl'))
@@ -57,17 +59,19 @@ def fit(g, x0, y0, w=None, h=None):   # scale to width (and/or height) and put i
 
 A = section('mb_small_1x1'); Bp = affinity.translate(section('mb_small_2x1'), SEAM, 0)   # rear in the front piece's coordinates
 
-# ---------- plate ----------
+# ---------- plate: the front piece keeps only the frame + an opening; the number lives on a separate insert ----------
 P = PLATE; W, Hh = P['W'], P['H']
 outer = place(box(0, 0, W, Hh), P)
-inner = place(box(P['frame'], P['frame'], W - P['frame'], Hh - P['frame']), P)
+inner = place(box(P['frame'], P['frame'], W - P['frame'], Hh - P['frame']), P)      # opening / insert footprint
 ring = outer.difference(inner)
-digits = fit(text_geom(NUMBER, 6.0), W * 0.36, 0, w=W * 0.58)
+digits = fit(text_geom(NUMBER, 6.0), W * 0.34, 0, w=W * 0.58)
 digits = affinity.translate(digits, 0, (Hh - (digits.bounds[3] - digits.bounds[1])) / 2 - digits.bounds[1])
-ar = fit(text_geom('الاردن', 2.6), 3.0, 5.4, w=7.0)
-en = fit(text_geom('JORDAN', 1.6), 3.0, 2.2, w=7.0)
+ar = fit(text_geom('الاردن', 2.4), 3.6, 5.2, w=6.6)
+en = fit(text_geom('JORDAN', 1.5), 3.6, 3.0, w=6.6)
 marks = unary_union([place(digits, P), place(ar, P), place(en, P)]).intersection(inner)
 black_art = A.difference(outer).union(ring)
+pocket_plate = inner.buffer(P['flange'] + C, join_style=2)            # back half: room for the insert's flange
+flange = inner.buffer(P['flange'], join_style=2).difference(inner)
 
 # ---------- joints ----------
 ledges, pins, pockets, holes = [], [], [], []
@@ -79,10 +83,12 @@ for yc, w in JOINTS:
     holes.append(Point(SEAM + L / 2, yc).buffer(PD / 2 + C, 24))
 ledge = unary_union(ledges); pocket = unary_union(pockets)
 
-# ---------- front piece (print front face up) ----------
-front = union(ext(black_art, 0, T) + ext(marks, P['floor'], T) + ext(ledge.difference(black_art), 0, H)
+# ---------- front piece (assembled: back z=0, front z=3), then turned over: FRONT FACE DOWN ----------
+front = union(ext(black_art, H, T) + ext(black_art.difference(pocket_plate), 0, H) + ext(ledge.difference(black_art), 0, H)
               + [m for g in pins for m in ext(g, H, H + PH)])
-white = union(ext(inner, 0, P['floor']))
+insert_white = union(ext(inner, 0, P['floor']) + ext(flange, 0, H))                # floor 1 mm + flange (back half)
+insert_black = union(ext(marks, P['floor'], T))                                    # raised digits to 3 mm
+front_print = front.copy(); front_print.apply_transform(np.diag([-1.0, 1.0, -1.0, 1.0])); front_print.apply_translation([front.bounds[1][0], 0, T])
 # ---------- rear piece: assembled (back z=0), then flipped so the FRONT face is on the bed ----------
 back_half = ext(Bp.difference(pocket), 0, H)
 front_low = ext(Bp.difference(unary_union(holes)), H, H + HD)
@@ -90,24 +96,35 @@ front_up = ext(Bp, H + HD, T)
 rear = union(back_half + front_low + front_up)
 rear.apply_transform(np.diag([-1.0, 1.0, -1.0, 1.0]))   # turn the part over (180 deg about y): front face down
 rear.apply_translation([2 * SEAM, 0, T])               # back to x 0..250, z 0..3
-for n, m in (('front_black', front), ('front_white', white), ('rear', rear)):
+for n, m in (('front_down', front_print), ('plate_white', insert_white), ('plate_black', insert_black), ('rear', rear)):
     m.export(os.path.join(OUT, n + '.stl'))
     print(n, m.extents.round(1), 'watertight', m.is_watertight, 'z', round(m.bounds[0][2], 2), round(m.bounds[1][2], 2))
 
-# ---------- 3MF (Bambu Studio, H2D): front = 2 colours in ONE file, rear = 1 colour ----------
+# ---------- 3MF (Bambu Studio, H2D) ----------
+import json
 sys.path.insert(0, os.path.join(HERE, '..', '..', 'cad'))
 from threemf import build_project_settings, write_bambu_3mf
 from pathlib import Path
-tpl = (Path(HERE) / '..' / '..' / 'cad' / 'config' / 'bambu_project_4fil_petg.config').read_bytes()
+CFG = Path(HERE) / '..' / '..' / 'cad' / 'config'
+petg = json.loads((CFG / 'bambu_project_4fil_petg.config').read_bytes()); pla = json.loads((CFG / 'bambu_project_4fil_pla.config').read_bytes())
+def with_pla_slot2():
+    """PETG in slot 1, PLA in slot 2 (the support material): copy the PLA values of every per-filament setting into slot 2."""
+    cfg = json.loads(json.dumps(petg))
+    for k, v in cfg.items():
+        if isinstance(v, list) and len(v) == 4 and isinstance(pla.get(k), list) and len(pla[k]) == 4:
+            cfg[k][1] = pla[k][1]
+    return json.dumps(cfg).encode()
 def centred(m):
     m = m.copy(); c = m.bounds.mean(axis=0); m.apply_translation([-c[0], -c[1], 0]); return m, c
-fb, c = centred(front); fw = white.copy(); fw.apply_translation([-c[0], -c[1], 0])
-X0, Y0 = 4.0, 160.0                                  # front piece: left edge 4 mm from the bed edge, centred in y
-tower = (round(float(X0 + front.extents[0] + 3), 1), 120, 14)
-write_bambu_3mf(os.path.join(OUT, 'front_2colour.3mf'), [('black', fb, 1), ('white_plate', fw, 2)],
-                center=(X0 + front.extents[0] / 2, Y0), name='W115_front_50',
-                project_settings=build_project_settings(tpl, ['#000000', '#FFFFFF', '#000000', '#000000'], tower))
-rr, c2 = centred(rear)
-write_bambu_3mf(os.path.join(OUT, 'rear.3mf'), [('black', rr, 1)], center=(4 + rear.extents[0] / 2, 160.0), name='W115_rear_50',
-                project_settings=build_project_settings(tpl, ['#000000'] * 4, None))
-print('3mf written; tower x/y/w', tower)
+X0, Y0 = 4.0, 160.0
+fp, c = centred(front_print)
+ps = json.loads(build_project_settings(with_pla_slot2(), ['#000000', '#FFFFFF', '#000000', '#000000'], (round(X0 + front_print.extents[0] + 3, 1), 120, 14)))
+ps.update(enable_support='1', support_type='normal(auto)', support_on_build_plate_only='1', support_filament='2', support_interface_filament='2')
+write_bambu_3mf(os.path.join(OUT, 'front_down.3mf'), [('front', fp, 1)], center=(X0 + front_print.extents[0] / 2, Y0), name='W115_front_50', project_settings=json.dumps(ps))
+rr, _ = centred(rear)
+write_bambu_3mf(os.path.join(OUT, 'rear.3mf'), [('rear', rr, 1)], center=(4 + rear.extents[0] / 2, Y0), name='W115_rear_50',
+                project_settings=build_project_settings(petg and json.dumps(petg).encode(), ['#000000'] * 4, None))
+cb, c3 = centred(insert_black); cw = insert_white.copy(); cw.apply_translation([-c3[0], -c3[1], 0])
+write_bambu_3mf(os.path.join(OUT, 'plate_insert.3mf'), [('digits_black', cb, 1), ('floor_white', cw, 2)], center=(100.0, 160.0), name='W115_plate_insert',
+                project_settings=build_project_settings(json.dumps(petg).encode(), ['#000000', '#FFFFFF', '#000000', '#000000'], (140.0, 120, 14)))
+print('3mf written')
