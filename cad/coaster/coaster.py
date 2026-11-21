@@ -295,10 +295,9 @@ def build(picture, heart=None, heart_art=None, picks=None, shape_pic=None, lette
             d = max(0.0, ROUND - zm, zm - (T - ROUND))
             inset = ROUND - np.sqrt(max(ROUND ** 2 - d ** 2, 0.0))
             sh = disc.buffer(-inset, 32)
-            if Z0 < zm < Z1:
-                sh = sh.difference(allart)
             slabs.append(extrude(sh, za - (0.005 if i else 0), zb + (0.005 if i < n - 1 else 0)))
-        tpu = trimesh.boolean.union(slabs, engine="manifold")
+        shell = trimesh.boolean.union(slabs, engine="manifold")       # full rounded body first, then the drawing cut out:
+        tpu = trimesh.boolean.difference([shell, extrude(allart, Z0, Z1)], engine="manifold")   # cutting per slab left slivers
     else:
         tpu = trimesh.boolean.union([extrude(disc, 0, Z0), extrude(disc.difference(allart), Z0 - 0.01, Z1 + 0.01),
                                      extrude(disc, Z1, T)], engine="manifold")
@@ -403,8 +402,12 @@ def main():
             parts, _ = build(a.picture, a.heart, a.heart_art, a.picks, None, ch)
             if a.face_down:
                 parts = [(n, mirror_x(m), sl) for n, m, sl in parts]
-            sx, sy = a.heart + 10, a.heart + 5
-            objs.append((f"heart_{i + 1}_{ch}", parts, (150 + sx * (i % 2), 110 + sy * (i // 2))))
+            if len(a.letters) <= 4:
+                sx, sy = a.heart + 10, a.heart + 5
+                objs.append((f"heart_{i + 1}_{ch}", parts, (150 + sx * (i % 2), 110 + sy * (i // 2))))
+            else:                        # whole alphabet on one plate (owner 2026-11-21): 7 columns inside x 25-325 (both nozzles)
+                sx, sy = a.heart + 7, a.heart + 4
+                objs.append((f"heart_{i + 1}_{ch}", parts, (48 + sx * (i % 7), 45 + sy * (i // 7))))
             if a.stl:
                 for n, m, _ in parts:
                     m.export(Path(a.out).with_name(f"{Path(a.out).stem}_{i + 1}{ch}_{n}.stl"))
@@ -416,7 +419,7 @@ def main():
         Path(a.out).parent.mkdir(parents=True, exist_ok=True)
         write_bambu_3mf_multi(Path(a.out), objs, json.dumps(cfg, indent=4))
         print("->", a.out)
-        for name, parts, _ in objs:      # one file per letter as well (owner 2026-11-21)
+        for name, parts, _ in (objs if len(objs) <= 4 else []):   # one file per letter too (only for small sets)      # one file per letter as well (owner 2026-11-21)
             one = Path(a.out).with_name(f"{Path(a.out).stem}_{name.split('_', 1)[1]}.3mf")
             write_bambu_3mf(one, parts, (175.0, 160.0), one.stem, json.dumps(cfg, indent=4))
             print("->", one)

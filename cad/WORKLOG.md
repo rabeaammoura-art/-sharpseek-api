@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-21 (cloud) — whole alphabet A-Z on one plate
+- Owner wanted every letter, all in one file: `coaster.py --letters ABCDEFGHIJKLMNOPQRSTUVWXYZ` -> `heart35_AZ.3mf`, 26 hearts in a 7 x 4 grid inside x 25-325 (both nozzles), face down (mirrored), letters centred on their box. Build takes ~6 min.
+- G, K, U first came out with an open TPU mesh (slivers when cutting the pocket per 0.1 mm slab): TPU is now the full rounded shell minus the drawing in one boolean -> all 78 parts watertight (inner shells = sealed pockets), print_test 0 problems on all 26.
+- The third small heart lands inside the opening of C, O, U (closest free spot). Not sliced (owner slices).
+
 ## 2026-11-21 (cloud) — ASSY: letters exactly centred, one file per letter
 - Owner: letters not exactly in the middle. Cause: centred on the glyph centroid (A, Y off by a bit). Now centred on the glyph box: offset 0.000 mm on all four. Y 98% (was 100%).
 - Files: `heart35_ASSY.3mf` (all 4) + `heart35_ASSY_1_A / 2_S / 3_S / 4_Y.3mf`, all face down (mirrored). print_test 0 problems.
