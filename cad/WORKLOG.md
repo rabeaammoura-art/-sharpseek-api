@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-21 (cloud) — W115 50 cm: joint clearance test coupon
+- Branch `claude/modest-faraday-k7kxut`: pulled `wallart/mercedes-w115` from `claude/student-pack-generator`. The 50 cm pair (`mb_small_1x1`, `mb_small_2x1`) has a straight seam at x=250 crossed by 14/12 strokes (3 mm thick).
+- Owner chose a glue-free half-lap + 2.4 mm pin (dovetail drawn too, kept as option A), plus double-sided tape on the back. Test coupon `wallart/mercedes-w115/joint_test/joint_clearance_test.stl` (`make_joint_test.py`): 5 pairs, clearance 0.10-0.30 (1-5 dots). Print A front-face-down. print_test 0 problems, PLA ~12 min, 3.3 g.
+- Left: owner prints the coupon, picks the clearance, then add joints to the 50 cm pieces at the wide strokes (y ~34-55, 59-65, 121-132). Model files not edited yet.
+
 ## 2026-11-21 (cloud) — whole alphabet A-Z on one plate
 - Owner wanted every letter, all in one file: `coaster.py --letters ABCDEFGHIJKLMNOPQRSTUVWXYZ` -> `heart35_AZ.3mf`, 26 hearts in a 7 x 4 grid inside x 25-325 (both nozzles), face down (mirrored), letters centred on their box. Build takes ~6 min.
 - G, K, U first came out with an open TPU mesh (slivers when cutting the pocket per 0.1 mm slab): TPU is now the full rounded shell minus the drawing in one boolean -> all 78 parts watertight (inner shells = sealed pockets), print_test 0 problems on all 26.
