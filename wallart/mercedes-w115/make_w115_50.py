@@ -1,5 +1,5 @@
 """W115 50 cm wall art: adds the number plate (white floor + black raised digits) and the glue-free half-lap joints.
-  python make_w115_50.py [10-38709]          (or env PLATE_NUMBER; default is a dummy so the public repo carries no real number)
+  python make_w115_50.py [NUMBER]          (or env PLATE_NUMBER; default is a dummy so the public repo carries no real number)
 Input : stl/mb_small_1x1.stl (front, has the plate) and stl/mb_small_2x1.stl (rear)
 Output: out_50/ (git-ignored):
   front_black.stl   art + plate frame + digits + ledges + pins  -> print FRONT FACE UP (as is)
