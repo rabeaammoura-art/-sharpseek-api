@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-21 (cloud) — printer arrived; peg tolerance feedback
+- Owner says the printer arrived and printed the teacher figure: 4.4 mm pegs in 4.7 mm holes were too loose (super glue added). New pegs: holes about 4.55 mm; adjust from feedback. CLAUDE.md updated (printer arrived).
+- Third-party reference files from the owner (MakerWorld, licences do not allow selling copies) were used for study only and are not in git.
+- Left: peg and boss design on the hollow torso, tolerance coupon print.
+
 ## 2026-11-18 (cloud) — frame bridges: 2 on top + 2 on the bottom, nuts moved into the top / bottom band (owner)
 - Owner asked what the dark spots in the lit frame are (6 bridges + 2 nut keeps) and chose 2 bridges on the top band and 2 on the bottom; asked why the nuts cannot go inside the field. Answer: the plate base is only 2.4 mm, a blind pocket would leave 0.6 mm front skin and the M2 screw length does not fit (M2 x 14 pierces it, M2 x 12 engages 0.4 mm of the nut); in the frame band the 1.8 mm frame cap hides the through pocket.
 - New `"fix_layout": "topbottom"` (+ `"fix_count": 2 | 4`): nuts at (-0.2 size, +band centre) and (+0.2 size, -band centre) (200: (-40, 96) and (40, -96)); the other two places are plain 2.4 mm bridges. `FIX_MODE` global, `fix_points()` and the frame-glow keep zones follow it; the box posts follow `fix_points()` (post found at (-40, 96) and (40, -96) in the mesh). Sides left / right of the frame now glow without any gap; the LED strip along the left / right walls is no longer cut by the posts (top / bottom walls still are).

@@ -30,7 +30,8 @@ The repo is **public** — never commit purchase prices, the price sheet, produc
 
 ## Facts and preferences (decided with the owner)
 - **Cost rule (owner agreed 2026-11-06):** for any design/file the owner brings, do the **cheap quick repair + check first** (merge vertices, fix normals, drop to z=0, `/3d-print-test`); rebuild from scratch only if that fails or the owner asks. Keep answers and tool rounds minimal.
-- **The printer (Bambu Lab H2D) has not arrived yet.** Nothing is print-tested. Never say "print a test" as if they could; prepare files and software checks.
+- **The printer (Bambu Lab H2D) arrived (owner, 2026-11-21).** The owner now prints and reports results: ask for fit/quality feedback and design print tests (coupons) for tolerances. Older WORKLOG entries that say "not print-tested" predate this.
+- **Peg fit (owner printed, 2026-11-21):** peg dia 4.4 mm into a 4.7 mm hole (0.15 mm per side) was too loose (needed super glue). Use about 4.55 mm holes (0.075 mm per side) for new pegs and adjust by +-0.05 from his feedback.
 - Priorities: **print time matters more than cost**; no glue; no thicker base; avoid loose separate pieces; the owner likes things shown as images.
 - Prices come only from `cad/config/filament_prices.xlsx` (git-ignored; ask the owner to upload `3D_ZONE_TECH_Filament.xlsx` if missing). PLA = PLA+.
 - Plaque is printed front face up (relief on top, back on the bed). A 300 mm multi-colour plate + prime tower does not fit the H2D: **max coloured size is about 290 mm** (the generator warns above that; recommended ladder 150/200/250/280).
