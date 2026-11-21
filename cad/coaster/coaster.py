@@ -166,8 +166,8 @@ def letter_shape(ch, font=HERE.parent / "fonts" / "BalooBhaijaan2-ExtraBold.ttf"
     depth = [sum(1 for q in rings if q.area > r.area and q.contains(r)) for r in rings]
     g = unary_union([r for r, d in zip(rings, depth) if d % 2 == 0]).difference(
         unary_union([r for r, d in zip(rings, depth) if d % 2 == 1]))
-    c = g.centroid
-    return affinity.translate(g, -c.x, -c.y)
+    b = g.bounds                     # centred on its box, not its centroid: A and Y would sit off the middle (owner 2026-11-21)
+    return affinity.translate(g, -(b[0] + b[2]) / 2, -(b[1] + b[3]) / 2)
 
 
 def heart_picks(picture, outline, loop_keep, preset, edge=1.6, gap=1.0, shape_pic=None, letter=None):
@@ -416,6 +416,10 @@ def main():
         Path(a.out).parent.mkdir(parents=True, exist_ok=True)
         write_bambu_3mf_multi(Path(a.out), objs, json.dumps(cfg, indent=4))
         print("->", a.out)
+        for name, parts, _ in objs:      # one file per letter as well (owner 2026-11-21)
+            one = Path(a.out).with_name(f"{Path(a.out).stem}_{name.split('_', 1)[1]}.3mf")
+            write_bambu_3mf(one, parts, (175.0, 160.0), one.stem, json.dumps(cfg, indent=4))
+            print("->", one)
         return
     parts, _ = build(a.picture, a.heart, a.heart_art, a.picks, a.shape_pic)
     if a.face_down:

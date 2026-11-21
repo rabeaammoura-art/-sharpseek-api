@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-21 (cloud) — ASSY: letters exactly centred, one file per letter
+- Owner: letters not exactly in the middle. Cause: centred on the glyph centroid (A, Y off by a bit). Now centred on the glyph box: offset 0.000 mm on all four. Y 98% (was 100%).
+- Files: `heart35_ASSY.3mf` (all 4) + `heart35_ASSY_1_A / 2_S / 3_S / 4_Y.3mf`, all face down (mirrored). print_test 0 problems.
+
 ## 2026-11-20 (cloud) — ASSY hearts printed face down
 - Owner: print them on their face (glossy smooth-plate side = front). `--face-down` mirrors every part left-right (layers are symmetric 0.6/0.6/0.6), so the letters read right after turning the piece over. `heart35_ASSY.3mf` replaced; meshes watertight, print_test 0 problems.
 
