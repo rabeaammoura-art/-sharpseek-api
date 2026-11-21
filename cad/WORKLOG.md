@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-21 (cloud) — kids' lion ring as two pieces (same idea as the rose)
+- Lion head cut from the resized MakerWorld ring (third-party, personal use, not in git). The head is HOLLOW inside (designer's shell, ~2 mm): the first socket fell into the cavity, so the bottom 6 mm were filled with a plug (box clipped to the hull of the base slab, +404 mm3), then a 5.2 mm square socket (0.1 mm per side). Our own smooth open band: hole 14 mm, 1.6 mm thick, 5 mm wide, 3 mm opening, flat seat + 5 x 5 x 4 mm peg. Interference 0.
+- Head on its cut face and band on its side, NO supports: `print_test` 0 problems for both (head: 3 notes, thin details). Slices (PLA Basic, 0.12): head 17 min / 1.5 g, band 4 min / 0.7 g; one 2-colour plate (band black, head gold, tower on) also made. Fit not print-tested.
+
 ## 2026-11-14 (cloud) — kids' rings (personal, for the owner's children): two MakerWorld rings resized + opened at the back
 - Owner uploaded two MakerWorld 3MF rings (a rose ring and a lion ring, adult size, hole 18.7 / 21.2 mm as placed). Third-party files under the Standard Digital File License: personal use only, NOT in git, not for sale.
 - Cheap path: rose mesh repaired with `pymeshfix` (11 open edges; volume unchanged), both scaled to a 14 mm hole (estimate for age 5, no finger measured) and a 3 mm slot cut opposite the head with `manifold3d`. Results closed, one body each: rose 12 x 23 x 24 mm, lion 21 x 20 x 31 mm.
