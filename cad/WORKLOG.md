@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-21 (cloud) — cloud tool fix
+- `cad/setup.sh` failed in a fresh cloud session (apt "held broken packages": stale package index). Fix: run `apt-get update` first, then `cad/setup.sh` works (flatpak + Bambu Studio CLI installed, slicing works again).
+- Price sheet `cad/config/filament_prices.xlsx` is not in a fresh session: `bambu_slice.py` needs it or `--price-kg` (use `--price-kg 1` only to get time and grams, then ask the owner for the sheet).
+
 ## 2026-11-21 (cloud) — printer arrived; peg tolerance feedback
 - Owner says the printer arrived and printed the teacher figure: 4.4 mm pegs in 4.7 mm holes were too loose (super glue added). New pegs: holes about 4.55 mm; adjust from feedback. CLAUDE.md updated (printer arrived).
 - Third-party reference files from the owner (MakerWorld, licences do not allow selling copies) were used for study only and are not in git.
