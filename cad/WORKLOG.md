@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-21 (cloud) — W115 50 cm: number plate + half-lap joints
+- `wallart/mercedes-w115/make_w115_50.py [NUMBER]` (number from argv/env `PLATE_NUMBER`, default dummy; outputs in git-ignored `out_50/`): plate on the bumper (50x11 mm, follows the bumper slope, centre 68,49 of the front piece) = white floor 1 mm + black frame/raised digits to 3 mm; 3 half-lap joints (8 mm lap + 2.4 mm pin, clearance 0.10 = coupon pair with 1 dot) at y 30 / 126 / 167. Front piece prints front up, rear piece comes already flipped (front down). Double-sided tape on the back.
+- print_test 0 problems; PETG single-colour estimate without tower: front 2h17m 47 g, rear 1h31m 35 g. Two-colour (white floor) time not estimated yet.
+- Left: owner prints and checks plate + joints; Arabic/JORDAN text is tiny (check legibility); same for 70/94 cm sizes later.
+
 ## 2026-11-21 (cloud) — W115 50 cm: joint clearance test coupon
 - Branch `claude/modest-faraday-k7kxut`: pulled `wallart/mercedes-w115` from `claude/student-pack-generator`. The 50 cm pair (`mb_small_1x1`, `mb_small_2x1`) has a straight seam at x=250 crossed by 14/12 strokes (3 mm thick).
 - Owner chose a glue-free half-lap + 2.4 mm pin (dovetail drawn too, kept as option A), plus double-sided tape on the back. Test coupon `wallart/mercedes-w115/joint_test/joint_clearance_test.stl` (`make_joint_test.py`): 5 pairs, clearance 0.10-0.30 (1-5 dots). Print A front-face-down. print_test 0 problems, PLA ~12 min, 3.3 g.
