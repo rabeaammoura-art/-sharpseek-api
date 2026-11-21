@@ -2,7 +2,7 @@
   python make_w115_50.py [NUMBER]       (or env PLATE_NUMBER; default is a dummy so the public repo carries no real number)
 Input : stl/mb_small_1x1.stl (front) and stl/mb_small_2x1.stl (rear)
 Output: out_50/ (git-ignored)
-  front_down.3mf     front piece, FRONT FACE DOWN, PETG + PLA supports (slot 2) under the 3 ledges/pins
+  front_down.3mf     front piece, FRONT FACE DOWN, PETG, supports in PETG too (z gap 0.25) under the 3 ledges/pins
   rear.3mf           rear piece, FRONT FACE DOWN, PETG
   plate_insert.3mf   the number plate, printed alone, face up, black digits + white floor (PETG)
   (same parts as STL)
@@ -118,8 +118,9 @@ def centred(m):
     m = m.copy(); c = m.bounds.mean(axis=0); m.apply_translation([-c[0], -c[1], 0]); return m, c
 X0, Y0 = 4.0, 160.0
 fp, c = centred(front_print)
-ps = json.loads(build_project_settings(with_pla_slot2(), ['#000000', '#FFFFFF', '#000000', '#000000'], (round(X0 + front_print.extents[0] + 3, 1), 120, 14)))
-ps.update(enable_support='1', support_type='normal(auto)', support_on_build_plate_only='1', support_filament='2', support_interface_filament='2')
+ps = json.loads(build_project_settings(json.dumps(petg).encode(), ['#000000'] * 4, None))        # one material: PETG supports too (no PETG/PLA swaps)
+ps.update(enable_support='1', support_type='normal(auto)', support_on_build_plate_only='1', support_filament='0',
+          support_interface_filament='0', support_top_z_distance='0.25')
 write_bambu_3mf(os.path.join(OUT, 'front_down.3mf'), [('front', fp, 1)], center=(X0 + front_print.extents[0] / 2, Y0), name='W115_front_50', project_settings=json.dumps(ps))
 rr, _ = centred(rear)
 write_bambu_3mf(os.path.join(OUT, 'rear.3mf'), [('rear', rr, 1)], center=(4 + rear.extents[0] / 2, Y0), name='W115_rear_50',
