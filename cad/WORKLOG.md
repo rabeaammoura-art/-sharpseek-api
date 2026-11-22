@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-22 (cloud) — W115 50 cm: new joint idea (scarf) after the half-lap + supports failed
+- Owner printed the car (personal): half-lap joints printed on supports did not fit (rough/uneven under-surface). Commercial direction: no supports at all, tolerance-forgiving joint.
+- Chosen to test: (A) 36 deg scarf seam on the WHOLE seam (both pieces front face down, no supports, 0.1 mm gap, 0.4 mm flat tips), (B) the same + 2 blind holes in the back (2.6 mm, 1.5 deep) and a flat-printed splice plate 18x5.5x1.2 with 2 pins (2.4). Script `wallart/mercedes-w115/make_scarf_test.py` -> `out_50/test_scarf.3mf` (4 coupons + plate, PETG, 16 min, 5.5 g in the CLI). Fine point: print_test flags one 0.2 mm overhang rounding (harmless; slicer shows no floating warning).
+- Also found: the design lines are NOT thicker than lineart.png (IoU 0.89, same median stroke 2.05 mm); the earlier side-by-side was a render artefact. Print-time gap front 2h17 vs rear 1h31 = 38% more ink/path.
+- Left: owner prints the coupons and tells which pair fits (A or B); then apply it to the real files (seam bevel + optional splice holes), keep PETG-only supports gone. Plate insert design (separate piece) stays.
+
 ## 2026-11-21 (cloud) — W115 50 cm: number plate + half-lap joints
 - `wallart/mercedes-w115/make_w115_50.py [NUMBER]` (number from argv/env `PLATE_NUMBER`, default dummy; outputs in git-ignored `out_50/`): plate on the bumper (50x11 mm, follows the bumper slope, centre 68,49 of the front piece) = white floor 1 mm + black frame/raised digits to 3 mm; 3 half-lap joints (8 mm lap + 2.4 mm pin, clearance 0.10 = coupon pair with 1 dot) at y 30 / 126 / 167. Front piece prints front up, rear piece comes already flipped (front down). Double-sided tape on the back.
 - print_test 0 problems; PETG single-colour estimate without tower: front 2h17m 47 g, rear 1h31m 35 g. Two-colour (white floor) time not estimated yet.
