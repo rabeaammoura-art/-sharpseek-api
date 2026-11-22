@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-22 (cloud) — Mizna v2 coaster from the owner's new picture (flat 2D preview, round 1)
+- Owner picture (cream plate, brown text, cloud + drops, olive sprig left, lilac flowers right) stays out of git. `cad/mizna2/flat.py` draws it clean/parametric (real Kufi font + harfbuzz, 95 mm, picture-pixel coords measured from colour masks) -> `cad/out/mizna2/flat.png` + overlay. Overlay matches the picture.
+- Defaults: 95x3 coaster like Mizna v1, 4 colours (cream body, brown, lilac, olive). Cloud is lilac-filled for now (picture: whitish-pink).
+- Left: owner's marks on the flat preview, then 3D (body with pockets, face 1 mm), `/3d-print-test`, `/3d-cost`. Not 3D yet.
+
 ## 2026-11-21 (cloud) — classic Mercedes W115 front photo -> filament painting (zt_forge)
 - Owner asked for a HueForge print of a W115 photo; used our `zt_forge.py` (no HueForge licence). Car cut out with rembg (isnet-general-use, scratch venv), background black, colour boosted x1.7 (the photo is washed out by reflections).
 - Chosen: black / grey #6E6E6E / olive #7C8A4E / white, base 0.64 top 2.0, 150 x 117 mm, swaps at layers 8 / 14 / 17, dE 11.2. STL closed. CLI slice (PLA Basic, one colour, 0.08, 100 % zig-zag, no tower): 2h57m / 21.6 g (0.12 layers = 2h03m but needs regenerating with `--lh 0.12`). GUI is usually longer than CLI.
