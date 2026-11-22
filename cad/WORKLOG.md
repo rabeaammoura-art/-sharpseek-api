@@ -10,6 +10,7 @@ Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what wa
 - Defaults: 95x3 coaster like Mizna v1, 4 colours (cream body, brown, lilac, olive). Cloud is lilac-filled for now (picture: whitish-pink).
 - Left: owner's marks on the flat preview, then 3D (body with pockets, face 1 mm), `/3d-print-test`, `/3d-cost`. Not 3D yet.
 - Round 2: owner got a cleaner flat GPT picture (colour + black); `cad/mizna2/trace.py` traces its colour layers (brown/lilac/olive, smooth 2.4, brown +0.14 mm for thin stems) -> `cad/out/mizna2/flat2.png`. Waiting for the owner's OK before 3D.
+- Owner OK'd flat2. `cad/mizna2/build3d.py` -> `cad/print_files/mizna2/mizna2_95x3_facedown.3mf` (+ STLs): body 3 mm with pockets 1 mm (manifold union, watertight), brown/lilac/olive face layers, face down (mirrored), PLA x4 slots. print_test 0 problems. CLI slice (PLA Basic, tower x250): 0h46m, 19.4 g (body 17.4). Price sheet missing in this session -> cost not given. Not printed yet.
 
 ## 2026-11-21 (cloud) — classic Mercedes W115 front photo -> filament painting (zt_forge)
 - Owner asked for a HueForge print of a W115 photo; used our `zt_forge.py` (no HueForge licence). Car cut out with rembg (isnet-general-use, scratch venv), background black, colour boosted x1.7 (the photo is washed out by reflections).
