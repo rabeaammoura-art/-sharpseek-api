@@ -12,7 +12,7 @@ from shapely.ops import unary_union  # noqa: E402
 
 FACE, T = 1.0, 3.0
 # slots (owner 2026-11-22): 1 body beige, 2 name + cloud light brown, 3 flowers + drops purple, 4 leaves + stems olive
-NAMES = [("body", "#F4DCC8"), ("name_cloud", "#B8895F"), ("flowers", "#D2A9D6"), ("leaves_stems", "#A98C52")]
+NAMES = [("body", "#F4DCC8"), ("name_cloud", "#7A4A2B"), ("flowers", "#D2A9D6"), ("leaves_stems", "#A98C52")]
 
 L = pickle.load(open(HERE.parent / "out" / "mizna2" / "layers.pkl", "rb"))
 disc = Point(0, 0).buffer(C.D / 2, 128)
