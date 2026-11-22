@@ -18,6 +18,11 @@ Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what wa
 - Owner: raindrops black too (now with name + cloud in the black slot; only the flowers stay purple). Same file name `mizna2_95x3_blacktext_facedown.3mf`, print_test 0 problems.
 - Owner chose (images only first): flowers removed, left sprig mirrored to the right, olive leaves, brown stems, black name/cloud/drops; file prepared for the spools in his photo (AMS 2 Pro: copper-brown, olive-gold, black; external holder: tan spool = body). `cad/mizna2/build3d_v3.py` -> `mizna2_v3_95x3_facedown.3mf`: slots 1 body tan (nozzle 2, external), 2 black, 3 olive, 4 copper-brown (nozzle 1). print_test 0 problems; CLI 0h46m / 19.4 g. Slot-to-AMS-position mapping must be confirmed in Studio (colours read from a photo). Older files untouched.
 
+## 2026-11-22 (cloud) — 7 more name coasters via the same pipeline
+- Owner got flat GPT pictures (tan plate, black text, olive leaves, brown stems, 1 accent colour) for 7 names; `cad/mizna2/from_picture.py PICTURE OUT accent` -> 95x3 face-down 3MF in `cad/out/names/` (git-ignored: pictures/names stay out of the public repo). Body = tan spool on the external holder (nozzle 2), AMS: black, olive, copper-brown, accent (pink/lavender/cream; Palestine has none = 4 filaments, the rest 5).
+- print_test 0 problems on all 7. CLI slices (PLA Basic, tower x250): about 52-59 min / 20 g each, Palestine 52 min / 20.5 g. Cost needs the price sheet. Needs pink / lavender / cream spools in the AMS. Not printed yet.
+- Sandbox kills the slicer on memory sometimes (0h04m / 0.8 g results are fake): rerun one at a time.
+
 ## 2026-11-21 (cloud) — classic Mercedes W115 front photo -> filament painting (zt_forge)
 - Owner asked for a HueForge print of a W115 photo; used our `zt_forge.py` (no HueForge licence). Car cut out with rembg (isnet-general-use, scratch venv), background black, colour boosted x1.7 (the photo is washed out by reflections).
 - Chosen: black / grey #6E6E6E / olive #7C8A4E / white, base 0.64 top 2.0, 150 x 117 mm, swaps at layers 8 / 14 / 17, dE 11.2. STL closed. CLI slice (PLA Basic, one colour, 0.08, 100 % zig-zag, no tower): 2h57m / 21.6 g (0.12 layers = 2h03m but needs regenerating with `--lh 0.12`). GUI is usually longer than CLI.
