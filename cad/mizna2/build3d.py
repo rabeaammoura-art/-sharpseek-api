@@ -14,6 +14,9 @@ FACE, T = 1.0, 3.0
 # slots (owner 2026-11-22): 1 body beige, 2 name + cloud light brown, 3 flowers + drops purple, 4 leaves + stems olive
 NAMES = [("body", "#F4DCC8"), ("name_cloud", "#7A4A2B"), ("flowers", "#D2A9D6"), ("leaves_stems", "#A98C52")]
 
+TEXT = sys.argv[sys.argv.index("--text") + 1] if "--text" in sys.argv else None   # e.g. --text "#141414": name + cloud in that colour
+if TEXT:
+    NAMES[1] = ("name_cloud", TEXT)
 L = pickle.load(open(HERE.parent / "out" / "mizna2" / "layers.pkl", "rb"))
 disc = Point(0, 0).buffer(C.D / 2, 128)
 _b = [p for p in L["brown"].geoms]
@@ -46,7 +49,7 @@ for k, v in list(cfg.items()):              # per-filament arrays: 4 -> N entrie
         v.extend([v[-1]] * (N - 4))
 if "filament_self_index" in cfg:
     cfg["filament_self_index"] = [str(i) for i in range(1, N + 1)]
-out = HERE.parent / "print_files" / "mizna2" / ("mizna2_95x3_blackunder_facedown.3mf" if BLACK else "mizna2_95x3_4colours_facedown.3mf")
+out = HERE.parent / "print_files" / "mizna2" / ("mizna2_95x3_blackunder_facedown.3mf" if BLACK else "mizna2_95x3_blacktext_facedown.3mf" if TEXT else "mizna2_95x3_4colours_facedown.3mf")
 out.parent.mkdir(parents=True, exist_ok=True)
 write_bambu_3mf(out, parts, (175.0, 160.0), out.stem, json.dumps(cfg, indent=4))
 print("->", out)
