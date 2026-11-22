@@ -21,8 +21,9 @@ L = pickle.load(open(HERE.parent / "out" / "mizna2" / "layers.pkl", "rb"))
 disc = Point(0, 0).buffer(C.D / 2, 128)
 _b = [p for p in L["brown"].geoms]
 _txt = [p for p in _b if (-14 < p.centroid.y < 24.5 and abs(p.centroid.x) < 36) or (p.centroid.y > 24 and p.centroid.x > 10)]
-L["name_cloud"] = unary_union(_txt)
-L["flowers"] = L["lilac"]
+_drops = [p for p in L["lilac"].geoms if p.centroid.y > 0]          # raindrops (flowers are in the lower half)
+L["name_cloud"] = unary_union(_txt + _drops)
+L["flowers"] = unary_union([p for p in L["lilac"].geoms if p.centroid.y <= 0])
 L["leaves_stems"] = unary_union([L["olive"]] + [p for p in _b if p not in _txt])
 art = unary_union([L[k] for k in ("name_cloud", "flowers", "leaves_stems")])
 body = disc.difference(art)
