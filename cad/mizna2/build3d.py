@@ -27,18 +27,26 @@ meshes = {"body": C.extrude(body, 0, T)}
 meshes["body"] = C.trimesh.util.concatenate([meshes["body"]]) if False else meshes["body"]
 # body = pocketed layer (0..FACE) + solid top (FACE..T): one mesh from two extrusions
 meshes["body"] = C.trimesh.boolean.union([C.extrude(body, 0, FACE), C.extrude(disc, FACE, T)], engine="manifold")
+BLACK = float(sys.argv[sys.argv.index("--black") + 1]) if "--black" in sys.argv else 0.0   # light-brown skin thickness over black
 for k in ("name_cloud", "flowers", "leaves_stems"):
-    meshes[k] = C.extrude(L[k], 0, FACE)
+    meshes[k] = C.extrude(L[k], 0, BLACK if (k == "name_cloud" and BLACK) else FACE)
+if BLACK:                                   # black behind the light brown (face is on the bed, so z > BLACK is behind it)
+    NAMES.append(("black_under", "#141414"))
+    meshes["black_under"] = C.extrude(L["name_cloud"], BLACK, FACE)
+N = len(NAMES)
 parts = [(n, C.mirror_x(meshes[n]), i + 1) for i, (n, _) in enumerate(NAMES)]
 for n, m, _ in parts:
     print(f"{n}: z {m.bounds[0][2]:.2f}-{m.bounds[1][2]:.2f} faces {len(m.faces)} watertight {m.is_watertight}")
 cfg = json.loads((HERE.parent / "config" / "bambu_project_4fil_petg.config").read_text())
 cfg["filament_colour"] = [h for _, h in NAMES]
-cfg["filament_map_mode"], cfg["filament_map"] = "Manual", ["1"] * 4
-cfg["filament_type"] = ["PLA"] * 4
+cfg["filament_map_mode"], cfg["filament_map"] = "Manual", ["1"] * N
+cfg["filament_type"] = ["PLA"] * N
+for k, v in list(cfg.items()):              # per-filament arrays: 4 -> N entries
+    if N > 4 and isinstance(v, list) and len(v) == 4 and k.startswith(("filament", "nozzle_temp", "hot_plate", "cool_plate", "textured", "eng_plate", "supertack", "fan", "close_fan", "overhang_fan", "slow_down", "required_nozzle", "reduce_fan", "full_fan", "additional_", "activate_air", "temperature", "pre_start", "no_slow", "override_process", "impact", "volumetric", "long_retr", "retraction_dist", "chamber_temp", "during_print", "complete_print", "cooling_", "counter_", "hole_", "diameter_limit", "circle_comp")) and k not in ("filament_colour", "filament_map", "filament_type"):
+        v.extend([v[-1]] * (N - 4))
 if "filament_self_index" in cfg:
-    cfg["filament_self_index"] = [str(i) for i in range(1, 5)]
-out = HERE.parent / "print_files" / "mizna2" / "mizna2_95x3_4colours_facedown.3mf"
+    cfg["filament_self_index"] = [str(i) for i in range(1, N + 1)]
+out = HERE.parent / "print_files" / "mizna2" / ("mizna2_95x3_blackunder_facedown.3mf" if BLACK else "mizna2_95x3_4colours_facedown.3mf")
 out.parent.mkdir(parents=True, exist_ok=True)
 write_bambu_3mf(out, parts, (175.0, 160.0), out.stem, json.dumps(cfg, indent=4))
 print("->", out)
