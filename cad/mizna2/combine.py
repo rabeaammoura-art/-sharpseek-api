@@ -18,6 +18,10 @@ sx = sy = 100.0
 objs = []
 for i, n in enumerate(names):
     parts = [(k, trimesh.load(D / f"{n}_{k}.stl"), s) for k, s in SLOT.items() if (D / f"{n}_{k}.stl").exists()]
-    objs.append((n, parts, (100.0 + sx * (i % 2), 110.0 + sy * (i // 2))))
+    if len(names) <= 4:                      # 2 x 2, tower right of the plate (x 270, y 140)
+        pos = (100.0 + sx * (i % 2), 110.0 + sy * (i // 2))
+    else:                                    # 3 columns inside x 25-325 (both nozzles); the free 6th slot (275, 210) is for the tower
+        pos = (75.0 + sx * (i % 3), 110.0 + sy * (i // 3))
+    objs.append((n, parts, pos))
 write_bambu_3mf_multi(out, objs, json.dumps(cfg, indent=4))
 print("->", out, [(o[0], o[2]) for o in objs])
