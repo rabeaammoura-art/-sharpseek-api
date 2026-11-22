@@ -9,6 +9,7 @@ Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what wa
 - Owner picture (cream plate, brown text, cloud + drops, olive sprig left, lilac flowers right) stays out of git. `cad/mizna2/flat.py` draws it clean/parametric (real Kufi font + harfbuzz, 95 mm, picture-pixel coords measured from colour masks) -> `cad/out/mizna2/flat.png` + overlay. Overlay matches the picture.
 - Defaults: 95x3 coaster like Mizna v1, 4 colours (cream body, brown, lilac, olive). Cloud is lilac-filled for now (picture: whitish-pink).
 - Left: owner's marks on the flat preview, then 3D (body with pockets, face 1 mm), `/3d-print-test`, `/3d-cost`. Not 3D yet.
+- Round 2: owner got a cleaner flat GPT picture (colour + black); `cad/mizna2/trace.py` traces its colour layers (brown/lilac/olive, smooth 2.4, brown +0.14 mm for thin stems) -> `cad/out/mizna2/flat2.png`. Waiting for the owner's OK before 3D.
 
 ## 2026-11-21 (cloud) — classic Mercedes W115 front photo -> filament painting (zt_forge)
 - Owner asked for a HueForge print of a W115 photo; used our `zt_forge.py` (no HueForge licence). Car cut out with rembg (isnet-general-use, scratch venv), background black, colour boosted x1.7 (the photo is washed out by reflections).
