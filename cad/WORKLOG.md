@@ -9,6 +9,12 @@ Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what wa
 - Owner: make the round coaster like the last hearts. `coaster.py PIC --layers 0.6,0.6,0.6 --round 0.6 --face-down` -> `coaster_birds_v2.3mf` + `coaster_birds_v2_set4.3mf` (Ø95 x 1.8, drawing centred, rounded edges, face down mirrored, TPU = shell minus drawing). print_test 0 problems. Old v1 files kept. Not sliced (owner slices).
 - Offered 2.4 mm (0.9/0.6/0.9) if 1.8 feels too soft under a glass.
 
+## 2026-11-21 (cloud) — classic Mercedes W115 front photo -> filament painting (zt_forge)
+- Owner asked for a HueForge print of a W115 photo; used our `zt_forge.py` (no HueForge licence). Car cut out with rembg (isnet-general-use, scratch venv), background black, colour boosted x1.7 (the photo is washed out by reflections).
+- Chosen: black / grey #6E6E6E / olive #7C8A4E / white, base 0.64 top 2.0, 150 x 117 mm, swaps at layers 8 / 14 / 17, dE 11.2. STL closed. CLI slice (PLA Basic, one colour, 0.08, 100 % zig-zag, no tower): 2h57m / 21.6 g (0.12 layers = 2h03m but needs regenerating with `--lh 0.12`). GUI is usually longer than CLI.
+- Hex / TD of grey and olive are guesses. Photo, plate and outputs stay out of git (`cad/out/hueforge/w115_*`).
+- Left: owner's pick of the real green spool, slice in Studio with the 3 swaps, first test print.
+
 ## 2026-11-21 (cloud) — whole alphabet A-Z on one plate
 - Owner wanted every letter, all in one file: `coaster.py --letters ABCDEFGHIJKLMNOPQRSTUVWXYZ` -> `heart35_AZ.3mf`, 26 hearts in a 7 x 4 grid inside x 25-325 (both nozzles), face down (mirrored), letters centred on their box. Build takes ~6 min.
 - G, K, U first came out with an open TPU mesh (slivers when cutting the pocket per 0.1 mm slab): TPU is now the full rounded shell minus the drawing in one boolean -> all 78 parts watertight (inner shells = sealed pockets), print_test 0 problems on all 26.
@@ -98,6 +104,15 @@ Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what wa
 - New `cad/bookmark/bookmark.py` (own parametric pattern, nothing traced): 50 x 170 mm, part `fabric` (slot 1, plate 1.2 + aida weave 0.16) and part `stitches` (slot 2, X stitches made of two rounded threads, top one lifted 0.25 at the crossing; crests thinner than 0.7 mm removed). File `cad/print_files/bookmark/bookmark.3mf`.
 - Checks: both parts watertight, overlap 0, `print_test` 0 problems (thin-feature note = 0.02 mm2 rounding slivers). CLI slice PLA + tower: 0.20 41 min / 14 g, 0.12 1h14m / 15 g, 0.08 1h34m. The CLI needs 4 `--filament` slots for this 3MF (2 slots -> "Failed slicing").
 - Left: owner's look at the 3D file in Studio, layer choice (0.12 recommended), optional name under the pattern, silk thread filament, price (sheet not in this session). Not print-tested.
+
+## 2026-11-23 (cloud) — owner: stand without the leg module: threaded feet at the bottom corners (built, not printed)
+- Owner asked whether the box can stand without the kickstand (it cannot: 14 mm deep slab, tips at about 4 degrees), then proposed feet at the corners and finally "the foot itself threaded, no separate screws". Built `cad/thread_feet.py` + `"stand": "thread_feet"` (`make_lit_box(feet=True)`): two bosses D16 (z 1-10) at (+-(size/2 - 25), outer bottom edge + 20 mm) with a threaded hole, two feet = rod D14 + ball tip (axis 60 mm perpendicular to the back, the ball's lowest point is exactly on the table) + stud M11 x 3 (45 degree flanks, 0.3 clearance, 9.5 mm engaged), printed standing (flat tip down, stud up), made with manifold3d twisted extrusions (right-hand thread).
+- Checks: foot / box watertight, stud fully inside the hole tool, box vs studs 0 mm3, feet lowest point 0.001 mm above the table, `print_test` of the foot 0 problems (box: the old ledge overhang flag). Slice: box + 2 feet 2h32m / 86 g (CLI, +30 min vs the kickstand set: tall feet). Section drawing `cad/plaque/thread_feet_section.png`. Files `cad/print_files/nightcap_200_feet/`. NOT checked in Fusion (helical threads); printed M11 coarse thread unproven: print `thread_test_block.stl` + one foot first.
+- Left: owner's yes / no on this variant, hardware photos (screws for the plaque fixing), first print of the coupons.
+
+## 2026-11-23 (cloud) — nightcap plaque at 150 mm: time; nut keep centred on the real frame ring
+- Owner asked how long the complete 150 set takes. Built `example_ar_gpt_nightcap_200.json` with `"size": 150`: plaque CLI 2h19m - 2h22m / 56 g, box + leg + module + pin (one plate) 1h32m / 63.6 g, total about 3h53m / 120 g (200: about 5h30m). CLI only (Studio's GUI was 1.5 - 1.8x longer on the small coaster test: treat 150 as 4 - 6 h in Studio until measured).
+- Found a 0.19 mm2 light pinhole at each nut at 150: `fix_points("topbottom")` used the 12-unit band centre, the real frame ring is 10.3 units; now centred on the ring (200: y 96 -> 96.57). Re-checked 150 and 200: 0 uncovered opening, watertight, interference with the box 0, `print_test` 0 problems; 200 files in `cad/print_files/nightcap_200/` regenerated. No 150 print files committed yet.
 
 ## 2026-11-18 (cloud) — frame bridges: 2 on top + 2 on the bottom, nuts moved into the top / bottom band (owner)
 - Owner asked what the dark spots in the lit frame are (6 bridges + 2 nut keeps) and chose 2 bridges on the top band and 2 on the bottom; asked why the nuts cannot go inside the field. Answer: the plate base is only 2.4 mm, a blind pocket would leave 0.6 mm front skin and the M2 screw length does not fit (M2 x 14 pierces it, M2 x 12 engages 0.4 mm of the nut); in the frame band the 1.8 mm frame cap hides the through pocket.
