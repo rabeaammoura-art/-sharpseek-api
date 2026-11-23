@@ -3,7 +3,7 @@
     python cad/bookmark/bookmark_text.py --text "واهدنا سبل السلام" --font FONT.ttf --hearts-pic COASTER_PICTURE.png --out OUT.3mf
 
 45 x 160 x 2.0 mm, tassel hole, rounded edges. Layers (z up = front):
-  TPU 0.4 | back text (mirrored, so it reads right from the back) 0.4 | red card 0.4 | front text 0.4 | TPU 0.4
+  TPU 0.4 | back text (mirrored along the length: reads upright when flipped over the short side) 0.4 | red card 0.4 | front text 0.4 | TPU 0.4
 The red card = rim around front + back text (1.2 mm) and hides each text from the other side. Hearts (same red) 0.4-1.6.
 Printed face down (front on the smooth plate). Slots: 1 clear TPU (nozzle 2), 2 red, 3 text colour (nozzle 1).
 Fonts and pictures are passed as arguments and stay out of git (licences unknown).
@@ -66,7 +66,8 @@ def build(text, font, pic, text_back=None):
     body = box(-W / 2 + RC, -H / 2 + RC, W / 2 - RC, H / 2 - RC).buffer(RC, 32).difference(Point(0, HOLE_Y).buffer(HOLE_R, 32))
     inner = body.buffer(-2.6).difference(Point(0, HOLE_Y).buffer(HOLE_R + 4))
     front, back_read = text_shapes([text, text_back or text], font)
-    back = affinity.scale(back_read, -1, 1, origin=(0, 0))      # mirrored so it reads right from the back
+    back = affinity.scale(back_read, 1, -1, origin=(0, 0))      # mirrored along the length: reads upright after flipping the
+                                                                #  bookmark over its SHORT side while holding it sideways (owner video 2026-11-23)
     card = unary_union([front, back]).buffer(RIM, 16)
     heart = heart_shape(pic)
     rnd = random.Random(3); hearts = []; free = prep(inner.difference(card.buffer(1.8))); occ = card

@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-23 (cloud) — bookmark v3 after the owner's video
+- Video: owner holds the bookmark sideways and flips it over the SHORT side -> the back verse came out upside down (I had mirrored for a flip over the long side). Now the back text is mirrored along the length; render held sideways: both verses upright.
+- Unclear face: white starburst cracks in the middle of the text/card = thin PLA cracked when the bookmark was bent. v3 uses PETG Basic for text + card + hearts (more flexible; owner has PETG in the AMS).
+- `bookmark_sharh_tahzan_v3.3mf` (sent in chat): all TPU lines 45 deg on every layer (G-code), clear-TPU values, CLI 1h36m, print_test 0 problems.
+
 ## 2026-11-23 (cloud) — bookmark print 1 feedback: crossed lines fixed, text issues open
 - Owner printed the two-verse bookmark: TPU lines still crossed; the face-down verse half unclear; back text "should appear by turning right-left, not one up one down" (unclear, photo asked).
 - Cause of crossing: Bambu turns SOLID layers 90 deg each layer (no switch); with 5 top / 3 bottom shells most of the 2 mm was solid. Fix: aligned rectilinear for sparse + internal solid + top + bottom, 1 top / 1 bottom shell, ensure_vertical_shell_thickness none. G-code check: all TPU lines 45 deg on every layer. `clear_tpu_settings.py` doc updated. File `bookmark_sharh_tahzan_clear_v2.3mf` sent in chat (CLI 1h41m).
