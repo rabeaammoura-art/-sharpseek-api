@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-23 (cloud) — cover logo v2: colours like the owner's picture
+- Owner sent the 3D ZT picture (orange caps on 3 and D, orange nozzle/stream, navy body, ZONE navy, TECH orange). Fitted the picture onto the logo 3MF footprint (IoU 0.89), split into polygons: orange = caps + nozzle + TECH + underline bar, navy = 3D body + ZONE. Brass nozzle printed orange (no gold slot).
+- 3 parts: TPU clear (1), navy (2), orange (3); pocket volume 1390.6 mm3 = logo volume. Extrusion by manifold3d CrossSection (shapely/earcut extrusion gave non-watertight bodies). print_test: same finding as the untouched cover. Time/cost still not run.
+
 ## 2026-11-23 (cloud) — iPhone 12 Pro Max cover (clear TPU) + 3D ZT logo flush on the back
 - Owner's cover 3MF (not in git): 82.3 x 164.1 x 12.6, back face (3.5 mm plate) already on the bed, camera hole top-left seen from outside. Logo = owner's ready 3MF (3D+nozzle 3D_With_White_Border, ZONE_TECH), 0.6 mm slab, native 70 x 82 mm, no height.
 - Cover pocketed 0.6 mm with manifold3d (removed volume = logo volume 1390.6 mm3), logo parts flush at the outer face, mirrored in x so it reads right from outside. 3 parts: TPU clear (slot 1), navy (2), orange (3) - owner recolours in Studio. 2 mm margin inside back face checked.
