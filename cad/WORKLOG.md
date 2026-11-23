@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-23 (cloud) — R coaster: purple R + berries, smooth stem (owner's marks)
+- Owner marked: main stem rough (yellow) -> brown traced at 4x with more smoothing + close/open 0.35/0.25 mm; R and berries (magenta) -> purple. `coaster_picture.py --purple`: berries = olive pieces < 15 mm2 and round (berries 6-11 mm2, smallest leaf 21.7), 13 found. Slots: TPU, purple #7B4FA0, olive, brown.
+- print_test 0 problems, 0 crossed layers, CLI 1h48m / 30 g. `coaster_R_purple_final.3mf` sent in chat.
+
 ## 2026-11-23 (cloud) — coaster: monogram R + leafy branch (owner's flat picture)
 - Owner sent a gold/marble R coaster photo ("take the R and the frame"); I started a Cinzel R + rings + own laurel (`cad/coaster/coaster_monogram.py`, Cinzel Bold OFL added to cad/fonts), owner stopped it and sent a flat picture instead: black serif R, olive leaves + berries, brown stems on a tan circle.
 - New `cad/coaster/coaster_picture.py`: traces the 3 ink colours (picture circle -> Ø88 so the art stays inside Ø95), stems thickened evenly (~0.65 -> ~1.1 mm). Same layers TPU 0.4 | inlay 0.6 | TPU 2.0, rounded, mirrored; 4 slots (TPU + black, olive, brown PETG).

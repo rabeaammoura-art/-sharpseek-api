@@ -31,6 +31,7 @@ ART_D = 88.0    # the picture's background circle -> this diameter (mm); keeps t
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("picture"); ap.add_argument("--out", required=True); ap.add_argument("--stl", action="store_true")
+    ap.add_argument("--purple", action="store_true", help="letter + berries purple instead of black / olive")
     a = ap.parse_args()
     img = np.array(Image.open(a.picture).convert("RGB")).astype(float)
     r, g, b = img[..., 0], img[..., 1], img[..., 2]
@@ -43,25 +44,36 @@ def main():
     geo = {}
     for k, (rgb, tol, _) in INKS.items():
         m = (np.sqrt(((img - np.array(rgb)) ** 2).sum(2)) < tol) & inside
-        geo[k] = coaster.mask_to_mm(m, cx, cy, scale_r, up=2, smooth=0.8, clean=False)
+        sm = 1.6 if k == "brown" else 0.8             # stems: smoother trace (owner mark 2026-11-23: rough stem)
+        geo[k] = coaster.mask_to_mm(m, cx, cy, scale_r, up=4 if k == "brown" else 2, smooth=sm, clean=False)
     # thin stems / stalks (~0.65 mm in the picture): +0.44 mm all round -> ~1.1 mm
-    geo["brown"] = geo["brown"].buffer(0.22, 16).buffer(-0.1, 16).buffer(0.1, 16)   # even thickening = smooth edges
+    st = geo["brown"].buffer(0.22, 16)                                                   # even thickening
+    geo["brown"] = st.buffer(0.35, 16).buffer(-0.35, 16).buffer(-0.25, 16).buffer(0.25, 16).simplify(0.03)   # close + open = smooth
+    if a.purple:   # owner 2026-11-23: berries and the letter in purple (berries = small round olive blobs)
+        ol = list(getattr(geo["olive"], "geoms", [geo["olive"]]))
+        berry = lambda q: q.area < 15.0 and 4 * np.pi * q.area / q.length ** 2 > 0.75   # berries 6-11 mm2, leaves >= 21
+        geo["purple"] = unary_union([geo["black"]] + [q for q in ol if berry(q)])
+        geo["olive"] = unary_union([q for q in ol if not berry(q)])
+        del geo["black"]
+        print(f"berries -> purple: {sum(1 for q in ol if berry(q))}")
     taken = None
-    for k in ("black", "olive", "brown"):              # no two colours on the same spot (leaves win over stems)
+    for k in [c for c in ("black", "purple", "olive", "brown") if c in geo]:   # no two colours on one spot (leaves win over stems)
         if taken is not None:
             geo[k] = geo[k].difference(taken)
         taken = geo[k] if taken is None else taken.union(geo[k])
     for k, gg in geo.items():
         t = gg.difference(gg.buffer(-0.35).buffer(0.35))
         print(f"{k}: {len(getattr(gg, 'geoms', [gg]))} pieces, {gg.area:.0f} mm2, under 0.7 mm {t.area:.2f} mm2, bounds {[round(v, 1) for v in gg.bounds]}")
-    inks = [(k, coaster.extrude(geo[k].buffer(0), ct.Z0, ct.Z1), i) for i, k in enumerate(INKS, start=2)]
+    order = [c for c in ("black", "purple", "olive", "brown") if c in geo]
+    inks = [(k, coaster.extrude(geo[k].buffer(0), ct.Z0, ct.Z1), i) for i, k in enumerate(order, start=2)]
     allink = trimesh.boolean.union([m for _, m, _ in inks], engine="manifold")
     tpu = trimesh.boolean.difference([ct.rounded_disc(), allink], engine="manifold")
     parts = [(n, coaster.mirror_x(m), s) for n, m, s in [("clear_tpu", tpu, 1)] + inks]
     for n, m, _ in parts:
         print(f"  part {n}: watertight={m.is_watertight} z {m.bounds[0][2]:.2f}-{m.bounds[1][2]:.2f}")
     cfg = json.loads((HERE.parent / "config" / "bambu_project_4fil_petg.config").read_text())
-    cfg["filament_colour"] = ["#E8F1F5"] + [c for _, _, c in INKS.values()]
+    cols = {"black": "#141414", "purple": "#7B4FA0", "olive": "#8F8B3A", "brown": "#B4703A"}
+    cfg["filament_colour"] = ["#E8F1F5"] + [cols[k] for k in order]
     cfg["filament_map_mode"], cfg["filament_map"] = "Manual", ["2", "1", "1", "1"]
     out = Path(a.out); out.parent.mkdir(parents=True, exist_ok=True)
     write_bambu_3mf(out, parts, (175.0, 160.0), out.stem, json.dumps(cfg, indent=4))
