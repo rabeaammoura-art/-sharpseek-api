@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-23 (cloud) — bookmark print 1 feedback: crossed lines fixed, text issues open
+- Owner printed the two-verse bookmark: TPU lines still crossed; the face-down verse half unclear; back text "should appear by turning right-left, not one up one down" (unclear, photo asked).
+- Cause of crossing: Bambu turns SOLID layers 90 deg each layer (no switch); with 5 top / 3 bottom shells most of the 2 mm was solid. Fix: aligned rectilinear for sparse + internal solid + top + bottom, 1 top / 1 bottom shell, ensure_vertical_shell_thickness none. G-code check: all TPU lines 45 deg on every layer. `clear_tpu_settings.py` doc updated. File `bookmark_sharh_tahzan_clear_v2.3mf` sent in chat (CLI 1h41m).
+- Left: owner's photos of both faces to diagnose the half-unclear verse (first layer / bed / squish?) and what "one up one down" means.
+
 ## 2026-11-23 (cloud) — clearer TPU settings inside the 3MF
 - Owner asked to hide/soften the TPU fill lines and have it all in the file. New `cad/clear_tpu_settings.py` (after `bambu_slice.py` prepares the 3MF with the real TPU 95A HF + PLA Basic profiles and --set process options): 100 % aligned rectilinear, monotonic line top/bottom, ironing top 10 % / 20 mm/s; TPU +10 C, flow x1.05, fan 30-40 %, volumetric x0.65.
 - Bookmark (two verses) with these settings slices fine from its own embedded settings: CLI 1h35m / 21 g (owner's GUI usually longer). Sent in chat only. Owner must not re-pick the TPU preset in Studio (it resets the TPU values).
