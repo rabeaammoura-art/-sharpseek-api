@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-23 (cloud) — round coaster v2 with the heart learnings
+- Owner: make the round coaster like the last hearts. `coaster.py PIC --layers 0.6,0.6,0.6 --round 0.6 --face-down` -> `coaster_birds_v2.3mf` + `coaster_birds_v2_set4.3mf` (Ø95 x 1.8, drawing centred, rounded edges, face down mirrored, TPU = shell minus drawing). print_test 0 problems. Old v1 files kept. Not sliced (owner slices).
+- Offered 2.4 mm (0.9/0.6/0.9) if 1.8 feels too soft under a glass.
+
 ## 2026-11-21 (cloud) — whole alphabet A-Z on one plate
 - Owner wanted every letter, all in one file: `coaster.py --letters ABCDEFGHIJKLMNOPQRSTUVWXYZ` -> `heart35_AZ.3mf`, 26 hearts in a 7 x 4 grid inside x 25-325 (both nozzles), face down (mirrored), letters centred on their box. Build takes ~6 min.
 - G, K, U first came out with an open TPU mesh (slivers when cutting the pocket per 0.1 mm slab): TPU is now the full rounded shell minus the drawing in one boolean -> all 78 parts watertight (inner shells = sealed pockets), print_test 0 problems on all 26.
