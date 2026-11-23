@@ -26,7 +26,14 @@ from threemf import write_bambu_3mf  # noqa: E402
 
 W, H, RC = 45.0, 160.0, 6.0
 HOLE_Y, HOLE_R = 72.0, 2.5
-Z = [0.0, 0.4, 0.8, 1.2, 1.6, 2.0]
+CARD_T = 0.4                          # middle card thickness (--card)
+Z = [0.0, 0.4, 0.8, 1.2, 1.6, 2.0]     # recomputed in main() from --card
+
+
+def set_card(t):
+    global Z, CARD_T
+    CARD_T = t
+    Z = [0.0, 0.4, 0.8, 0.8 + t, 1.2 + t, 1.6 + t]
 ROUND = 0.6
 RIM = 1.2
 
@@ -96,8 +103,10 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--text", required=True); ap.add_argument("--text-back", help="another text on the back (default: the same)"); ap.add_argument("--font", required=True); ap.add_argument("--hearts-pic", required=True)
     ap.add_argument("--text-colour", default="#1F5FA8"); ap.add_argument("--red", default="#C8102E")
+    ap.add_argument("--card", type=float, default=0.4, help="thickness of the middle card (owner 2026-11-23: 0.8 hides the other verse better)")
     ap.add_argument("--out", required=True); ap.add_argument("--stl", action="store_true")
     a = ap.parse_args()
+    set_card(a.card)
     parts = [(n, face_down(m), sl) for n, m, sl in build(a.text, a.font, a.hearts_pic, a.text_back)]
     for n, m, _ in parts:
         print(f"  part {n}: watertight={m.is_watertight} volume={m.volume:.0f} z {m.bounds[0][2]:.2f}-{m.bounds[1][2]:.2f}")

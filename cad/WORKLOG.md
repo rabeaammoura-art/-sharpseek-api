@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-23 (cloud) — bookmark v4: thicker middle card
+- Owner asked for a thicker separating layer between the two verses. `bookmark_text.py --card 0.8` (was 0.4): TPU 0.4 | text 0.4 | card 0.8 | text 0.4 | TPU 0.4 = 2.4 mm. PETG, clear-TPU settings, all 12 TPU layers 45 deg (G-code), CLI 1h51m, print_test 0 problems. `bookmark_sharh_tahzan_v4.3mf` sent in chat.
+
 ## 2026-11-23 (cloud) — bookmark v3 after the owner's video
 - Video: owner holds the bookmark sideways and flips it over the SHORT side -> the back verse came out upside down (I had mirrored for a flip over the long side). Now the back text is mirrored along the length; render held sideways: both verses upright.
 - Unclear face: white starburst cracks in the middle of the text/card = thin PLA cracked when the bookmark was bent. v3 uses PETG Basic for text + card + hearts (more flexible; owner has PETG in the AMS).
