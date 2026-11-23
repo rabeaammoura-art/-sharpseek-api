@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-23 (cloud) — coaster: monogram R + leafy branch (owner's flat picture)
+- Owner sent a gold/marble R coaster photo ("take the R and the frame"); I started a Cinzel R + rings + own laurel (`cad/coaster/coaster_monogram.py`, Cinzel Bold OFL added to cad/fonts), owner stopped it and sent a flat picture instead: black serif R, olive leaves + berries, brown stems on a tan circle.
+- New `cad/coaster/coaster_picture.py`: traces the 3 ink colours (picture circle -> Ø88 so the art stays inside Ø95), stems thickened evenly (~0.65 -> ~1.1 mm). Same layers TPU 0.4 | inlay 0.6 | TPU 2.0, rounded, mirrored; 4 slots (TPU + black, olive, brown PETG).
+- print_test 0 problems, clear settings: 0 crossed layers, CLI 1h48m / 30 g. `coaster_R_branch_final.3mf` sent in chat (picture not in git).
+
 ## 2026-11-23 (cloud) — coaster «رانيا» with my own olive wreath
 - Owner: try a new decoration instead of his. `coaster_text.py --deco wreath`: own parametric olive wreath arc under the text (brown stem r 38.5 from 226 to 314 deg, vesica leaves both sides, 3 lavender 5-petal flowers with black outline + centre at the ends and middle). Leaves room for a bigger text: name 50 x 42, line 56 x 9.
 - Same layers / colours / clear settings: 0 crossed layers, CLI 1h57m / 31 g, print_test 0 problems. `coaster_rania_wreath_final.3mf` sent in chat only.
