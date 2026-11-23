@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-23 (cloud) — same coloured logo on the owner's iPhone 11 Pro Max case
+- Case 3MF (not in git): 85.6 x 163.8 x 11.2, outer back (z=-5.6) already on the bed, flat back only 74 x 154 mm, plate 2.0 mm thick, camera hole top-left. Logo scaled 0.85 (about 60 x 70 mm) for margin, pocket 0.6 mm, same 3 parts / slots (TPU, navy, orange).
+- Manifold3d boolean on this 660k-face cover leaves 4 non-manifold edges (4 faces/edge) at the far top-right corner (z -5.595, x 29-37, y 69-77): print_test flags "not watertight" besides the same back-edge overhang finding as the untouched file. Tried grid snapping, tolerance, face surgery: no clean fix; slicer auto-repair expected, logo parts themselves are watertight. Time/cost not run.
+
 ## 2026-11-23 (cloud) — cover logo v2: colours like the owner's picture
 - Owner sent the 3D ZT picture (orange caps on 3 and D, orange nozzle/stream, navy body, ZONE navy, TECH orange). Fitted the picture onto the logo 3MF footprint (IoU 0.89), split into polygons: orange = caps + nozzle + TECH + underline bar, navy = 3D body + ZONE. Brass nozzle printed orange (no gold slot).
 - 3 parts: TPU clear (1), navy (2), orange (3); pocket volume 1390.6 mm3 = logo volume. Extrusion by manifold3d CrossSection (shapely/earcut extrusion gave non-watertight bodies). print_test: same finding as the untouched cover. Time/cost still not run.
