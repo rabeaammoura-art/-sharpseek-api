@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-23 (cloud) — HueForge horse head 150 mm (owner's new AI picture)
+- Owner sent a grey/cream/rust horse-head picture (not in git). White background flood-filled to black (thin base only). `zt_forge.py --width 150 --px 0.3 --base 0.64 --top 1.6`, filaments black, grey, orange, white PLA (hex/TD guesses), swaps at layers 8 / 13 / 14, dE 6.0 (orange before grey: 7.2). STL closed, print_test 0 problems. Outputs `cad/out/hueforge/horse150*` (not in git).
+- Slice at 0.08 failed here (invalid params with --set layer_height); default 0.20: 56 min / 24.8 g, so real 0.08 time is only an estimate (~2.5 h). Price sheet missing in this session.
+- Left: orange is only 1 layer thick (will look weak), owner's choice; 3MF with swaps; real TD calibration.
+
 ## 2026-11-23 (cloud) — R coaster: purple R + berries, smooth stem (owner's marks)
 - Owner marked: main stem rough (yellow) -> brown traced at 4x with more smoothing + close/open 0.35/0.25 mm; R and berries (magenta) -> purple. `coaster_picture.py --purple`: berries = olive pieces < 15 mm2 and round (berries 6-11 mm2, smallest leaf 21.7), 13 found. Slots: TPU, purple #7B4FA0, olive, brown.
 - print_test 0 problems, 0 crossed layers, CLI 1h48m / 30 g. `coaster_R_purple_final.3mf` sent in chat.
