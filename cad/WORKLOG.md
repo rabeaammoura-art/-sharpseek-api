@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-23 (cloud) — coaster «رانيا» in the style of the owner's plate3 file
+- Owner: first coaster design (3 mm) + clear settings + rounded edges + face on the plate; text «رانيا» big + «تطيل النظر بمحبة وتأمل» (Tabassom, no tashkeel). Inlay stays under 0.4 TPU (owner: only the STYLE of his reference, not its flush inlay).
+- His reference 3MF (plate3_duaa_islam_maimouna, his own design, not in git): Ø95 x 3 PETG plates, 1 mm flush colour inlays: black text, olive leaves, brown stems, lavender flowers with black outlines.
+- New `cad/coaster/coaster_text.py`: TPU 0.4 | inlay 0.6 | TPU 2.0, rounded edges, mirrored; `--deco REF.3mf --deco-object N` takes his branches/flowers (z=0 faces, his text dropped = black bits not hugging a flower), text fitted as big as it goes 1.2 mm from them. Plate 1 (دعاء, lavender) leaves the most room: name 43 x 36, line 48 x 8. Inks merged before pocketing (touching colours had left the TPU open).
+- 5 slots: TPU (nozzle 2) + black, olive, brown, lavender PETG (AMS). Clear settings + top/bottom_shell_thickness=0: 0 crossed layers in the G-code. CLI 1h55m / 31 g, print_test 0 problems. `coaster_rania_lavender.3mf` sent in chat only.
+
 ## 2026-11-23 (cloud) — bookmark v4: thicker middle card
 - Owner asked for a thicker separating layer between the two verses. `bookmark_text.py --card 0.8` (was 0.4): TPU 0.4 | text 0.4 | card 0.8 | text 0.4 | TPU 0.4 = 2.4 mm. PETG, clear-TPU settings, all 12 TPU layers 45 deg (G-code), CLI 1h51m, print_test 0 problems. `bookmark_sharh_tahzan_v4.3mf` sent in chat.
 
