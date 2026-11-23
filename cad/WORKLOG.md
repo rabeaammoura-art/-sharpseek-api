@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-23 (cloud) — bookmark with a different verse on each face
+- `bookmark_text.py --text-back`: front «رب اشرح لي صدري» (Taha 25), back «لا تحزن إن الله معنا» (At-Tawbah 40), same letter size on both faces (one common scale), no tashkeel (marks too small to print). Card = rim around front + mirrored back text. print_test 0 problems. 3MF sent in chat only (font outlines). Told the owner «واهدنا سبل السلام» is a dua from Al-Ma'idah 16, not the verse text.
+- Idea logged: Ramadan 2027 (mid Feb) gift set of 3-4 verse bookmarks; prepare files and photos early.
+
 ## 2026-11-23 (cloud) — clear TPU bookmark, text readable from both sides
 - Owner: bookmark like the coaster, text «واهدنا سبل السلام» along the strip in the owner's Tabassom font (font file kept out of git, licence unknown), blue text, red hearts; readable from both sides.
 - New `cad/bookmark/bookmark_text.py`: 45 x 160 x 2.0, TPU 0.4 | mirrored back text 0.4 | red card 0.4 | front text 0.4 | TPU 0.4; card = rim 1.2 mm around front + back text (owner chose this over a plain strip; a rim around the front text only cannot hide the mirrored back text). 8 red hearts at the sides, rounded edges, face down. Strokes thickened 0.2 mm.

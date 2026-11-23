@@ -31,12 +31,15 @@ ROUND = 0.6
 RIM = 1.2
 
 
-def text_shape(text, font):
-    t = npq.shape_run(npq.Font(font), text, 20.0, "rtl", "Arab")[0]
-    b = t.bounds
-    t = affinity.rotate(affinity.translate(t, -(b[0] + b[2]) / 2, -(b[1] + b[3]) / 2), 90, origin=(0, 0))  # along the strip
-    s = min(104 / (t.bounds[3] - t.bounds[1]), 26 / (t.bounds[2] - t.bounds[0]))
-    return affinity.scale(t, s, s, origin=(0, 0)).buffer(0.2, 16)        # thin calligraphy strokes -> ~1 mm and more
+def text_shapes(texts, font):
+    """each text along the strip, centred; all scaled by ONE factor (same letter size on both faces)"""
+    ts = []
+    for text in texts:
+        t = npq.shape_run(npq.Font(font), text, 20.0, "rtl", "Arab")[0]
+        b = t.bounds
+        ts.append(affinity.rotate(affinity.translate(t, -(b[0] + b[2]) / 2, -(b[1] + b[3]) / 2), 90, origin=(0, 0)))
+    s = min(min(104 / (t.bounds[3] - t.bounds[1]), 26 / (t.bounds[2] - t.bounds[0])) for t in ts)
+    return [affinity.scale(t, s, s, origin=(0, 0)).buffer(0.2, 16) for t in ts]   # thin strokes -> ~1 mm and more
 
 
 def heart_shape(pic):
@@ -59,11 +62,11 @@ def rounded_body(outline):
     return trimesh.boolean.union(slabs, engine="manifold")
 
 
-def build(text, font, pic):
+def build(text, font, pic, text_back=None):
     body = box(-W / 2 + RC, -H / 2 + RC, W / 2 - RC, H / 2 - RC).buffer(RC, 32).difference(Point(0, HOLE_Y).buffer(HOLE_R, 32))
     inner = body.buffer(-2.6).difference(Point(0, HOLE_Y).buffer(HOLE_R + 4))
-    front = text_shape(text, font)
-    back = affinity.scale(front, -1, 1, origin=(0, 0))
+    front, back_read = text_shapes([text, text_back or text], font)
+    back = affinity.scale(back_read, -1, 1, origin=(0, 0))      # mirrored so it reads right from the back
     card = unary_union([front, back]).buffer(RIM, 16)
     heart = heart_shape(pic)
     rnd = random.Random(3); hearts = []; free = prep(inner.difference(card.buffer(1.8))); occ = card
@@ -77,7 +80,7 @@ def build(text, font, pic):
     red = trimesh.boolean.union([coaster.extrude(card, Z[2], Z[3]), coaster.extrude(unary_union(hearts), Z[1], Z[4])], engine="manifold")
     ink = trimesh.util.concatenate([coaster.extrude(back, Z[1], Z[2]), coaster.extrude(front, Z[3], Z[4])])
     tpu = trimesh.boolean.difference([rounded_body(body), red, ink], engine="manifold")
-    print(f"text {front.bounds[3] - front.bounds[1]:.0f} mm long, card {card.bounds[2] - card.bounds[0]:.1f} mm wide, hearts {len(hearts)}")
+    print(f"front text {front.bounds[3] - front.bounds[1]:.0f} mm, back text {back.bounds[3] - back.bounds[1]:.0f} mm long, card {card.bounds[2] - card.bounds[0]:.1f} mm wide, hearts {len(hearts)}")
     return [("clear_tpu", tpu, 1), ("red", red, 2), ("text", ink, 3)]
 
 
@@ -90,11 +93,11 @@ def face_down(m):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--text", required=True); ap.add_argument("--font", required=True); ap.add_argument("--hearts-pic", required=True)
+    ap.add_argument("--text", required=True); ap.add_argument("--text-back", help="another text on the back (default: the same)"); ap.add_argument("--font", required=True); ap.add_argument("--hearts-pic", required=True)
     ap.add_argument("--text-colour", default="#1F5FA8"); ap.add_argument("--red", default="#C8102E")
     ap.add_argument("--out", required=True); ap.add_argument("--stl", action="store_true")
     a = ap.parse_args()
-    parts = [(n, face_down(m), sl) for n, m, sl in build(a.text, a.font, a.hearts_pic)]
+    parts = [(n, face_down(m), sl) for n, m, sl in build(a.text, a.font, a.hearts_pic, a.text_back)]
     for n, m, _ in parts:
         print(f"  part {n}: watertight={m.is_watertight} volume={m.volume:.0f} z {m.bounds[0][2]:.2f}-{m.bounds[1][2]:.2f}")
     cfg = json.loads((HERE.parent / "config" / "bambu_project_4fil_petg.config").read_text())
