@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-23 (cloud) — iPhone 12 Pro Max cover (clear TPU) + 3D ZT logo flush on the back
+- Owner's cover 3MF (not in git): 82.3 x 164.1 x 12.6, back face (3.5 mm plate) already on the bed, camera hole top-left seen from outside. Logo = owner's ready 3MF (3D+nozzle 3D_With_White_Border, ZONE_TECH), 0.6 mm slab, native 70 x 82 mm, no height.
+- Cover pocketed 0.6 mm with manifold3d (removed volume = logo volume 1390.6 mm3), logo parts flush at the outer face, mirrored in x so it reads right from outside. 3 parts: TPU clear (slot 1), navy (2), orange (3) - owner recolours in Studio. 2 mm margin inside back face checked.
+- print_test: same overhang/thin-feature finding as the untouched original (back edge fillet), so not from the logo. Time/cost NOT run yet (Bambu CLI not installed in this session). Owner chooses PETG/PLA for the logo; recommended PETG.
+
 ## 2026-11-23 (cloud) — HueForge horse head 150 mm (owner's new AI picture)
 - Owner sent a grey/cream/rust horse-head picture (not in git). White background flood-filled to black (thin base only). `zt_forge.py --width 150 --px 0.3 --base 0.64 --top 1.6`, filaments black, grey, orange, white PLA (hex/TD guesses), swaps at layers 8 / 13 / 14, dE 6.0 (orange before grey: 7.2). STL closed, print_test 0 problems. Outputs `cad/out/hueforge/horse150*` (not in git).
 - Slice at 0.08 failed here (invalid params with --set layer_height); default 0.20: 56 min / 24.8 g, so real 0.08 time is only an estimate (~2.5 h). Price sheet missing in this session.
