@@ -59,8 +59,6 @@ THEMES = {
     "sky":       {"base": "#f2f0ea", "main": "#3aa8c8", "accent": "#f0c446", "animal": "#8c96a0"},
     "gpt_blue":   {"base": "#faf9f6", "main": "#004395", "accent": "#fdba05", "animal": "#12181f"},    # owner's GPT design: bear + cloud + frame are ONE colour
     "gpt_nightcap": {"base": "#faf9f6", "main": "#1f4fd0", "accent": "#fdba05", "animal": "#78b9ff"},   # 4 filaments: opaque white / translucent blue / translucent yellow / translucent light blue (the bear)
-    "gpt_nightcap_beige4": {"base": "#e8dcc2", "main": "#141414", "accent": "#fdba05", "animal": "#78b9ff"},                         # preview: beige base, black lines, light-blue bear (outline black too)
-    "gpt_nightcap_beige5": {"base": "#e8dcc2", "main": "#141414", "accent": "#fdba05", "animal": "#78b9ff", "outline": "#1f4fd0"},  # preview: bear outline keeps its dark blue (5th colour)
     "gpt_pink":   {"base": "#faf9f6", "main": "#ef0269", "accent": "#fdba05", "animal": "#12181f"},
     "gpt_green":  {"base": "#faf9f6", "main": "#137f27", "accent": "#fdba05", "animal": "#12181f"},
     "gpt_purple": {"base": "#faf9f6", "main": "#6c1282", "accent": "#fdba05", "animal": "#12181f"},
@@ -1047,7 +1045,7 @@ def layout_gpt(data, add, layers, k, lang, rtl):
             body_ = solid.difference(pose["cream"]).difference(navy_)
             body_ = only_polygons(body_.buffer(0.1, join_style=1).buffer(-0.05, join_style=1))      # no vertex-touching pieces (non-manifold edges)
             add("animal", body_, BASE_H, TOP)
-            add(data.get("bear_outline_role", "main"), navy_, BASE_H, TOP + 0.4)
+            add("main", navy_, BASE_H, TOP + 0.4)
         elif data.get("bear_details") == "yellow":
             # eyes + paw / arm lines on the body in the star colour (3 filaments only); nose / mouth on the cream muzzle in the plaque colour
             fill_ = lambda g_: unary_union([Polygon(q.exterior) for q in (g_.geoms if hasattr(g_, "geoms") else [g_]) if not q.is_empty])
@@ -1126,7 +1124,7 @@ def build(data):
     TOP = BASE_H + RAISE
     lang = data.get("lang", "ar")
     rtl = lang == "ar"
-    layers = {"base": [], "main": [], "accent": [], "animal": [], "outline": []}      # "outline" = optional 5th colour (preview only, see "bear_outline_role")
+    layers = {"base": [], "main": [], "accent": [], "animal": []}
 
     def add(role, geom, z0=BASE_H, z1=TOP):
         if geom is not None and not geom.is_empty:
