@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-23 (cloud) — clearer TPU settings inside the 3MF
+- Owner asked to hide/soften the TPU fill lines and have it all in the file. New `cad/clear_tpu_settings.py` (after `bambu_slice.py` prepares the 3MF with the real TPU 95A HF + PLA Basic profiles and --set process options): 100 % aligned rectilinear, monotonic line top/bottom, ironing top 10 % / 20 mm/s; TPU +10 C, flow x1.05, fan 30-40 %, volumetric x0.65.
+- Bookmark (two verses) with these settings slices fine from its own embedded settings: CLI 1h35m / 21 g (owner's GUI usually longer). Sent in chat only. Owner must not re-pick the TPU preset in Studio (it resets the TPU values).
+- Suggested a 30 x 30 x 2 test coupon pair (old vs new settings) now that the printer is here.
+
 ## 2026-11-23 (cloud) — bookmark with a different verse on each face
 - `bookmark_text.py --text-back`: front «رب اشرح لي صدري» (Taha 25), back «لا تحزن إن الله معنا» (At-Tawbah 40), same letter size on both faces (one common scale), no tashkeel (marks too small to print). Card = rim around front + mirrored back text. print_test 0 problems. 3MF sent in chat only (font outlines). Told the owner «واهدنا سبل السلام» is a dua from Al-Ma'idah 16, not the verse text.
 - Idea logged: Ramadan 2027 (mid Feb) gift set of 3-4 verse bookmarks; prepare files and photos early.
