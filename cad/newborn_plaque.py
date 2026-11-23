@@ -1411,7 +1411,7 @@ FIX_MODE = {"layout": "sides", "count": 2}     # set from the JSON ("fix_layout"
 def fix_points(size):
     band = 12.0 * size / SIZE
     if FIX_MODE["layout"] == "topbottom":             # nuts in the top / bottom frame band, 0.2 x size left / right of the middle
-        x_, y_ = 0.2 * size, size / 2 - band / 2
+        x_, y_ = 0.2 * size, size / 2 - 5.15 * size / SIZE      # centre of the 10.3-unit frame ring (the old 12-unit band centre leaked light at 150)
         return [(-x_, y_), (x_, -y_)] if FIX_MODE["count"] == 2 else [(-x_, y_), (x_, y_), (-x_, -y_), (x_, -y_)]
     return [(sx * (size / 2 - band / 2), 0.0) for sx in (-1, 1)]
 
