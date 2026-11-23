@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-23 (cloud) — HueForge horse 150 mm: edges cleaned, orange -> black, ready 3MF
+- Owner marked the halo/specks around the horse: background flood-filled (thresh 30) and eaten 2 px; (first try with thresh 45 + a seed on the face ate the face: fixed). Orange dropped: 3 slots black, grey, white; swaps layer 8 (z 0.72) and 13 (z 1.12), dE 6.2, STL closed.
+- `cad/out/hueforge/horse_150_ready.3mf` (not in git): STL + `custom_gcode_per_layer.xml` (type 2 tool_change, extruder 2 / 3), 3 PLA slots, tower flag on. Slice 0.08 Extra Fine H2D profile (works; `--set layer_height` did not): 2h10m / 25.4 g (black 18.9, grey 4.6, white 1.9), T1/T2 changes present in the G-code. Tower not in the estimate; price sheet missing here.
+- Left: owner opens it in Bambu Studio (not tested in the GUI), real TDs, cost.
+
 ## 2026-11-23 (cloud) — HueForge horse head 150 mm (owner's new AI picture)
 - Owner sent a grey/cream/rust horse-head picture (not in git). White background flood-filled to black (thin base only). `zt_forge.py --width 150 --px 0.3 --base 0.64 --top 1.6`, filaments black, grey, orange, white PLA (hex/TD guesses), swaps at layers 8 / 13 / 14, dE 6.0 (orange before grey: 7.2). STL closed, print_test 0 problems. Outputs `cad/out/hueforge/horse150*` (not in git).
 - Slice at 0.08 failed here (invalid params with --set layer_height); default 0.20: 56 min / 24.8 g, so real 0.08 time is only an estimate (~2.5 h). Price sheet missing in this session.
