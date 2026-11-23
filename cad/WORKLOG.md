@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-23 (cloud) — coaster «رانيا» with my own olive wreath
+- Owner: try a new decoration instead of his. `coaster_text.py --deco wreath`: own parametric olive wreath arc under the text (brown stem r 38.5 from 226 to 314 deg, vesica leaves both sides, 3 lavender 5-petal flowers with black outline + centre at the ends and middle). Leaves room for a bigger text: name 50 x 42, line 56 x 9.
+- Same layers / colours / clear settings: 0 crossed layers, CLI 1h57m / 31 g, print_test 0 problems. `coaster_rania_wreath_final.3mf` sent in chat only.
+
 ## 2026-11-23 (cloud) — coaster «رانيا» in the style of the owner's plate3 file
 - Owner: first coaster design (3 mm) + clear settings + rounded edges + face on the plate; text «رانيا» big + «تطيل النظر بمحبة وتأمل» (Tabassom, no tashkeel). Inlay stays under 0.4 TPU (owner: only the STYLE of his reference, not its flush inlay).
 - His reference 3MF (plate3_duaa_islam_maimouna, his own design, not in git): Ø95 x 3 PETG plates, 1 mm flush colour inlays: black text, olive leaves, brown stems, lavender flowers with black outlines.

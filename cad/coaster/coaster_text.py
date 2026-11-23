@@ -74,6 +74,45 @@ def decoration(ref, obj):
     return {"black": outlines, "olive": olive, "brown": brown, "accent": accent}, text_box
 
 
+def wreath(r=38.5, a0=226.0, a1=314.0):
+    """own decoration (owner 2026-11-23 'new decoration'): olive wreath arc under the text - brown stem, olive leaves on
+    both sides, three lavender 5-petal flowers with black outlines (ends + middle)"""
+    from shapely.geometry import LineString, Polygon
+    ang = np.radians(np.linspace(a0, a1, 160))
+    stem = LineString(np.c_[r * np.cos(ang), r * np.sin(ang)]).buffer(0.65, 16)
+
+    def leaf(L=7.5, W=3.0):
+        R = (L * L / 4 + W * W / 4) / W                  # vesica: two circles cut
+        a = Point(0, -(R - W / 2)).buffer(R, 64); b = Point(0, R - W / 2).buffer(R, 64)
+        g = a.intersection(b)
+        return affinity.translate(affinity.rotate(g, 90, origin=(0, 0)), L / 2, 0)   # base at x=0, tip at x=L
+
+    leaves = []
+    for i, t in enumerate(np.linspace(a0 + 11, a1 - 11, 8)):
+        if abs(t - 270) < 7:
+            continue                                     # room for the middle flower
+        th = np.radians(t); px, py = r * np.cos(th), r * np.sin(th)
+        tangent = t + 90                                 # along the arc, pointing left -> right
+        for side in (-1, 1):
+            lf = affinity.rotate(leaf(6.8 if i % 2 else 7.6, 2.9), tangent + side * 38 + (0 if t < 270 else 180) * 0, origin=(0, 0))
+            lf = affinity.rotate(lf, 180 if t > 270 else 0, origin=(0, 0)) if False else lf
+            leaves.append(affinity.translate(lf, px, py))
+    olive = unary_union(leaves).difference(stem.buffer(0.3))
+
+    def flower(cx, cy, pr=1.7, rr=1.9):
+        petals = unary_union([Point(cx + rr * np.cos(a), cy + rr * np.sin(a)).buffer(pr, 32) for a in np.radians(np.arange(0, 360, 72) + 90)])
+        centre = Point(cx, cy).buffer(0.9, 32)
+        return petals.difference(centre.buffer(0.5)), centre, petals.buffer(0.7, 16).difference(petals)
+
+    fl = [flower(r * np.cos(np.radians(t)), r * np.sin(np.radians(t))) for t in (a0 - 2, 270, a1 + 2)]
+    accent = unary_union([f[0] for f in fl])
+    black = unary_union([f[1] for f in fl] + [f[2] for f in fl])
+    blooms = unary_union([f[0].union(f[1]).buffer(0.75) for f in fl])
+    olive = olive.difference(blooms.buffer(0.3)); brown = stem.difference(blooms.buffer(0.3)).difference(olive)
+    deco = {"black": black, "olive": olive, "brown": brown, "accent": accent}
+    return deco, (-32.0, -16.0, 32.0, 32.0)              # text area above the wreath
+
+
 def rounded_disc():
     outline = Point(0, 0).buffer(D / 2, 256)
     n = int(round(T / 0.1)); slabs = []
@@ -90,14 +129,14 @@ def main():
     ap.add_argument("--name", required=True); ap.add_argument("--line", required=True); ap.add_argument("--font", required=True)
     ap.add_argument("--cover", type=float, default=0.4, help="clear TPU in front of the inlay")
     ap.add_argument("--depth", type=float, default=0.6, help="inlay thickness")
-    ap.add_argument("--deco", help="owner's plate 3MF to take the branches / flowers from")
+    ap.add_argument("--deco", help="'wreath' (own olive wreath) or the owner's plate 3MF to take the branches / flowers from")
     ap.add_argument("--deco-object", type=int, default=3, help="which plate of that file (1, 2, 3)")
     ap.add_argument("--colour", default="#1F5FA8"); ap.add_argument("--out", required=True); ap.add_argument("--stl", action="store_true")
     a = ap.parse_args()
     global Z0, Z1
     Z0, Z1 = a.cover, a.cover + a.depth
     n, l = layout(a.name, a.line, a.font)
-    deco, box = decoration(a.deco, a.deco_object) if a.deco else (None, None)
+    deco, box = (wreath() if a.deco == "wreath" else decoration(a.deco, a.deco_object)) if a.deco else (None, None)
     if deco:   # text where the owner's text was, as big as fits, 1.2 mm of TPU from the branches / flowers
         g = unary_union([n, l]); b = g.bounds
         sc = min((box[2] - box[0]) / (b[2] - b[0]), (box[3] - box[1]) / (b[3] - b[1])) * 2.0   # start big, shrink to fit
