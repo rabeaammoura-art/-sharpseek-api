@@ -1421,7 +1421,7 @@ def hexagon(cx, cy, af):
     return Polygon([(cx + r * math.cos(math.radians(30 + 60 * i)), cy + r * math.sin(math.radians(30 + 60 * i))) for i in range(6)])
 
 
-def make_lit_box(size, glow=False, leg=True, kick=False):
+def make_lit_box(size, glow=False, leg=True, kick=False, feet=False):
     """Shallow white tray behind the backlit plate: LED strip stuck on its back panel, USB-C slot in the
     bottom wall, 12 small ledges hold the plate whose front face ends flush with the rim.
     Printed back panel down. Returns (mesh, info)."""
@@ -1451,6 +1451,11 @@ def make_lit_box(size, glow=False, leg=True, kick=False):
     cord = circle(0, yp - LEG_CORD * size, 1.25)
     hexp = Polygon([(3.41 * math.cos(math.radians(60 * i + 30)), yp + 3.41 * math.sin(math.radians(60 * i + 30))) for i in range(6)])
     boss = circle(0, yp, 7.0)
+    feet_pts, boss_g = [], None
+    if feet:                                  # two threaded feet screw into bosses at the bottom corners (see thread_feet.py)
+        import thread_feet as _tf
+        feet_pts = _tf.foot_points(size)
+        boss_g = unary_union([circle(x_, y_, _tf.BOSS_R) for x_, y_ in feet_pts])
     kp = None
     if kick:                                  # removable kickstand: thickened pad + dovetail pocket in the back (see kickstand.py)
         import kickstand as _ks
@@ -1461,7 +1466,7 @@ def make_lit_box(size, glow=False, leg=True, kick=False):
         pts = fix_points(size)
         posts = unary_union([circle(x, y, nut["post"] / 2) for x, y in pts])
         holes = unary_union([circle(x, y, nut["hole"] / 2) for x, y in pts])
-    cuts = sorted({0, back, z0, z1, ledge_top - 2.0, ledge_top, depth} | ({boss_top, pocket_z} if leg else set()) | (set(kp["z"]) if kp else set()))
+    cuts = sorted({0, back, z0, z1, ledge_top - 2.0, ledge_top, depth} | ({boss_top, pocket_z} if leg else set()) | (set(kp["z"]) if kp else set()) | ({_tf.BOSS_TOP} if feet_pts else set()))
     meshes = []
     for a, b in zip(cuts, cuts[1:]):       # one extrusion per slab, so no part overlaps another
         mid = (a + b) / 2
@@ -1480,6 +1485,8 @@ def make_lit_box(size, glow=False, leg=True, kick=False):
                 g = g.union(boss).difference(screw)
                 if mid > pocket_z:
                     g = g.difference(hexp)
+        if feet_pts and back <= mid < _tf.BOSS_TOP:
+            g = g.union(boss_g)                 # bosses inside the box for the threaded feet
         if kp is not None:
             if back <= mid < kp["z"][2]:
                 g = g.union(kp["pad"])      # local thickening of the back panel under the pocket (inside the box)
@@ -1489,6 +1496,8 @@ def make_lit_box(size, glow=False, leg=True, kick=False):
                 g = g.difference(kp["chamber"])  # chamber behind the lips (the module's flanges)
         meshes += extrude(only_polygons(g), a, b)
     mesh = merge_solids(meshes)
+    for tool_ in (_tf.hole_tools(size) if feet_pts else []):
+        mesh = trimesh.boolean.difference([mesh, tool_], engine="manifold")      # the threaded holes (clearance 0.3 mm)
     return mesh, {"outer": 2 * (half + BOX_WALL), "depth": depth}
 
 
@@ -2050,9 +2059,34 @@ def main():
                   f"USB-C slot in the bottom wall; ONE long base {finfo['width']:.0f}x{finfo['depth']:.0f}x{finfo['height']:.0f} mm "
                   f"(slot for the {info['depth']:.0f} mm tray), stability margin {finfo['margin']:.0f} mm")
         else:
-            box_mesh, info = make_lit_box(size, glow=is_glow, leg=False, kick=is_glow)
+            use_feet = is_glow and data.get("stand") == "thread_feet"
+            box_mesh, info = make_lit_box(size, glow=is_glow, leg=False, kick=is_glow and not use_feet, feet=use_feet)
             box_mesh.export(out / (f"glow_box_{size}.stl" if is_glow else f"lit_box_{size}.stl"))
-            if is_glow:
+            if use_feet:
+                import thread_feet as tf
+                foot = tf.make_foot()
+                foot.export(out / "thread_foot.stl")
+                fpr = tf.foot_for_printing(foot)
+                petg = (Path(__file__).parent / "config" / "bambu_project_4fil_petg.config").read_bytes()
+                cols = [THEMES["glow"][r].upper() for r in ("base", "main", "accent", "animal")]
+                ps = build_project_settings(petg, cols, None)
+                BX0, BY0 = 3.0, (1.5 if size >= 250 else 20.0)
+                bc = box_mesh.copy()
+                bc.apply_translation([BX0 - bc.bounds[0][0], BY0 - bc.bounds[0][1], 0])
+                parts = [("box", bc, 1)]
+                for i_ in (0, 1):
+                    f2 = fpr.copy()
+                    cx_, cy_ = ((BX0 + 70 + 30 * i_, bc.bounds[1][1] + 3 + 7) if size >= 250 else (bc.bounds[1][0] + 14 + 22 * i_, BY0 + 10))
+                    f2.apply_translation([cx_ - (f2.bounds[0][0] + f2.bounds[1][0]) / 2, cy_ - (f2.bounds[0][1] + f2.bounds[1][1]) / 2, 0])
+                    parts.append((f"foot{i_ + 1}", f2, 1))
+                allb = trimesh.util.concatenate([p_[1] for p_ in parts]).bounds
+                ccx, ccy = (allb[0][0] + allb[1][0]) / 2, (allb[0][1] + allb[1][1]) / 2
+                for _, m_, _ in parts:
+                    m_.apply_translation([-ccx, -ccy, 0])
+                write_bambu_3mf(out / f"glowcap_box_feet_{size}.3mf", parts, center=(ccx, ccy), name=f"box_feet_{size}", project_settings=ps)
+                print(f"threaded feet: 2 x rod D{2 * tf.ROD_R:.0f} + ball tip, axis {tf.foot_length():.0f} mm, thread D{2 * tf.RM:.0f} pitch {tf.PITCH:.0f} (45 deg flanks), "
+                      f"printed standing, plate x {allb[0][0]:.0f}..{allb[1][0]:.0f} y {allb[0][1]:.0f}..{allb[1][1]:.0f}")
+            elif is_glow:
                 import kickstand as ks
                 mod, minfo = ks.make_module(size)
                 leg_mesh, linfo = ks.make_leg(size)
