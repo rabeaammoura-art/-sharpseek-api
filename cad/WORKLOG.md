@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-23 (cloud) — clear TPU bookmark, text readable from both sides
+- Owner: bookmark like the coaster, text «واهدنا سبل السلام» along the strip in the owner's Tabassom font (font file kept out of git, licence unknown), blue text, red hearts; readable from both sides.
+- New `cad/bookmark/bookmark_text.py`: 45 x 160 x 2.0, TPU 0.4 | mirrored back text 0.4 | red card 0.4 | front text 0.4 | TPU 0.4; card = rim 1.2 mm around front + back text (owner chose this over a plain strip; a rim around the front text only cannot hide the mirrored back text). 8 red hearts at the sides, rounded edges, face down. Strokes thickened 0.2 mm.
+- print_test 0 problems, parts watertight, no overlaps. 3MF sent in chat only (contains the font outlines), not in git. Not sliced.
+- PLA instead of PETG for the drawings is fine (sealed in TPU); PLA is stiffer, watch for cracking if bent a lot.
+
 ## 2026-11-23 (cloud) — round coaster v2 with the heart learnings
 - Owner: make the round coaster like the last hearts. `coaster.py PIC --layers 0.6,0.6,0.6 --round 0.6 --face-down` -> `coaster_birds_v2.3mf` + `coaster_birds_v2_set4.3mf` (Ø95 x 1.8, drawing centred, rounded edges, face down mirrored, TPU = shell minus drawing). print_test 0 problems. Old v1 files kept. Not sliced (owner slices).
 - Offered 2.4 mm (0.9/0.6/0.9) if 1.8 feels too soft under a glass.
