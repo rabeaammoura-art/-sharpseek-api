@@ -10,3 +10,4 @@ lxml
 manifold3d
 networkx
 openpyxl
+scipy

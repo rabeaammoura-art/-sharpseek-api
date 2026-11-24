@@ -28,6 +28,7 @@ WALL = 1.6
 CLR = 0.2       # clearance per side
 LIP = 1.2       # overlap over the front
 STEP = 0.2
+LOGO_T = 0.61    # logo layer thickness = pocket depth (3 layers of 0.2; 0.61 keeps the top face off the 0.6 plane)
 EPS = 0.01       # keep step faces off the exact 0.2 mm planes (slicers cut at mid-layer; avoids coincident-plane artefacts)
 
 
@@ -104,37 +105,53 @@ def build(cfg):
             m = mf.Manifold.extrude(cs(sec), L)
             M3 = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0]], float)       # x = p, y = h, z = q
             cut = cut + m.transform(M3).translate((0, A + CLR - LIP - 1.0, 0))
-    case = body - cut
-    case = case.mirror((1, 0, 0))                              # outside view -> printer view
-    mesh = case.to_mesh()
-    tm = trimesh.Trimesh(np.array(mesh.vert_properties)[:, :3].astype(float), np.array(mesh.tri_verts), process=False)
-    return tm, dict(z_top=z_top, z_c0=z_c0, z_c1=z_c1, outer=(ox1 - ox0, oy1 - oy0))
+    # optional flush logo on the back: pocket in the plate + two colour parts (navy, orange) of the same shape
+    logo = {}
+    lg = cfg.get("logo")
+    if lg:
+        import pickle
+        import shapely
+        from shapely import wkb
+        from shapely.affinity import affine_transform
+        navy, orange, foot, uc, vc = [wkb.loads(x) if isinstance(x, bytes) else x for x in pickle.load(open(lg["polys"], "rb"))]
+        sc = lg.get("scale", 0.85)
+        T = [sc, 0, 0, -sc, lg["cx"] - sc * uc, lg["cy"] + sc * vc]      # reading view (v up) -> outside view (y down)
+
+        def lp(g):
+            g = affine_transform(g, T).buffer(-0.02, join_style=2).buffer(0.02, join_style=2).simplify(0.004)
+            return shapely.set_precision(g, 0.001)
+        navy_p, orange_p, foot_p = lp(navy), lp(orange), lp(foot)
+        cut = cut + prism(foot_p, -1.0, LOGO_T)
+        logo = {"Logo_navy": (prism(navy_p, 0, LOGO_T), 2), "Logo_orange": (prism(orange_p, 0, LOGO_T), 3)}
+        logo_polys = (navy_p, orange_p)
+    else:
+        logo_polys = None
+
+    def to_tm(m):
+        mesh = m.mirror((1, 0, 0)).to_mesh()          # outside view -> printer view
+        return trimesh.Trimesh(np.array(mesh.vert_properties)[:, :3].astype(float), np.array(mesh.tri_verts), process=False)
+    tm = to_tm(body - cut)
+    extras = [(name, to_tm(m), ext) for name, (m, ext) in logo.items()]
+    return tm, dict(z_top=z_top, z_c0=z_c0, z_c1=z_c1, outer=(ox1 - ox0, oy1 - oy0), logo_polys=logo_polys), extras
 
 
-def write_3mf(tm, out, name):
+def write_3mf(tm, out, name, extras=()):
+    """Bambu-native 3MF (same writer as the coasters): case = filament slot 1 (clear TPU, right nozzle), extras = [(name, mesh, slot)].
+    All parts share one shift so the colour parts sit exactly in the pocket."""
+    sys.path.insert(0, str(Path(__file__).parent))
+    from threemf import write_bambu_3mf
     b = tm.bounds
-    tm = tm.copy()
-    tm.apply_translation([-(b[0][0] + b[1][0]) / 2, -(b[0][1] + b[1][1]) / 2, -b[0][2]])
-    v, f = tm.vertices, tm.faces
-    vs = "".join('<vertex x="%.5f" y="%.5f" z="%.5f"/>' % tuple(p) for p in v)
-    ts = "".join('<triangle v1="%d" v2="%d" v3="%d"/>' % tuple(t) for t in f)
-    model = ('<?xml version="1.0" encoding="UTF-8"?><model unit="millimeter" xml:lang="en-US" '
-             'xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02"><metadata name="Application">BambuStudio-02.00.00.00</metadata>'
-             '<resources><object id="1" type="model" name="%s"><mesh><vertices>%s</vertices><triangles>%s</triangles></mesh></object></resources>'
-             '<build><item objectid="1" transform="1 0 0 0 1 0 0 0 1 160 160 0" printable="1"/></build></model>') % (name, vs, ts)
-    ms = ('<?xml version="1.0" encoding="UTF-8"?><config><object id="1"><metadata key="name" value="%s"/><metadata key="extruder" value="1"/>'
-          '</object><plate><metadata key="plater_id" value="1"/><model_instance><metadata key="object_id" value="1"/><metadata key="instance_id" value="0"/></model_instance></plate></config>') % name
-    ct = ('<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
-          '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
-          '<Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml"/><Default Extension="config" ContentType="text/xml"/></Types>')
-    rels = ('<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
-            '<Relationship Target="/3D/3dmodel.model" Id="rel0" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/></Relationships>')
-    with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
-        z.writestr("[Content_Types].xml", ct); z.writestr("_rels/.rels", rels)
-        z.writestr("3D/3dmodel.model", model); z.writestr("Metadata/model_settings.config", ms)
+    shift = [-(b[0][0] + b[1][0]) / 2, -(b[0][1] + b[1][1]) / 2, -b[0][2]]
+    parts = []
+    for pn, m, ex in [(name + "_case_TPU", tm, 1)] + list(extras):
+        m = m.copy(); m.apply_translation(shift); parts.append((pn, m, ex))
+    cfg = json.loads((Path(__file__).parent / "config" / "bambu_project_4fil_petg.config").read_text())
+    cfg["filament_colour"] = ["#E8F1F5", "#1E34A0", "#FF6E14", "#FFFFFF"]
+    cfg["filament_map_mode"], cfg["filament_map"] = "Manual", ["2", "1", "1", "1"]
+    write_bambu_3mf(Path(out), parts, (175.0, 160.0), name, json.dumps(cfg, indent=4))
 
 
-def preview(cfg, out):
+def preview(cfg, out, info=None):
     """Flat view of the BACK from outside with all cutouts (to scale)."""
     from PIL import Image, ImageDraw
     A, B, R, cam = cfg["A"], cfg["B"], cfg["R"], cfg["camera"]
@@ -153,21 +170,44 @@ def preview(cfg, out):
             d.rectangle((*P(-off - 0.5, nt["from_top"]), *P(LIP, nt["to_top"])), fill=(255, 110, 20))
         elif nt["side"] == "bottom":
             d.rectangle((*P(nt["x0"], A + CLR - LIP), *P(nt["x1"], A + off + 0.5)), fill=(255, 110, 20))
+    lp = (info or {}).get("logo_polys")
+    if lp:
+        for g, col in zip(lp, ((28, 52, 160), (255, 110, 20))):
+            for q in (g.geoms if hasattr(g, "geoms") else [g]):
+                if q.geom_type != "Polygon":
+                    continue
+                d.polygon([P(x, y) for x, y in q.exterior.coords], fill=col)
+                for r in q.interiors:
+                    d.polygon([P(x, y) for x, y in r.coords], fill=(255, 255, 255))
     im.save(out)
+
+
+def load_cfg(path):
+    cfg = json.loads(Path(path).read_text())
+    if "extends" in cfg:
+        base = load_cfg(Path(path).parent / cfg["extends"])
+        base.update({k: v for k, v in cfg.items() if k != "extends"})
+        cfg = base
+    return cfg
 
 
 def main():
     cfg_path = Path(sys.argv[1]); out_dir = Path(sys.argv[2]) if len(sys.argv) > 2 else Path("cad/out/phones")
     out_dir.mkdir(parents=True, exist_ok=True)
-    cfg = json.loads(cfg_path.read_text())
-    tm, info = build(cfg)
+    cfg = load_cfg(cfg_path)
+    tm, info, extras = build(cfg)
     stem = cfg_path.stem
     tm.export(out_dir / f"{stem}.stl")
-    write_3mf(tm, out_dir / f"{stem}.3mf", stem)
-    preview(cfg, out_dir / f"{stem}_back.png")
+    for n, m, e in extras:
+        m.export(out_dir / f"{stem}_{n}.stl")          # same coordinates as the case STL (for print_test)
+    write_3mf(tm, out_dir / f"{stem}.3mf", stem, extras)
+    preview(cfg, out_dir / f"{stem}_back.png", info)
     t2 = trimesh.Trimesh(tm.vertices, tm.faces, process=True)
     print(f"{stem}: watertight={t2.is_watertight} volume={t2.volume:.0f} mm3 (TPU ~{t2.volume * 1.21 / 1000:.1f} g solid)")
-    print("bounds", (t2.bounds[1] - t2.bounds[0]).round(2).tolist(), info)
+    for n, m, e in extras:
+        t3 = trimesh.Trimesh(m.vertices, m.faces, process=True)
+        print(f"  {n}: slot {e} watertight={t3.is_watertight} volume={t3.volume:.0f} mm3")
+    print("bounds", (t2.bounds[1] - t2.bounds[0]).round(2).tolist(), {k: v for k, v in info.items() if k != "logo_polys"})
 
 
 if __name__ == "__main__":

@@ -5,6 +5,13 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-24 (cloud) — Honor X6b case + flush 3D ZT logo on the back (TPU + navy + orange)
+- Owner dropped Flex PLA (yxpolyer "Flex PLA Pro", only a Newegg listing says 92A; PLA softens at ~55-60 C in a car) and asked for the logo on the back of the TPU case. Cults3D page returned 403 (not read); a ChatGPT summary quoted outer 168.2 x 79.9, wall 2, PETG: its pocket (~164.2 x 75.9) matches ours (164.0 x 75.99).
+- `cad/phone_case.py` now takes `"logo"` (polygons from `cad/logo_colorize.py`, kept in git-ignored `cad/out/logo/3dzt_polys.pkl`): 0.61 mm pocket in the plate + navy (slot 2) and orange (slot 3) parts of the same shape, logo 0.85 scale (~60 x 70 mm), centred x, centre 100 mm from the top end, reads right from outside. `cad/phones/honor_x6b_logo.json` extends the plain config. 3MF now written with `cad/threemf.write_bambu_3mf` (the hand-rolled 3MF was sliced as a tiny fragment by the CLI).
+- print_test on the 3 STL parts: 0 problems (the 3MF itself shows a false "not watertight" because trimesh mis-reads the production-format 3MF). CLI: 1h03m, 30.8 g (TPU 29.0, PETG 1.4 + 0.3), about 0.36 JOD with the owner's landed prices (sheet missing). Studio GUI is usually slower.
+- Rule told to the owner: never move the logo in Studio (the pocket is cut in the case); give me the offset and I rebuild.
+- Left: owner's "yes" on the drawing, first real print; iPhone 11/12 logo offset question still open.
+
 ## 2026-11-24 (cloud) — Honor X6b 4G (JDY-LX2) plain TPU case from measurements
 - Owner wants 85%+ success without trial prints. Phone: A 163.6, B 75.59 (caliper), C 8.91; island E 4.4 / F 4.2 / G 41.4 / H ~43.6 (pixel analysis of his photos, calibrated on B); corner R estimated 8-9; buttons on the left edge seen from the back, volume ~33-51 mm and power ~58-72 mm from the top end (side photo, +-2.5 mm); bottom: 3.5 mm jack, mic, USB-C, speaker (orientation unknown -> one notch 11-64.6 mm covers both).
 - New `cad/phone_case.py` (+ `cad/phones/honor_x6b.json`): back plate 1.6, wall 1.6, pocket +0.2/side, 45-degree 0.2 mm staircase lip (1.2 mm over the front), camera = one through cutout (margin 1.5), buttons and bottom = notches OPEN to the top (a long closed slot would be a 45-55 mm TPU bridge). Step planes offset by 0.01 mm (print_test samples exactly on 0.2 mm planes).

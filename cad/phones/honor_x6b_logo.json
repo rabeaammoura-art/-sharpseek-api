@@ -1,0 +1,4 @@
+{
+  "extends": "honor_x6b.json",
+  "logo": {"polys": "cad/out/logo/3dzt_polys.pkl", "scale": 0.85, "cx": 37.8, "cy": 100.0}
+}
