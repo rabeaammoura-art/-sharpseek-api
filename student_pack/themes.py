@@ -318,8 +318,8 @@ THEMES["princess"] = dict(
              "pink": ((242, 75, 129), "pink"), "white": ((254, 254, 254), "white"), "white2": ((243, 243, 243), "white")},
     text_rings=[("purple", 3.0)],
     motifs={
-        "tag": dict(box=(268, 80, 922, 326), bg="flood", seal=["bottom"], scale=70 / 654, tab_x_px=590, erase_poly=[[(540, 70), (645, 70), (645, 86), (540, 86)]]),
-        "bottle": dict(box=(1022, 110, 1418, 326), bg="flood", seal=["bottom"], scale=48 / 396, tab_x_px=1219),
+        "tag": dict(box=(268, 56, 922, 326), bg="flood", seal=["bottom"], scale=70 / 654, tab_x_px=590, erase_poly=[[(549, 40), (633, 40), (633, 87), (549, 87)]]),
+        "bottle": dict(box=(1022, 102, 1418, 326), bg="flood", seal=["bottom"], scale=48 / 396, tab_x_px=1219),
         "pencil_l": dict(box=(300, 474, 592, 668), bg="flood", scale=0.07, erase=[(512, 524, 595, 556)]),
         "pencil_r": dict(box=(1112, 480, 1450, 672), bg="flood", scale=0.07, erase=[(1112, 524, 1178, 556)]),
         "ruler_l": dict(box=(300, 474, 592, 668), bg="flood", scale=0.09, erase=[(512, 524, 595, 556)]),
@@ -328,6 +328,7 @@ THEMES["princess"] = dict(
 )
 for _k in ("edge_snap", "tab_colour"):
     THEMES["princess"].pop(_k, None)
+THEMES["princess"].update(tab_under_art=False)   # the loop sits over the crown top: no yellow bite into the hole
 THEMES["princess"].update(ruler=dict(THEMES["gamer_girl7"]["ruler"], rim="yellow"))
 
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
