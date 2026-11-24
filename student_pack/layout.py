@@ -203,7 +203,7 @@ def make_silhouette(ops, extra=None, close=0.6, min_hole=10.0, spur=0.4):
     return unary_union(polys)
 
 
-def add_tab(sil, tab_x, hole_d=HOLE_D, wall=3.0):      # wall 3.0 mm: measured on the tested Mariachi bag tag (~3 mm around the hole)
+def add_tab(sil, tab_x, hole_d=HOLE_D, wall=3.0, lift=0.0):      # wall 3.0 mm: measured on the tested Mariachi bag tag (~3 mm around the hole)
     """Hanging tab: rounded stem + ring above the silhouette at tab_x, hole of hole_d.  Returns (tab, hole)."""
     R = hole_d / 2 + wall
     ys = []
@@ -212,7 +212,7 @@ def add_tab(sil, tab_x, hole_d=HOLE_D, wall=3.0):      # wall 3.0 mm: measured o
         if not line.is_empty:
             ys.append(line.bounds[3])
     top = min(ys)
-    cy = top + hole_d / 2 + 0.6
+    cy = top + hole_d / 2 + 0.6 + lift
     tab = unary_union([Point(tab_x, cy).buffer(R, 64), box(tab_x - R, top - 4, tab_x + R, cy)])
     return tab, (tab_x, cy, hole_d)
 
@@ -269,7 +269,7 @@ def _tag(theme, name, kind, width, cap_h):
         if not extra.is_empty:
             ops.append(((th.get("edge_snap") or {}).get("colour", th["outline"]), extra, False))
             sil = make_silhouette(ops, spur=spur)
-    tab, hole = add_tab(sil, (m["tab_x"] - cb[0]) * ms)
+    tab, hole = add_tab(sil, (m["tab_x"] - cb[0]) * ms, lift=th.get("tab_lift", 0.0))
     fil = th.get("tab_fillet")
     if fil:                                   # round the concave corners where the loop meets the outline (no notches)
         joined = unary_union([sil, tab])

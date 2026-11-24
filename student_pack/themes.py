@@ -329,7 +329,7 @@ THEMES["princess"] = dict(
 for _k in ("edge_snap", "tab_colour"):
     THEMES["princess"].pop(_k, None)
 THEMES["princess"].update(smooth=dict(r=0.4, half_w=18.0, depth=18.0, colours=("purple", "yellow")))
-THEMES["princess"].update(tab_under_art=False)   # the loop covers the crown top: smooth purple dome, no yellow bite into the hole
+THEMES["princess"].update(tab_under_art=["tag"], tab_lift=1.4)   # tag: the yellow crown apex stays visible under the loop (owner chose this look), the loop is lifted 1.4 mm so the wall under the hole stays thick; bottle: loop covers the art
 THEMES["princess"].update(ruler=dict(THEMES["gamer_girl7"]["ruler"], rim="yellow"))
 
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
