@@ -111,9 +111,10 @@ def write_plate_3mf(path, items, filament_type="PLA"):
     for piece, sol, name, xy in items:
         th = THEMES[piece.theme]
         for c in slot_order(piece.theme):
-            if (piece.theme, c) not in slots:
-                slots[(piece.theme, c)] = len(slots) + 1
-                slot_hex.append(th["filament_rgb"][c])
+            hx = th["filament_rgb"][c]
+            if hx not in slots:          # themes that use the same filament colour share the slot (a mixed plate then needs no extra spools)
+                slots[hx] = len(slots) + 1
+                slot_hex.append(hx)
     objs, objects_xml, cfg_objs, builds = [], [], [], []
     nid = 1
     for piece, sol, name, (x, y) in items:
@@ -130,7 +131,7 @@ def write_plate_3mf(path, items, filament_type="PLA"):
             comps.append(f'<component objectid="{pid}"/>')
             parts.append(f'<part id="{pid}" subtype="normal_part"><metadata key="name" value="{c}"/>'
                          f'<metadata key="matrix" value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"/>'
-                         f'<metadata key="extruder" value="{slots[(piece.theme, c)]}"/></part>')
+                         f'<metadata key="extruder" value="{slots[THEMES[piece.theme]["filament_rgb"][c]]}"/></part>')
         objects_xml.append(f'<object id="{asm}" name="{name}" type="model"><components>' + "".join(comps) + '</components></object>')
         builds.append(f'<item objectid="{asm}" transform="1 0 0 0 1 0 0 0 1 {x:.3f} {y:.3f} 0" printable="1"/>')
         cfg_objs.append(f'<object id="{asm}"><metadata key="name" value="{name}"/><metadata key="extruder" value="1"/>' + "".join(parts) + '</object>')

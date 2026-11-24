@@ -107,19 +107,23 @@ def build(name, theme, outdir, pieces=PIECES, slice_=False):
 def build_plate(jobs, outdir, pieces=PIECES, slice_=False):
     """All pieces of all kids of ONE theme on a single plate: each layer needs its colour changes only once for every
     piece on the plate, so the time per piece drops a lot.  Returns the 3MF path."""
-    themes = {t for _, t in jobs}
-    if len(themes) != 1:
-        raise SystemExit("--plate needs kids of the same theme (otherwise 8 filaments); run it once per theme")
-    theme = themes.pop()
+    themes = []
+    for _, t in jobs:
+        if t not in themes:
+            themes.append(t)
+    theme = themes[0] if len(themes) == 1 else "mixed"
+    hexes = {THEMES[t]["filament_rgb"][c] for t in themes for c in THEMES[t]["heights"]}
+    if len(hexes) > 4:
+        raise SystemExit(f"--plate: these themes need {len(hexes)} different filament colours (max 4 in the AMS): {sorted(hexes)}")
     items = []
-    for name, _ in jobs:
+    for name, th_ in jobs:
         base = re.sub(r"[^A-Za-z0-9]+", "_", name).strip("_").lower()
         for kind in pieces:
-            p = layout.KINDS[kind](theme, name)
+            p = layout.KINDS[kind](th_, name)
             items.append((p, mesh.solids(p), f"{base}_{kind}"))
-    pos = mesh.arrange([i[0] for i in items])
+    pos = mesh.arrange([i[0] for i in items], max_w=285.0 if len(items) > 8 else 200.0)
     ys = [y + i[0].size[1] for (i, (x, y)) in zip(items, pos)]
-    if max(ys) - min(y for _, y in pos) > 290:
+    if max(ys) - min(y for _, y in pos) > 296:
         raise SystemExit(f"{len(items)} pieces do not fit one plate (max ~8 pieces = 2 kids with all four pieces); use fewer kids or --pieces")
     out = Path(outdir); out.mkdir(parents=True, exist_ok=True)
     path = out / ("plate_" + "_".join(re.sub(r"[^A-Za-z0-9]+", "", n).upper() for n, _ in jobs) + f"_{theme}.3mf")
