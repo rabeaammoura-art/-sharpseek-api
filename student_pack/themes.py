@@ -395,6 +395,21 @@ for _k in ("smooth", "tab_lift"):
     THEMES["kitty"].pop(_k, None)
 THEMES["kitty"].update(tab_under_art=["tag"])   # the loop sits on top of the bow: the bow stays in front
 
+# Kitty with a red frame: the black lines print red, the red bow/hearts print `fill` instead
+THEMES["kitty_redframe"] = dict(
+    THEMES["kitty"],
+    label="Kitty (private), red frame, pink bow and hearts",
+    outline="red",
+    palette={"black": ((5, 5, 5), "red"), "brown": ((76, 55, 48), "red"), "grey": ((143, 144, 144), "red"),
+             "red": ((223, 54, 49), "pink"), "yellow": ((251, 199, 7), "yellow"),
+             "white": ((253, 253, 253), "white"), "white2": ((245, 245, 245), "white")},
+    filament_rgb={"white": "#F2F2F2", "pink": "#EC407A", "yellow": "#F6BA1C", "red": "#D32F2F"},
+    heights={"red": 2.2, "pink": 2.8, "yellow": 2.8, "white": 3.2},
+    text_rings=[("red", 3.0)],
+    slots=["white", "pink", "yellow", "red"],
+    ruler=dict(THEMES["princess"]["ruler"], band="red", body="red", rim="yellow"),
+)
+
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
 
