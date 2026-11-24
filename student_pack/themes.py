@@ -465,6 +465,26 @@ THEMES["minnie_gpt"] = dict(
 THEMES["minnie_gpt"].pop("procedural", None)
 THEMES["minnie_gpt"].update(tab_under_art=False)
 
+# Princess girl (customer): GPT sheet (screenshot, cropped to the white sheet 1242 x 1726): navy lines print black, yellow hair, pink crown / hearts / dress, white face
+THEMES["princess_girl"] = dict(
+    THEMES["minnie_gpt"],
+    label="Princess girl with crown (private: for Rafeef)",
+    art="art/source_art_rafeef_sheet.png",
+    palette={"black": ((6, 16, 62), "black"), "greyb": ((63, 60, 89), "black"), "greyb2": ((116, 113, 146), "black"),
+             "yellow": ((245, 220, 74), "yellow"), "dyellow": ((150, 138, 51), "yellow"),
+             "pink": ((232, 105, 156), "pink"), "lpink": ((236, 144, 184), "pink"),
+             "white": ((253, 253, 253), "white"), "greyw": ((189, 193, 208), "white")},
+    motifs={
+        "tag": dict(box=(45, 228, 750, 822), bg="flood", seal=["bottom"], scale=70 / 705, tab_x_px=436,
+                    erase_poly=[[(340, 120), (530, 120), (530, 230), (340, 230)]]),
+        "pencil_l": dict(box=(118, 1052, 450, 1310), bg="flood", scale=0.07, erase=[(446, 1106, 458, 1148)]),
+        "pencil_r": dict(box=(972, 1095, 1235, 1325), bg="flood", scale=0.07, erase=[(972, 1105, 992, 1142)]),
+        "ruler_l": dict(box=(86, 1333, 392, 1648), bg="flood", scale=0.11, erase=[(86, 1335, 140, 1425), (86, 1352, 215, 1382), (325, 1352, 392, 1382)]),
+        "ruler_r": dict(box=(970, 1405, 1234, 1640), bg="flood", scale=0.11),
+    },
+)
+THEMES["princess_girl"].update(tab_under_art=["tag"], tab_lift=1.5)   # the crown's middle ball stays visible under the loop; the loop is lifted so the wall under the hole stays thick
+
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
 
