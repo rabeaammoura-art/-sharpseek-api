@@ -367,6 +367,34 @@ THEMES["unicorn_yellow"] = _unicorn("yellow")
 THEMES["unicorn_pink"] = _unicorn("pink")
 THEMES["unicorn_pinkframe"] = _unicorn("pink", mane="purple")   # pink frame, purple + yellow mane (keeps the mane details)
 
+# Hello Kitty (PRIVATE, a personal gift: Sanrio character, never sold, never published): GPT sheet 1754 x 896, black lines = base slab
+THEMES["kitty"] = dict(
+    THEMES["princess"],
+    label="Kitty (private: personal use only), black / red / yellow / white",
+    private=True,
+    art="art/source_art_kitty.png",
+    outline="black",
+    palette={"black": ((5, 5, 5), "black"), "brown": ((76, 55, 48), "black"), "grey": ((143, 144, 144), "black"),
+             "red": ((223, 54, 49), "red"), "yellow": ((251, 199, 7), "yellow"),
+             "white": ((253, 253, 253), "white"), "white2": ((245, 245, 245), "white")},
+    filament_rgb={"white": "#F2F2F2", "red": "#D32F2F", "yellow": "#F6BA1C", "black": "#1C1C1C"},
+    heights={"black": 2.2, "red": 2.8, "yellow": 2.8, "white": 3.2},
+    text_rings=[("black", 3.0)],
+    slots=["white", "red", "yellow", "black"],
+    ruler=dict(THEMES["princess"]["ruler"], band="black", body="black", rim="red"),
+    motifs={
+        "tag": dict(box=(230, 5, 918, 348), bg="flood", seal=["bottom"], scale=70 / 688, tab_x_px=595),
+        "bottle": dict(box=(1000, 85, 1520, 368), bg="flood", seal=["bottom"], scale=48 / 520, tab_x_px=1180),
+        "pencil_l": dict(box=(262, 508, 612, 672), bg="flood", scale=0.06, erase=[(520, 530, 616, 556)]),
+        "pencil_r": dict(box=(1186, 510, 1430, 672), bg="flood", scale=0.06, erase=[(1186, 530, 1276, 556)]),
+        "ruler_l": dict(box=(162, 676, 545, 884), bg="flood", scale=0.085),
+        "ruler_r": dict(box=(1105, 676, 1590, 861), bg="flood", scale=0.07),
+    },
+)
+for _k in ("smooth", "tab_lift"):
+    THEMES["kitty"].pop(_k, None)
+THEMES["kitty"].update(tab_under_art=["tag"])   # the loop sits on top of the bow: the bow stays in front
+
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
 
