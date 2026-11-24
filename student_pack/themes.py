@@ -345,7 +345,7 @@ def _unicorn(line, mane="pink"):
         filament_rgb={"white": "#F2F2F2", "pink": "#EC407A", "yellow": "#F6BA1C", "purple": "#7B3FA0", "black": "#1C1C1C", line: rgb},
         heights={line: 2.2, "yellow": 2.8, mane: 2.8, "white": 3.2},
         text_rings=[(line, 3.0)],
-        slots=list(dict.fromkeys(["white", "yellow", mane, line])),
+        slots=list(dict.fromkeys(["white", mane, "yellow", line])),
         motifs={
             "tag": dict(box=(78, 20, 230, 184), bg="flood", seal=["bottom"], scale=70 / 152, tab_x_px=150),
             "bottle": dict(box=(343, 52, 462, 166), bg="flood", seal=["bottom"], scale=48 / 119, tab_x_px=400),
