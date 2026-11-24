@@ -15,6 +15,7 @@ Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what wa
 - printytron aa66 'Neon 250': 250 x 157 x 10, original letters scaled, channel back to 6-12 (median 9), S separate again, narrow spot at the y joint; print_test 0, CLI 1h27m / 60 g. Not 5.2.
 - Drew S-to-a cursive swash (loop + 5.2 channel under the S); owner chose to keep the S separate. Final = `sally_250_ch52.3mf` (sent with 3D + top images). Left: wire hole if wanted, test strip fit with a small S print.
 - Owner then: the look must stay like the original (fat letters). New `cad/sign_fat_groove.py`: original outline x1.439 (250 x 159 x 10), 5.2 groove on the stroke centreline, solid walls 4.4-8.3, counters open. `sally_250_fat52.3mf`: groove 5.2-5.3, print_test 0 (after STL vertex repair), CLI PLA 2h24m / 89 g. Sent with images.
+- Owner marks: l1/l2 grooves must not be linked (bridge removed), junctions must follow the original flow and be smooth. New `cad/sign_branches.py` + `cad/sign_chains.py`: medial-axis branches joined into pen strokes (a stem->baseline->l1 loop->baseline->l2 loop->y), spline smoothing 0.8. `sally_250_v7.3mf`: groove 5.2, wall between l1/l2 grooves 5 mm, print_test 0, CLI 2h25m / 88 g. Waiting for owner OK.
 - Left: owner decides if it becomes a product (name customisation, diffuser/cover, wire exit hole not seen in the model).
 
 ## 2026-11-23 (cloud) — HueForge horse head 150 mm (owner's new AI picture)
