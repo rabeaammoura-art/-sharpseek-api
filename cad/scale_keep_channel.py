@@ -1,10 +1,11 @@
 """Enlarge an LED-channel sign (floor 2 mm + 1.6 mm outline walls) while keeping the channel width as it was.
-Usage: python cad/scale_keep_channel.py IN.3mf OUT_BASENAME TARGET_SPAN_MM   (span of the channel centrelines; outer ~ target-6)
+Usage: python cad/scale_keep_channel.py IN.3mf OUT_BASENAME TARGET_SPAN_MM [CONST_CHANNEL_MM]   (span of the channel centrelines; outer ~ target-6)
 Method: medial axis of the channel at z=1..5, centre points scaled by k, discs of the ORIGINAL radius, walls re-offset."""
 import trimesh,sys,numpy as np, shapely.geometry as g, shapely.ops as so, shapely.affinity as sa
 from scipy.ndimage import distance_transform_edt, maximum_filter
 from PIL import Image, ImageDraw
 src,out,target=sys.argv[1],sys.argv[2],float(sys.argv[3])
+FIXED=float(sys.argv[4]) if len(sys.argv)>4 else 0  # optional constant channel width (mm)
 m=list(trimesh.load(src).geometry.values())[0]
 def sec(z):
   r=g.Polygon()
@@ -25,9 +26,9 @@ gy,gx=np.gradient(distance_transform_edt(a)*px,px)
 ridge&=(dt>0.3)&(np.hypot(gx,gy)<0.6)
 ys,xs=np.nonzero(ridge)
 cx=(xs-3)*px+x0; cy=(ys-3)*px+y0; r=dt[ys,xs]
-discs=[g.Point(k*X,k*Y).buffer(R,16) for X,Y,R in zip(cx,cy,r)]
+discs=[g.Point(k*X,k*Y).buffer(FIXED/2 if FIXED else R,16) for X,Y,R in zip(cx,cy,r)]
 KC=sa.scale(C,k,k,origin=(0,0))
-Cn=so.unary_union(discs).buffer(1.2,24).buffer(-1.2,24).intersection(KC).buffer(-1.2,24).buffer(1.2,24).simplify(0.02)
+Cn=so.unary_union(discs).buffer(1.2,24).buffer(-1.2,24).intersection(KC if not FIXED else KC.buffer(50)).buffer(-1.2,24).buffer(1.2,24).simplify(0.02)
 Bn=Cn.buffer(WALL,24)
 print('k',round(k,3),'pieces',len(getattr(Bn,'geoms',[Bn])))
 import manifold3d as mf
