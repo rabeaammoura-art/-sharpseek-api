@@ -485,6 +485,19 @@ THEMES["princess_girl"] = dict(
 )
 THEMES["princess_girl"].update(tab_under_art=["tag"], tab_lift=1.5)   # the crown's middle ball stays visible under the loop; the loop is lifted so the wall under the hole stays thick
 
+# Princess girl with a purple frame (the black navy lines print purple)
+THEMES["princess_girl_purple"] = dict(
+    THEMES["princess_girl"],
+    label="Princess girl with crown, purple frame (private: for Rafeef)",
+    outline="purple",
+    palette={k: (v[0], "purple" if v[1] == "black" else v[1]) for k, v in THEMES["princess_girl"]["palette"].items()},
+    filament_rgb={"white": "#F2F2F2", "pink": "#EC407A", "yellow": "#F6BA1C", "purple": "#7B3FA0"},
+    heights={"purple": 2.2, "pink": 2.8, "yellow": 2.8, "white": 3.2},
+    text_rings=[("purple", 3.0)],
+    slots=["white", "pink", "yellow", "purple"],
+    ruler=dict(THEMES["princess"]["ruler"], band="pink", body="pink", rim="yellow"),
+)
+
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
 
