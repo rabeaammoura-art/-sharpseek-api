@@ -332,6 +332,38 @@ THEMES["princess"].update(smooth=dict(r=0.4, half_w=18.0, depth=18.0, colours=("
 THEMES["princess"].update(tab_under_art=["tag"], tab_lift=1.4)   # tag: the yellow crown apex stays visible under the loop (owner chose this look), the loop is lifted 1.4 mm so the wall under the hole stays thick; bottle: loop covers the art
 THEMES["princess"].update(ruler=dict(THEMES["gamer_girl7"]["ruler"], rim="yellow"))
 
+# Unicorn (customer girls): GPT sheet 512 x 512 (low resolution: scale ~0.4 mm per px); the line colour is printed as `line` (purple or black)
+def _unicorn(line):
+    rgb = {"purple": "#7B3FA0", "black": "#1C1C1C"}[line]
+    th = dict(
+        THEMES["princess"],
+        label=f"Unicorn, 4 colours ({line} lines, pink, yellow, white)",
+        art="art/source_art_unicorn.png",
+        outline=line,
+        palette={"line": ((30, 91, 216), line), "line2": ((0, 73, 215), line), "mixb": ((108, 112, 215), line), "mixp": ((176, 83, 177), line), "mixw": ((186, 190, 231), line),
+                 "pink": ((236, 66, 121), "pink"), "yellow": ((247, 184, 26), "yellow"), "white": ((255, 255, 255), "white"), "white2": ((242, 242, 242), "white")},
+        filament_rgb={"white": "#F2F2F2", "pink": "#EC407A", "yellow": "#F6BA1C", line: rgb},
+        heights={line: 2.2, "yellow": 2.8, "pink": 2.8, "white": 3.2},
+        text_rings=[(line, 3.0)],
+        slots=["white", "pink", "yellow", line],
+        motifs={
+            "tag": dict(box=(78, 20, 230, 184), bg="flood", seal=["bottom"], scale=70 / 152, tab_x_px=150),
+            "bottle": dict(box=(343, 52, 462, 166), bg="flood", seal=["bottom"], scale=48 / 119, tab_x_px=400),
+            "pencil_l": dict(box=(44, 372, 130, 474), bg="flood", scale=0.15),
+            "pencil_r": dict(box=(382, 388, 474, 462), bg="flood", scale=0.13),
+            "ruler_l": dict(box=(44, 372, 130, 474), bg="flood", scale=0.30),
+            "ruler_r": dict(box=(382, 388, 474, 462), bg="flood", scale=0.30),
+        },
+    )
+    for k in ("smooth", "tab_lift", "tab_under_art"):
+        th.pop(k, None)
+    th["ruler"] = dict(THEMES["princess"]["ruler"], band=line, body=line, rim="yellow")
+    return th
+
+
+THEMES["unicorn_purple"] = _unicorn("purple")
+THEMES["unicorn_black"] = _unicorn("black")
+
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
 
