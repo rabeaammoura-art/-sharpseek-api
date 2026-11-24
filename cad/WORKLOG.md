@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-24 (cloud) — check of a downloaded LED-strip sign ("Sally", 5 mm strip)
+- Owner's downloaded 3MF (not in git): 174 x 111 x 10 mm, 2 mm back + 8 mm outline walls (~1.2-1.8 mm) = open channel for a 5 mm LED strip. Two separate bodies ("S" and "ally"), plain 3MF centred at 0,0 (Bambu CLI refused it; sliced as STL).
+- print_test 0 problems. CLI 0.20 mm: PLA 59 min / 38 g, PETG 1h00 / 37 g (GUI usually longer). Price sheet missing in this session.
+- Left: owner decides if it becomes a product (name customisation, diffuser/cover, wire exit hole not seen in the model).
+
 ## 2026-11-23 (cloud) — HueForge horse head 150 mm (owner's new AI picture)
 - Owner sent a grey/cream/rust horse-head picture (not in git). White background flood-filled to black (thin base only). `zt_forge.py --width 150 --px 0.3 --base 0.64 --top 1.6`, filaments black, grey, orange, white PLA (hex/TD guesses), swaps at layers 8 / 13 / 14, dE 6.0 (orange before grey: 7.2). STL closed, print_test 0 problems. Outputs `cad/out/hueforge/horse150*` (not in git).
 - Slice at 0.08 failed here (invalid params with --set layer_height); default 0.20: 56 min / 24.8 g, so real 0.08 time is only an estimate (~2.5 h). Price sheet missing in this session.
