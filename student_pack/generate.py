@@ -113,8 +113,8 @@ def build_plate(jobs, outdir, pieces=PIECES, slice_=False):
             themes.append(t)
     theme = themes[0] if len(themes) == 1 else "mixed"
     hexes = {THEMES[t]["filament_rgb"][c] for t in themes for c in THEMES[t]["heights"]}
-    if len(hexes) > 4:
-        raise SystemExit(f"--plate: these themes need {len(hexes)} different filament colours (max 4 in the AMS): {sorted(hexes)}")
+    if len(hexes) > 5:
+        raise SystemExit(f"--plate: these themes need {len(hexes)} different filament colours (max 5: 4 in the AMS + 1 on the right nozzle): {sorted(hexes)}")
     items = []
     for name, th_ in jobs:
         base = re.sub(r"[^A-Za-z0-9]+", "_", name).strip("_").lower()
