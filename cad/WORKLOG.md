@@ -8,6 +8,7 @@ Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what wa
 ## 2026-11-24 (cloud) — check of a downloaded LED-strip sign ("Sally", 5 mm strip)
 - Owner's downloaded 3MF (not in git): 174 x 111 x 10 mm, 2 mm back + 8 mm outline walls (~1.2-1.8 mm) = open channel for a 5 mm LED strip. Two separate bodies ("S" and "ally"), plain 3MF centred at 0,0 (Bambu CLI refused it; sliced as STL).
 - print_test 0 problems. CLI 0.20 mm: PLA 59 min / 38 g, PETG 1h00 / 37 g (GUI usually longer). Price sheet missing in this session.
+- Scaled to 250 mm wide in X/Y only (250 x 159 x 10, walls ~1.7-2.6 mm, height kept for the strip): print_test 0, CLI PLA 1h55m / 74 g. Sent `sally_250.3mf` in chat.
 - Left: owner decides if it becomes a product (name customisation, diffuser/cover, wire exit hole not seen in the model).
 
 ## 2026-11-23 (cloud) — HueForge horse head 150 mm (owner's new AI picture)
