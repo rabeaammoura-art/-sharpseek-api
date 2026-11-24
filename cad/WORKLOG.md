@@ -12,6 +12,7 @@ Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what wa
 - Owner: channel must stay as it was. New `cad/scale_keep_channel.py` (medial axis, scaled centreline, original local widths, wall 1.6 re-offset): `sally_250_channel.3mf` 250 x 159 x 10, channel widths 7.2-11.6 (orig 7.4-11.5), print_test 0, CLI PLA 1h25m / 59 g. Sent in chat.
 - Owner wants a constant 5.2 mm channel (neon style): script arg 4 = constant width. `sally_250_ch52.3mf` 250 x 160 x 10, channel 5.2, wall 1.6, print_test 0, CLI PLA 1h20m / 52 g. Waiting for his OK.
 - Owner's printytron files: v2 identical to v1 (md5); 7021 = 220 mm, channel still 7-13; c07e (after my prompt) = 249 x 166 x 10, monoline, channel 5.2 constant, wall 1.6, one body; print_test 0 (as 3MF centred at 0 it gave a false overhang, as STL clean), CLI PLA 1h25m / 55 g. Its 'a' looks like an 'e' (reads Selly) - told the owner.
+- printytron aa66 'Neon 250': 250 x 157 x 10, original letters scaled, channel back to 6-12 (median 9), S separate again, narrow spot at the y joint; print_test 0, CLI 1h27m / 60 g. Not 5.2.
 - Left: owner decides if it becomes a product (name customisation, diffuser/cover, wire exit hole not seen in the model).
 
 ## 2026-11-23 (cloud) — HueForge horse head 150 mm (owner's new AI picture)
