@@ -334,7 +334,7 @@ THEMES["princess"].update(ruler=dict(THEMES["gamer_girl7"]["ruler"], rim="yellow
 
 # Unicorn (customer girls): GPT sheet 512 x 512 (low resolution: scale ~0.4 mm per px); the line colour is printed as `line` (purple or black)
 def _unicorn(line):
-    rgb = {"purple": "#7B3FA0", "black": "#1C1C1C"}[line]
+    rgb = {"purple": "#7B3FA0", "black": "#1C1C1C", "yellow": "#F6BA1C", "pink": "#EC407A"}[line]
     th = dict(
         THEMES["princess"],
         label=f"Unicorn, 4 colours ({line} lines, pink, yellow, white)",
@@ -345,7 +345,7 @@ def _unicorn(line):
         filament_rgb={"white": "#F2F2F2", "pink": "#EC407A", "yellow": "#F6BA1C", line: rgb},
         heights={line: 2.2, "yellow": 2.8, "pink": 2.8, "white": 3.2},
         text_rings=[(line, 3.0)],
-        slots=["white", "pink", "yellow", line],
+        slots=list(dict.fromkeys(["white", "pink", "yellow", line])),
         motifs={
             "tag": dict(box=(78, 20, 230, 184), bg="flood", seal=["bottom"], scale=70 / 152, tab_x_px=150),
             "bottle": dict(box=(343, 52, 462, 166), bg="flood", seal=["bottom"], scale=48 / 119, tab_x_px=400),
@@ -357,12 +357,14 @@ def _unicorn(line):
     )
     for k in ("smooth", "tab_lift", "tab_under_art"):
         th.pop(k, None)
-    th["ruler"] = dict(THEMES["princess"]["ruler"], band=line, body=line, rim="yellow")
+    th["ruler"] = dict(THEMES["princess"]["ruler"], band=line, body=line, rim={"yellow": "pink", "pink": "yellow"}.get(line, "yellow"))
     return th
 
 
 THEMES["unicorn_purple"] = _unicorn("purple")
 THEMES["unicorn_black"] = _unicorn("black")
+THEMES["unicorn_yellow"] = _unicorn("yellow")
+THEMES["unicorn_pink"] = _unicorn("pink")
 
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
