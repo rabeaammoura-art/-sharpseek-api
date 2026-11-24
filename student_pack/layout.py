@@ -245,6 +245,20 @@ def _tag(theme, name, kind, width, cap_h):
     overlap = th.get("tag_overlap", 1.2)       # how far the name ring rises over the bottom of the artwork (mm)
     my = letters.bounds[3] + R - overlap
     ops = [(c, g, False) for c, g in place(m, -cb[0] * ms, my - cb[1] * 0, ms)] + nops
+    sm = th.get("smooth")
+    if sm and kind in sm.get("pieces", ("tag", "bottle")):
+        # round the sharp corners and little steps of the artwork around the hanging loop (closing then opening by r mm, only in that zone)
+        r = sm.get("r", 0.5)
+        tx = (m["tab_x"] - cb[0]) * ms
+        top = max(g.bounds[3] for c, g, e in ops[:-len(nops)] if not g.is_empty) if nops else max(g.bounds[3] for c, g, e in ops if not g.is_empty)
+        zone = box(tx - sm.get("half_w", 18.0), top - sm.get("depth", 16.0), tx + sm.get("half_w", 18.0), top + 2.0)
+        new_ops = []
+        for c, g, e in ops:
+            if c in sm.get("colours", (th["outline"], "yellow")) and not e and not g.is_empty and g.intersects(zone):
+                sg = g.buffer(r, join_style=1).buffer(-r, join_style=1).buffer(-r, join_style=1).buffer(r, join_style=1)
+                g = unary_union([g.difference(zone), sg.intersection(zone)])
+            new_ops.append((c, g, e))
+        ops = new_ops
     spur = th.get("sil_open", 0.4)
     sil = make_silhouette(ops, spur=spur)
     jf = th.get("join_fill")
@@ -261,7 +275,8 @@ def _tag(theme, name, kind, width, cap_h):
         joined = unary_union([sil, tab])
         zone = box(hole[0] - 11, hole[1] - 12, hole[0] + 11, hole[1] + 4)
         tab = unary_union([tab, joined.buffer(fil, join_style=1).buffer(-fil, join_style=1).difference(joined).intersection(zone)])
-    if th.get("tab_under_art"):               # the art stays visible where the hanging loop overlaps it
+    tua = th.get("tab_under_art")             # True, or a list of piece kinds
+    if tua is True or (isinstance(tua, (list, tuple)) and kind in tua):               # the art stays visible where the hanging loop overlaps it
         ops.insert(0, (th.get("tab_colour") or th["outline"], tab, False))
     else:
         ops.append((th.get("tab_colour") or th["outline"], tab, False))
