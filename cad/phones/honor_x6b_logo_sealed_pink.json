@@ -1,0 +1,4 @@
+{
+  "extends": "honor_x6b_logo_sealed.json",
+  "pink": {"inset": 5.0, "cam_margin": 3.0}
+}

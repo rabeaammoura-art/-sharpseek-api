@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-24 (cloud) — Honor X6b v4: logo sealed under the first TPU layer, pink around it (owner's change)
+- Owner: logo pushed back so the FIRST clear TPU layer covers it; no pink behind the logo, pink everywhere else. `"logo": {"cover": 0.2, "thickness": 0.6}` + `"pink"` (config `honor_x6b_logo_sealed_pink.json`): z 0-0.21 clear TPU over everything | 0.21-0.81 logo or pink (same band, pink minus the logo footprint, counters and thin gaps of the logo get pink) | 0.81-1.6 clear TPU. Verified by point probes (case solid at z 0.1/0.9/1.3, hole filled by the right part at z 0.5).
+- print_test (4 STL parts) 0 problems; CLI 1h05m, 31.6 g (TPU 24.3, navy 1.5, orange 1.1, pink 4.8). Preview colours the logo counters pink.
+- Open: first real print of the Honor case (never printed yet); iPhone 11 PM logo raise ~17 mm and Honor logo +7 mm still unanswered; 0.2 mm first TPU layer is thin (0.4 is the safer cover if it looks worn).
+
 ## 2026-11-24 (cloud) — Honor X6b: pink PETG sheet sealed inside the back plate (owner's idea)
 - `cad/phone_case.py` option `"pink"` (config `honor_x6b_logo_pink.json`): 0.4 mm sheet (slot 4) at z 0.61-1.01, i.e. clear TPU 0.6 outside (logo flush there) | pink | clear TPU inside; inset 5 mm from the phone outline and 3 mm + camera margin from the cutout so the stiff PETG never reaches the bending edges. Pocket = exactly the part volume. `check_orientation` probe moved to z=0.3.
 - print_test (4 STL parts) 0 problems; CLI 1h04m (+2 min), 31.4 g (TPU 25.3, navy 1.4, orange 0.7, pink 4.0), ~0.34 JOD with the owner's landed prices. Filaments: TPU external/nozzle 2 + 3 PETG on nozzle 1.

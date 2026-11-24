@@ -121,8 +121,13 @@ def build(cfg):
             g = affine_transform(g, T).buffer(-0.02, join_style=2).buffer(0.02, join_style=2).simplify(0.004)
             return shapely.set_precision(g, 0.001)
         navy_p, orange_p, foot_p = lp(navy), lp(orange), lp(foot)
-        cut = cut + prism(foot_p, -1.0, LOGO_T)
-        logo = {"Logo_navy": (prism(navy_p, 0, LOGO_T), 2), "Logo_orange": (prism(orange_p, 0, LOGO_T), 3)}
+        # "cover": clear TPU laid over the logo (first layer(s) from the bed). 0 = logo flush with the outside face.
+        cover = lg.get("cover", 0.0)
+        thick = lg.get("thickness", 0.6)
+        z0 = cover + EPS if cover else 0.0
+        z1 = z0 + (thick if cover else LOGO_T)
+        cut = cut + prism(foot_p, z0 if cover else -1.0, z1)       # sealed: an enclosed pocket, filled exactly by the colour parts
+        logo = {"Logo_navy": (prism(navy_p, z0, z1), 2), "Logo_orange": (prism(orange_p, z0, z1), 3)}
         logo_polys = (navy_p, orange_p)
     else:
         logo_polys = None
@@ -137,9 +142,13 @@ def build(cfg):
         cm = pk.get("cam_margin", 3.0)
         cam_box = rrect(E - M - cm, F - M - cm, E + G + M + cm, F + H + M + cm, cam.get("radius", 8.0) + cm)
         pink_poly = shapely.set_precision(rrect(0, 0, B, A, R).buffer(-pk.get("inset", 5.0)).difference(cam_box).simplify(0.003), 0.001)
-        z0, z1 = LOGO_T, LOGO_T + pk.get("thickness", 0.4)
-        cut = cut + prism(pink_poly, z0, z1)                     # pocket = exactly the part volume
-        logo["Pink_PETG"] = (prism(pink_poly, z0, z1), 4)
+        if lg and lg.get("cover"):
+            pz0, pz1 = z0, z1          # same band as the logo; the logo footprint stays free of pink (the logo sits IN the pink)
+            pink_poly = shapely.set_precision(pink_poly.difference(foot_p).simplify(0.003), 0.001)
+        else:
+            pz0, pz1 = LOGO_T, LOGO_T + pk.get("thickness", 0.4)
+        cut = cut + prism(pink_poly, pz0, pz1)                   # pocket = exactly the part volume
+        logo["Pink_PETG"] = (prism(pink_poly, pz0, pz1), 4)
 
     def to_tm(m):
         mesh = m.to_mesh()   # printer frame = outside-view frame (x right, y down, z into the phone): Bambu Studio 'bottom view' (key 2) shows the back exactly like the phone
@@ -198,7 +207,7 @@ def preview(cfg, out, info=None):
                     continue
                 d.polygon([P(x, y) for x, y in q.exterior.coords], fill=col)
                 for r in q.interiors:
-                    d.polygon([P(x, y) for x, y in r.coords], fill=(255, 255, 255))
+                    d.polygon([P(x, y) for x, y in r.coords], fill=(250, 214, 228) if pp is not None else (255, 255, 255))
     im.save(out)
 
 
@@ -218,7 +227,7 @@ def check_orientation(tm, cfg):
     b = tm.bounds
     cx, cy = (b[0][0] + b[1][0]) / 2, (b[0][1] + b[1][1]) / 2
     dx, dy = cam["E"] + cam["G"] / 2 - cfg["B"] / 2, cam["F"] + cam["H"] / 2 - cfg["A"] / 2
-    z = 0.3     # below the colour sheet and the logo pockets, so the plate is solid except at the camera cutout
+    z = 0.1     # below the colour sheet and the logo pockets (first layer), so the plate is solid except at the camera cutout
     pts = np.array([[cx + dx, cy + dy, z], [cx - dx, cy + dy, z], [cx + dx, cy - dy, z]])
     inside = trimesh.Trimesh(tm.vertices, tm.faces, process=True).contains(pts)
     if inside[0] or not inside[1] or not inside[2]:
