@@ -425,6 +425,17 @@ THEMES["kitty_cyanframe"] = dict(
     ruler=dict(THEMES["princess"]["ruler"], band="cyan", body="cyan", rim="yellow"),
 )
 
+# Minnie (PRIVATE, personal gift: Disney character, never sold, never published): flat shapes drawn in code (minnie_art.py), no traced sheet
+THEMES["minnie"] = dict(
+    THEMES["kitty"],
+    label="Minnie-style (private: personal gift), black / red / white / yellow",
+    procedural=True,
+    motifs={},
+    ruler=dict(THEMES["princess"]["ruler"], band="red", body="red", rim="yellow"),   # black ears vanish on a black body, so the ruler body is red and the artwork keeps its black outline
+    heights={"black": 2.2, "red": 2.8, "yellow": 2.8, "white": 3.2},
+    slots=["white", "red", "yellow", "black"],
+)
+
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
 

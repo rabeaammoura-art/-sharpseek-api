@@ -185,6 +185,8 @@ def main(argv):
     for tname, theme in THEMES.items():
         if only_theme and tname != only_theme:
             continue
+        if theme.get("procedural"):      # motifs drawn by code (see minnie_art.py), nothing to trace
+            continue
         art = theme.get("art", ART)
         if art not in imgs:
             imgs[art] = np.asarray(Image.open(HERE / art).convert("RGB"))
