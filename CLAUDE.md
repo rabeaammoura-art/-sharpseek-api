@@ -13,6 +13,7 @@ The repo is **public** — never commit purchase prices, the price sheet, produc
   - `cad/STANDS.md` — all stand ideas, pros/cons, decisions. `cad/PRINTING_NOTES.md` — H2D/slicer findings. **Read both before changing stands or sizes.**
   - `cad/bambu_slice.py` (Linux only) slices with the Bambu Studio CLI and prices with the stock sheet; `/3d-cost*` skills use it.
   - Windows: `cad/README_WINDOWS.md` (`setup_windows.bat`, `make_plaque.bat`). Fonts are bundled in `cad/fonts`.
+- `cad/phone_case.py` + `cad/phones/*.json`: plain TPU phone case from measurements (camera through-cutout, button/bottom notches open to the top, 45-degree lip, no supports); `python cad/phone_case.py cad/phones/honor_x6b.json` -> 3MF/STL/PNG. Needs manifold3d, shapely, trimesh.
 - `.claude/skills/3d-cost*`: time/cost estimates. They ask for the filament unless given.
 
 ## Role: partner and development manager (agreed with the owner)

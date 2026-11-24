@@ -1,0 +1,12 @@
+{
+  "name": "Honor X6b 4G (JDY-LX2)",
+  "A": 163.6,
+  "B": 75.59,
+  "C": 8.91,
+  "R": 8.0,
+  "camera": {"E": 4.4, "F": 4.2, "G": 41.4, "H": 43.6, "margin": 1.5, "radius": 8.0},
+  "notches": [
+    {"side": "left", "from_top": 30.0, "to_top": 75.0, "note": "volume + power, left edge seen from the back"},
+    {"side": "bottom", "x0": 11.0, "x1": 64.6, "note": "3.5 mm jack, mic, USB-C, speaker (covers both mirror cases)"}
+  ]
+}

@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-24 (cloud) — Honor X6b 4G (JDY-LX2) plain TPU case from measurements
+- Owner wants 85%+ success without trial prints. Phone: A 163.6, B 75.59 (caliper), C 8.91; island E 4.4 / F 4.2 / G 41.4 / H ~43.6 (pixel analysis of his photos, calibrated on B); corner R estimated 8-9; buttons on the left edge seen from the back, volume ~33-51 mm and power ~58-72 mm from the top end (side photo, +-2.5 mm); bottom: 3.5 mm jack, mic, USB-C, speaker (orientation unknown -> one notch 11-64.6 mm covers both).
+- New `cad/phone_case.py` (+ `cad/phones/honor_x6b.json`): back plate 1.6, wall 1.6, pocket +0.2/side, 45-degree 0.2 mm staircase lip (1.2 mm over the front), camera = one through cutout (margin 1.5), buttons and bottom = notches OPEN to the top (a long closed slot would be a 45-55 mm TPU bridge). Step planes offset by 0.01 mm (print_test samples exactly on 0.2 mm planes).
+- Digital fit check vs a box phone (R 7/9/11, +-0.5 mm): only lip overlap, no wall interference up to +0.4 mm. print_test 0 problems. CLI: 46 min, 29.6 g TPU 95A HF (GUI is usually slower, ~x1.7). Price sheet missing: cost used the TPU landed price given by the owner earlier (not stored here).
+- Left: owner OK on the drawing/notches, first real print; slicer settings for clear TPU (cad/clear_tpu_settings.py) not applied to this slice.
+
 ## 2026-11-23 (cloud) — same coloured logo on the owner's iPhone 11 Pro Max case
 - Case 3MF (not in git): 85.6 x 163.8 x 11.2, outer back (z=-5.6) already on the bed, flat back only 74 x 154 mm, plate 2.0 mm thick, camera hole top-left. Logo scaled 0.85 (about 60 x 70 mm) for margin, pocket 0.6 mm, same 3 parts / slots (TPU, navy, orange).
 - Manifold3d boolean on this 660k-face cover leaves 4 non-manifold edges (4 faces/edge) at the far top-right corner (z -5.595, x 29-37, y 69-77): print_test flags "not watertight" besides the same back-edge overhang finding as the untouched file. Tried grid snapping, tolerance, face surgery: no clean fix; slicer auto-repair expected, logo parts themselves are watertight. Time/cost not run.
