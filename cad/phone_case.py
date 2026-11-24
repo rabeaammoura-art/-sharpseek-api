@@ -127,12 +127,26 @@ def build(cfg):
     else:
         logo_polys = None
 
+    # optional colour sheet sealed inside the back plate, behind the logo (clear TPU outside 0.6 | colour 0.4 | clear TPU inside):
+    # inset from the phone outline and away from the camera cutout so a stiff PETG sheet never reaches the bending edges
+    pk = cfg.get("pink")
+    pink_poly = None
+    if pk:
+        import shapely
+        E, F, G, H, M = cam["E"], cam["F"], cam["G"], cam["H"], cam["margin"]
+        cm = pk.get("cam_margin", 3.0)
+        cam_box = rrect(E - M - cm, F - M - cm, E + G + M + cm, F + H + M + cm, cam.get("radius", 8.0) + cm)
+        pink_poly = shapely.set_precision(rrect(0, 0, B, A, R).buffer(-pk.get("inset", 5.0)).difference(cam_box).simplify(0.003), 0.001)
+        z0, z1 = LOGO_T, LOGO_T + pk.get("thickness", 0.4)
+        cut = cut + prism(pink_poly, z0, z1)                     # pocket = exactly the part volume
+        logo["Pink_PETG"] = (prism(pink_poly, z0, z1), 4)
+
     def to_tm(m):
         mesh = m.to_mesh()   # printer frame = outside-view frame (x right, y down, z into the phone): Bambu Studio 'bottom view' (key 2) shows the back exactly like the phone
         return trimesh.Trimesh(np.array(mesh.vert_properties)[:, :3].astype(float), np.array(mesh.tri_verts), process=False)
     tm = to_tm(body - cut)
     extras = [(name, to_tm(m), ext) for name, (m, ext) in logo.items()]
-    return tm, dict(z_top=z_top, z_c0=z_c0, z_c1=z_c1, outer=(ox1 - ox0, oy1 - oy0), logo_polys=logo_polys), extras
+    return tm, dict(z_top=z_top, z_c0=z_c0, z_c1=z_c1, outer=(ox1 - ox0, oy1 - oy0), logo_polys=logo_polys, pink_poly=pink_poly), extras
 
 
 def write_3mf(tm, out, name, extras=()):
@@ -146,7 +160,7 @@ def write_3mf(tm, out, name, extras=()):
     for pn, m, ex in [(name + "_case_TPU", tm, 1)] + list(extras):
         m = m.copy(); m.apply_translation(shift); parts.append((pn, m, ex))
     cfg = json.loads((Path(__file__).parent / "config" / "bambu_project_4fil_petg.config").read_text())
-    cfg["filament_colour"] = ["#E8F1F5", "#1E34A0", "#FF6E14", "#FFFFFF"]
+    cfg["filament_colour"] = ["#E8F1F5", "#1E34A0", "#FF6E14", "#F4A6C6" if any(e == 4 for _, _, e in extras) else "#FFFFFF"]
     cfg["filament_map_mode"], cfg["filament_map"] = "Manual", ["2", "1", "1", "1"]
     write_bambu_3mf(Path(out), parts, (175.0, 160.0), name, json.dumps(cfg, indent=4))
 
@@ -170,6 +184,12 @@ def preview(cfg, out, info=None):
             d.rectangle((*P(-off - 0.5, nt["from_top"]), *P(LIP, nt["to_top"])), fill=(255, 110, 20))
         elif nt["side"] == "bottom":
             d.rectangle((*P(nt["x0"], A + CLR - LIP), *P(nt["x1"], A + off + 0.5)), fill=(255, 110, 20))
+    pp = (info or {}).get("pink_poly")
+    if pp is not None:
+        for q in (pp.geoms if hasattr(pp, "geoms") else [pp]):
+            d.polygon([P(x, y) for x, y in q.exterior.coords], fill=(250, 214, 228))
+            for r in q.interiors:
+                d.polygon([P(x, y) for x, y in r.coords], fill=(255, 255, 255))
     lp = (info or {}).get("logo_polys")
     if lp:
         for g, col in zip(lp, ((28, 52, 160), (255, 110, 20))):
@@ -198,7 +218,7 @@ def check_orientation(tm, cfg):
     b = tm.bounds
     cx, cy = (b[0][0] + b[1][0]) / 2, (b[0][1] + b[1][1]) / 2
     dx, dy = cam["E"] + cam["G"] / 2 - cfg["B"] / 2, cam["F"] + cam["H"] / 2 - cfg["A"] / 2
-    z = 0.8
+    z = 0.3     # below the colour sheet and the logo pockets, so the plate is solid except at the camera cutout
     pts = np.array([[cx + dx, cy + dy, z], [cx - dx, cy + dy, z], [cx + dx, cy - dy, z]])
     inside = trimesh.Trimesh(tm.vertices, tm.faces, process=True).contains(pts)
     if inside[0] or not inside[1] or not inside[2]:
@@ -222,7 +242,7 @@ def main():
     for n, m, e in extras:
         t3 = trimesh.Trimesh(m.vertices, m.faces, process=True)
         print(f"  {n}: slot {e} watertight={t3.is_watertight} volume={t3.volume:.0f} mm3")
-    print("bounds", (t2.bounds[1] - t2.bounds[0]).round(2).tolist(), {k: v for k, v in info.items() if k != "logo_polys"})
+    print("bounds", (t2.bounds[1] - t2.bounds[0]).round(2).tolist(), {k: v for k, v in info.items() if k not in ("logo_polys", "pink_poly")})
 
 
 if __name__ == "__main__":

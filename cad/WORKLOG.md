@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-24 (cloud) — Honor X6b: pink PETG sheet sealed inside the back plate (owner's idea)
+- `cad/phone_case.py` option `"pink"` (config `honor_x6b_logo_pink.json`): 0.4 mm sheet (slot 4) at z 0.61-1.01, i.e. clear TPU 0.6 outside (logo flush there) | pink | clear TPU inside; inset 5 mm from the phone outline and 3 mm + camera margin from the cutout so the stiff PETG never reaches the bending edges. Pocket = exactly the part volume. `check_orientation` probe moved to z=0.3.
+- print_test (4 STL parts) 0 problems; CLI 1h04m (+2 min), 31.4 g (TPU 25.3, navy 1.4, orange 0.7, pink 4.0), ~0.34 JOD with the owner's landed prices. Filaments: TPU external/nozzle 2 + 3 PETG on nozzle 1.
+- Risk named to the owner: TPU/PETG bond (worked in the coasters) and PETG sheet fatigue; estimate ~86%. Logo position unchanged (cy 100); owner still to answer: iPhone 11 PM logo raised ~17 mm? Honor logo up ~7 mm?
+
 ## 2026-11-24 (cloud) — FIX: Honor X6b case was a MIRROR IMAGE (owner spotted it in Studio)
 - Bug in `cad/phone_case.py`: I built in the outside-view frame (x right, y DOWN) and then mirrored in x only, which makes a mirror-image solid: seen from outside the camera cutout was top-RIGHT and the logo mirrored (also the plain case file sent earlier). Fix: no mirror at all, printer frame = outside-view frame; Bambu Studio's bottom view (key 2) now shows the back like the phone (camera top-left, logo readable). New `check_orientation()` in the generator fails the build if the camera cutout is not where the config puts it; verified it catches a mirrored copy.
 - iPhone 11/12 logo files were built differently (mask with x mirrored and y up, viewer from below) and render correct from outside; not re-checked in Studio.
