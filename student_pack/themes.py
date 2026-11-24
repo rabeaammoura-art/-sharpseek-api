@@ -410,6 +410,21 @@ THEMES["kitty_redframe"] = dict(
     ruler=dict(THEMES["princess"]["ruler"], band="red", body="red", rim="yellow"),
 )
 
+# Kitty with a cool-blue (cyan) frame: black lines print cyan, the red bow/hearts print pink
+THEMES["kitty_cyanframe"] = dict(
+    THEMES["kitty_redframe"],
+    label="Kitty (private), cyan frame, pink bow and hearts",
+    outline="cyan",
+    palette={"black": ((5, 5, 5), "cyan"), "brown": ((76, 55, 48), "cyan"), "grey": ((143, 144, 144), "cyan"),
+             "red": ((223, 54, 49), "pink"), "yellow": ((251, 199, 7), "yellow"),
+             "white": ((253, 253, 253), "white"), "white2": ((245, 245, 245), "white")},
+    filament_rgb={"white": "#F2F2F2", "pink": "#EC407A", "yellow": "#F6BA1C", "cyan": "#14B8D4"},
+    heights={"cyan": 2.2, "pink": 2.8, "yellow": 2.8, "white": 3.2},
+    text_rings=[("cyan", 3.0)],
+    slots=["white", "pink", "yellow", "cyan"],
+    ruler=dict(THEMES["princess"]["ruler"], band="cyan", body="cyan", rim="yellow"),
+)
+
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
 
