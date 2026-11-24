@@ -6,7 +6,7 @@
 Outputs <out_dir>/<stem>.3mf (one TPU part, back face on the bed), .stl and _back.png (flat view from outside).
 
 Coordinates while building = "outside view": looking at the BACK of the phone, x to the right, y down from the top end.
-The final mesh is mirrored in x (the part is printed back-down, so the outside is seen from below).
+The mesh is NOT mirrored: printer frame = outside-view frame. Back-down on the bed, Bambu Studio's bottom view (key 2) shows the back like the phone (top up, camera top-left). NEVER mirror in x alone: that makes a mirror-image case.
 
 Design rules (all printable without supports):
 - back plate 1.6 mm, wall 1.6 mm, pocket = phone + 0.2 mm each side
@@ -128,7 +128,7 @@ def build(cfg):
         logo_polys = None
 
     def to_tm(m):
-        mesh = m.mirror((1, 0, 0)).to_mesh()          # outside view -> printer view
+        mesh = m.to_mesh()   # printer frame = outside-view frame (x right, y down, z into the phone): Bambu Studio 'bottom view' (key 2) shows the back exactly like the phone
         return trimesh.Trimesh(np.array(mesh.vert_properties)[:, :3].astype(float), np.array(mesh.tri_verts), process=False)
     tm = to_tm(body - cut)
     extras = [(name, to_tm(m), ext) for name, (m, ext) in logo.items()]
@@ -191,11 +191,26 @@ def load_cfg(path):
     return cfg
 
 
+def check_orientation(tm, cfg):
+    """Fail loudly if the case is a mirror image: the camera cutout must be a hole where the config puts it (x small = left seen
+    from the back) and solid at the mirrored spot. Printer frame = outside-view frame, so this is a plain coordinate test."""
+    cam = cfg["camera"]
+    b = tm.bounds
+    cx, cy = (b[0][0] + b[1][0]) / 2, (b[0][1] + b[1][1]) / 2
+    dx, dy = cam["E"] + cam["G"] / 2 - cfg["B"] / 2, cam["F"] + cam["H"] / 2 - cfg["A"] / 2
+    z = 0.8
+    pts = np.array([[cx + dx, cy + dy, z], [cx - dx, cy + dy, z], [cx + dx, cy - dy, z]])
+    inside = trimesh.Trimesh(tm.vertices, tm.faces, process=True).contains(pts)
+    if inside[0] or not inside[1] or not inside[2]:
+        raise SystemExit(f"ORIENTATION CHECK FAILED (mirror image?): camera spot solid={inside[0]}, mirrored spots solid={inside[1:]}")
+
+
 def main():
     cfg_path = Path(sys.argv[1]); out_dir = Path(sys.argv[2]) if len(sys.argv) > 2 else Path("cad/out/phones")
     out_dir.mkdir(parents=True, exist_ok=True)
     cfg = load_cfg(cfg_path)
     tm, info, extras = build(cfg)
+    check_orientation(tm, cfg)
     stem = cfg_path.stem
     tm.export(out_dir / f"{stem}.stl")
     for n, m, e in extras:

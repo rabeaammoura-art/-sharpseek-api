@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-24 (cloud) — FIX: Honor X6b case was a MIRROR IMAGE (owner spotted it in Studio)
+- Bug in `cad/phone_case.py`: I built in the outside-view frame (x right, y DOWN) and then mirrored in x only, which makes a mirror-image solid: seen from outside the camera cutout was top-RIGHT and the logo mirrored (also the plain case file sent earlier). Fix: no mirror at all, printer frame = outside-view frame; Bambu Studio's bottom view (key 2) now shows the back like the phone (camera top-left, logo readable). New `check_orientation()` in the generator fails the build if the camera cutout is not where the config puts it; verified it catches a mirrored copy.
+- iPhone 11/12 logo files were built differently (mask with x mirrored and y up, viewer from below) and render correct from outside; not re-checked in Studio.
+- Rule for next time: render the final mesh from below (not an analytic preview) before sending any asymmetric part. Files re-sent as *_v2. CLI re-slice: 1h02m, 30.7 g.
+
 ## 2026-11-24 (cloud) — Honor X6b case + flush 3D ZT logo on the back (TPU + navy + orange)
 - Owner dropped Flex PLA (yxpolyer "Flex PLA Pro", only a Newegg listing says 92A; PLA softens at ~55-60 C in a car) and asked for the logo on the back of the TPU case. Cults3D page returned 403 (not read); a ChatGPT summary quoted outer 168.2 x 79.9, wall 2, PETG: its pocket (~164.2 x 75.9) matches ours (164.0 x 75.99).
 - `cad/phone_case.py` now takes `"logo"` (polygons from `cad/logo_colorize.py`, kept in git-ignored `cad/out/logo/3dzt_polys.pkl`): 0.61 mm pocket in the plate + navy (slot 2) and orange (slot 3) parts of the same shape, logo 0.85 scale (~60 x 70 mm), centred x, centre 100 mm from the top end, reads right from outside. `cad/phones/honor_x6b_logo.json` extends the plain config. 3MF now written with `cad/threemf.write_bambu_3mf` (the hand-rolled 3MF was sliced as a tiny fragment by the CLI).

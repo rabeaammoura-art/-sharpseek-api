@@ -11,3 +11,4 @@ manifold3d
 networkx
 openpyxl
 scipy
+rtree
