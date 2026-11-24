@@ -436,6 +436,35 @@ THEMES["minnie"] = dict(
     slots=["white", "red", "yellow", "black"],
 )
 
+# Minnie-style from the GPT sheet (PRIVATE, personal gift): navy lines print black, pink bow / hearts, yellow hearts, white face.  Sheet = screenshot cropped at y = 436 (1242 x 914)
+_MY = 436
+THEMES["minnie_gpt"] = dict(
+    THEMES["kitty"],
+    label="Minnie-style from GPT sheet (private: personal gift)",
+    art="art/source_art_minnie_gpt.png",
+    outline="black",
+    palette={"black": ((7, 17, 66), "black"), "black2": ((5, 6, 41), "black"), "greyb": ((70, 64, 92), "black"), "greyb2": ((129, 123, 145), "black"),
+             "pink": ((231, 115, 160), "pink"), "yellow": ((243, 217, 75), "yellow"),
+             "white": ((253, 252, 253), "white"), "greyw": ((196, 193, 210), "white")},
+    filament_rgb={"white": "#F2F2F2", "pink": "#EC407A", "yellow": "#F6BA1C", "black": "#1C1C1C"},
+    heights={"black": 2.2, "pink": 2.8, "yellow": 2.8, "white": 3.2},
+    text_rings=[("black", 3.0)],
+    slots=["white", "pink", "yellow", "black"],
+    ruler=dict(THEMES["princess"]["ruler"], band="pink", body="pink", rim="yellow"),
+    motifs={
+        "tag": dict(box=(122, 440 - _MY, 678, 796 - _MY), bg="flood", seal=["bottom"], scale=70 / 556, tab_x_px=412 - 0,
+                    erase_poly=[[(380, 430 - _MY), (448, 430 - _MY), (448, 480 - _MY), (380, 480 - _MY)]]),
+        "bottle": dict(box=(766, 500 - _MY, 1165, 812 - _MY), bg="flood", seal=["bottom"], scale=48 / 399, tab_x_px=968,
+                       erase_poly=[[(945, 495 - _MY), (1000, 495 - _MY), (1000, 548 - _MY), (945, 548 - _MY)]]),
+        "pencil_l": dict(box=(170, 940 - _MY, 385, 1092 - _MY), bg="flood", scale=0.10),
+        "pencil_r": dict(box=(948, 940 - _MY, 1115, 1080 - _MY), bg="flood", scale=0.10),
+        "ruler_l": dict(box=(92, 1122 - _MY, 338, 1294 - _MY), bg="flood", scale=0.14),
+        "ruler_r": dict(box=(946, 1122 - _MY, 1194, 1286 - _MY), bg="flood", scale=0.14),
+    },
+)
+THEMES["minnie_gpt"].pop("procedural", None)
+THEMES["minnie_gpt"].update(tab_under_art=False)
+
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
 
