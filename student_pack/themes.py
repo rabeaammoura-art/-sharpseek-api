@@ -333,7 +333,7 @@ THEMES["princess"].update(tab_under_art=["tag"], tab_lift=1.4)   # tag: the yell
 THEMES["princess"].update(ruler=dict(THEMES["gamer_girl7"]["ruler"], rim="yellow"))
 
 # Unicorn (customer girls): GPT sheet 512 x 512 (low resolution: scale ~0.4 mm per px); the line colour is printed as `line` (purple or black)
-def _unicorn(line):
+def _unicorn(line, mane="pink"):
     rgb = {"purple": "#7B3FA0", "black": "#1C1C1C", "yellow": "#F6BA1C", "pink": "#EC407A"}[line]
     th = dict(
         THEMES["princess"],
@@ -341,11 +341,11 @@ def _unicorn(line):
         art="art/source_art_unicorn.png",
         outline=line,
         palette={"line": ((30, 91, 216), line), "line2": ((0, 73, 215), line), "mixb": ((108, 112, 215), line), "mixp": ((176, 83, 177), line), "mixw": ((186, 190, 231), line),
-                 "pink": ((236, 66, 121), "pink"), "yellow": ((247, 184, 26), "yellow"), "white": ((255, 255, 255), "white"), "white2": ((242, 242, 242), "white")},
-        filament_rgb={"white": "#F2F2F2", "pink": "#EC407A", "yellow": "#F6BA1C", line: rgb},
-        heights={line: 2.2, "yellow": 2.8, "pink": 2.8, "white": 3.2},
+                 "pink": ((236, 66, 121), mane), "yellow": ((247, 184, 26), "yellow"), "white": ((255, 255, 255), "white"), "white2": ((242, 242, 242), "white")},
+        filament_rgb={"white": "#F2F2F2", "pink": "#EC407A", "yellow": "#F6BA1C", "purple": "#7B3FA0", "black": "#1C1C1C", line: rgb},
+        heights={line: 2.2, "yellow": 2.8, mane: 2.8, "white": 3.2},
         text_rings=[(line, 3.0)],
-        slots=list(dict.fromkeys(["white", "pink", "yellow", line])),
+        slots=list(dict.fromkeys(["white", "yellow", mane, line])),
         motifs={
             "tag": dict(box=(78, 20, 230, 184), bg="flood", seal=["bottom"], scale=70 / 152, tab_x_px=150),
             "bottle": dict(box=(343, 52, 462, 166), bg="flood", seal=["bottom"], scale=48 / 119, tab_x_px=400),
@@ -365,6 +365,7 @@ THEMES["unicorn_purple"] = _unicorn("purple")
 THEMES["unicorn_black"] = _unicorn("black")
 THEMES["unicorn_yellow"] = _unicorn("yellow")
 THEMES["unicorn_pink"] = _unicorn("pink")
+THEMES["unicorn_pinkframe"] = _unicorn("pink", mane="purple")   # pink frame, purple + yellow mane (keeps the mane details)
 
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
