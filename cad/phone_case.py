@@ -102,6 +102,11 @@ def build(cfg):
             m = mf.Manifold.extrude(cs(sec), L)
             M3 = np.array([[0, 0, 1, 0], [1, 0, 0, 0], [0, 1, 0, 0]], float)       # x = h, y = p, z = q
             cut = cut + m.transform(M3).translate((-CLR - WALL - 1.0, 0, 0))
+        elif nt["side"] == "right":                                                # right edge seen from the back
+            sec = rrect(nt["from_top"], nz0, nt["to_top"], z_top + 3.0, 1.2)       # (y, z) plane
+            m = mf.Manifold.extrude(cs(sec), L)
+            M3 = np.array([[0, 0, 1, 0], [1, 0, 0, 0], [0, 1, 0, 0]], float)
+            cut = cut + m.transform(M3).translate((B + CLR + WALL + 1.0 - L, 0, 0))
         elif nt["side"] == "bottom":
             sec = rrect(nt["x0"], nz0, nt["x1"], z_top + 3.0, 1.2)                 # (x, z) plane
             m = mf.Manifold.extrude(cs(sec), L)
@@ -193,6 +198,8 @@ def preview(cfg, out, info=None):
     for nt in cfg.get("notches", []):
         if nt["side"] == "left":
             d.rectangle((*P(-off - 0.5, nt["from_top"]), *P(LIP, nt["to_top"])), fill=(255, 110, 20))
+        elif nt["side"] == "right":
+            d.rectangle((*P(B + CLR - LIP, nt["from_top"]), *P(B + off + 0.5, nt["to_top"])), fill=(255, 110, 20))
         elif nt["side"] == "bottom":
             d.rectangle((*P(nt["x0"], A + CLR - LIP), *P(nt["x1"], A + off + 0.5)), fill=(255, 110, 20))
     pp = (info or {}).get("pink_poly")

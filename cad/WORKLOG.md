@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-25 (cloud) — iPhone 11 Pro Max in OUR design (dimensions from the owner's downloaded case, not its mesh)
+- Owner: the downloaded 11 PM case (his print, "dimensions excellent") has a completely different design; take only its dimensions and build with our generator. Measured from its mesh (ray casting + back-face mask): pocket 77.8 wide x ~157.9 long (= Apple spec 77.8 x 158.0), corner radius ~11, camera cutout 33.3 x 35.4 at E 1.8 / F 2.1 from the phone edges, wall openings: left (seen from back) 37.5-52.0 mm from the top = power; right 20.5-55.5 in three slots = silent switch + volume; bottom x 11.4-58.9 = speakers + Lightning + mic. Pocket clearance 0.0 (that fit was perfect in TPU).
+- `cad/phones/iphone11pm.json` + `iphone11pm_v4.json` (logo sealed under the first TPU layer, pink sheet around it, logo centre 85 mm from the top end = where the owner moved it, estimated from his photo +-3). Generator got a "right" notch. Notches are full openings (open to the top) like the Honor.
+- print_test 0 problems; CLI 1h06m, 32.1 g (TPU 24.2, navy 1.5, orange 1.1, pink 5.3). Real-mesh outside render checked (camera top-left, logo readable).
+- Open: owner to confirm logo height/clearance after the first print; Honor logo +7 mm unanswered.
+
 ## 2026-11-25 (cloud) — Honor X6b FIRST REAL PRINT (v4): works; v5 = 0.1 mm tighter
 - Owner printed v4 (logo sealed under the first TPU layer, pink around it): installs fine on the phone, "a touch loose"; all cutouts OK (camera, buttons, bottom are full openings); pink sheet adheres well and shows through the clear TPU. He says it came out far nicer than the iPhone case.
 - Calibration from this print: pocket clearance 0.2 mm per side = slightly loose -> `"clearance"` is now a config key; `honor_x6b_v5.json` uses 0.1 (pocket 75.79 x 163.8). Still to confirm after the v5 print: fit, logo position.

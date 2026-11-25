@@ -1,0 +1,5 @@
+{
+  "extends": "iphone11pm.json",
+  "logo": {"polys": "cad/out/logo/3dzt_polys.pkl", "scale": 0.85, "cx": 38.9, "cy": 85.0, "cover": 0.2, "thickness": 0.6},
+  "pink": {"inset": 5.0, "cam_margin": 3.0}
+}
