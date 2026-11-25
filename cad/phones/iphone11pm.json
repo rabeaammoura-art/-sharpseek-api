@@ -5,10 +5,36 @@
   "C": 8.1,
   "R": 11.0,
   "clearance": 0.0,
-  "camera": {"E": 1.8, "F": 2.1, "G": 33.3, "H": 35.4, "margin": 0.0, "radius": 8.0},
+  "camera": {
+    "E": 1.8,
+    "F": 2.1,
+    "G": 33.3,
+    "H": 35.4,
+    "margin": 0.0,
+    "radius": 8.0
+  },
   "notches": [
-    {"side": "left",  "from_top": 35.5, "to_top": 54.0, "note": "power button (left edge seen from the back)"},
-    {"side": "right", "from_top": 18.5, "to_top": 57.5, "note": "silent switch + volume up + volume down"},
-    {"side": "bottom", "x0": 9.9, "x1": 60.4, "note": "speaker grilles + Lightning + mic"}
-  ]
+    {
+      "side": "left",
+      "from_top": 35.5,
+      "to_top": 54.0,
+      "note": "power button (left edge seen from the back)"
+    },
+    {
+      "side": "right",
+      "from_top": 18.5,
+      "to_top": 57.5,
+      "note": "silent switch + volume up + volume down"
+    },
+    {
+      "side": "bottom",
+      "x0": 9.9,
+      "x1": 60.4,
+      "note": "speaker grilles + Lightning + mic"
+    }
+  ],
+  "lip": {
+    "inset": 2.2,
+    "above": 1.0
+  }
 }

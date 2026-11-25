@@ -56,8 +56,11 @@ def prism(poly, z0, z1):
 
 
 def build(cfg):
-    global CLR
-    CLR = cfg.get("clearance", CLR)        # pocket clearance per side (first real print, 2026-11-25: 0.2 was a touch loose -> 0.1)
+    global CLR, LIP
+    CLR = cfg.get("clearance", 0.2)        # pocket clearance per side (first real print, 2026-11-25: 0.2 was a touch loose -> 0.1)
+    lc = cfg.get("lip", {})
+    LIP = lc.get("inset", 1.2)             # how far the front lip overlaps the screen (the owner's proven iPhone case: 2.37 mm)
+    lip_above = lc.get("above", 0.6)       # how far it stands above the glass (proven case: 1.1 mm)
     A, B, C, R = cfg["A"], cfg["B"], cfg["C"], cfg["R"]
     cam = cfg["camera"]
     ox0, oy0, ox1, oy1 = -CLR - WALL, -CLR - WALL, B + CLR + WALL, A + CLR + WALL
@@ -65,9 +68,9 @@ def build(cfg):
     outer = rrect(ox0, oy0, ox1, oy1, R_out)
     pocket = rrect(-CLR, -CLR, B + CLR, A + CLR, R + CLR)
     # z levels (multiples of 0.2 where it matters)
-    z_c0 = round((TB + C - 1.4) / STEP) * STEP + EPS   # lip chamfer starts
+    z_c0 = round((TB + C - LIP - 0.2) / STEP) * STEP + EPS   # lip chamfer starts (45 deg staircase, ends 0.2 below the glass plane)
     z_c1 = z_c0 + LIP                                  # chamfer ends (inset = LIP)
-    z_top = round((TB + C + 0.6) / STEP) * STEP
+    z_top = round((TB + C + lip_above) / STEP) * STEP
 
     # outer body with chamfered back edge
     body = None
@@ -237,8 +240,13 @@ def check_orientation(tm, cfg):
     cx, cy = (b[0][0] + b[1][0]) / 2, (b[0][1] + b[1][1]) / 2
     dx, dy = cam["E"] + cam["G"] / 2 - cfg["B"] / 2, cam["F"] + cam["H"] / 2 - cfg["A"] / 2
     z = 0.1     # below the colour sheet and the logo pockets (first layer), so the plate is solid except at the camera cutout
-    pts = np.array([[cx + dx, cy + dy, z], [cx - dx, cy + dy, z], [cx + dx, cy - dy, z]])
-    inside = trimesh.Trimesh(tm.vertices, tm.faces, process=True).contains(pts)
+    from shapely.geometry import Polygon, Point
+    sec = tm.section(plane_origin=[0, 0, z], plane_normal=[0, 0, 1])
+    region = None
+    for loop in sec.discrete:                       # even-odd fill of the section: robust, unlike ray tests on a 600k-face mesh
+        pg = Polygon(loop[:, :2]).buffer(0)
+        region = pg if region is None else region.symmetric_difference(pg)
+    inside = [region.contains(Point(cx + dx, cy + dy)), region.contains(Point(cx - dx, cy + dy)), region.contains(Point(cx + dx, cy - dy))]
     if inside[0] or not inside[1] or not inside[2]:
         raise SystemExit(f"ORIENTATION CHECK FAILED (mirror image?): camera spot solid={inside[0]}, mirrored spots solid={inside[1:]}")
 

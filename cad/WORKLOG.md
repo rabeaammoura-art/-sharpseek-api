@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-25 (cloud) — bigger front lip for both cases (owner)
+- Owner: the lip around the screen must be a bit bigger, also on the Honor. Measured the owner's proven iPhone 11 PM case by rays: inset 0.3 mm at z 2.0 rising to 2.37 mm at the glass plane (z 4.5), 1.87 mm at the top, top 1.1 mm above the glass. Generator now has `"lip": {"inset", "above"}` (45 degree 0.2 mm staircase, chamfer ends 0.2 below the glass plane): Honor 2.0 / 1.0 (was 1.2 / 0.6), iPhone 2.2 / 1.0. `honor_x6b_v6.json`, `iphone11pm_pink.json`.
+- `check_orientation` now uses an even-odd section instead of ray tests (ray `contains` gave random answers on the 600k-face iPhone mesh and wrongly blocked the build); still catches a mirrored copy.
+- print_test 0 problems for both; CLI Honor v6 1h08m 32.6 g, iPhone 1h07m 32.8 g. Risk: bigger lip = more stretch to install (opening 71.8 mm wide on the Honor, 73.4 on the iPhone, same as his proven case); owner to say if too tight.
+
 ## 2026-11-25 (cloud) — iPhone 11 PM v5: pink TPU body, logo flush in the first layer, exact pocket
 - Owner: the downloaded case fits EXACTLY (do not tighten: zero clearance stays) and he does not want to print clear TPU: case body pink (TPU slot 1, `"body_colour"`), logo flush in the first layers (no clear cover, no pink sheet). Config `cad/phones/iphone11pm_pink.json`.
 - print_test 0 problems; CLI 1h04m, 31.6 g (TPU 29.6, navy 1.3, orange 0.7), ~0.37 JOD with the owner's landed prices. Assumes he has pink TPU (not confirmed).
