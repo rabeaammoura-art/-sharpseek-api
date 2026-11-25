@@ -34,6 +34,21 @@ def load_motifs(theme):
                 if c != z["dst"]:
                     layers[c] = shapely.set_precision(layers[c].buffer(0).difference(moved), 0.002)
             layers[z["dst"]] = shapely.set_precision(unary_union([layers[z["dst"]].buffer(0), moved]) if z["dst"] in layers else moved, 0.002)
+        io = th.get("ink_only")
+        if io:                                              # light backing: keep the dark ink only where it is an outline / line of the artwork; the rest (the dark backing blob) becomes the light base colour
+            ink = io["ink"]; base = io["base"]
+            if ink in layers:
+                others = unary_union([layers[c].buffer(0) for c in layers if c != ink and c != base])
+                black = layers[ink].buffer(0)
+                keep = black.intersection(others.buffer(io.get("reach", 1.1), join_style=1))
+                keep = keep.buffer(0.3, join_style=1).buffer(-0.3, join_style=1)
+                keep = unary_union([p for p in (keep.geoms if hasattr(keep, "geoms") else [keep]) if p.area >= io.get("min_area", 2.0)])
+                blob = black.difference(keep)
+                lt = layers[base].buffer(0) if base in layers else Polygon()
+                rw = io.get("ring", 0.9)
+                ring = lt.buffer(rw, join_style=1).difference(lt).intersection(blob.buffer(0.01))
+                layers[ink] = shapely.set_precision(unary_union([keep, ring]), 0.002)
+                layers[base] = shapely.set_precision(unary_union([lt, blob]).difference(ring), 0.002)
         for z in th.get("webs", []):                         # small spider webs drawn in code (white lines on the black backing)
             if z["motif"] != name:
                 continue

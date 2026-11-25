@@ -672,11 +672,11 @@ THEMES["spiderman_g"] = dict(
              "red": ((207, 46, 46), "red"), "blue": ((30, 90, 211), "blue"), "white": ((242, 242, 242), "white"), "grey": ((189, 190, 192), "white")},
     motifs={
         "tag": dict(box=(100, 244, 596, 528), bg="flood", seal=["bottom"], scale=74 / 496, tab_x_px=300,
-                    paint_poly=[("black", [(122, 362), (212, 362), (212, 452), (122, 452)]), ("black", [(488, 372), (584, 372), (584, 462), (488, 462)])]),   # the thin hand-drawn webs are replaced by webs drawn in code (webs option)
+                    paint_poly=[("black", [(114, 366), (212, 366), (212, 452), (114, 452)]), ("black", [(488, 372), (584, 372), (584, 462), (488, 462)])]),   # the thin hand-drawn webs are replaced by webs drawn in code (webs option)
         "pencil_l": dict(box=(78, 930, 232, 1040), bg="flood", scale=0.17),
         "pencil_r": dict(box=(468, 944, 622, 1036), bg="flood", scale=0.17,
                          paint_poly=[("black", [(530, 946), (622, 946), (622, 1034), (530, 1034)])]),
-        "ruler_l": dict(box=(800, 950, 998, 1088), bg="flood", scale=0.215,
+        "ruler_l": dict(box=(800, 950, 988, 1088), bg="flood", scale=0.215,
                         paint_poly=[("black", [(928, 984), (998, 984), (998, 1050), (928, 1050)])]),
         "ruler_r": dict(box=(1332, 990, 1502, 1088), bg="flood", scale=0.215),
     },
@@ -686,6 +686,20 @@ for _k in ("thicken", "webs", "flag_rings"):
 THEMES["spiderman_g"]["webs"] = [dict(motif="tag", colour="white", at=[(9.8, 17.8, 5.6), (64.4, 16.3, 5.6)], w=0.42),
                                 dict(motif="pencil_r", colour="white", at=[(17.3, 8.2, 6.6)], w=0.55),
                                 dict(motif="ruler_l", colour="white", at=[(34.8, 15.5, 6.2)], w=0.42)]
+
+# Spider-hero on a WHITE backing: the dark blob becomes the white base, the dark lines stay as ink, stars / eyes get a black outline, webs and name are black
+THEMES["spiderman_w"] = dict(
+    THEMES["spiderman_g"],
+    label="Spider-hero (private), white backing with black ink",
+    outline="white",
+    letters="black",
+    text_rings=[("white", 3.0)],
+    heights={"white": 2.2, "red": 2.8, "blue": 2.8, "black": 3.2},
+    slots=["white", "red", "blue", "black"],
+    ruler=dict(THEMES["princess"]["ruler"], band="white", body="white", rim="blue", ticks="black"),
+    ink_only=dict(ink="black", base="white", reach=1.1, ring=0.9, min_area=8.0),
+)
+THEMES["spiderman_w"]["webs"] = [dict(z, colour="black") for z in THEMES["spiderman_g"]["webs"]]
 
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
