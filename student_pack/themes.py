@@ -647,7 +647,8 @@ THEMES["spiderman"] = dict(
     slots=["white", "red", "blue", "black"],
     ruler=dict(THEMES["princess"]["ruler"], band="black", body="black", rim="blue"),
     motifs={
-        "tag": dict(box=(170, 2, 662, 266), bg="flood", seal=["bottom"], scale=70 / 492, tab_x_px=360),
+        "tag": dict(box=(170, 2, 662, 266), bg="flood", seal=["bottom"], scale=70 / 492, tab_x_px=360,
+                    erase=[(176, 116, 264, 202), (566, 132, 648, 208)]),   # the two hearts: replaced by spider webs
         "bottle": dict(box=(755, 28, 1132, 296), bg="flood", seal=["bottom"], scale=48 / 377, tab_x_px=950),
         "pencil_l": dict(box=(350, 428, 430, 506), bg="flood", scale=0.14, erase=[(350, 428, 372, 432)]),
         "pencil_r": dict(box=(972, 402, 1096, 516), bg="flood", scale=0.10, erase=[(972, 412, 990, 428), (972, 498, 990, 516)]),
@@ -655,12 +656,12 @@ THEMES["spiderman"] = dict(
         "ruler_r": dict(box=(1000, 542, 1150, 682), bg="flood", scale=0.18, erase=[(1000, 536, 1150, 548)]),
     },
 )
-THEMES["spiderman"]["thicken"] = [dict(motif="tag", colour="black", amount=0.42, box=(14.0, 8.0, 41.0, 37.0)),
+THEMES["spiderman"]["thicken"] = [dict(motif="tag", colour="black", amount=0.3, box=(14.0, 8.0, 41.0, 37.0)),
                                   dict(motif="bottle", colour="black", amount=0.42, box=(10.0, 8.0, 40.0, 34.0)),
                                   dict(motif="ruler_l", colour="black", amount=0.4, box=(3.0, 7.0, 27.0, 27.0))]
+THEMES["spiderman"]["webs"] = [dict(motif="tag", colour="white", at=[(7.5, 14.8, 5.4), (62.0, 13.6, 5.4)], w=0.42)]
 THEMES["spiderman"].pop("flag_rings", None)
-THEMES["spiderman"].update(tab_under_art=False, sil_close=0, tag_fit=dict(hmin=62.0, hmax=76.0, wmax=76.0))
-THEMES["spiderman"].pop("sil_close")
+THEMES["spiderman"].update(tab_under_art=False, sil_close=5.0, tag_fit=dict(hmin=62.0, hmax=76.0, wmax=76.0))
 
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]

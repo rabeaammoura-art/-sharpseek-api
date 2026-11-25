@@ -34,6 +34,28 @@ def load_motifs(theme):
                 if c != z["dst"]:
                     layers[c] = shapely.set_precision(layers[c].buffer(0).difference(moved), 0.002)
             layers[z["dst"]] = shapely.set_precision(unary_union([layers[z["dst"]].buffer(0), moved]) if z["dst"] in layers else moved, 0.002)
+        for z in th.get("webs", []):                         # small spider webs drawn in code (white lines on the black backing)
+            if z["motif"] != name:
+                continue
+            import math
+            from shapely.geometry import LineString, Point as _P
+            for cx, cy, r in z["at"]:
+                w = z.get("w", 0.4)
+                parts = []
+                for i in range(7):
+                    a = math.radians(i * 360 / 7 + z.get("rot", 15))
+                    parts.append(LineString([(cx, cy), (cx + r * math.cos(a), cy + r * math.sin(a))]).buffer(w, cap_style=1))
+                for f in (0.45, 0.78):
+                    pts = []
+                    for i in range(7):                         # scalloped ring: straight chords sagging inwards between the spokes
+                        a0 = math.radians(i * 360 / 7 + z.get("rot", 15)); a1 = math.radians((i + 1) * 360 / 7 + z.get("rot", 15)); am = (a0 + a1) / 2
+                        pts += [(cx + f * r * math.cos(a0), cy + f * r * math.sin(a0)), (cx + 0.86 * f * r * math.cos(am), cy + 0.86 * f * r * math.sin(am))]
+                    pts.append(pts[0])
+                    parts.append(LineString(pts).buffer(w, cap_style=1, join_style=1))
+                web = unary_union(parts)
+                for c in list(layers):
+                    layers[c] = shapely.set_precision(layers[c].buffer(0).difference(web), 0.002)
+                layers[z["colour"]] = shapely.set_precision(unary_union([layers[z["colour"]].buffer(0), web]) if z["colour"] in layers else web, 0.002)
         for z in th.get("flag_rings", []):                    # smooth border drawn in code: [art] [gap of backing] [ring of `colour`] around everything inside the zone
             if z["motif"] != name:
                 continue
