@@ -698,6 +698,7 @@ THEMES["spiderman_w"] = dict(
     slots=["white", "red", "blue", "black"],
     ruler=dict(THEMES["princess"]["ruler"], band="white", body="white", rim="blue", ticks="black"),
     ink_only=dict(ink="black", base="white", reach=1.1, ring=0.9, min_area=8.0),
+    filament_rgb={"white": "#F2F2F2", "red": "#D32F2F", "blue": "#17358F", "black": "#1C1C1C"},   # dark (navy) blue
 )
 THEMES["spiderman_w"]["webs"] = [dict(z, colour="black") for z in THEMES["spiderman_g"]["webs"]]
 
