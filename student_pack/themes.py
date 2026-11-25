@@ -632,6 +632,36 @@ THEMES["football_white"]["motifs"] = _copy.deepcopy(_fb["motifs"])
 THEMES["football_white"]["motifs"]["tag"]["erase"] = [(382, 54, 426, 118), (390, 164, 432, 210)]   # the thin motion lines of the kick (they only clutter the outlined version)
 THEMES["football_white"]["motifs"]["pencil_l"]["box"] = (426, 30, 494, 110)   # ball without the motion lines
 
+# Spider-hero (PRIVATE, personal gift: registered character, never sold): GPT sheet 1280 x 720 kept in art_private/ (not in git); 4 colours black / red / blue / white (yellow stars print white)
+THEMES["spiderman"] = dict(
+    THEMES["kitty"],
+    label="Spider-hero (private: personal gift), black / red / blue / white",
+    art="art_private/spiderman.jpg",
+    outline="black",
+    palette={"black": ((6, 3, 4), "black"), "dark": ((66, 10, 10), "black"), "red": ((221, 30, 31), "red"), "dred": ((154, 37, 36), "red"),
+             "blue": ((6, 69, 154), "blue"), "white": ((254, 254, 254), "white"), "yellow": ((248, 192, 14), "white"),
+             "grey": ((169, 168, 168), "white"), "dgrey": ((98, 97, 93), "black"), "lgrey": ((222, 222, 226), "white")},
+    filament_rgb={"white": "#F2F2F2", "red": "#D32F2F", "blue": "#1E5BD8", "black": "#1C1C1C"},
+    heights={"black": 2.2, "red": 2.8, "blue": 2.8, "white": 3.2},
+    text_rings=[("black", 3.0)],
+    slots=["white", "red", "blue", "black"],
+    ruler=dict(THEMES["princess"]["ruler"], band="black", body="black", rim="blue"),
+    motifs={
+        "tag": dict(box=(170, 2, 662, 266), bg="flood", seal=["bottom"], scale=70 / 492, tab_x_px=360),
+        "bottle": dict(box=(755, 28, 1132, 296), bg="flood", seal=["bottom"], scale=48 / 377, tab_x_px=950),
+        "pencil_l": dict(box=(350, 428, 430, 506), bg="flood", scale=0.14, erase=[(350, 428, 372, 432)]),
+        "pencil_r": dict(box=(972, 402, 1096, 516), bg="flood", scale=0.10, erase=[(972, 412, 990, 428), (972, 498, 990, 516)]),
+        "ruler_l": dict(box=(160, 546, 324, 700), bg="flood", scale=0.18),
+        "ruler_r": dict(box=(1000, 542, 1150, 682), bg="flood", scale=0.18, erase=[(1000, 536, 1150, 548)]),
+    },
+)
+THEMES["spiderman"]["thicken"] = [dict(motif="tag", colour="black", amount=0.42, box=(14.0, 8.0, 41.0, 37.0)),
+                                  dict(motif="bottle", colour="black", amount=0.42, box=(10.0, 8.0, 40.0, 34.0)),
+                                  dict(motif="ruler_l", colour="black", amount=0.4, box=(3.0, 7.0, 27.0, 27.0))]
+THEMES["spiderman"].pop("flag_rings", None)
+THEMES["spiderman"].update(tab_under_art=False, sil_close=0, tag_fit=dict(hmin=62.0, hmax=76.0, wmax=76.0))
+THEMES["spiderman"].pop("sil_close")
+
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
 
