@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-25 (cloud) — Honor X6b FIRST REAL PRINT (v4): works; v5 = 0.1 mm tighter
+- Owner printed v4 (logo sealed under the first TPU layer, pink around it): installs fine on the phone, "a touch loose"; all cutouts OK (camera, buttons, bottom are full openings); pink sheet adheres well and shows through the clear TPU. He says it came out far nicer than the iPhone case.
+- Calibration from this print: pocket clearance 0.2 mm per side = slightly loose -> `"clearance"` is now a config key; `honor_x6b_v5.json` uses 0.1 (pocket 75.79 x 163.8). Still to confirm after the v5 print: fit, logo position.
+- Open: iPhone 11 PM rebuild in the v4 style with the logo raised ~17 mm (owner to confirm the number); Honor logo +7 mm (owner to answer).
+
 ## 2026-11-24 (cloud) — Honor X6b v4: logo sealed under the first TPU layer, pink around it (owner's change)
 - Owner: logo pushed back so the FIRST clear TPU layer covers it; no pink behind the logo, pink everywhere else. `"logo": {"cover": 0.2, "thickness": 0.6}` + `"pink"` (config `honor_x6b_logo_sealed_pink.json`): z 0-0.21 clear TPU over everything | 0.21-0.81 logo or pink (same band, pink minus the logo footprint, counters and thin gaps of the logo get pink) | 0.81-1.6 clear TPU. Verified by point probes (case solid at z 0.1/0.9/1.3, hole filled by the right part at z 0.5).
 - print_test (4 STL parts) 0 problems; CLI 1h05m, 31.6 g (TPU 24.3, navy 1.5, orange 1.1, pink 4.8). Preview colours the logo counters pink.

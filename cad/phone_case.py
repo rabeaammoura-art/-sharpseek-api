@@ -56,6 +56,8 @@ def prism(poly, z0, z1):
 
 
 def build(cfg):
+    global CLR
+    CLR = cfg.get("clearance", CLR)        # pocket clearance per side (first real print, 2026-11-25: 0.2 was a touch loose -> 0.1)
     A, B, C, R = cfg["A"], cfg["B"], cfg["C"], cfg["R"]
     cam = cfg["camera"]
     ox0, oy0, ox1, oy1 = -CLR - WALL, -CLR - WALL, B + CLR + WALL, A + CLR + WALL
