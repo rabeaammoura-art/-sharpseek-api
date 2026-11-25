@@ -93,6 +93,7 @@ def trace_motif(img, theme, spec):
         sub[thin] = hrgb
         body = nonbg                                          # everything now in the box; add `hw` px of white outside it, so the border is one clean line
         ring = cv2.dilate(body.astype(np.uint8), cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * hw + 1, 2 * hw + 1))) > 0
+        ring = cv2.morphologyEx(ring.astype(np.uint8), cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))) > 0   # smooth, unbroken outline
         big = 2 * hw + 4                                      # around the thick dark parts (the black stripe) the ring must be wide enough to print
         ring |= cv2.dilate(thick.astype(np.uint8), cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * big + 1, 2 * big + 1))) > 0
         sub[ring & ~body] = hrgb
