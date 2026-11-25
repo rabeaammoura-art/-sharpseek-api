@@ -585,6 +585,21 @@ THEMES["football"] = dict(
 )
 THEMES["football"].update(tab_under_art=False, sil_close=9.0, tag_fit=dict(hmin=62.0, hmax=76.0, wmax=76.0))
 
+# Football with black and white swapped: white backing + white lettering ring, black letters and black artwork lines on top
+_fb = THEMES["football"]
+_sw = {"black": "white", "white": "black"}
+THEMES["football_inv"] = dict(
+    _fb,
+    label="Football, black and white swapped (white backing, black letters)",
+    outline="white",
+    letters="black",
+    palette={k: (v[0], _sw.get(v[1], v[1])) for k, v in _fb["palette"].items()},
+    heights={"white": 2.2, "red": 2.8, "green": 2.8, "black": 3.2},
+    text_rings=[("white", 3.0)],
+    slots=["white", "red", "green", "black"],
+    ruler=dict(_fb["ruler"], band="white", body="white", rim="red", ticks="black"),
+)
+
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
 
