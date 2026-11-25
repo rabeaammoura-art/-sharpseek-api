@@ -84,6 +84,9 @@ def trace_motif(img, theme, spec):
     erase_rgb = 255 if spec["bg"] == "flood" else [v for k, (v, p) in palette.items() if p == spec["bg"]][0]
     for ex0, ey0, ex1, ey1 in spec.get("erase", []):
         crop[max(0, ey0 - y0):max(0, ey1 - y0), max(0, ex0 - x0):max(0, ex1 - x0)] = erase_rgb
+    for rx0, ry0, rx1, ry1, rgb in spec.get("recolour_dark", []):   # dark pixels inside the box (px, source coords) get this colour (e.g. a black boot that would vanish into the black backing)
+        sub = crop[ry0 - y0:ry1 - y0, rx0 - x0:rx1 - x0]
+        sub[sub.max(axis=2) < 90] = rgb
     for mx0, my0, mx1, my1, dx, dy in spec.get("move", []):   # lift an item out of the sheet (px, source coords) and put it back shifted by (dx, dy), BEHIND whatever is already there
         patch = crop[my0 - y0:my1 - y0, mx0 - x0:mx1 - x0].copy()
         crop[my0 - y0:my1 - y0, mx0 - x0:mx1 - x0] = erase_rgb

@@ -558,6 +558,13 @@ THEMES["mcqueen"] = dict(
 )
 THEMES["mcqueen"].update(tab_under_art=False, tag_fit=dict(hmin=62.0, hmax=76.0, wmax=76.0))
 
+def _star7(cx, cy, ro, ri):
+    """7-pointed star polygon (source px) pointing up: the Jordanian flag star."""
+    import math
+    return [(round(cx + (ro if i % 2 == 0 else ri) * math.cos(math.radians(-90 + i * 360 / 14))),
+             round(cy + (ro if i % 2 == 0 else ri) * math.sin(math.radians(-90 + i * 360 / 14)))) for i in range(14)]
+
+
 # Football (Jordan flag colours): generic footballer, not a registered character, so this one may be sold.  Sheet 1024 x 577, 4 colours: black / red / green / white (gold items print white)
 THEMES["football"] = dict(
     THEMES["kitty"],
@@ -575,12 +582,15 @@ THEMES["football"] = dict(
     slots=["white", "red", "green", "black"],
     ruler=dict(THEMES["princess"]["ruler"], band="black", body="black", rim="red"),
     motifs={
-        "tag": dict(box=(134, 4, 530, 207), bg="flood", seal=["bottom"], scale=70 / 396, tab_x_px=330),   # all original details kept
+        "tag": dict(box=(134, 4, 530, 207), bg="flood", seal=["bottom"], scale=70 / 396, tab_x_px=330,
+                    recolour_dark=[(408, 110, 454, 164, (30, 130, 60))],
+                    paint_poly=[("white", _star7(163, 141, 11, 5.6))]),   # the flag star: seven points, white   # all original details kept; the black boot turns green (white would be flooded as background) so it shows on the black backing
         "bottle": dict(box=(608, 34, 920, 232), bg="flood", seal=["bottom"], scale=48 / 312, tab_x_px=760),
         "pencil_l": dict(box=(418, 30, 494, 110), bg="flood", scale=0.14),   # the ball replaces the whistle
         "pencil_r": dict(box=(796, 436, 914, 538), bg="flood", scale=0.10),
         "ruler_l": dict(box=(124, 436, 262, 548), bg="flood", scale=0.20),
-        "ruler_r": dict(box=(900, 388, 1010, 538), bg="flood", scale=0.20, erase=[(946, 466, 970, 540)]),
+        "ruler_r": dict(box=(900, 388, 1010, 538), bg="flood", scale=0.20, erase=[(946, 466, 970, 540)],
+                        paint_poly=[("white", _star7(939, 420, 9.5, 5.0))]),
     },
 )
 THEMES["football"].update(tab_under_art=False, sil_close=9.0, tag_fit=dict(hmin=62.0, hmax=76.0, wmax=76.0))
