@@ -463,7 +463,7 @@ THEMES["minnie_gpt"] = dict(
     },
 )
 THEMES["minnie_gpt"].pop("procedural", None)
-THEMES["minnie_gpt"].update(tab_under_art=False)
+THEMES["minnie_gpt"].update(tab_under_art=False, sil_close=2.5, smooth=dict(r=0.6, half_w=22.0, depth=16.0, colours=("black",)))
 
 # Princess girl (customer): GPT sheet (screenshot, cropped to the white sheet 1242 x 1726): navy lines print black, yellow hair, pink crown / hearts / dress, white face
 THEMES["princess_girl"] = dict(

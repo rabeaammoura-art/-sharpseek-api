@@ -261,6 +261,13 @@ def _tag(theme, name, kind, width, cap_h):
         ops = new_ops
     spur = th.get("sil_open", 0.4)
     sil = make_silhouette(ops, spur=spur)
+    sc = th.get("sil_close")
+    if sc:                                    # fill narrow slits / notches of the outline (radius mm) with the outline colour: no gaps between ears, hearts and head
+        closed = sil.buffer(sc, join_style=1).buffer(-sc, join_style=1)
+        extra = closed.difference(sil)
+        if not extra.is_empty:
+            ops.append(((th.get("edge_snap") or {}).get("colour", th["outline"]), extra, False))
+            sil = make_silhouette(ops, spur=spur)
     jf = th.get("join_fill")
     if jf:                                    # fill the small notches where the artwork's flat bottom meets the (wider) name pill
         closed = sil.buffer(jf, join_style=1).buffer(-jf, join_style=1)
