@@ -584,17 +584,17 @@ THEMES["football"] = dict(
     motifs={
         "tag": dict(box=(120, 4, 530, 207), bg="flood", seal=["bottom"], scale=70 / 396, tab_x_px=330,
                     recolour_dark=[(408, 110, 454, 164, (30, 130, 60))],
-                    paint_poly=[("red", [(171, 144), (176, 149), (170, 160), (165, 170), (161, 168), (166, 152)]), ("red", [(164+int(13*__import__("math").cos(a/20*6.2832)), 141+int(13*__import__("math").sin(a/20*6.2832))) for a in range(20)]), ("white", _star7(164, 141, 9, 4.4))],
-                    flag_ring=[(126, 98, 228, 180, 3, 7, (170, 170, 175))]),   # the flag star: seven points, white   # all original details kept; the black boot turns green (white would be flooded as background) so it shows on the black backing
+                    paint_poly=[("red", [(171, 144), (176, 149), (170, 160), (165, 170), (161, 168), (166, 152)]), ("red", [(164+int(13*__import__("math").cos(a/20*6.2832)), 141+int(13*__import__("math").sin(a/20*6.2832))) for a in range(20)]), ("white", _star7(164, 141, 9, 4.4))]),   # the flag star: seven points, white   # all original details kept; the black boot turns green (white would be flooded as background) so it shows on the black backing
         "bottle": dict(box=(608, 34, 920, 232), bg="flood", seal=["bottom"], scale=48 / 312, tab_x_px=760),
         "pencil_l": dict(box=(418, 30, 494, 110), bg="flood", scale=0.14),   # the ball replaces the whistle
         "pencil_r": dict(box=(796, 436, 914, 538), bg="flood", scale=0.10),
         "ruler_l": dict(box=(124, 436, 262, 548), bg="flood", scale=0.20),
         "ruler_r": dict(box=(900, 388, 1010, 538), bg="flood", scale=0.20, erase=[(946, 466, 970, 540), (900, 385, 928, 540)],
-                        paint_poly=[("red", [(939+int(12*__import__("math").cos(a/20*6.2832)), 420+int(12*__import__("math").sin(a/20*6.2832))) for a in range(20)]), ("white", _star7(939, 420, 8.5, 4.2))],
-                        flag_ring=[(922, 388, 1010, 468, 3, 7, (170, 170, 175))]),
+                        paint_poly=[("red", [(939+int(12*__import__("math").cos(a/20*6.2832)), 420+int(12*__import__("math").sin(a/20*6.2832))) for a in range(20)]), ("white", _star7(939, 420, 8.5, 4.2))]),
     },
 )
+THEMES["football"]["flag_rings"] = [dict(motif="tag", box=(2.0, 3.0, 19.8, 18.0), gap=0.7, width=1.0, colour="white", max_area=170),
+                                   dict(motif="ruler_r", box=(4.5, 13.0, 23.0, 30.0), gap=0.7, width=1.0, colour="white", max_area=170)]
 THEMES["football"].update(tab_under_art=False, sil_close=9.0, tag_fit=dict(hmin=62.0, hmax=76.0, wmax=76.0))
 
 # Football with black and white swapped: white backing + white lettering ring, black letters and black artwork lines on top

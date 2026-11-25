@@ -34,6 +34,26 @@ def load_motifs(theme):
                 if c != z["dst"]:
                     layers[c] = shapely.set_precision(layers[c].buffer(0).difference(moved), 0.002)
             layers[z["dst"]] = shapely.set_precision(unary_union([layers[z["dst"]].buffer(0), moved]) if z["dst"] in layers else moved, 0.002)
+        for z in th.get("flag_rings", []):                    # smooth border drawn in code: [art] [gap of backing] [ring of `colour`] around everything inside the zone
+            if z["motif"] != name:
+                continue
+            zone = box(*z["box"])
+            parts = []
+            for c in layers:
+                for p in (layers[c].buffer(0).geoms if hasattr(layers[c].buffer(0), "geoms") else [layers[c].buffer(0)]):
+                    if p.is_empty:
+                        continue
+                    if z.get("black") == c:                    # the dark stripe shares its colour with the backing: take only what lies inside the zone
+                        parts.append(p.intersection(zone))
+                    elif zone.contains(p.centroid) and p.area < z.get("max_area", 400):
+                        parts.append(p)
+            body = unary_union([p for p in parts if not p.is_empty]).buffer(1.2, join_style=1).buffer(-1.2, join_style=1)
+            inner = body.buffer(z["gap"], join_style=1)
+            ring = body.buffer(z["gap"] + z["width"], join_style=1).difference(inner)
+            ring = ring.buffer(-0.25, join_style=1).buffer(0.25, join_style=1)
+            for c in list(layers):
+                layers[c] = shapely.set_precision(layers[c].buffer(0).difference(ring), 0.002)
+            layers[z["colour"]] = shapely.set_precision(unary_union([layers[z["colour"]].buffer(0), ring]) if z["colour"] in layers else ring, 0.002)
         for src, dst in th.get("remap", {}).items():          # fewer-colour variants merge colours
             if src in layers:
                 layers[dst] = unary_union([layers[dst], layers[src]]) if dst in layers else layers[src]
