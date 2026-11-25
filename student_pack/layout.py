@@ -264,9 +264,9 @@ def _tag(theme, name, kind, width, cap_h):
     sc = th.get("sil_close")
     if sc:                                    # fill narrow slits / notches of the outline (radius mm) with the outline colour: no gaps between ears, hearts and head
         closed = sil.buffer(sc, join_style=1).buffer(-sc, join_style=1)
-        extra = closed.difference(sil)
+        extra = closed  # the whole closed shape goes UNDER the artwork (inserted first), so no art colour is ever covered by it
         if not extra.is_empty:
-            ops.append(((th.get("edge_snap") or {}).get("colour", th["outline"]), extra, False))
+            ops.insert(0, ((th.get("edge_snap") or {}).get("colour", th["outline"]), extra, False))
             sil = make_silhouette(ops, spur=spur)
     jf = th.get("join_fill")
     if jf:                                    # fill the small notches where the artwork's flat bottom meets the (wider) name pill

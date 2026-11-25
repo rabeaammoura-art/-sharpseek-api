@@ -6,7 +6,7 @@ from matplotlib.path import Path as MPath
 from matplotlib.patches import PathPatch
 
 HEX = {"black": "#1C1C1C", "yellow": "#F6BA1C", "orange": "#FA7614", "white": "#FCFCFC",
-       "pink": "#EC307A", "lpink": "#FAA8C8", "purple": "#7B3FA0", "blue": "#2F6FD0", "red": "#D62B2B", "cyan": "#14B8D4", "brown": "#7A4A2B"}
+       "pink": "#EC307A", "lpink": "#FAA8C8", "purple": "#7B3FA0", "blue": "#2F6FD0", "red": "#D62B2B", "cyan": "#14B8D4", "brown": "#7A4A2B", "green": "#2E9E4F"}
 
 
 def _patch(poly, color):

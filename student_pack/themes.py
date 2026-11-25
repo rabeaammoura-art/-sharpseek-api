@@ -558,6 +558,33 @@ THEMES["mcqueen"] = dict(
 )
 THEMES["mcqueen"].update(tab_under_art=False, tag_fit=dict(hmin=62.0, hmax=76.0, wmax=76.0))
 
+# Football (Jordan flag colours): generic footballer, not a registered character, so this one may be sold.  Sheet 1024 x 577, 4 colours: black / red / green / white (gold items print white)
+THEMES["football"] = dict(
+    THEMES["kitty"],
+    label="Football (Jordan flag colours), black / red / green / white",
+    private=False,
+    art="art/source_art_football.png",
+    outline="black",
+    palette={"black": ((10, 10, 10), "black"), "dark": ((60, 45, 40), "black"), "hair": ((130, 80, 50), "black"),
+             "red": ((200, 30, 40), "red"), "dred": ((150, 25, 30), "red"),
+             "green": ((30, 130, 60), "green"), "dgreen": ((20, 90, 45), "green"),
+             "white": ((253, 253, 253), "white"), "skin": ((235, 190, 150), "white"), "gold": ((225, 175, 30), "white"), "grey": ((170, 170, 175), "white"), "lgrey": ((220, 220, 225), "white")},
+    filament_rgb={"white": "#F2F2F2", "red": "#D32F2F", "green": "#2E9E4F", "black": "#1C1C1C"},
+    heights={"black": 2.2, "red": 2.8, "green": 2.8, "white": 3.2},
+    text_rings=[("black", 3.0)],
+    slots=["white", "red", "green", "black"],
+    ruler=dict(THEMES["princess"]["ruler"], band="black", body="black", rim="red"),
+    motifs={
+        "tag": dict(box=(134, 4, 530, 207), bg="flood", seal=["bottom"], scale=70 / 396, tab_x_px=330),   # all original details kept
+        "bottle": dict(box=(608, 34, 920, 232), bg="flood", seal=["bottom"], scale=48 / 312, tab_x_px=760),
+        "pencil_l": dict(box=(418, 30, 494, 110), bg="flood", scale=0.14),   # the ball replaces the whistle
+        "pencil_r": dict(box=(796, 436, 914, 538), bg="flood", scale=0.10),
+        "ruler_l": dict(box=(124, 436, 262, 548), bg="flood", scale=0.20),
+        "ruler_r": dict(box=(900, 388, 1010, 538), bg="flood", scale=0.20, erase=[(946, 466, 970, 540)]),
+    },
+)
+THEMES["football"].update(tab_under_art=False, sil_close=9.0, tag_fit=dict(hmin=62.0, hmax=76.0, wmax=76.0))
+
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
 
