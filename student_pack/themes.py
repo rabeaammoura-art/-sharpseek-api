@@ -524,6 +524,12 @@ THEMES["spongebob"] = dict(
 )
 THEMES["spongebob"].update(tab_under_art=False)
 
+# every customer / private tag is scaled to a similar size (height kept between 62 and 76 mm, width up to 76 mm), so the packs look consistent
+for _k in ("princess", "unicorn_purple", "unicorn_black", "unicorn_yellow", "unicorn_pink", "unicorn_pinkframe", "kitty", "kitty_redframe", "kitty_cyanframe",
+           "minnie", "minnie_gpt", "princess_girl", "princess_girl_purple", "spongebob"):
+    if _k in THEMES:
+        THEMES[_k]["tag_fit"] = dict(hmin=62.0, hmax=76.0, wmax=76.0)
+
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
 

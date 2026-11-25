@@ -299,7 +299,24 @@ def _tag(theme, name, kind, width, cap_h):
 
 
 def tag(theme, name):
-    return _tag(theme, name, "tag", 70.0, 13.0)
+    fit = THEMES[theme].get("tag_fit")
+    if not fit:
+        return _tag(theme, name, "tag", 70.0, 13.0)
+    # keep every tag close in size: width 70 mm by default; too tall (> hmax) -> narrower, too short (< hmin) -> wider (up to wmax)
+    w = 70.0
+    for _ in range(5):
+        p = _tag(theme, name, "tag", w, 13.0)
+        h = p.size[1]
+        if h > fit["hmax"]:
+            nw = w * fit["hmax"] / h
+        elif h < fit["hmin"]:
+            nw = min(fit["wmax"], w * fit["hmin"] / h)
+        else:
+            break
+        if abs(nw - w) < 0.2:
+            break
+        w = nw
+    return _tag(theme, name, "tag", w, 13.0)
 
 
 def bottle(theme, name):
