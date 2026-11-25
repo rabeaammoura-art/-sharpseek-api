@@ -84,6 +84,13 @@ def trace_motif(img, theme, spec):
     erase_rgb = 255 if spec["bg"] == "flood" else [v for k, (v, p) in palette.items() if p == spec["bg"]][0]
     for ex0, ey0, ex1, ey1 in spec.get("erase", []):
         crop[max(0, ey0 - y0):max(0, ey1 - y0), max(0, ex0 - x0):max(0, ex1 - x0)] = erase_rgb
+    for mx0, my0, mx1, my1, dx, dy in spec.get("move", []):   # lift an item out of the sheet (px, source coords) and put it back shifted by (dx, dy), BEHIND whatever is already there
+        patch = crop[my0 - y0:my1 - y0, mx0 - x0:mx1 - x0].copy()
+        crop[my0 - y0:my1 - y0, mx0 - x0:mx1 - x0] = erase_rgb
+        ys_, xs_ = np.nonzero(patch.min(axis=2) < 235)
+        for yy, xx in zip(ys_ + my0 - y0 + dy, xs_ + mx0 - x0 + dx):
+            if 0 <= yy < crop.shape[0] and 0 <= xx < crop.shape[1] and crop[yy, xx].min() >= 235:
+                crop[yy, xx] = patch[yy - dy - (my0 - y0), xx - dx - (mx0 - x0)]
     for pts in spec.get("erase_poly", []):            # free-form erase (px, source coords)
         cv2.fillPoly(crop, [np.array([(x - x0, y - y0) for x, y in pts], np.int32)], (255, 255, 255) if erase_rgb == 255 else erase_rgb)
     for color, pts in spec.get("paint_poly", []):      # free-form paint (px, source coords)

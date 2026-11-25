@@ -546,7 +546,9 @@ THEMES["mcqueen"] = dict(
     slots=["white", "red", "yellow", "black"],
     ruler=dict(THEMES["princess"]["ruler"], band="black", body="black", rim="red"),
     motifs={
-        "tag": dict(box=(145, 6, 528, 207), bg="flood", seal=["bottom"], scale=70 / 383, tab_x_px=335),
+        "tag": dict(box=(145, 6, 528, 207), bg="flood", seal=["bottom"], scale=70 / 383, tab_x_px=335,
+                    erase=[(312, 4, 360, 76), (140, 104, 204, 180), (462, 110, 528, 180)],
+                    move=[(170, 18, 266, 127, 0, 12), (266, 18, 290, 90, 0, 12)]),   # the top bolt (under the loop) and the two floating side bolts,
         "bottle": dict(box=(608, 78, 932, 228), bg="flood", seal=["bottom"], scale=48 / 324, tab_x_px=745),
         "pencil_l": dict(box=(144, 110, 200, 178), bg="flood", scale=0.16),
         "pencil_r": dict(box=(764, 440, 852, 546), bg="flood", scale=0.12),
