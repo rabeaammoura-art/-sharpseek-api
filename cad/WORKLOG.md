@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-25 (cloud) — iPhone 11 PM v5: pink TPU body, logo flush in the first layer, exact pocket
+- Owner: the downloaded case fits EXACTLY (do not tighten: zero clearance stays) and he does not want to print clear TPU: case body pink (TPU slot 1, `"body_colour"`), logo flush in the first layers (no clear cover, no pink sheet). Config `cad/phones/iphone11pm_pink.json`.
+- print_test 0 problems; CLI 1h04m, 31.6 g (TPU 29.6, navy 1.3, orange 0.7), ~0.37 JOD with the owner's landed prices. Assumes he has pink TPU (not confirmed).
+- The sealed + pink-sheet style (v4) stays for the Honor (clear TPU). Honor logo +7 mm still unanswered.
+
 ## 2026-11-25 (cloud) — iPhone 11 Pro Max in OUR design (dimensions from the owner's downloaded case, not its mesh)
 - Owner: the downloaded 11 PM case (his print, "dimensions excellent") has a completely different design; take only its dimensions and build with our generator. Measured from its mesh (ray casting + back-face mask): pocket 77.8 wide x ~157.9 long (= Apple spec 77.8 x 158.0), corner radius ~11, camera cutout 33.3 x 35.4 at E 1.8 / F 2.1 from the phone edges, wall openings: left (seen from back) 37.5-52.0 mm from the top = power; right 20.5-55.5 in three slots = silent switch + volume; bottom x 11.4-58.9 = speakers + Lightning + mic. Pocket clearance 0.0 (that fit was perfect in TPU).
 - `cad/phones/iphone11pm.json` + `iphone11pm_v4.json` (logo sealed under the first TPU layer, pink sheet around it, logo centre 85 mm from the top end = where the owner moved it, estimated from his photo +-3). Generator got a "right" notch. Notches are full openings (open to the top) like the Honor.
