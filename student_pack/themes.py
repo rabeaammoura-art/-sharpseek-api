@@ -530,6 +530,32 @@ for _k in ("princess", "unicorn_purple", "unicorn_black", "unicorn_yellow", "uni
     if _k in THEMES:
         THEMES[_k]["tag_fit"] = dict(hmin=62.0, hmax=76.0, wmax=76.0)
 
+# Lightning-McQueen-style race car (PRIVATE, personal gift: registered character, never sold, never published): art in art_private/ (not in git)
+THEMES["mcqueen"] = dict(
+    THEMES["kitty"],
+    label="Race car (private: personal gift), black / red / yellow / white",
+    art="art_private/mcqueen.png",
+    outline="black",
+    palette={"black": ((0, 0, 0), "black"), "dark": ((60, 40, 40), "black"), "brown": ((140, 90, 40), "black"),
+             "red": ((215, 30, 35), "red"), "dred": ((150, 20, 20), "red"), "pink": ((235, 120, 120), "red"),
+             "white": ((253, 253, 253), "white"), "lgrey": ((215, 215, 220), "white"), "grey": ((140, 140, 145), "white"), "lblue": ((170, 205, 235), "white"),
+             "yellow": ((250, 200, 40), "yellow"), "gold": ((210, 150, 20), "yellow")},
+    filament_rgb={"white": "#F2F2F2", "red": "#D32F2F", "yellow": "#F6BA1C", "black": "#1C1C1C"},
+    heights={"black": 2.2, "red": 2.8, "yellow": 2.8, "white": 3.2},
+    text_rings=[("black", 3.0)],
+    slots=["white", "red", "yellow", "black"],
+    ruler=dict(THEMES["princess"]["ruler"], band="black", body="black", rim="red"),
+    motifs={
+        "tag": dict(box=(145, 6, 528, 207), bg="flood", seal=["bottom"], scale=70 / 383, tab_x_px=335),
+        "bottle": dict(box=(608, 78, 932, 228), bg="flood", seal=["bottom"], scale=48 / 324, tab_x_px=745),
+        "pencil_l": dict(box=(144, 110, 200, 178), bg="flood", scale=0.16),
+        "pencil_r": dict(box=(764, 440, 852, 546), bg="flood", scale=0.12),
+        "ruler_l": dict(box=(104, 438, 328, 547), bg="flood", scale=0.20),
+        "ruler_r": dict(box=(760, 436, 950, 547), bg="flood", scale=0.20),
+    },
+)
+THEMES["mcqueen"].update(tab_under_art=False, tag_fit=dict(hmin=62.0, hmax=76.0, wmax=76.0))
+
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
 
