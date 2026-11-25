@@ -107,6 +107,12 @@ def trace_motif(img, theme, spec):
         big = 2 * hw + 4                                      # around the thick dark parts (the black stripe) the ring must be wide enough to print
         ring |= cv2.dilate(thick.astype(np.uint8), cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * big + 1, 2 * big + 1))) > 0
         sub[ring & ~body] = hrgb
+    for ipath, ix0, iy0, ix1, iy1 in spec.get("insert", []):      # paste an RGBA picture (alpha = shape) into the box (px, source coords)
+        ins = Image.open(HERE / ipath).convert("RGBA").resize((ix1 - ix0, iy1 - iy0), Image.LANCZOS)
+        a = np.array(ins)
+        dst = crop[iy0 - y0:iy1 - y0, ix0 - x0:ix1 - x0]
+        m = a[..., 3] > 127
+        dst[m] = a[..., :3][m]
     for rx0, ry0, rx1, ry1, rgb in spec.get("recolour_dark", []):   # dark pixels inside the box (px, source coords) get this colour (e.g. a black boot that would vanish into the black backing)
         sub = crop[ry0 - y0:ry1 - y0, rx0 - x0:rx1 - x0]
         sub[sub.max(axis=2) < 90] = rgb
