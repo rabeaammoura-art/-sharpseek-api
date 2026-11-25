@@ -600,6 +600,23 @@ THEMES["football_inv"] = dict(
     ruler=dict(_fb["ruler"], band="white", body="white", rim="red", ticks="black"),
 )
 
+# Football on a WHITE backing: the artwork keeps its colours and gets a drawn black outline (art_ring) around the face, flag, ball ...; letters black
+THEMES["football_white"] = dict(
+    _fb,
+    label="Football, white backing with black outlines",
+    outline="white",
+    letters="black",
+    heights={"white": 2.2, "red": 2.8, "green": 2.8, "black": 2.8},
+    text_rings=[("white", 3.0)],
+    slots=["white", "red", "green", "black"],
+    ruler=dict(_fb["ruler"], band="white", body="white", rim="red", ticks="black"),
+    art_ring=dict(colour="black", width=1.0, colours=["white", "red", "green"]),
+)
+import copy as _copy
+THEMES["football_white"]["motifs"] = _copy.deepcopy(_fb["motifs"])
+THEMES["football_white"]["motifs"]["tag"]["erase"] = [(382, 54, 426, 118), (390, 164, 432, 210)]   # the thin motion lines of the kick (they only clutter the outlined version)
+THEMES["football_white"]["motifs"]["pencil_l"]["box"] = (426, 30, 494, 110)   # ball without the motion lines
+
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
 

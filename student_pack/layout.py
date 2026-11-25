@@ -72,14 +72,20 @@ def _drop_small(g, min_area=2.0):
     return unary_union([p for p in _polys(g) if p.area >= min_area])
 
 
-def place(motif, x, y, scale=1.0, mirror=False):
-    """Motif layers -> [(colour, geom)] with the motif's lower-left corner at (x, y)."""
+def place(motif, x, y, scale=1.0, mirror=False, ring=None):
+    """Motif layers -> [(colour, geom)] with the motif's lower-left corner at (x, y).
+    ring = dict(colour=.., width=mm, colours=[..]): a ring of that colour around every region of the listed colours (laid UNDER the artwork,
+    so it only shows where a region borders the backing): gives faces / flags / balls a drawn outline on a light backing."""
     out = []
     for color, g in motif["layers"].items():
         if mirror:
             g = affinity.scale(g, -1, 1, origin=(motif["width"] / 2, 0))
         g = affinity.scale(g, scale, scale, origin=(0, 0))
         out.append((color, affinity.translate(g, x, y)))
+    if ring:
+        rings = [g.buffer(ring["width"], join_style=1).difference(g) for c, g in out if c in ring["colours"]]
+        under = [(ring["colour"], unary_union(rings))] if rings else []
+        out = under + out
     return out
 
 
@@ -244,7 +250,7 @@ def _tag(theme, name, kind, width, cap_h):
     letters = affinity.translate(letters, (width - lw) / 2 - R, 0)
     overlap = th.get("tag_overlap", 1.2)       # how far the name ring rises over the bottom of the artwork (mm)
     my = letters.bounds[3] + R - overlap
-    ops = [(c, g, False) for c, g in place(m, -cb[0] * ms, my - cb[1] * 0, ms)] + nops
+    ops = [(c, g, False) for c, g in place(m, -cb[0] * ms, my - cb[1] * 0, ms, ring=th.get("art_ring"))] + nops
     sm = th.get("smooth")
     if sm and kind in sm.get("pieces", ("tag", "bottle")):
         # round the sharp corners and little steps of the artwork around the hanging loop (closing then opening by r mm, only in that zone)
@@ -350,9 +356,9 @@ def pencil(theme, name, length=85.0, plate_h=24.0):
     yc = (letters.bounds[1] + letters.bounds[3]) / 2
     ops = []
     if left:
-        ops += [(c, g, False) for c, g in place(left, 0, yc - left["height"] * sl / 2, sl)]
+        ops += [(c, g, False) for c, g in place(left, 0, yc - left["height"] * sl / 2, sl, ring=th.get("art_ring"))]
     if right:
-        ops += [(c, g, False) for c, g in place(right, x_text + lw + 2 * R - overlap, yc - right["height"] * sr / 2, sr, mirror_right)]
+        ops += [(c, g, False) for c, g in place(right, x_text + lw + 2 * R - overlap, yc - right["height"] * sr / 2, sr, mirror_right, ring=th.get("art_ring"))]
     ops += nops
     pad = PENCIL_HOLE_D + 2 * 2.0                                      # always >= 2 mm wall each side of the tunnel
     capsule = box(1.0, yc - pad / 2 + 1.0, length - 1.0, yc + pad / 2 - 1.0).buffer(1.0, 16)
@@ -422,7 +428,7 @@ def ruler(theme, name):
         if not m_:
             continue
         y_ = zone_bot + (zone_h - m_["height"] * s_) / 2 if not stripe_h else zone_bot
-        placed = place(m_, x_, y_, s_)
+        placed = place(m_, x_, y_, s_, ring=th.get("art_ring"))
         if halo:
             ops.append((th["outline"], unary_union([g for _, g in placed]).buffer(halo, join_style=1), False))
         ops += [(c, g, False) for c, g in placed]
