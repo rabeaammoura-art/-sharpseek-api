@@ -84,6 +84,16 @@ def trace_motif(img, theme, spec):
     erase_rgb = 255 if spec["bg"] == "flood" else [v for k, (v, p) in palette.items() if p == spec["bg"]][0]
     for ex0, ey0, ex1, ey1 in spec.get("erase", []):
         crop[max(0, ey0 - y0):max(0, ey1 - y0), max(0, ex0 - x0):max(0, ex1 - x0)] = erase_rgb
+    for fx0, fy0, fx1, fy1, gap, wid, frgb in spec.get("flag_ring", []):   # smooth ring: [flag] [gap of backing] [ring of colour frgb] [backing]   (px)
+        sub = crop[max(0, fy0 - y0):fy1 - y0, max(0, fx0 - x0):fx1 - x0]
+        body = (sub.min(axis=2) < 235).astype(np.uint8)
+        k = lambda r: cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * r + 1, 2 * r + 1))
+        body = cv2.morphologyEx(body, cv2.MORPH_CLOSE, k(5))
+        inner = cv2.dilate(body, k(gap)) > 0
+        outer = cv2.dilate(body, k(gap + wid)) > 0
+        ring = outer & ~inner
+        ring = cv2.morphologyEx(ring.astype(np.uint8), cv2.MORPH_OPEN, k(1)) > 0
+        sub[ring & (sub.min(axis=2) >= 235)] = frgb
     for hx0, hy0, hx1, hy1, hw, hrgb in spec.get("halo", []):   # ring (hw px, colour hrgb) around everything that is not background inside the box
         sub = crop[hy0 - y0:hy1 - y0, hx0 - x0:hx1 - x0]
         nonbg = sub.min(axis=2) < 235
