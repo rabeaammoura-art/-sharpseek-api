@@ -188,6 +188,9 @@ def main(argv):
         if theme.get("procedural"):      # motifs drawn by code (see minnie_art.py), nothing to trace
             continue
         art = theme.get("art", ART)
+        if not (HERE / art).exists():     # private art (art_private/) is not in git
+            print(f"skip {tname}: {art} missing")
+            continue
         if art not in imgs:
             imgs[art] = np.asarray(Image.open(HERE / art).convert("RGB"))
         img = imgs[art]

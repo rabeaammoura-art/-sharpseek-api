@@ -498,6 +498,32 @@ THEMES["princess_girl_purple"] = dict(
     ruler=dict(THEMES["princess"]["ruler"], band="pink", body="pink", rim="yellow"),
 )
 
+# SpongeBob (PRIVATE, personal gift: registered character, never sold, never published): GPT sheet 1024 x 577 kept in art_private/ (not in git), 4 flat colours: black / yellow / brown / white
+THEMES["spongebob"] = dict(
+    THEMES["kitty"],
+    label="SpongeBob-style (private: personal gift), black / yellow / brown / white",
+    art="art_private/spongebob.png",
+    outline="black",
+    palette={"black": ((7, 3, 3), "black"), "dark": ((56, 46, 38), "black"), "brown": ((108, 87, 69), "brown"), "grey": ((136, 140, 127), "brown"),
+             "bun": ((206, 158, 76), "yellow"), "yellow": ((243, 210, 50), "yellow"), "pale": ((234, 209, 113), "yellow"), "amber": ((240, 180, 20), "yellow"), "olive": ((150, 150, 60), "yellow"),
+             "white": ((253, 253, 253), "white"), "lgrey": ((223, 217, 217), "white"), "pinkish": ((199, 168, 179), "white"), "pink": ((235, 130, 170), "white"),
+             "blue": ((60, 110, 190), "black"), "lblue": ((120, 180, 225), "white"), "red": ((200, 30, 40), "brown"), "cheek": ((225, 150, 70), "yellow")},
+    filament_rgb={"white": "#F2F2F2", "yellow": "#F6BA1C", "brown": "#7A4A2B", "black": "#1C1C1C"},
+    heights={"black": 2.2, "brown": 2.8, "yellow": 2.8, "white": 3.2},
+    text_rings=[("black", 3.0)],
+    slots=["white", "yellow", "brown", "black"],
+    ruler=dict(THEMES["princess"]["ruler"], band="black", body="black", rim="yellow"),
+    motifs={
+        "tag": dict(box=(140, 14, 516, 222), bg="flood", seal=["bottom"], scale=70 / 376, tab_x_px=335),
+        "bottle": dict(box=(596, 8, 905, 240), bg="flood", seal=["bottom"], scale=48 / 309, tab_x_px=745),
+        "pencil_l": dict(box=(178, 312, 340, 420), bg="flood", scale=0.12, erase=[(270, 330, 340, 341), (270, 402, 340, 412)]),
+        "pencil_r": dict(box=(726, 312, 884, 414), bg="flood", scale=0.12, erase=[(726, 330, 800, 341), (726, 404, 800, 414)]),
+        "ruler_l": dict(box=(128, 436, 332, 547), bg="flood", scale=0.20),
+        "ruler_r": dict(box=(744, 410, 916, 547), bg="flood", scale=0.20, erase=[(744, 424, 826, 440)]),
+    },
+)
+THEMES["spongebob"].update(tab_under_art=False)
+
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
 
