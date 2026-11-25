@@ -702,6 +702,21 @@ THEMES["spiderman_w"] = dict(
 )
 THEMES["spiderman_w"]["webs"] = [dict(z, colour="black") for z in THEMES["spiderman_g"]["webs"]]
 
+# Spider-hero on a NAVY backing: the original design with the black replaced by dark blue
+THEMES["spiderman_n"] = dict(
+    THEMES["spiderman_g"],
+    label="Spider-hero (private), navy backing",
+    outline="navy",
+    remap={"black": "navy"},
+    palette={k: (v[0], "navy" if v[1] == "black" else v[1]) for k, v in THEMES["spiderman_g"]["palette"].items()},
+    heights={"navy": 2.2, "red": 2.8, "blue": 2.8, "white": 3.2},
+    text_rings=[("navy", 3.0)],
+    filament_rgb={"white": "#F2F2F2", "red": "#D32F2F", "blue": "#1E5BD8", "navy": "#17358F"},
+    slots=["white", "red", "blue", "navy"],
+    ruler=dict(THEMES["princess"]["ruler"], band="navy", body="navy", rim="blue"),
+)
+THEMES["spiderman_n"].pop("ink_only", None)
+
 BASE_THEMES = [k for k, v in THEMES.items() if "variant_of" not in v and not v.get("private")]   # sold themes (catalog, site, orders)
 PRIVATE_THEMES = [k for k, v in THEMES.items() if v.get("private")]
 
