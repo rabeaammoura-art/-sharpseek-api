@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-26 (cloud) — back to OUR rose coaster; clarity values now written into every file
+- Owner: stop fixing the other file, work on ours (`coaster_R_roses_black`). Found our 3MFs also carried ensure_vertical_shell_thickness = enabled (CLI prep default; our CLI checks used --set, the GUI reads the file). `clear_tpu_settings.py` now writes all clarity process values into the file (aligned rectilinear everywhere, 1/1 shells, thickness 0, ensure none, ironing). `coaster_R_roses_black_v3.3mf` sent: Textured PEI kept (owner), 0 crossed layers from its own settings, CLI 1h59m.
+- Older files sent before today have ensure = enabled inside: re-run them through clear_tpu_settings if reprinted.
+
 ## 2026-11-26 (cloud) — owner's rose coaster: print photo diagnosis, v4
 - Owner: colours not clear vs our files. Measured: in his file 11 % of the black ink is < 0.7 mm (8 % < 0.5), ours 0 %. Printed photo (his v2): crossed grid visible (ensure_vertical_shell_thickness was on), fuzzy/lacy black edges and a hollow-looking R (thin strokes + Textured PEI frosting the 0.4 mm face), leaves came out black (olive slot probably mapped to a black spool).
 - v4 (chat only): thin ink parts thickened (+0.18 mm on the thin bits only, black thin share 11 -> 5 %), rounded TPU, ensure_vertical none, purge matrix 32, Textured PEI kept as asked; slices, 0 crossed layers, CLI 1h53m. Advised Smooth PEI as the biggest clarity gain.
