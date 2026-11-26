@@ -104,7 +104,7 @@ def main_white(a):
         geo["olive"] = geo["olive"].difference(fill.buffer(0.6)); geo["brown"] = geo["brown"].difference(fill.buffer(0.6))
     if not a.rose_pic:
         geo["crimson"] = geo["crimson"].difference(swirls).buffer(-0.3, 8).buffer(0.3, 8)
-    if a.black:   # owner 2026-11-26: swirls black (not clear) and the letter black too -> one black slot
+    if a.black and not a.clear_lines:   # owner 2026-11-26: swirls black (not clear) and the letter black too -> one black slot
         geo["purple"] = geo["purple"].union(swirls.buffer(-0.02).buffer(0.02))
     print(f"roses with a drawn swirl: {len(roses)} (R {', '.join(f'{np.sqrt(q.area / np.pi):.1f}' for q in roses)} mm)")
     geo["brown"] = geo["brown"].buffer(0.22, 16).buffer(0.35, 16).buffer(-0.35, 16).buffer(-0.25, 16).buffer(0.25, 16).simplify(0.03)
@@ -147,6 +147,7 @@ def main():
     ap.add_argument("--purple", action="store_true", help="letter + berries purple instead of black / olive")
     ap.add_argument("--rose-pic", help="with --white: replace each rose by the head of this black rose stencil picture")
     ap.add_argument("--rose-scale", type=float, default=1.7, help="rose size vs the picture's roses")
+    ap.add_argument("--clear-lines", action="store_true", help="rose petal lines clear (TPU) even with --black (letter stays black)")
     ap.add_argument("--black", action="store_true", help="with --white: letter + rose swirls black (swirls otherwise clear)")
     ap.add_argument("--white", action="store_true", help="design on a WHITE background (no circle): purple letter, crimson "
                     "roses, olive leaves, brown stems (owner 2026-11-26); the whole design is fitted inside the coaster")
