@@ -111,6 +111,9 @@ def main_white(a):
         geo["crimson"] = geo["crimson"].buffer(-0.2, 8).buffer(0.2, 8)
         swirls = lines
         geo["olive"] = geo["olive"].difference(fill.buffer(0.6)); geo["brown"] = geo["brown"].difference(fill.buffer(0.6))
+        if a.rose_black:   # owner 2026-11-26: open roses black (same slot as the letter), buds stay crimson
+            bloom = geo["crimson"].intersection(fill.buffer(0.05))
+            geo["purple"] = geo["purple"].union(bloom); geo["crimson"] = geo["crimson"].difference(fill.buffer(0.05))
     if not a.rose_pic:
         geo["crimson"] = geo["crimson"].difference(swirls).buffer(-0.3, 8).buffer(0.3, 8)
     if a.black and not a.clear_lines:   # owner 2026-11-26: swirls black (not clear) and the letter black too -> one black slot
@@ -155,6 +158,7 @@ def main():
     ap.add_argument("picture"); ap.add_argument("--out", required=True); ap.add_argument("--stl", action="store_true")
     ap.add_argument("--purple", action="store_true", help="letter + berries purple instead of black / olive")
     ap.add_argument("--rose-pic", help="with --white: replace each rose by the head of this black rose stencil picture")
+    ap.add_argument("--rose-black", action="store_true", help="open roses in the letter's colour (black with --black)")
     ap.add_argument("--rose-head-only", action="store_true", help="the rose picture is already cropped to the head")
     ap.add_argument("--rose-scale", type=float, default=1.7, help="rose size vs the picture's roses")
     ap.add_argument("--clear-lines", action="store_true", help="rose petal lines clear (TPU) even with --black (letter stays black)")

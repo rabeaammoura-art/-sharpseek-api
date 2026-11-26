@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-26 (cloud) — rose coaster: black roses
+- Owner: roses black. `--rose-black`: open roses go to the letter's slot (black), clear petal lines kept, buds stay crimson. print_test 0 problems, 0 crossed layers, CLI 2h02m / 33 g. `coaster_R_rose_black.3mf` sent. Crimson is now only the 7 buds: if they go black too, the slot (and its colour swaps) can be dropped.
+
 ## 2026-11-26 (cloud) — rose coaster: sharp 1254 px rose (owner), clear lines
 - The screenshot rose (185 px) printed jagged; owner sent a sharp 1254 px bold rose (thick even white lines, not in git). `rose_template` for big pictures: up=1, smooth 1.0, closing radius 3 % of the width, no sepal trim. Clear lines grown only to ~0.7 mm (+0.15 per side; +0.25 cut the petals into bits), crimson opening 0.2.
 - Flat true-colour previews (STL sections) instead of the shadowed render (owner asked what the grey shadows were: render lamp only). print_test 0 problems, Textured PEI, 0 crossed layers, CLI 2h02m / 33 g. `coaster_R_rose_v2.3mf` sent.
