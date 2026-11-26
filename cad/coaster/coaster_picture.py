@@ -66,7 +66,10 @@ def main_white(a):
         spiral = LineString(np.c_[c.x + rr * np.cos(t), cy0 + 0.9 * rr * np.sin(t)])
         arcs = []
         cuts.append(spiral.buffer(0.35, 8).intersection(q.buffer(-0.55)))
-    geo["crimson"] = geo["crimson"].difference(unary_union(cuts)).buffer(-0.3, 8).buffer(0.3, 8)
+    swirls = unary_union(cuts)
+    geo["crimson"] = geo["crimson"].difference(swirls).buffer(-0.3, 8).buffer(0.3, 8)
+    if a.black:   # owner 2026-11-26: swirls black (not clear) and the letter black too -> one black slot
+        geo["purple"] = geo["purple"].union(swirls.buffer(-0.02).buffer(0.02))
     print(f"roses with a drawn swirl: {len(roses)} (R {', '.join(f'{np.sqrt(q.area / np.pi):.1f}' for q in roses)} mm)")
     geo["brown"] = geo["brown"].buffer(0.22, 16).buffer(0.35, 16).buffer(-0.35, 16).buffer(-0.25, 16).buffer(0.25, 16).simplify(0.03)
     taken = None
@@ -78,7 +81,11 @@ def main_white(a):
         t = gg.difference(gg.buffer(-0.35).buffer(0.35))
         print(f"{k}: {len(getattr(gg, 'geoms', [gg]))} pieces, {gg.area:.0f} mm2, under 0.7 mm {t.area:.2f} mm2")
     order = ["purple", "crimson", "olive", "brown"]
-    inks = [(k, coaster.extrude(geo[k].buffer(0), ct.Z0, ct.Z1), i) for i, k in enumerate(order, start=2)]
+    inks = [(k, coaster.extrude(geo[k].buffer(0.01, 4).buffer(-0.01, 4).simplify(0.01), ct.Z0, ct.Z1), i) for i, k in enumerate(order, start=2)]
+    for k, m, _ in inks:
+        if not m.is_volume:
+            m.merge_vertices(); m.update_faces(m.nondegenerate_faces()); m.fix_normals()
+        print(f"  ink {k}: volume ok={m.is_volume}")
     allink = trimesh.boolean.union([m for _, m, _ in inks], engine="manifold")
     tpu = trimesh.boolean.difference([ct.rounded_disc(), allink], engine="manifold")
     parts = [(n, coaster.mirror_x(m), s) for n, m, s in [("clear_tpu", tpu, 1)] + inks]
@@ -87,7 +94,8 @@ def main_white(a):
     from threemf import widen_filaments
     cfg = json.loads((HERE.parent / "config" / "bambu_project_4fil_petg.config").read_text())
     cfg = widen_filaments(cfg, 5, (HERE.parent / "config" / "bambu_project_settings.config").read_bytes())
-    cfg["filament_colour"] = ["#E8F1F5"] + [WHITE_COLS[k] for k in order]
+    cols = dict(WHITE_COLS, purple="#141414") if a.black else WHITE_COLS
+    cfg["filament_colour"] = ["#E8F1F5"] + [cols[k] for k in order]
     cfg["filament_map_mode"], cfg["filament_map"] = "Manual", ["2", "1", "1", "1", "1"]
     out = Path(a.out); out.parent.mkdir(parents=True, exist_ok=True)
     write_bambu_3mf(out, parts, (175.0, 160.0), out.stem, json.dumps(cfg, indent=4))
@@ -101,6 +109,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("picture"); ap.add_argument("--out", required=True); ap.add_argument("--stl", action="store_true")
     ap.add_argument("--purple", action="store_true", help="letter + berries purple instead of black / olive")
+    ap.add_argument("--black", action="store_true", help="with --white: letter + rose swirls black (swirls otherwise clear)")
     ap.add_argument("--white", action="store_true", help="design on a WHITE background (no circle): purple letter, crimson "
                     "roses, olive leaves, brown stems (owner 2026-11-26); the whole design is fitted inside the coaster")
     a = ap.parse_args()

@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-26 (cloud) — rose coaster: black R + black rose spirals
+- Owner: spirals black (not clear) and the R black too. `coaster_picture.py --white --black`: spirals added to the letter's slot, colour #141414; ink outlines cleaned (buffer 0.01 + simplify) because the merged black shape was not a closed volume. print_test 0 problems, 0 crossed layers, CLI 1h57m / 30.7 g. `coaster_R_roses_black.3mf` sent in chat.
+
 ## 2026-11-26 (cloud) — rose coaster: roses must look like damask roses (جوري)
 - Solid rose blobs rejected. Tracing the picture's dark swirl bands (~1 mm in a ~10 mm rose) ate the roses; arcs + spiral looked like smiley faces. Final: each open rose (4, R 4.6-5.2 mm) gets one drawn spiral (1.75 turns) cut as a 0.7 mm CLEAR line, ~1.2 mm crimson bands. Buds unchanged.
 - print_test 0 problems, 0 crossed layers, CLI 1h57m / 30.5 g. `coaster_R_roses_jouri.3mf` sent in chat.
