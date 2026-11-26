@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-26 (cloud) — rose coaster v-final: bold stencil rose, CLEAR petal lines
+- Owner picked (on my advice) the bold "Rose Black And White Vector" stencil (fewer, thicker white lines; screenshot crop, not in git) and wants the white lines CLEAR, R black. `--rose-pic head.png --rose-head-only --clear-lines`: picture padded white (a shape touching the crop edge did not close -> garbage), sepals/stem stub under the bloom cut off (looked like drips).
+- print_test 0 problems, Textured PEI (owner), ensure none, purge 50, 0 crossed layers, CLI 2h02m / 33 g. `coaster_R_rose_clear.3mf` sent. Stock image licence not checked (owner told).
+
 ## 2026-11-26 (cloud) — rose coaster with the stencil rose head (owner's pick)
 - Owner disliked the drawn spiral rose; marked the HEAD of a black rose stencil picture (300 px, not in git). `coaster_picture.py --rose-pic PIC [--rose-scale 1.7]`: head cut above the stem neck, all pieces kept, closed 6 px -> silhouette (crimson), white gaps -> black petal lines (thin ones grown to ~0.7 mm); each of the 4 roses replaced at 1.7x its size (~17 mm; at 13 mm the black swamped the petals); leaves/stems cleared 0.6 mm around.
 - print_test 0 problems, file settings: Textured PEI (owner), ensure none, purge 50; 0 crossed layers, CLI 2h01m / 33 g. One CLI run gave a bogus 64h55m / 2941 g again (known glitch, re-run fine). `coaster_R_roses_stencil.3mf` sent.

@@ -34,21 +34,28 @@ WHITE_COLS = {"purple": "#7B4FA0", "crimson": "#B0123F", "olive": "#8F8B3A", "br
 FIT_R = 43.5    # mm: farthest ink from the centre (TPU edge >= 4 mm)
 
 
-def rose_template(pic):
+def rose_template(pic, head_only=False):
     """rose HEAD of a black stencil picture (petals = white gaps): (filled silhouette, white gap lines) in px units, centred"""
     im = np.array(Image.open(pic).convert("L")).astype(float)
+    im = np.pad(im, 12, constant_values=255)        # white margin: a shape touching the picture edge must still close
     m = im < 90
     w = m.sum(1); rows = np.nonzero(w)[0]
     top = rows.min(); cut = top + int(0.45 * (rows.max() - top))     # head = upper part, above the leaves
     for y in range(top + 21, rows.max()):                             # first narrow row (neck of the stem) below the head
         if w[y] < 0.4 * w[top + 20:y].max() and y > top + 0.35 * (rows.max() - top):
             cut = y; break
-    head = m.copy(); head[cut:] = False
+    head = m.copy()
+    if not head_only:
+        head[cut:] = False
     g = coaster.mask_to_mm(head, im.shape[1] / 2, im.shape[0] / 2, 47.5, up=4, smooth=0.6, clean=False)   # 1 px -> 1 mm
     full = unary_union([q for q in getattr(g, "geoms", [g]) if q.area > 4])   # all head pieces (the white lines split it)
     fill = full.buffer(6, 16).buffer(-6, 16)                          # close the gaps -> silhouette
     from shapely.geometry import Polygon as _P
     fill = unary_union([_P(q.exterior) for q in getattr(fill, "geoms", [fill])])   # no holes
+    if head_only:   # drop the sepals / stem stub hanging under the bloom (they read as drips at 17 mm)
+        from shapely.geometry import box as _box
+        b = fill.bounds; keep = _box(b[0] - 1, b[1] + 0.17 * (b[3] - b[1]), b[2] + 1, b[3] + 1)
+        fill = fill.intersection(keep).buffer(-2, 16).buffer(2, 16); full = full.intersection(fill)
     lines = fill.difference(full).buffer(-0.5).buffer(0.5)
     c = fill.centroid
     return affinity.translate(fill, -c.x, -c.y), affinity.translate(lines, -c.x, -c.y)
@@ -88,7 +95,7 @@ def main_white(a):
         cuts.append(spiral.buffer(0.35, 8).intersection(q.buffer(-0.55)))
     swirls = unary_union(cuts)
     if a.rose_pic:   # owner 2026-11-26: real rose head from a stencil picture instead of the drawn spiral
-        tpl_fill, tpl_lines = rose_template(a.rose_pic)
+        tpl_fill, tpl_lines = rose_template(a.rose_pic, a.rose_head_only)
         new_fill, new_lines = [], []
         for q in roses:
             c = q.centroid; R = np.sqrt(q.area / np.pi) * a.rose_scale
@@ -146,6 +153,7 @@ def main():
     ap.add_argument("picture"); ap.add_argument("--out", required=True); ap.add_argument("--stl", action="store_true")
     ap.add_argument("--purple", action="store_true", help="letter + berries purple instead of black / olive")
     ap.add_argument("--rose-pic", help="with --white: replace each rose by the head of this black rose stencil picture")
+    ap.add_argument("--rose-head-only", action="store_true", help="the rose picture is already cropped to the head")
     ap.add_argument("--rose-scale", type=float, default=1.7, help="rose size vs the picture's roses")
     ap.add_argument("--clear-lines", action="store_true", help="rose petal lines clear (TPU) even with --black (letter stays black)")
     ap.add_argument("--black", action="store_true", help="with --white: letter + rose swirls black (swirls otherwise clear)")
