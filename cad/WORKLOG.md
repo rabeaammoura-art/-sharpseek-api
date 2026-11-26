@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-26 (cloud) — owner's Studio: "none" not accepted; filament slots swapped on open
+- Owner's (older) Bambu Studio GUI replaced ensure_vertical_shell_thickness "none" with "enabled". Values in the newer CLI: none / partial / enabled. Script now writes "partial"; with 1/1 shells even "enabled" gave 0 crossed layers. `coaster_R_rose_black4_v2.3mf` sent.
+- His screenshot showed slots as PLA Basic / Generic PETG (AMS sync): slot 1 must be re-set to TPU 95A HF (right nozzle) and the TPU values re-entered by hand (240 C, flow 1.05, fan 30-40 %) since re-picking the preset resets them. Suggest updating Studio.
+
 ## 2026-11-26 (cloud) — rose coaster: owner's exact rose (transparent PNG), buds black, 4 slots
 - Owner sent the exact rose to use (1254 px RGBA, transparent background, not in git). `rose_template` now composites transparency onto white (transparent pixels read as black before). `--buds-black`: buds to the black slot; empty colours are dropped from the file -> 4 slots (TPU, black, olive, brown).
 - print_test 0 problems, Textured PEI, ensure none, purge 32, 0 crossed layers, CLI 1h56m / 31.6 g. `coaster_R_rose_black4.3mf` sent. Tight centre lines merge into small dots at 17 mm.

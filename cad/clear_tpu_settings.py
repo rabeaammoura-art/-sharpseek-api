@@ -37,7 +37,8 @@ if a.colours:
 if not a.purge_only:   # process values the GUI must keep (the CLI prep writes its defaults here, e.g. ensure = enabled)
     c.update(sparse_infill_density="100%", sparse_infill_pattern="alignedrectilinear", internal_solid_infill_pattern="alignedrectilinear",
              top_surface_pattern="alignedrectilinear", bottom_surface_pattern="alignedrectilinear", top_shell_layers="1",
-             bottom_shell_layers="1", top_shell_thickness="0", bottom_shell_thickness="0", ensure_vertical_shell_thickness="none",
+             bottom_shell_layers="1", top_shell_thickness="0", bottom_shell_thickness="0", ensure_vertical_shell_thickness="partial",   # "none" is unknown to older Studio GUIs (owner 2026-11-26)
+            
              ironing_type="top", ironing_flow="10%", ironing_speed="20")
 # H2D = 2 nozzles: Bambu Studio GUI wants one n x n purge matrix PER NOZZLE (2 n n entries) and one multiplier per nozzle,
 # else "Purge volumes matrix do not match to the correct size!" (owner 2026-11-26, 5-filament coaster)
