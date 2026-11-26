@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-26 (cloud) — owner's rose coaster: print photo diagnosis, v4
+- Owner: colours not clear vs our files. Measured: in his file 11 % of the black ink is < 0.7 mm (8 % < 0.5), ours 0 %. Printed photo (his v2): crossed grid visible (ensure_vertical_shell_thickness was on), fuzzy/lacy black edges and a hollow-looking R (thin strokes + Textured PEI frosting the 0.4 mm face), leaves came out black (olive slot probably mapped to a black spool).
+- v4 (chat only): thin ink parts thickened (+0.18 mm on the thin bits only, black thin share 11 -> 5 %), rounded TPU, ensure_vertical none, purge matrix 32, Textured PEI kept as asked; slices, 0 crossed layers, CLI 1h53m. Advised Smooth PEI as the biggest clarity gain.
+
 ## 2026-11-26 (cloud) — owner's rose coaster file brought to our method (v3)
 - Compared his `coaster_rania_rose_black_v2.3mf` with our method: same layers 0.4/0.6/2.0, face down, clear settings; differences: sharp TPU edge, ensure_vertical_shell_thickness enabled, Textured PEI. Owner: keep Textured PEI, fix the rest.
 - v3 (chat only): TPU body rebuilt = `coaster_text.rounded_disc()` (r 0.6) minus his unchanged ink parts; ensure_vertical_shell_thickness none; purge matrix 32. Slices fine, 0 crossed layers, CLI 1h52m. The TPU mesh is watertight as written in the 3MF; an STL round trip (vertex merge) opens it, so print_test on STLs flags it.
