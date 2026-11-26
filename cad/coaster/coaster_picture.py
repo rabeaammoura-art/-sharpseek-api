@@ -34,6 +34,26 @@ WHITE_COLS = {"purple": "#7B4FA0", "crimson": "#B0123F", "olive": "#8F8B3A", "br
 FIT_R = 43.5    # mm: farthest ink from the centre (TPU edge >= 4 mm)
 
 
+def rose_template(pic):
+    """rose HEAD of a black stencil picture (petals = white gaps): (filled silhouette, white gap lines) in px units, centred"""
+    im = np.array(Image.open(pic).convert("L")).astype(float)
+    m = im < 90
+    w = m.sum(1); rows = np.nonzero(w)[0]
+    top = rows.min(); cut = top + int(0.45 * (rows.max() - top))     # head = upper part, above the leaves
+    for y in range(top + 21, rows.max()):                             # first narrow row (neck of the stem) below the head
+        if w[y] < 0.4 * w[top + 20:y].max() and y > top + 0.35 * (rows.max() - top):
+            cut = y; break
+    head = m.copy(); head[cut:] = False
+    g = coaster.mask_to_mm(head, im.shape[1] / 2, im.shape[0] / 2, 47.5, up=4, smooth=0.6, clean=False)   # 1 px -> 1 mm
+    full = unary_union([q for q in getattr(g, "geoms", [g]) if q.area > 4])   # all head pieces (the white lines split it)
+    fill = full.buffer(6, 16).buffer(-6, 16)                          # close the gaps -> silhouette
+    from shapely.geometry import Polygon as _P
+    fill = unary_union([_P(q.exterior) for q in getattr(fill, "geoms", [fill])])   # no holes
+    lines = fill.difference(full).buffer(-0.5).buffer(0.5)
+    c = fill.centroid
+    return affinity.translate(fill, -c.x, -c.y), affinity.translate(lines, -c.x, -c.y)
+
+
 def main_white(a):
     img = np.array(Image.open(a.picture).convert("RGB")).astype(float)
     names = list(WHITE_PALETTE)
@@ -67,7 +87,23 @@ def main_white(a):
         arcs = []
         cuts.append(spiral.buffer(0.35, 8).intersection(q.buffer(-0.55)))
     swirls = unary_union(cuts)
-    geo["crimson"] = geo["crimson"].difference(swirls).buffer(-0.3, 8).buffer(0.3, 8)
+    if a.rose_pic:   # owner 2026-11-26: real rose head from a stencil picture instead of the drawn spiral
+        tpl_fill, tpl_lines = rose_template(a.rose_pic)
+        new_fill, new_lines = [], []
+        for q in roses:
+            c = q.centroid; R = np.sqrt(q.area / np.pi) * a.rose_scale
+            b = tpl_fill.bounds; k = 2 * R / max(b[2] - b[0], b[3] - b[1])
+            place = lambda g: affinity.translate(affinity.scale(g, k, k, origin=(0, 0)), c.x, c.y)
+            f = place(tpl_fill); ln0 = place(tpl_lines)
+            ln = ln0.union(ln0.difference(ln0.buffer(-0.35, 8).buffer(0.35, 8)).buffer(0.25, 8))   # only thin lines grow, to ~0.7 mm
+            new_fill.append(f); new_lines.append(ln.intersection(f.buffer(-0.3)))
+        fill = unary_union(new_fill); lines = unary_union(new_lines).buffer(0.0)
+        geo["crimson"] = geo["crimson"].difference(unary_union([r.buffer(0.2) for r in roses])).union(fill).difference(lines)
+        geo["crimson"] = geo["crimson"].buffer(-0.25, 8).buffer(0.25, 8)
+        swirls = lines
+        geo["olive"] = geo["olive"].difference(fill.buffer(0.6)); geo["brown"] = geo["brown"].difference(fill.buffer(0.6))
+    if not a.rose_pic:
+        geo["crimson"] = geo["crimson"].difference(swirls).buffer(-0.3, 8).buffer(0.3, 8)
     if a.black:   # owner 2026-11-26: swirls black (not clear) and the letter black too -> one black slot
         geo["purple"] = geo["purple"].union(swirls.buffer(-0.02).buffer(0.02))
     print(f"roses with a drawn swirl: {len(roses)} (R {', '.join(f'{np.sqrt(q.area / np.pi):.1f}' for q in roses)} mm)")
@@ -109,6 +145,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("picture"); ap.add_argument("--out", required=True); ap.add_argument("--stl", action="store_true")
     ap.add_argument("--purple", action="store_true", help="letter + berries purple instead of black / olive")
+    ap.add_argument("--rose-pic", help="with --white: replace each rose by the head of this black rose stencil picture")
+    ap.add_argument("--rose-scale", type=float, default=1.7, help="rose size vs the picture's roses")
     ap.add_argument("--black", action="store_true", help="with --white: letter + rose swirls black (swirls otherwise clear)")
     ap.add_argument("--white", action="store_true", help="design on a WHITE background (no circle): purple letter, crimson "
                     "roses, olive leaves, brown stems (owner 2026-11-26); the whole design is fitted inside the coaster")

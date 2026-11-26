@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-26 (cloud) — rose coaster with the stencil rose head (owner's pick)
+- Owner disliked the drawn spiral rose; marked the HEAD of a black rose stencil picture (300 px, not in git). `coaster_picture.py --rose-pic PIC [--rose-scale 1.7]`: head cut above the stem neck, all pieces kept, closed 6 px -> silhouette (crimson), white gaps -> black petal lines (thin ones grown to ~0.7 mm); each of the 4 roses replaced at 1.7x its size (~17 mm; at 13 mm the black swamped the petals); leaves/stems cleared 0.6 mm around.
+- print_test 0 problems, file settings: Textured PEI (owner), ensure none, purge 50; 0 crossed layers, CLI 2h01m / 33 g. One CLI run gave a bogus 64h55m / 2941 g again (known glitch, re-run fine). `coaster_R_roses_stencil.3mf` sent.
+
 ## 2026-11-26 (cloud) — back to OUR rose coaster; clarity values now written into every file
 - Owner: stop fixing the other file, work on ours (`coaster_R_roses_black`). Found our 3MFs also carried ensure_vertical_shell_thickness = enabled (CLI prep default; our CLI checks used --set, the GUI reads the file). `clear_tpu_settings.py` now writes all clarity process values into the file (aligned rectilinear everywhere, 1/1 shells, thickness 0, ensure none, ironing). `coaster_R_roses_black_v3.3mf` sent: Textured PEI kept (owner), 0 crossed layers from its own settings, CLI 1h59m.
 - Older files sent before today have ensure = enabled inside: re-run them through clear_tpu_settings if reprinted.
