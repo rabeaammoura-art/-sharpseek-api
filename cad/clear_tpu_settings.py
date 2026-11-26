@@ -19,17 +19,19 @@ import argparse, json, zipfile
 
 ap = argparse.ArgumentParser()
 ap.add_argument("src"); ap.add_argument("dst"); ap.add_argument("--colours")
+ap.add_argument("--purge-only", action="store_true", help="only fix the purge matrix size (any H2D 3MF), change nothing else")
 a = ap.parse_args()
 z = zipfile.ZipFile(a.src)
 c = json.loads(z.read("Metadata/project_settings.config"))
 variants = c["filament_extruder_variant"]
 n_tpu = len(variants) - (len(c["filament_settings_id"]) - 1)          # TPU = slot 1 has one entry per variant
-for i in range(n_tpu):
+for i in (range(0) if a.purge_only else range(n_tpu)):
     for k in ("nozzle_temperature", "nozzle_temperature_initial_layer"):
         c[k][i] = str(int(c[k][i]) + 10)
     c["filament_flow_ratio"][i] = "%.2f" % (float(c["filament_flow_ratio"][i]) * 1.05)
     c["filament_max_volumetric_speed"][i] = str(round(float(c["filament_max_volumetric_speed"][i]) * 0.65, 1))
-c["fan_max_speed"][0], c["fan_min_speed"][0] = "40", "30"
+if not a.purge_only:
+    c["fan_max_speed"][0], c["fan_min_speed"][0] = "40", "30"
 if a.colours:
     c["filament_colour"] = a.colours.split(",")
 # H2D = 2 nozzles: Bambu Studio GUI wants one n x n purge matrix PER NOZZLE (2 n n entries) and one multiplier per nozzle,
