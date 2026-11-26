@@ -28,11 +28,66 @@ INKS = {  # name: (rgb, tolerance, slot colour)
 ART_D = 88.0    # the picture's background circle -> this diameter (mm); keeps the art >= 3 mm inside the Ø95 edge
 
 
+WHITE_PALETTE = {"purple": (110, 62, 148), "crimson": (175, 20, 65), "olive": (125, 122, 38), "brown": (145, 100, 60),
+                 "white": (242, 242, 242)}
+WHITE_COLS = {"purple": "#7B4FA0", "crimson": "#B0123F", "olive": "#8F8B3A", "brown": "#B4703A"}
+FIT_R = 43.5    # mm: farthest ink from the centre (TPU edge >= 4 mm)
+
+
+def main_white(a):
+    img = np.array(Image.open(a.picture).convert("RGB")).astype(float)
+    names = list(WHITE_PALETTE)
+    d = np.stack([np.sqrt(((img - np.array(WHITE_PALETTE[k])) ** 2).sum(2)) for k in names], -1)
+    lab = d.argmin(-1)                                   # nearest palette colour (rose swirls -> crimson)
+    ink = lab != names.index("white")
+    ys, xs = np.nonzero(ink)
+    cx, cy = (xs.min() + xs.max()) / 2, (ys.min() + ys.max()) / 2
+    rmax = np.sqrt((xs - cx) ** 2 + (ys - cy) ** 2).max()
+    rpx = rmax * (ct.D / 2) / FIT_R
+    print(f"picture {img.shape[1]}x{img.shape[0]}, design {xs.max() - xs.min()}x{ys.max() - ys.min()} px -> {2 * FIT_R / (2 * rmax) * (xs.max() - xs.min()):.0f} mm wide")
+    geo = {}
+    for k in ("purple", "crimson", "olive", "brown"):
+        m = lab == names.index(k)
+        geo[k] = coaster.mask_to_mm(m, cx, cy, rpx, up=4 if k == "brown" else 2, smooth=1.6 if k == "brown" else 0.9, clean=False)
+        geo[k] = geo[k].buffer(-0.12, 8).buffer(0.12, 8)  # drop anti-alias specks
+    geo["brown"] = geo["brown"].buffer(0.22, 16).buffer(0.35, 16).buffer(-0.35, 16).buffer(-0.25, 16).buffer(0.25, 16).simplify(0.03)
+    taken = None
+    for k in ("purple", "crimson", "olive", "brown"):    # no two colours on one spot
+        if taken is not None:
+            geo[k] = geo[k].difference(taken)
+        taken = geo[k] if taken is None else taken.union(geo[k])
+    for k, gg in geo.items():
+        t = gg.difference(gg.buffer(-0.35).buffer(0.35))
+        print(f"{k}: {len(getattr(gg, 'geoms', [gg]))} pieces, {gg.area:.0f} mm2, under 0.7 mm {t.area:.2f} mm2")
+    order = ["purple", "crimson", "olive", "brown"]
+    inks = [(k, coaster.extrude(geo[k].buffer(0), ct.Z0, ct.Z1), i) for i, k in enumerate(order, start=2)]
+    allink = trimesh.boolean.union([m for _, m, _ in inks], engine="manifold")
+    tpu = trimesh.boolean.difference([ct.rounded_disc(), allink], engine="manifold")
+    parts = [(n, coaster.mirror_x(m), s) for n, m, s in [("clear_tpu", tpu, 1)] + inks]
+    for n, m, _ in parts:
+        print(f"  part {n}: watertight={m.is_watertight} z {m.bounds[0][2]:.2f}-{m.bounds[1][2]:.2f}")
+    from threemf import widen_filaments
+    cfg = json.loads((HERE.parent / "config" / "bambu_project_4fil_petg.config").read_text())
+    cfg = widen_filaments(cfg, 5, (HERE.parent / "config" / "bambu_project_settings.config").read_bytes())
+    cfg["filament_colour"] = ["#E8F1F5"] + [WHITE_COLS[k] for k in order]
+    cfg["filament_map_mode"], cfg["filament_map"] = "Manual", ["2", "1", "1", "1", "1"]
+    out = Path(a.out); out.parent.mkdir(parents=True, exist_ok=True)
+    write_bambu_3mf(out, parts, (175.0, 160.0), out.stem, json.dumps(cfg, indent=4))
+    if a.stl:
+        for n, m, _ in parts:
+            m.export(out.with_name(f"{out.stem}_{n}.stl"))
+    print("->", out)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("picture"); ap.add_argument("--out", required=True); ap.add_argument("--stl", action="store_true")
     ap.add_argument("--purple", action="store_true", help="letter + berries purple instead of black / olive")
+    ap.add_argument("--white", action="store_true", help="design on a WHITE background (no circle): purple letter, crimson "
+                    "roses, olive leaves, brown stems (owner 2026-11-26); the whole design is fitted inside the coaster")
     a = ap.parse_args()
+    if a.white:
+        return main_white(a)
     img = np.array(Image.open(a.picture).convert("RGB")).astype(float)
     r, g, b = img[..., 0], img[..., 1], img[..., 2]
     tan = (abs(r - 205) < 30) & (abs(g - 172) < 30) & (abs(b - 128) < 35)

@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-26 (cloud) — R coaster with a rose wreath (owner's new flat picture)
+- Owner's picture on WHITE (no circle): purple serif R, crimson roses + buds, olive leaves, brown stems. `coaster_picture.py --white`: nearest-palette colour per pixel (rose swirls -> crimson, so roses print as solid shapes), whole design fitted inside r 43.5 mm (69 mm wide), stems thickened/smoothed like before. 5 slots: TPU + purple, crimson #B0123F, olive, brown.
+- print_test 0 problems, 0 crossed layers, CLI 1h56m / 30.5 g. `coaster_R_roses_final.3mf` sent in chat (picture not in git).
+
 ## 2026-11-23 (cloud) — R coaster: purple R + berries, smooth stem (owner's marks)
 - Owner marked: main stem rough (yellow) -> brown traced at 4x with more smoothing + close/open 0.35/0.25 mm; R and berries (magenta) -> purple. `coaster_picture.py --purple`: berries = olive pieces < 15 mm2 and round (berries 6-11 mm2, smallest leaf 21.7), 13 found. Slots: TPU, purple #7B4FA0, olive, brown.
 - print_test 0 problems, 0 crossed layers, CLI 1h48m / 30 g. `coaster_R_purple_final.3mf` sent in chat.
