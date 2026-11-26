@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-26 (cloud) — rose coaster: owner's exact rose (transparent PNG), buds black, 4 slots
+- Owner sent the exact rose to use (1254 px RGBA, transparent background, not in git). `rose_template` now composites transparency onto white (transparent pixels read as black before). `--buds-black`: buds to the black slot; empty colours are dropped from the file -> 4 slots (TPU, black, olive, brown).
+- print_test 0 problems, Textured PEI, ensure none, purge 32, 0 crossed layers, CLI 1h56m / 31.6 g. `coaster_R_rose_black4.3mf` sent. Tight centre lines merge into small dots at 17 mm.
+
 ## 2026-11-26 (cloud) — rose coaster: black roses
 - Owner: roses black. `--rose-black`: open roses go to the letter's slot (black), clear petal lines kept, buds stay crimson. print_test 0 problems, 0 crossed layers, CLI 2h02m / 33 g. `coaster_R_rose_black.3mf` sent. Crimson is now only the 7 buds: if they go black too, the slot (and its colour swaps) can be dropped.
 

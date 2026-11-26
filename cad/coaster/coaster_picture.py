@@ -36,7 +36,9 @@ FIT_R = 43.5    # mm: farthest ink from the centre (TPU edge >= 4 mm)
 
 def rose_template(pic, head_only=False):
     """rose HEAD of a black stencil picture (petals = white gaps): (filled silhouette, white gap lines) in px units, centred"""
-    im = np.array(Image.open(pic).convert("L")).astype(float)
+    src = Image.open(pic).convert("RGBA")                  # transparent background -> white (owner 2026-11-26)
+    bg = Image.new("RGBA", src.size, (255, 255, 255, 255)); bg.alpha_composite(src)
+    im = np.array(bg.convert("L")).astype(float)
     im = np.pad(im, 12, constant_values=255)        # white margin: a shape touching the picture edge must still close
     m = im < 90
     w = m.sum(1); rows = np.nonzero(w)[0]
@@ -111,6 +113,8 @@ def main_white(a):
         geo["crimson"] = geo["crimson"].buffer(-0.2, 8).buffer(0.2, 8)
         swirls = lines
         geo["olive"] = geo["olive"].difference(fill.buffer(0.6)); geo["brown"] = geo["brown"].difference(fill.buffer(0.6))
+        if a.buds_black:   # owner 2026-11-26: buds black too -> no crimson slot at all
+            geo["purple"] = geo["purple"].union(geo["crimson"].difference(fill.buffer(0.05))); geo["crimson"] = geo["crimson"].intersection(fill.buffer(0.05))
         if a.rose_black:   # owner 2026-11-26: open roses black (same slot as the letter), buds stay crimson
             bloom = geo["crimson"].intersection(fill.buffer(0.05))
             geo["purple"] = geo["purple"].union(bloom); geo["crimson"] = geo["crimson"].difference(fill.buffer(0.05))
@@ -128,7 +132,7 @@ def main_white(a):
     for k, gg in geo.items():
         t = gg.difference(gg.buffer(-0.35).buffer(0.35))
         print(f"{k}: {len(getattr(gg, 'geoms', [gg]))} pieces, {gg.area:.0f} mm2, under 0.7 mm {t.area:.2f} mm2")
-    order = ["purple", "crimson", "olive", "brown"]
+    order = [k for k in ("purple", "crimson", "olive", "brown") if geo[k].area > 0.5]   # unused colour = no slot
     inks = [(k, coaster.extrude(geo[k].buffer(0.01, 4).buffer(-0.01, 4).simplify(0.01), ct.Z0, ct.Z1), i) for i, k in enumerate(order, start=2)]
     for k, m, _ in inks:
         if not m.is_volume:
@@ -141,10 +145,12 @@ def main_white(a):
         print(f"  part {n}: watertight={m.is_watertight} z {m.bounds[0][2]:.2f}-{m.bounds[1][2]:.2f}")
     from threemf import widen_filaments
     cfg = json.loads((HERE.parent / "config" / "bambu_project_4fil_petg.config").read_text())
-    cfg = widen_filaments(cfg, 5, (HERE.parent / "config" / "bambu_project_settings.config").read_bytes())
+    nf = 1 + len(order)
+    if nf > 4:
+        cfg = widen_filaments(cfg, nf, (HERE.parent / "config" / "bambu_project_settings.config").read_bytes())
     cols = dict(WHITE_COLS, purple="#141414") if a.black else WHITE_COLS
     cfg["filament_colour"] = ["#E8F1F5"] + [cols[k] for k in order]
-    cfg["filament_map_mode"], cfg["filament_map"] = "Manual", ["2", "1", "1", "1", "1"]
+    cfg["filament_map_mode"], cfg["filament_map"] = "Manual", ["2"] + ["1"] * (nf - 1)
     out = Path(a.out); out.parent.mkdir(parents=True, exist_ok=True)
     write_bambu_3mf(out, parts, (175.0, 160.0), out.stem, json.dumps(cfg, indent=4))
     if a.stl:
@@ -158,6 +164,7 @@ def main():
     ap.add_argument("picture"); ap.add_argument("--out", required=True); ap.add_argument("--stl", action="store_true")
     ap.add_argument("--purple", action="store_true", help="letter + berries purple instead of black / olive")
     ap.add_argument("--rose-pic", help="with --white: replace each rose by the head of this black rose stencil picture")
+    ap.add_argument("--buds-black", action="store_true", help="buds in the letter's colour too")
     ap.add_argument("--rose-black", action="store_true", help="open roses in the letter's colour (black with --black)")
     ap.add_argument("--rose-head-only", action="store_true", help="the rose picture is already cropped to the head")
     ap.add_argument("--rose-scale", type=float, default=1.7, help="rose size vs the picture's roses")
