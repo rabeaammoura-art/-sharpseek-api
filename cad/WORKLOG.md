@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-26 (cloud) — rose coaster: sharp 1254 px rose (owner), clear lines
+- The screenshot rose (185 px) printed jagged; owner sent a sharp 1254 px bold rose (thick even white lines, not in git). `rose_template` for big pictures: up=1, smooth 1.0, closing radius 3 % of the width, no sepal trim. Clear lines grown only to ~0.7 mm (+0.15 per side; +0.25 cut the petals into bits), crimson opening 0.2.
+- Flat true-colour previews (STL sections) instead of the shadowed render (owner asked what the grey shadows were: render lamp only). print_test 0 problems, Textured PEI, 0 crossed layers, CLI 2h02m / 33 g. `coaster_R_rose_v2.3mf` sent.
+
 ## 2026-11-26 (cloud) — rose coaster v-final: bold stencil rose, CLEAR petal lines
 - Owner picked (on my advice) the bold "Rose Black And White Vector" stencil (fewer, thicker white lines; screenshot crop, not in git) and wants the white lines CLEAR, R black. `--rose-pic head.png --rose-head-only --clear-lines`: picture padded white (a shape touching the crop edge did not close -> garbage), sepals/stem stub under the bloom cut off (looked like drips).
 - print_test 0 problems, Textured PEI (owner), ensure none, purge 50, 0 crossed layers, CLI 2h02m / 33 g. `coaster_R_rose_clear.3mf` sent. Stock image licence not checked (owner told).

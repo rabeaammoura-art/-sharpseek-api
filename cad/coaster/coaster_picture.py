@@ -47,12 +47,14 @@ def rose_template(pic, head_only=False):
     head = m.copy()
     if not head_only:
         head[cut:] = False
-    g = coaster.mask_to_mm(head, im.shape[1] / 2, im.shape[0] / 2, 47.5, up=4, smooth=0.6, clean=False)   # 1 px -> 1 mm
+    big = max(im.shape) > 600                                         # sharp, large picture: little upsampling needed
+    g = coaster.mask_to_mm(head, im.shape[1] / 2, im.shape[0] / 2, 47.5, up=1 if big else 4, smooth=1.0 if big else 0.6, clean=False)
     full = unary_union([q for q in getattr(g, "geoms", [g]) if q.area > 4])   # all head pieces (the white lines split it)
-    fill = full.buffer(6, 16).buffer(-6, 16)                          # close the gaps -> silhouette
+    rc = 0.03 * max(im.shape) if big else 6                           # closing radius ~ white line width
+    fill = full.buffer(rc, 16).buffer(-rc, 16)                        # close the gaps -> silhouette
     from shapely.geometry import Polygon as _P
     fill = unary_union([_P(q.exterior) for q in getattr(fill, "geoms", [fill])])   # no holes
-    if head_only:   # drop the sepals / stem stub hanging under the bloom (they read as drips at 17 mm)
+    if head_only and not big:   # drop the sepals / stem stub under the bloom of the small screenshot rose (drips at 17 mm)
         from shapely.geometry import box as _box
         b = fill.bounds; keep = _box(b[0] - 1, b[1] + 0.17 * (b[3] - b[1]), b[2] + 1, b[3] + 1)
         fill = fill.intersection(keep).buffer(-2, 16).buffer(2, 16); full = full.intersection(fill)
@@ -102,11 +104,11 @@ def main_white(a):
             b = tpl_fill.bounds; k = 2 * R / max(b[2] - b[0], b[3] - b[1])
             place = lambda g: affinity.translate(affinity.scale(g, k, k, origin=(0, 0)), c.x, c.y)
             f = place(tpl_fill); ln0 = place(tpl_lines)
-            ln = ln0.union(ln0.difference(ln0.buffer(-0.35, 8).buffer(0.35, 8)).buffer(0.25, 8))   # only thin lines grow, to ~0.7 mm
+            ln = ln0.union(ln0.difference(ln0.buffer(-0.35, 8).buffer(0.35, 8)).buffer(0.15, 8))   # only thin lines grow, to ~0.7 mm
             new_fill.append(f); new_lines.append(ln.intersection(f.buffer(-0.3)))
         fill = unary_union(new_fill); lines = unary_union(new_lines).buffer(0.0)
         geo["crimson"] = geo["crimson"].difference(unary_union([r.buffer(0.2) for r in roses])).union(fill).difference(lines)
-        geo["crimson"] = geo["crimson"].buffer(-0.25, 8).buffer(0.25, 8)
+        geo["crimson"] = geo["crimson"].buffer(-0.2, 8).buffer(0.2, 8)
         swirls = lines
         geo["olive"] = geo["olive"].difference(fill.buffer(0.6)); geo["brown"] = geo["brown"].difference(fill.buffer(0.6))
     if not a.rose_pic:
