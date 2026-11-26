@@ -28,7 +28,7 @@ INKS = {  # name: (rgb, tolerance, slot colour)
 ART_D = 88.0    # the picture's background circle -> this diameter (mm); keeps the art >= 3 mm inside the Ø95 edge
 
 
-WHITE_PALETTE = {"purple": (110, 62, 148), "crimson": (175, 20, 65), "olive": (125, 122, 38), "brown": (145, 100, 60),
+WHITE_PALETTE = {"purple": (110, 62, 148), "crimson": (205, 40, 88), "rose_dark": (145, 5, 48), "olive": (125, 122, 38), "brown": (145, 100, 60),
                  "white": (242, 242, 242)}
 WHITE_COLS = {"purple": "#7B4FA0", "crimson": "#B0123F", "olive": "#8F8B3A", "brown": "#B4703A"}
 FIT_R = 43.5    # mm: farthest ink from the centre (TPU edge >= 4 mm)
@@ -46,10 +46,28 @@ def main_white(a):
     rpx = rmax * (ct.D / 2) / FIT_R
     print(f"picture {img.shape[1]}x{img.shape[0]}, design {xs.max() - xs.min()}x{ys.max() - ys.min()} px -> {2 * FIT_R / (2 * rmax) * (xs.max() - xs.min()):.0f} mm wide")
     geo = {}
+    dark = lab == names.index("rose_dark")
+    lab = np.where(dark, names.index("crimson"), lab)    # roses as one colour, the dark swirls cut out below
     for k in ("purple", "crimson", "olive", "brown"):
         m = lab == names.index(k)
         geo[k] = coaster.mask_to_mm(m, cx, cy, rpx, up=4 if k == "brown" else 2, smooth=1.6 if k == "brown" else 0.9, clean=False)
         geo[k] = geo[k].buffer(-0.12, 8).buffer(0.12, 8)  # drop anti-alias specks
+    # owner 2026-11-26: damask roses must look like roses. The picture's swirls are ~1 mm bands in a ~10 mm rose (too fine
+    # to trace), so each open rose gets a clean drawn swirl cut as CLEAR lines (0.7 mm): spiral heart + two petal arcs.
+    from shapely.geometry import LineString
+    roses = [q for q in getattr(geo["crimson"], "geoms", [geo["crimson"]]) if q.area > 40]
+    cuts = []
+    for q in roses:
+        c = q.centroid; R = np.sqrt(q.area / np.pi)
+        turns = 1.75                                   # one continuous spiral (rose seen from above): 0.7 mm clear line,
+        t = np.linspace(0.6, turns * 2 * np.pi, 260)    # ~1.2 mm crimson petal band between its turns
+        rr = 0.78 * R * t / t[-1]
+        cy0 = c.y + 0.08 * R
+        spiral = LineString(np.c_[c.x + rr * np.cos(t), cy0 + 0.9 * rr * np.sin(t)])
+        arcs = []
+        cuts.append(spiral.buffer(0.35, 8).intersection(q.buffer(-0.55)))
+    geo["crimson"] = geo["crimson"].difference(unary_union(cuts)).buffer(-0.3, 8).buffer(0.3, 8)
+    print(f"roses with a drawn swirl: {len(roses)} (R {', '.join(f'{np.sqrt(q.area / np.pi):.1f}' for q in roses)} mm)")
     geo["brown"] = geo["brown"].buffer(0.22, 16).buffer(0.35, 16).buffer(-0.35, 16).buffer(-0.25, 16).buffer(0.25, 16).simplify(0.03)
     taken = None
     for k in ("purple", "crimson", "olive", "brown"):    # no two colours on one spot

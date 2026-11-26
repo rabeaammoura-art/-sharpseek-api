@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-26 (cloud) — rose coaster: roses must look like damask roses (جوري)
+- Solid rose blobs rejected. Tracing the picture's dark swirl bands (~1 mm in a ~10 mm rose) ate the roses; arcs + spiral looked like smiley faces. Final: each open rose (4, R 4.6-5.2 mm) gets one drawn spiral (1.75 turns) cut as a 0.7 mm CLEAR line, ~1.2 mm crimson bands. Buds unchanged.
+- print_test 0 problems, 0 crossed layers, CLI 1h57m / 30.5 g. `coaster_R_roses_jouri.3mf` sent in chat.
+
 ## 2026-11-26 (cloud) — R coaster with a rose wreath (owner's new flat picture)
 - Owner's picture on WHITE (no circle): purple serif R, crimson roses + buds, olive leaves, brown stems. `coaster_picture.py --white`: nearest-palette colour per pixel (rose swirls -> crimson, so roses print as solid shapes), whole design fitted inside r 43.5 mm (69 mm wide), stems thickened/smoothed like before. 5 slots: TPU + purple, crimson #B0123F, olive, brown.
 - print_test 0 problems, 0 crossed layers, CLI 1h56m / 30.5 g. `coaster_R_roses_final.3mf` sent in chat (picture not in git).
