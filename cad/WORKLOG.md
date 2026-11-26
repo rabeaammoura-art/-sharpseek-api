@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-26 (cloud) — GUI error "Purge volumes matrix do not match to the correct size!"
+- Owner opened the 5-filament rose coaster in Studio: error. The 3MF had a 5x5 purge matrix; the H2D GUI wants one per nozzle (2 x n x n) and 2 flush multipliers. `clear_tpu_settings.py` now writes 2 n n entries, vector 2 n, multiplier x2. `coaster_R_roses_black_v2.3mf` sent (CLI still slices it: 1h59m). Owner's screenshot shows the Textured PEI plate selected: use the smooth plate for a glossy face.
+
 ## 2026-11-26 (cloud) — rose coaster: black R + black rose spirals
 - Owner: spirals black (not clear) and the R black too. `coaster_picture.py --white --black`: spirals added to the letter's slot, colour #141414; ink outlines cleaned (buffer 0.01 + simplify) because the merged black shape was not a closed volume. print_test 0 problems, 0 crossed layers, CLI 1h57m / 30.7 g. `coaster_R_roses_black.3mf` sent in chat.
 

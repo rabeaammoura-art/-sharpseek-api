@@ -32,6 +32,22 @@ for i in range(n_tpu):
 c["fan_max_speed"][0], c["fan_min_speed"][0] = "40", "30"
 if a.colours:
     c["filament_colour"] = a.colours.split(",")
+# H2D = 2 nozzles: Bambu Studio GUI wants one n x n purge matrix PER NOZZLE (2 n n entries) and one multiplier per nozzle,
+# else "Purge volumes matrix do not match to the correct size!" (owner 2026-11-26, 5-filament coaster)
+n = len(c["filament_settings_id"])
+fm = c.get("flush_volumes_matrix") or []
+if len(fm) == n * n:
+    c["flush_volumes_matrix"] = list(fm) * 2
+elif len(fm) != 2 * n * n:
+    off = next((x for x in fm if str(x) != "0"), "280")
+    one = [("0" if i == j else str(off)) for i in range(n) for j in range(n)]
+    c["flush_volumes_matrix"] = one * 2
+fv = c.get("flush_volumes_vector") or ["1", "1"]
+c["flush_volumes_vector"] = (list(fv) * n)[: 2 * n] if len(fv) != 2 * n else fv
+mult = c.get("flush_multiplier")
+if not isinstance(mult, list) or len(mult) != 2:
+    c["flush_multiplier"] = [str(mult[0] if isinstance(mult, list) else (mult or 1))] * 2
+print(f"purge matrix {len(c['flush_volumes_matrix'])} entries for {n} filaments x 2 nozzles")
 with zipfile.ZipFile(a.dst, "w", zipfile.ZIP_DEFLATED) as o:
     for it in z.infolist():
         d = z.read(it.filename)
