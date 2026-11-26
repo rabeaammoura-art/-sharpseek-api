@@ -9,6 +9,25 @@ Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what wa
 - Owner's picture on WHITE (no circle): purple serif R, crimson roses + buds, olive leaves, brown stems. `coaster_picture.py --white`: nearest-palette colour per pixel (rose swirls -> crimson, so roses print as solid shapes), whole design fitted inside r 43.5 mm (69 mm wide), stems thickened/smoothed like before. 5 slots: TPU + purple, crimson #B0123F, olive, brown.
 - print_test 0 problems, 0 crossed layers, CLI 1h56m / 30.5 g. `coaster_R_roses_final.3mf` sent in chat (picture not in git).
 
+## 2026-11-24 (cloud) — check of a downloaded LED-strip sign ("Sally", 5 mm strip)
+- Owner's downloaded 3MF (not in git): 174 x 111 x 10 mm, 2 mm back + 8 mm outline walls (~1.2-1.8 mm) = open channel for a 5 mm LED strip. Two separate bodies ("S" and "ally"), plain 3MF centred at 0,0 (Bambu CLI refused it; sliced as STL).
+- print_test 0 problems. CLI 0.20 mm: PLA 59 min / 38 g, PETG 1h00 / 37 g (GUI usually longer). Price sheet missing in this session.
+- Scaled to 250 mm wide in X/Y only (250 x 159 x 10, walls ~1.7-2.6 mm, height kept for the strip): print_test 0, CLI PLA 1h55m / 74 g. Sent `sally_250.3mf` in chat.
+- Owner: channel must stay as it was. New `cad/scale_keep_channel.py` (medial axis, scaled centreline, original local widths, wall 1.6 re-offset): `sally_250_channel.3mf` 250 x 159 x 10, channel widths 7.2-11.6 (orig 7.4-11.5), print_test 0, CLI PLA 1h25m / 59 g. Sent in chat.
+- Owner wants a constant 5.2 mm channel (neon style): script arg 4 = constant width. `sally_250_ch52.3mf` 250 x 160 x 10, channel 5.2, wall 1.6, print_test 0, CLI PLA 1h20m / 52 g. Waiting for his OK.
+- Owner's printytron files: v2 identical to v1 (md5); 7021 = 220 mm, channel still 7-13; c07e (after my prompt) = 249 x 166 x 10, monoline, channel 5.2 constant, wall 1.6, one body; print_test 0 (as 3MF centred at 0 it gave a false overhang, as STL clean), CLI PLA 1h25m / 55 g. Its 'a' looks like an 'e' (reads Selly) - told the owner.
+- printytron aa66 'Neon 250': 250 x 157 x 10, original letters scaled, channel back to 6-12 (median 9), S separate again, narrow spot at the y joint; print_test 0, CLI 1h27m / 60 g. Not 5.2.
+- Drew S-to-a cursive swash (loop + 5.2 channel under the S); owner chose to keep the S separate. Final = `sally_250_ch52.3mf` (sent with 3D + top images). Left: wire hole if wanted, test strip fit with a small S print.
+- Owner then: the look must stay like the original (fat letters). New `cad/sign_fat_groove.py`: original outline x1.439 (250 x 159 x 10), 5.2 groove on the stroke centreline, solid walls 4.4-8.3, counters open. `sally_250_fat52.3mf`: groove 5.2-5.3, print_test 0 (after STL vertex repair), CLI PLA 2h24m / 89 g. Sent with images.
+- Owner marks: l1/l2 grooves must not be linked (bridge removed), junctions must follow the original flow and be smooth. New `cad/sign_branches.py` + `cad/sign_chains.py`: medial-axis branches joined into pen strokes (a stem->baseline->l1 loop->baseline->l2 loop->y), spline smoothing 0.8. `sally_250_v7.3mf`: groove 5.2, wall between l1/l2 grooves 5 mm, print_test 0, CLI 2h25m / 88 g. Owner OK.
+- S joined to the a after owner marks: `cad/sign_s_join.py` (S end -> round lying loop like the l -> straight cross under the S -> into the a), outer edge near the S top kept separate, wire hole 4.5 on the y right stem. `sally_250_final.3mf` 250 x 159 x 10, one body, print_test 0, CLI PLA 2h29m / 90 g. Test piece `sally_S_test.3mf` (S only, 74 x 100) 42 min / 25 g. Both sent; owner to print the S test for strip fit.
+- Left: owner decides if it becomes a product (name customisation, diffuser/cover, wire exit hole not seen in the model).
+
+## 2026-11-23 (cloud) — HueForge horse head 150 mm (owner's new AI picture)
+- Owner sent a grey/cream/rust horse-head picture (not in git). White background flood-filled to black (thin base only). `zt_forge.py --width 150 --px 0.3 --base 0.64 --top 1.6`, filaments black, grey, orange, white PLA (hex/TD guesses), swaps at layers 8 / 13 / 14, dE 6.0 (orange before grey: 7.2). STL closed, print_test 0 problems. Outputs `cad/out/hueforge/horse150*` (not in git).
+- Slice at 0.08 failed here (invalid params with --set layer_height); default 0.20: 56 min / 24.8 g, so real 0.08 time is only an estimate (~2.5 h). Price sheet missing in this session.
+- Left: orange is only 1 layer thick (will look weak), owner's choice; 3MF with swaps; real TD calibration.
+
 ## 2026-11-23 (cloud) — R coaster: purple R + berries, smooth stem (owner's marks)
 - Owner marked: main stem rough (yellow) -> brown traced at 4x with more smoothing + close/open 0.35/0.25 mm; R and berries (magenta) -> purple. `coaster_picture.py --purple`: berries = olive pieces < 15 mm2 and round (berries 6-11 mm2, smallest leaf 21.7), 13 found. Slots: TPU, purple #7B4FA0, olive, brown.
 - print_test 0 problems, 0 crossed layers, CLI 1h48m / 30 g. `coaster_R_purple_final.3mf` sent in chat.
