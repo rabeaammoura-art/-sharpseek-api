@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-27 (cloud) — 9 whirling-dervish line-art coasters (owner's 3 x 3 picture)
+- Owner's picture (render of 9 coasters, green / gold / grey line art + red fez; not in git). New `cad/coaster/coaster_lineart.py`: circle fit per coaster, lines = darker than the local surface (median 31 px, -28) inside the ring, fez = red pixels, ring redrawn clean (r 41.5, 1.4 mm), thin strokes -> ~0.7 mm, edges smoothed, line-colour rim round the fez removed. Our spec: Ø95 x 3, TPU 0.4 | inlay 0.6 | TPU 2.0, rounded, mirrored, Textured PEI, 3 slots (TPU + line colour + red), clear settings reused from one prepared file (ensure partial, purge 18).
+- Slices: #1, #5, #9 ~1h47m / 30 g each, 0 crossed layers. All parts watertight in the 3MFs (STL round trip flags 3 of them, known). 9 files sent as a zip in chat. Preview drawing fixed: polygons with holes drawn as one path.
+
 ## 2026-11-26 (cloud) — owner's Studio: "none" not accepted; filament slots swapped on open
 - Owner's (older) Bambu Studio GUI replaced ensure_vertical_shell_thickness "none" with "enabled". Values in the newer CLI: none / partial / enabled. Script now writes "partial"; with 1/1 shells even "enabled" gave 0 crossed layers. `coaster_R_rose_black4_v2.3mf` sent.
 - His screenshot showed slots as PLA Basic / Generic PETG (AMS sync): slot 1 must be re-set to TPU 95A HF (right nozzle) and the TPU values re-entered by hand (240 C, flow 1.05, fan 30-40 %) since re-picking the preset resets them. Suggest updating Studio.
