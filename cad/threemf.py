@@ -64,6 +64,7 @@ def build_project_settings(template_bytes, colours, tower=None, nozzle=1):
 
 
 def write_bambu_3mf(path, parts, center, name, project_settings):
+    n_slots = max(max(s for _, _, s in parts), len(json.loads(project_settings).get("filament_colour", [])))
     n = len(parts)
     obj_id = n + 1
     cx, cy = center
@@ -107,8 +108,8 @@ def write_bambu_3mf(path, parts, center, name, project_settings):
     <metadata key="plater_name" value=""/>
     <metadata key="locked" value="false"/>
     <metadata key="filament_map_mode" value="Manual"/>
-    <metadata key="filament_maps" value="{' '.join('1' for _ in range(max(s for _, _, s in parts)))}"/>
-    <metadata key="filament_volume_maps" value="{' '.join('0' for _ in range(max(s for _, _, s in parts)))}"/>
+    <metadata key="filament_maps" value="{' '.join('1' for _ in range(n_slots))}"/>
+    <metadata key="filament_volume_maps" value="{' '.join('0' for _ in range(n_slots))}"/>
   </plate>
   <assemble>
   </assemble>
@@ -116,8 +117,12 @@ def write_bambu_3mf(path, parts, center, name, project_settings):
     # all colours on the first (left) nozzle: the right nozzle cannot reach the first 25 mm of the bed, so a 300 mm plate
     # would be "unprintable" for it
     cfg = json.loads(project_settings)
+    n_fil = max(max(s for _, _, s in parts), len(cfg.get("filament_colour", [])))      # every slot of the project, not just the ones used
     cfg["filament_map_mode"] = "Manual"
-    cfg["filament_map"] = ["1"] * max(s for _, _, s in parts)
+    cfg["filament_map"] = ["1"] * n_fil
+    fm = cfg.get("flush_volumes_matrix")
+    if fm and len(fm) == n_fil * n_fil:      # H2D: one flush matrix per nozzle, else Bambu Studio says "Purge volumes matrix do not match to the correct size!"
+        cfg["flush_volumes_matrix"] = list(fm) * 2
     project_settings = json.dumps(cfg, indent=4)
     with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as z:
         z.writestr("[Content_Types].xml", CONTENT_TYPES)

@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-27 (cloud) — Studio error "Purge volumes matrix do not match" fixed; black iPhone variant
+- Owner opened the iPhone v6 file in Studio: red "Purge volumes matrix do not match to the correct size!" + yellow "PLA and PETG detected". Cause in my 3MFs: 4 filament colours but filament_map only the used slots (3) and an H2D flush matrix not doubled (16 instead of 32). `cad/threemf.write_bambu_3mf` now uses every slot of the project and doubles the matrix (also plate metadata). All phone-case files re-generated as *_v7.
+- Black iPhone: `iphone11pm_black.json` (body #1A1A1A, logo slot 2 white instead of navy, orange kept): navy on black is invisible. New config keys `body_colour`, `logo_colours`. The PLA+PETG warning is only about mixing materials in the logo parts: use the same family (PETG + PETG).
+- Open: owner to pick white vs light blue for slot 2; Honor v6 print result; Honor logo +7 mm.
+
 ## 2026-11-25 (cloud) — bigger front lip for both cases (owner)
 - Owner: the lip around the screen must be a bit bigger, also on the Honor. Measured the owner's proven iPhone 11 PM case by rays: inset 0.3 mm at z 2.0 rising to 2.37 mm at the glass plane (z 4.5), 1.87 mm at the top, top 1.1 mm above the glass. Generator now has `"lip": {"inset", "above"}` (45 degree 0.2 mm staircase, chamfer ends 0.2 below the glass plane): Honor 2.0 / 1.0 (was 1.2 / 0.6), iPhone 2.2 / 1.0. `honor_x6b_v6.json`, `iphone11pm_pink.json`.
 - `check_orientation` now uses an even-odd section instead of ray tests (ray `contains` gave random answers on the 600k-face iPhone mesh and wrongly blocked the build); still catches a mirrored copy.

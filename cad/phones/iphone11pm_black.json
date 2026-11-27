@@ -1,0 +1,5 @@
+{
+  "extends": "iphone11pm_pink.json",
+  "body_colour": "#1A1A1A",
+  "logo_colours": ["#FFFFFF", "#FF6E14"]
+}

@@ -168,7 +168,7 @@ def build(cfg):
     return tm, dict(z_top=z_top, z_c0=z_c0, z_c1=z_c1, outer=(ox1 - ox0, oy1 - oy0), logo_polys=logo_polys, pink_poly=pink_poly), extras
 
 
-def write_3mf(tm, out, name, extras=(), body_colour=None):
+def write_3mf(tm, out, name, extras=(), body_colour=None, logo_colours=None):
     """Bambu-native 3MF (same writer as the coasters): case = filament slot 1 (clear TPU, right nozzle), extras = [(name, mesh, slot)].
     All parts share one shift so the colour parts sit exactly in the pocket."""
     sys.path.insert(0, str(Path(__file__).parent))
@@ -179,7 +179,8 @@ def write_3mf(tm, out, name, extras=(), body_colour=None):
     for pn, m, ex in [(name + "_case_TPU", tm, 1)] + list(extras):
         m = m.copy(); m.apply_translation(shift); parts.append((pn, m, ex))
     cfg = json.loads((Path(__file__).parent / "config" / "bambu_project_4fil_petg.config").read_text())
-    cfg["filament_colour"] = [body_colour or "#E8F1F5", "#1E34A0", "#FF6E14", "#F4A6C6" if any(e == 4 for _, _, e in extras) else "#FFFFFF"]
+    lc = logo_colours or ["#1E34A0", "#FF6E14"]
+    cfg["filament_colour"] = [body_colour or "#E8F1F5", lc[0], lc[1], "#F4A6C6" if any(e == 4 for _, _, e in extras) else "#FFFFFF"]
     cfg["filament_map_mode"], cfg["filament_map"] = "Manual", ["2", "1", "1", "1"]
     write_bambu_3mf(Path(out), parts, (175.0, 160.0), name, json.dumps(cfg, indent=4))
 
@@ -261,7 +262,7 @@ def main():
     tm.export(out_dir / f"{stem}.stl")
     for n, m, e in extras:
         m.export(out_dir / f"{stem}_{n}.stl")          # same coordinates as the case STL (for print_test)
-    write_3mf(tm, out_dir / f"{stem}.3mf", stem, extras, cfg.get("body_colour"))
+    write_3mf(tm, out_dir / f"{stem}.3mf", stem, extras, cfg.get("body_colour"), cfg.get("logo_colours"))
     preview(cfg, out_dir / f"{stem}_back.png", info)
     t2 = trimesh.Trimesh(tm.vertices, tm.faces, process=True)
     print(f"{stem}: watertight={t2.is_watertight} volume={t2.volume:.0f} mm3 (TPU ~{t2.volume * 1.21 / 1000:.1f} g solid)")
