@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-27 (cloud) — dervish coasters ENGRAVED (owner picked option 1 for a customer test)
+- `coaster_lineart.py --engraved`: face UP (not mirrored), TPU 0-2.2 | colour 2.2-2.6 | open groove 2.6-3.0 through the top (felt like the picture). Same 3 slots / clear settings. Slices: #1 1h44m, #8 1h42m, ~30 g, 0 crossed layers; all parts watertight in the 3MFs (STL round trip flags them, known). Zip of 9 sent.
+- Owner's own idea for later (option 3+): clear TPU coaster with ENGRAVED lines only + a full colour layer on the BACK -> one filament change per print, much faster. To build when asked.
+
 ## 2026-11-27 (cloud) — 9 whirling-dervish line-art coasters (owner's 3 x 3 picture)
 - Owner's picture (render of 9 coasters, green / gold / grey line art + red fez; not in git). New `cad/coaster/coaster_lineart.py`: circle fit per coaster, lines = darker than the local surface (median 31 px, -28) inside the ring, fez = red pixels, ring redrawn clean (r 41.5, 1.4 mm), thin strokes -> ~0.7 mm, edges smoothed, line-colour rim round the fez removed. Our spec: Ø95 x 3, TPU 0.4 | inlay 0.6 | TPU 2.0, rounded, mirrored, Textured PEI, 3 slots (TPU + line colour + red), clear settings reused from one prepared file (ensure partial, purge 18).
 - Slices: #1, #5, #9 ~1h47m / 30 g each, 0 crossed layers. All parts watertight in the 3MFs (STL round trip flags 3 of them, known). 9 files sent as a zip in chat. Preview drawing fixed: polygons with holes drawn as one path.

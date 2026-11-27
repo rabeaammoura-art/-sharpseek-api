@@ -44,6 +44,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("picture"); ap.add_argument("out"); ap.add_argument("--settings", required=True)
     ap.add_argument("--preview"); ap.add_argument("--stl", action="store_true")
+    ap.add_argument("--engraved", action="store_true", help="owner 2026-11-27: lines ENGRAVED in the top face, colour at the "
+                    "bottom of the groove (TPU 0-2.2 | colour 2.2-2.6 | open groove 2.6-3.0), printed FACE UP, not mirrored")
     a = ap.parse_args()
     im = np.array(Image.open(a.picture).convert("RGB")).astype(float)
     L = im.mean(2)
@@ -67,15 +69,20 @@ def main():
         fez = fez.buffer(0.1, 8).buffer(-0.1, 8)
         lines = unary_union([lines, disc_ring]).difference(fez.buffer(0.01))
         name, colour = ROWS[i // 3]
-        ink_l = coaster.extrude(lines.buffer(0), ct.Z0, ct.Z1); ink_r = coaster.extrude(fez.buffer(0), ct.Z0, ct.Z1)
+        z0, z1 = (2.2, 2.6) if a.engraved else (ct.Z0, ct.Z1)
+        ink_l = coaster.extrude(lines.buffer(0), z0, z1); ink_r = coaster.extrude(fez.buffer(0), z0, z1)
         for m in (ink_l, ink_r):
             if not m.is_volume:
                 m.merge_vertices(); m.update_faces(m.nondegenerate_faces()); m.fix_normals()
         allink = trimesh.boolean.union([ink_l, ink_r], engine="manifold")
-        tpu = trimesh.boolean.difference([ct.rounded_disc(), allink], engine="manifold")
-        parts = [(n, coaster.mirror_x(m), s) for n, m, s in [("clear_tpu", tpu, 1), (name, ink_l, 2), ("red_fez", ink_r, 3)]]
+        cut = [allink]
+        if a.engraved:   # open groove above the colour, through the rounded top edge
+            cut.append(coaster.extrude(unary_union([lines, fez]).buffer(0), z1 - 0.01, ct.T + 1.0))
+        tpu = trimesh.boolean.difference([ct.rounded_disc()] + cut, engine="manifold")
+        flip = (lambda m: m) if a.engraved else coaster.mirror_x
+        parts = [(n, flip(m), s) for n, m, s in [("clear_tpu", tpu, 1), (name, ink_l, 2), ("red_fez", ink_r, 3)]]
         cfg = dict(cfg0); cfg["filament_colour"] = ["#E8F1F5", colour, RED]
-        f = out / f"coaster_dervish_{i + 1}_{name}.3mf"
+        f = out / f"coaster_dervish_{i + 1}_{name}{'_engraved' if a.engraved else ''}.3mf"
         write_bambu_3mf(f, parts, (175.0, 160.0), f.stem, json.dumps(cfg, indent=4))
         if a.stl:
             for n, m, _ in parts:
