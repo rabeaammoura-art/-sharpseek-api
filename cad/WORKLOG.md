@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-27 (cloud) — bookmark file is the base for all tatreez bookmarks (owner)
+- Owner decided: every embroidered bookmark uses this file / generator (`bookmark.py`, `bookmark_iqra.3mf`). Written into CLAUDE.md. Earlier advice on dual-colour silk (Red/Gold): no ironing, 2 walls, side light; a 4 x 4 cm test coupon was offered, not made.
+
 ## 2026-11-27 (cloud) — 4 single dervish pictures -> one plate, 5 mm black (PETG body)
 - Owner sent 4 separate coaster pictures (black lines, red / dark-red outlined fez; not in git) for ONE file in the black 5 mm style. `coaster_lineart.py PIC1..PIC4 OUT --plate FILE`: one coaster per picture (resized to 836 px, ring guess 0.42 W, scaled windows/blur), fez mask now any strong red (dark-red outlines), convex hull fills outline-only fezzes; 2 x 2 grid, tower x 262.
 - PETG body black + white lines + red fez, engraved 2.5 mm, 15 % infill, all nozzle 1: CLI 2h59m / 94 g for the 4 (~45 min each). Fine face details (eyes, beard) partly lost at this size. File sent in chat.
