@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-27 (cloud) — owner marked Green + Yellow (seventh keeper), three more shown
+- Kept 7: Black + Silk Gold, Black + Silk Silver, Blue + Silk Silver, Blue + Silk Gold, White + Black, Green + Silk Silver, Green + Yellow. New 3: Black + White, Blue + Orange, Black + Red. Sheet `cad/out/bookmark_ommi/ten_schemes_men6.png` (not in git). Left: final picks -> 3MFs.
+
 ## 2026-11-27 (cloud) — owner marked Green + Silk Silver ("كما" read as "more"), sixth keeper; four more shown
 - Kept 6: Black + Silk Gold, Black + Silk Silver, Blue + Silk Silver, Blue + Silk Gold, White + Black, Green + Silk Silver. New 4: Green + Yellow, Orange + Black, Grey + Silk Gold, Cyan + Black. Sheet `cad/out/bookmark_ommi/ten_schemes_men5.png` (not in git). Left: final picks -> 3MFs.
 
