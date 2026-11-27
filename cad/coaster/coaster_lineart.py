@@ -28,6 +28,24 @@ RED = "#C8102E"
 GUESS = [(x, y) for y in (207, 600, 1000) for x in (240, 625, 1010)]
 
 
+def chaikin(geom, n=3):
+    """corner cutting on every ring: smooth curves instead of pixel steps"""
+    from shapely.geometry import Polygon, MultiPolygon
+
+    def cut(c):
+        c = np.asarray(c)[:-1]
+        for _ in range(n):
+            q = 0.75 * c + 0.25 * np.roll(c, -1, 0); r = 0.25 * c + 0.75 * np.roll(c, -1, 0)
+            c = np.empty((2 * len(q), 2)); c[0::2] = q; c[1::2] = r
+        return c
+    out = []
+    for p in getattr(geom, "geoms", [geom]):
+        if p.geom_type != "Polygon" or p.area < 0.05:
+            continue
+        out.append(Polygon(cut(p.exterior.coords), [cut(h.coords) for h in p.interiors if Polygon(h).area > 0.05]).buffer(0))
+    return unary_union(out)
+
+
 def fit_ring(dark, cx, cy, r0=172.0):
     for _ in range(6):
         y0, x0 = max(0, int(cy - r0 - 40)), max(0, int(cx - r0 - 40))
@@ -60,11 +78,20 @@ def main():
         cx, cy, r0 = fit_ring(dark, gx, gy)
         rpx = r0 * ct.D / 2 / RING_R                      # r0 px -> RING_R mm
         inside = (xx - cx) ** 2 + (yy - cy) ** 2 < (r0 - 9) ** 2
-        lines = coaster.mask_to_mm(dark & inside, cx, cy, rpx, up=3, smooth=1.3, clean=False)   # smoother edges
+        lines = coaster.mask_to_mm(dark & inside, cx, cy, rpx, up=3, smooth=2.6, clean=False)   # strong blur: the render's lines have rough edges
         fez = coaster.mask_to_mm(red & inside, cx, cy, rpx, up=3, smooth=0.8, clean=False)
         lines = unary_union([q for q in getattr(lines, "geoms", [lines]) if q.area > 0.4])
         thin = lines.difference(lines.buffer(-0.35, 8).buffer(0.35, 8))
-        lines = lines.union(thin.buffer(0.2, 8)).buffer(0.15, 16).buffer(-0.15, 16).buffer(-0.1, 16).buffer(0.1, 16)   # thin -> ~0.7, smooth
+        lines = lines.union(thin.buffer(0.2, 8))                                          # thin strokes -> ~0.7 mm
+        # owner 2026-11-27: saw-tooth edges (pixel burrs show in the engraved walls): close + open 0.3 mm kills burrs < 0.6 mm,
+        # then corner cutting makes the edges true curves
+        lines = lines.buffer(0.3, 16).buffer(-0.3, 16).buffer(-0.3, 16).buffer(0.3, 16)
+        lines = chaikin(lines.simplify(0.15), 4).simplify(0.01)                         # drop wiggles < 0.15 mm, then true curves
+        # fez: shaded in the picture -> holes; keep the outline only, smoothed
+        from shapely.geometry import Polygon as _P
+        fez = unary_union([_P(q.exterior) for q in getattr(fez, "geoms", [fez]) if q.geom_type == "Polygon" and q.area > 1])
+        fez = max(getattr(fez, "geoms", [fez]), key=lambda q: q.area).convex_hull      # a fez is a truncated cone: clean hull
+        fez = chaikin(fez.buffer(-0.3, 16).buffer(0.3, 16).simplify(0.05), 2)
         lines = lines.difference(fez.buffer(0.35)).buffer(-0.2, 8).buffer(0.2, 8)      # no line-colour rim round the fez
         fez = fez.buffer(0.1, 8).buffer(-0.1, 8)
         lines = unary_union([lines, disc_ring]).difference(fez.buffer(0.01))

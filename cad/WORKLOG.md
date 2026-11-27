@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-27 (cloud) — dervish coasters: saw-tooth edges fixed
+- Owner: engraved walls showed saw-tooth / wavy edges (pixel burrs + rough line edges of the render). Fix in `coaster_lineart.py`: trace blur 2.6 px, close+open 0.3 mm, simplify 0.15 mm, Chaikin corner cutting (4 passes); fez = convex hull of the red blob (picture fez was shaded/occluded). Close-up render now smooth. Zip v2 sent; slices still ~1h45m, 0 crossed layers.
+
 ## 2026-11-27 (cloud) — dervish coasters ENGRAVED (owner picked option 1 for a customer test)
 - `coaster_lineart.py --engraved`: face UP (not mirrored), TPU 0-2.2 | colour 2.2-2.6 | open groove 2.6-3.0 through the top (felt like the picture). Same 3 slots / clear settings. Slices: #1 1h44m, #8 1h42m, ~30 g, 0 crossed layers; all parts watertight in the 3MFs (STL round trip flags them, known). Zip of 9 sent.
 - Owner's own idea for later (option 3+): clear TPU coaster with ENGRAVED lines only + a full colour layer on the BACK -> one filament change per print, much faster. To build when asked.
