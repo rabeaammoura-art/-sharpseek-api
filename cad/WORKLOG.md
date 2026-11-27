@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-27 (cloud) — owner: "I want all of them masculine" -> second set of ten schemes
+- `cad/out/bookmark_ommi/ten_schemes_men.png` (not in git): 1 Black + Silk Gold, 2 Black + Silk Silver, 3 Black + Orange, 4 Grey + Silk Copper, 5 Grey + White, 6 Blue + Silk Silver, 7 Blue + Silk Gold, 8 Green + Silk Bronze, 9 Silk Black/Bronze + White, 10 Silk Blue/Green + Silk Gold. Cost 0.15-0.18 JOD each. Weak contrast: 4 (copper on grey), 8 (bronze on green), 5 (white on grey is fine but plain). Left: owner's picks -> 3MFs.
+
 ## 2026-11-27 (cloud) — ten colour schemes of the "Ommi" bookmark from the owner's stock (picture only)
 - Rendered from the repaired parts (`cad/out/bookmark_ommi/Base_RedBlue_Silk.stl` + `Pattern_Gold_Silk.stl`, not in git): 1 Silk Red/Blue + Silk Gold (original), 2 Black + Silk Gold, 3 Blue + Silk Silver, 4 Purple + Silk Rose Gold, 5 Green + Silk Gold, 6 Silk Blue/Green + Silk Silver, 7 Red + Silk Gold, 8 White + Blue, 9 Silk Silver/Black + Red, 10 Pink + Purple. Only colours that exist in `filament_prices.xlsx` (PLA+ and Silk PLA). Cost estimate 0.15-0.18 JOD each (plate 14.9 g + pattern 1.8 g + ~0.9 g purge at the sheet prices + electricity). Colour tones are screen guesses, not spool photos.
 - Readability: best 2, 5, 7, 8; weaker 3 (silver on blue lattice), 9 (red on grey mid-gradient). Left: owner's picks -> 3MFs with the right slots (and the tassel-name variants if wanted).
