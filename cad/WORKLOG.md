@@ -8,6 +8,7 @@ Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what wa
 ## 2026-11-27 (cloud) — dervish coasters: saw-tooth edges fixed
 - Owner: engraved walls showed saw-tooth / wavy edges (pixel burrs + rough line edges of the render). Fix in `coaster_lineart.py`: trace blur 2.6 px, close+open 0.3 mm, simplify 0.15 mm, Chaikin corner cutting (4 passes); fez = convex hull of the red blob (picture fez was shaded/occluded). Close-up render now smooth. Zip v2 sent; slices still ~1h45m, 0 crossed layers.
 - Owner marked a stray green bit beside fez #1 (my sent render was stale, made before the fez fix): line pieces < 3 mm2 near the fez and < 1 mm2 anywhere are dropped. Zip v3 sent.
+- Owner: groove 0.8 mm. `--groove` (default 0.8): colour 1.8-2.2, open groove 2.2-3.0. #1 slices 1h40m, 0 crossed layers. Zip sent. PLA instead of PETG for the colour is fine (just change slots 2/3; PLA softens ~55-60 C, PETG safer for hot drinks).
 
 ## 2026-11-27 (cloud) — dervish coasters ENGRAVED (owner picked option 1 for a customer test)
 - `coaster_lineart.py --engraved`: face UP (not mirrored), TPU 0-2.2 | colour 2.2-2.6 | open groove 2.6-3.0 through the top (felt like the picture). Same 3 slots / clear settings. Slices: #1 1h44m, #8 1h42m, ~30 g, 0 crossed layers; all parts watertight in the 3MFs (STL round trip flags them, known). Zip of 9 sent.
