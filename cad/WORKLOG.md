@@ -5,6 +5,12 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-27 (cloud) — gift bracelet for the owner's niece (Tawjihi): TALEEN ♥ U GOT THIS
+- Tried: closed TPU bangle (ID 63, 12 high, Arabic text embossed) and a TPU strap with stud + holes (drawing only). Owner then brought two MakerWorld files (FlexLink, Customizable Flexi Bracelet by 3dMayor, Standard Digital File License: gift ok, NOT for sale; files not in git).
+- Chosen: Flexi Bracelet, purple PLA + gold letters, 2 letters per link (cap 4.6 mm, condensed, +0.15 mm stroke, 0.5 mm proud), 2 middle links removed for a ~15 cm wrist (flat 174.8 mm). Built with a scratch script from the owner's 3MF (4-slot PLA template; the 1-slot template fails in the CLI: "filament_extruder_variant").
+- print_test: one overhang at the clasp socket roof + slicer "floating cantilever": both identical in the designer's original (prints without support). CLI 21 min / 6.3 g (GUI usually ~1.8x).
+- Left: owner prints it (suggest 3-link test for letter size first); wrist size is a guess (15 cm).
+
 ## 2026-11-27 (cloud) — dervish coasters ENGRAVED (owner picked option 1 for a customer test)
 - `coaster_lineart.py --engraved`: face UP (not mirrored), TPU 0-2.2 | colour 2.2-2.6 | open groove 2.6-3.0 through the top (felt like the picture). Same 3 slots / clear settings. Slices: #1 1h44m, #8 1h42m, ~30 g, 0 crossed layers; all parts watertight in the 3MFs (STL round trip flags them, known). Zip of 9 sent.
 - Owner's own idea for later (option 3+): clear TPU coaster with ENGRAVED lines only + a full colour layer on the BACK -> one filament change per print, much faster. To build when asked.
