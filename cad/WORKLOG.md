@@ -9,6 +9,7 @@ Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what wa
 - Tried: closed TPU bangle (ID 63, 12 high, Arabic text embossed) and a TPU strap with stud + holes (drawing only). Owner then brought two MakerWorld files (FlexLink, Customizable Flexi Bracelet by 3dMayor, Standard Digital File License: gift ok, NOT for sale; files not in git).
 - Chosen: Flexi Bracelet, purple PLA + gold letters, 2 letters per link (cap 4.6 mm, condensed, +0.15 mm stroke, 0.5 mm proud), 2 middle links removed for a ~15 cm wrist (flat 174.8 mm). Built with a scratch script from the owner's 3MF (4-slot PLA template; the 1-slot template fails in the CLI: "filament_extruder_variant").
 - print_test: one overhang at the clasp socket roof + slicer "floating cantilever": both identical in the designer's original (prints without support). CLI 21 min / 6.3 g (GUI usually ~1.8x).
+- First print: 8 links stuck; owner removed it while the plate was HOT (designer warns against this). Link clearance in the file is 0.4 mm (normal), our settings ~ designer's. Reprint same file, remove only when the plate is cold.
 - Left: owner prints it (suggest 3-link test for letter size first); wrist size is a guess (15 cm).
 
 ## 2026-11-27 (cloud) — dervish coasters ENGRAVED (owner picked option 1 for a customer test)
