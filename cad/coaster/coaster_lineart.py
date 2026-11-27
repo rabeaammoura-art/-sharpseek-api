@@ -62,10 +62,16 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("picture"); ap.add_argument("out"); ap.add_argument("--settings", required=True)
     ap.add_argument("--preview"); ap.add_argument("--stl", action="store_true")
+    ap.add_argument("--thick", type=float, default=3.0, help="coaster thickness (owner 2026-11-27: a 5 mm black one)")
+    ap.add_argument("--body", default="#E8F1F5", help="body colour (default clear TPU)")
+    ap.add_argument("--line-colour", help="one colour for all lines instead of the picture rows (e.g. #FFFFFF)")
+    ap.add_argument("--only", type=int, help="build only this coaster (1-9)")
+    ap.add_argument("--tag", default="", help="extra file-name tag")
     ap.add_argument("--groove", type=float, default=0.8, help="engraved: open groove depth above the colour (owner 2026-11-27: 0.8)")
     ap.add_argument("--engraved", action="store_true", help="owner 2026-11-27: lines ENGRAVED in the top face, colour at the "
                     "bottom of the groove (TPU 0-2.2 | colour 2.2-2.6 | open groove 2.6-3.0), printed FACE UP, not mirrored")
     a = ap.parse_args()
+    ct.T = a.thick
     im = np.array(Image.open(a.picture).convert("RGB")).astype(float)
     L = im.mean(2)
     red = (im[..., 0] > 150) & (im[..., 1] < 90) & (im[..., 2] < 90)
@@ -76,6 +82,8 @@ def main():
     disc_ring = Point(0, 0).buffer(RING_R + RING_W / 2, 256).difference(Point(0, 0).buffer(RING_R - RING_W / 2, 256))
     previews = []
     for i, (gx, gy) in enumerate(GUESS):
+        if a.only and i + 1 != a.only:
+            continue
         cx, cy, r0 = fit_ring(dark, gx, gy)
         rpx = r0 * ct.D / 2 / RING_R                      # r0 px -> RING_R mm
         inside = (xx - cx) ** 2 + (yy - cy) ** 2 < (r0 - 9) ** 2
@@ -100,6 +108,8 @@ def main():
         fez = fez.buffer(0.1, 8).buffer(-0.1, 8)
         lines = unary_union([lines, disc_ring]).difference(fez.buffer(0.01))
         name, colour = ROWS[i // 3]
+        if a.line_colour:
+            name, colour = "white" if a.line_colour.upper() == "#FFFFFF" else "lines", a.line_colour
         z1 = ct.T - a.groove; z0 = z1 - 0.4                    # colour 0.4 mm at the bottom of an open groove
         z0, z1 = (z0, z1) if a.engraved else (ct.Z0, ct.Z1)
         ink_l = coaster.extrude(lines.buffer(0), z0, z1); ink_r = coaster.extrude(fez.buffer(0), z0, z1)
@@ -113,8 +123,8 @@ def main():
         tpu = trimesh.boolean.difference([ct.rounded_disc()] + cut, engine="manifold")
         flip = (lambda m: m) if a.engraved else coaster.mirror_x
         parts = [(n, flip(m), s) for n, m, s in [("clear_tpu", tpu, 1), (name, ink_l, 2), ("red_fez", ink_r, 3)]]
-        cfg = dict(cfg0); cfg["filament_colour"] = ["#E8F1F5", colour, RED]
-        f = out / f"coaster_dervish_{i + 1}_{name}{'_engraved' if a.engraved else ''}.3mf"
+        cfg = dict(cfg0); cfg["filament_colour"] = [a.body, colour, RED]
+        f = out / f"coaster_dervish_{i + 1}_{name}{'_engraved' if a.engraved else ''}{a.tag}.3mf"
         write_bambu_3mf(f, parts, (175.0, 160.0), f.stem, json.dumps(cfg, indent=4))
         if a.stl:
             for n, m, _ in parts:

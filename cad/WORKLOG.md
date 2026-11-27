@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-27 (cloud) — dervish coasters: 5 mm black version
+- Owner: one 5 mm, black body, white lines, red fez, engraved 2.5 mm from the colour to the top. `coaster_lineart.py --engraved --thick 5 --groove 2.5 --body #1A1A1A --line-colour #FFFFFF --tag _black5` (also --only N): colour 2.1-2.5, open groove 2.5-5.0. All 9 built (owner did not say which), zip sent. #1 slices 2h14m / 44.7 g. Slot 1 = TPU in black (or swap the body to PETG/PLA black).
+- Told owner: 0.7-1 mm wide x 2.5 mm deep slots only show the white from straight above; at an angle the walls hide it (seen in the render).
+
 ## 2026-11-27 (cloud) — dervish coasters: saw-tooth edges fixed
 - Owner: engraved walls showed saw-tooth / wavy edges (pixel burrs + rough line edges of the render). Fix in `coaster_lineart.py`: trace blur 2.6 px, close+open 0.3 mm, simplify 0.15 mm, Chaikin corner cutting (4 passes); fez = convex hull of the red blob (picture fez was shaded/occluded). Close-up render now smooth. Zip v2 sent; slices still ~1h45m, 0 crossed layers.
 - Owner marked a stray green bit beside fez #1 (my sent render was stale, made before the fez fix): line pieces < 3 mm2 near the fez and < 1 mm2 anywhere are dropped. Zip v3 sent.
