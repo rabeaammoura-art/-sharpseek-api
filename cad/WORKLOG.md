@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-27 (cloud) — how many "Ommi" bookmarks (60 x 179 mm) fit on one H2D plate: 6
+- Layout tried: 4 upright (x 5-260, y 5-184, gap 5) + 2 lying (x 5-184, y 190-315), prime tower 40 mm at x 275, all on the left nozzle (bed 325 x 320). Sliced as one plate (PLA Basic x2 slots): 193 min / 94.8 g for 6 (32 min and 15.8 g each; a single one was 37 min / 16.7 g). 7 do not fit (area and tower). Scratch script only; 12-part 3MF not kept.
+
 ## 2026-11-27 (cloud) — owner "لا كمل" after the 7-kept sheet (no new marks): read as "no, keep going"; the unmarked 8-10 (Black + White, Blue + Orange, Black + Red) replaced
 - New 8-10: Purple + Silk Gold, Green + Black, Red + Silk Gold. Sheet `cad/out/bookmark_ommi/ten_schemes_men7.png` (not in git). Left: final picks -> 3MFs.
 
