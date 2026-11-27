@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-27 (cloud) — owner marked schemes 1, 2, 6, 7 of the masculine set (my reading of his red strokes: black+gold, black+silver, blue+silver, blue+gold) and asked for ten more
+- Third set `cad/out/bookmark_ommi/ten_schemes_men2.png` (not in git): Black + Silk Bronze / Silk Copper / Cyan / Silk Gold-Copper (pattern colour is a screen guess), Blue + Silk Copper / White, Green + Silk Silver, Grey + Orange, Silk Black/Bronze + Silk Gold, White + Black. Cost 0.15-0.18 JOD. Left: owner's picks -> 3MFs.
+
 ## 2026-11-27 (cloud) — owner: "I want all of them masculine" -> second set of ten schemes
 - `cad/out/bookmark_ommi/ten_schemes_men.png` (not in git): 1 Black + Silk Gold, 2 Black + Silk Silver, 3 Black + Orange, 4 Grey + Silk Copper, 5 Grey + White, 6 Blue + Silk Silver, 7 Blue + Silk Gold, 8 Green + Silk Bronze, 9 Silk Black/Bronze + White, 10 Silk Blue/Green + Silk Gold. Cost 0.15-0.18 JOD each. Weak contrast: 4 (copper on grey), 8 (bronze on green), 5 (white on grey is fine but plain). Left: owner's picks -> 3MFs.
 
