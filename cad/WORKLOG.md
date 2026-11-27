@@ -10,6 +10,7 @@ Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what wa
 - Chosen: Flexi Bracelet, purple PLA + gold letters, 2 letters per link (cap 4.6 mm, condensed, +0.15 mm stroke, 0.5 mm proud), 2 middle links removed for a ~15 cm wrist (flat 174.8 mm). Built with a scratch script from the owner's 3MF (4-slot PLA template; the 1-slot template fails in the CLI: "filament_extruder_variant").
 - print_test: one overhang at the clasp socket roof + slicer "floating cantilever": both identical in the designer's original (prints without support). CLI 21 min / 6.3 g (GUI usually ~1.8x).
 - First print: 8 links stuck; owner removed it while the plate was HOT (designer warns against this). Link clearance in the file is 0.4 mm (normal), our settings ~ designer's. Reprint same file, remove only when the plate is cold.
+- Owner: male clip needs support. Its two prongs start 1.15 mm above the bed with nothing under them (= the slicer's 'floating cantilever'). v2 adds two built-in pads under the prongs only (z 0-1.0, 0.2 mm inset, one empty layer gap), slot 1; global support stays OFF (it would fuse the links). CLI 21 min / 6.4 g.
 - Left: owner prints it (suggest 3-link test for letter size first); wrist size is a guess (15 cm).
 
 ## 2026-11-27 (cloud) — dervish coasters ENGRAVED (owner picked option 1 for a customer test)
