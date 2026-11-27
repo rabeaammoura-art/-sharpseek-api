@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-27 (cloud) — monkey 3MF (painted, 5 PLA colours): how to cut print time
+- Owner's `monkey-color-finally_1.3mf`: one painted mesh (1.39 M faces, ~64x45x60 mm), H2C project, 5 PLA slots (brown/yellow/beige/black/white), 0.20 mm, 8% infill, tree supports ON, prime tower 60 mm wide. White is only ~1.4k triangles, black ~22k, beige ~408k.
+- CLI slice failed (out of memory on the 1.4 M faces: showed bogus 4 min / 0.8 g). No trusted time. Advice given: drop white (merge into black/beige), 0.28 mm layers, no supports / support filament = current, tower width ~30-35 and no flat ironing, flush into infill/objects; owner to read the GUI time.
+
 ## 2026-11-27 (cloud) — dervish coasters: 5 mm black version
 - Owner: one 5 mm, black body, white lines, red fez, engraved 2.5 mm from the colour to the top. `coaster_lineart.py --engraved --thick 5 --groove 2.5 --body #1A1A1A --line-colour #FFFFFF --tag _black5` (also --only N): colour 2.1-2.5, open groove 2.5-5.0. All 9 built (owner did not say which), zip sent. #1 slices 2h14m / 44.7 g. Slot 1 = TPU in black (or swap the body to PETG/PLA black).
 - Two on one plate: TPU body 4h16m (2h08m each, almost no gain: time is the slow TPU, colour swaps only on 2 layers). PETG black body (normal 15 % infill, all on nozzle 1): 1h28m for two = 44 min each. `coaster_black5_x2_petg.3mf` sent.
