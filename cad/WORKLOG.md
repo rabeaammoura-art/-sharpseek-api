@@ -7,6 +7,7 @@ Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what wa
 
 ## 2026-11-27 (cloud) — dervish coasters: 5 mm black version
 - Owner: one 5 mm, black body, white lines, red fez, engraved 2.5 mm from the colour to the top. `coaster_lineart.py --engraved --thick 5 --groove 2.5 --body #1A1A1A --line-colour #FFFFFF --tag _black5` (also --only N): colour 2.1-2.5, open groove 2.5-5.0. All 9 built (owner did not say which), zip sent. #1 slices 2h14m / 44.7 g. Slot 1 = TPU in black (or swap the body to PETG/PLA black).
+- Two on one plate: TPU body 4h16m (2h08m each, almost no gain: time is the slow TPU, colour swaps only on 2 layers). PETG black body (normal 15 % infill, all on nozzle 1): 1h28m for two = 44 min each. `coaster_black5_x2_petg.3mf` sent.
 - Told owner: 0.7-1 mm wide x 2.5 mm deep slots only show the white from straight above; at an angle the walls hide it (seen in the render).
 
 ## 2026-11-27 (cloud) — dervish coasters: saw-tooth edges fixed
