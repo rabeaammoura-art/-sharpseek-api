@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-27 (cloud) — owner "لا كمل" after the 7-kept sheet (no new marks): read as "no, keep going"; the unmarked 8-10 (Black + White, Blue + Orange, Black + Red) replaced
+- New 8-10: Purple + Silk Gold, Green + Black, Red + Silk Gold. Sheet `cad/out/bookmark_ommi/ten_schemes_men7.png` (not in git). Left: final picks -> 3MFs.
+
 ## 2026-11-27 (cloud) — owner marked Green + Yellow (seventh keeper), three more shown
 - Kept 7: Black + Silk Gold, Black + Silk Silver, Blue + Silk Silver, Blue + Silk Gold, White + Black, Green + Silk Silver, Green + Yellow. New 3: Black + White, Blue + Orange, Black + Red. Sheet `cad/out/bookmark_ommi/ten_schemes_men6.png` (not in git). Left: final picks -> 3MFs.
 
