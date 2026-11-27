@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-27 (cloud) — ten colour schemes of the "Ommi" bookmark from the owner's stock (picture only)
+- Rendered from the repaired parts (`cad/out/bookmark_ommi/Base_RedBlue_Silk.stl` + `Pattern_Gold_Silk.stl`, not in git): 1 Silk Red/Blue + Silk Gold (original), 2 Black + Silk Gold, 3 Blue + Silk Silver, 4 Purple + Silk Rose Gold, 5 Green + Silk Gold, 6 Silk Blue/Green + Silk Silver, 7 Red + Silk Gold, 8 White + Blue, 9 Silk Silver/Black + Red, 10 Pink + Purple. Only colours that exist in `filament_prices.xlsx` (PLA+ and Silk PLA). Cost estimate 0.15-0.18 JOD each (plate 14.9 g + pattern 1.8 g + ~0.9 g purge at the sheet prices + electricity). Colour tones are screen guesses, not spool photos.
+- Readability: best 2, 5, 7, 8; weaker 3 (silver on blue lattice), 9 (red on grey mid-gradient). Left: owner's picks -> 3MFs with the right slots (and the tassel-name variants if wanted).
+
 ## 2026-11-16 (cloud) — owner: the cleaned D5 / D1 previews "are obviously bad" -> redone, my smoothing was the mistake
 - Verdict: right. The smoothed rebuild (`clean_gemini_voxel.py`) made the outer edges ragged and kept stray pink / red bits, i.e. WORSE than Gemini's original pictures; I sent it without comparing it with the original view. Lesson: compare cleaned vs original side by side before claiming "cleaned".
 - New `cad/bookmarks/gemini_voxel_exact.py` keeps Gemini's exact pixel shapes (run-length boxes of the 0.25 mm mask, no smoothing); only: specks < 0.8 mm2 go to the background colour, silhouette = outer outline minus the tassel hole, relief structure (plate 1.2 + two raised colours 0.6). D5 only (env): `SMOOTH_SIL=1.0` opens/closes the ragged silhouette, `BAND=3.5` removes the stray colour-3 outline lines within 3.5 mm of the edge (they were ragged hairlines in the source).
