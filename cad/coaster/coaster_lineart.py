@@ -47,11 +47,12 @@ def chaikin(geom, n=3):
 
 
 def fit_ring(dark, cx, cy, r0=172.0):
+    w, tol = 40 * r0 / 172, 18 * r0 / 172                 # window / band scale with the picture
     for _ in range(6):
-        y0, x0 = max(0, int(cy - r0 - 40)), max(0, int(cx - r0 - 40))
-        ys, xs = np.nonzero(dark[y0:int(cy + r0 + 40), x0:int(cx + r0 + 40)])
+        y0, x0 = max(0, int(cy - r0 - w)), max(0, int(cx - r0 - w))
+        ys, xs = np.nonzero(dark[y0:int(cy + r0 + w), x0:int(cx + r0 + w)])
         xs, ys = xs + x0, ys + y0
-        k = np.abs(np.hypot(xs - cx, ys - cy) - r0) < 18
+        k = np.abs(np.hypot(xs - cx, ys - cy) - r0) < tol
         x, y = xs[k].astype(float), ys[k].astype(float)
         s = np.linalg.lstsq(np.c_[2 * x, 2 * y, np.ones_like(x)], x * x + y * y, rcond=None)[0]
         cx, cy = s[0], s[1]; r0 = np.sqrt(s[2] + cx * cx + cy * cy)
@@ -60,11 +61,12 @@ def fit_ring(dark, cx, cy, r0=172.0):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("picture"); ap.add_argument("out"); ap.add_argument("--settings", required=True)
+    ap.add_argument("picture", nargs="+"); ap.add_argument("out"); ap.add_argument("--settings", required=True)
     ap.add_argument("--preview"); ap.add_argument("--stl", action="store_true")
     ap.add_argument("--thick", type=float, default=3.0, help="coaster thickness (owner 2026-11-27: a 5 mm black one)")
     ap.add_argument("--body", default="#E8F1F5", help="body colour (default clear TPU)")
     ap.add_argument("--line-colour", help="one colour for all lines instead of the picture rows (e.g. #FFFFFF)")
+    ap.add_argument("--plate", help="owner 2026-11-27: ONE coaster per picture, all on one plate written to this 3MF (2 x 2 grid)")
     ap.add_argument("--only", type=int, help="build only this coaster (1-9)")
     ap.add_argument("--tag", default="", help="extra file-name tag")
     ap.add_argument("--groove", type=float, default=0.8, help="engraved: open groove depth above the colour (owner 2026-11-27: 0.8)")
@@ -72,23 +74,33 @@ def main():
                     "bottom of the groove (TPU 0-2.2 | colour 2.2-2.6 | open groove 2.6-3.0), printed FACE UP, not mirrored")
     a = ap.parse_args()
     ct.T = a.thick
-    im = np.array(Image.open(a.picture).convert("RGB")).astype(float)
-    L = im.mean(2)
-    red = (im[..., 0] > 150) & (im[..., 1] < 90) & (im[..., 2] < 90)
-    dark = (L < median_filter(L, size=31) - 28) & ~red
-    yy, xx = np.mgrid[0:im.shape[0], 0:im.shape[1]]
     cfg0 = json.loads(zipfile.ZipFile(a.settings).read("Metadata/project_settings.config"))
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
     disc_ring = Point(0, 0).buffer(RING_R + RING_W / 2, 256).difference(Point(0, 0).buffer(RING_R - RING_W / 2, 256))
+    jobs = []      # (picture arrays, guess x, guess y, guess r)
+    for pic in a.picture:
+        im = np.array(Image.open(pic).convert("RGB")).astype(float)
+        if a.plate:                                   # single coaster picture: scale so the ring is ~350 px
+            k = 836 / im.shape[1]
+            im = np.array(Image.fromarray(im.astype(np.uint8)).resize((836, int(im.shape[0] * k)), Image.LANCZOS)).astype(float)
+        L = im.mean(2)
+        red = (im[..., 0] - im[..., 1] > 70) & (im[..., 0] - im[..., 2] > 60)      # also dark-red fez outlines
+        sc = 2 if a.plate else 1
+        dark = (L < median_filter(L, size=31 * sc) - 28) & ~red
+        yy, xx = np.mgrid[0:im.shape[0], 0:im.shape[1]]
+        guesses = [(im.shape[1] / 2, im.shape[0] / 2, 0.42 * im.shape[1])] if a.plate else [(x, y, 172.0) for x, y in GUESS]
+        for gx, gy, gr in guesses:
+            jobs.append((dark, red, xx, yy, sc, gx, gy, gr))
+    plate_objs = []
     previews = []
-    for i, (gx, gy) in enumerate(GUESS):
+    for i, (dark, red, xx, yy, sc, gx, gy, gr) in enumerate(jobs):
         if a.only and i + 1 != a.only:
             continue
-        cx, cy, r0 = fit_ring(dark, gx, gy)
+        cx, cy, r0 = fit_ring(dark, gx, gy, gr)
         rpx = r0 * ct.D / 2 / RING_R                      # r0 px -> RING_R mm
-        inside = (xx - cx) ** 2 + (yy - cy) ** 2 < (r0 - 9) ** 2
-        lines = coaster.mask_to_mm(dark & inside, cx, cy, rpx, up=3, smooth=2.6, clean=False)   # strong blur: the render's lines have rough edges
-        fez = coaster.mask_to_mm(red & inside, cx, cy, rpx, up=3, smooth=0.8, clean=False)
+        inside = (xx - cx) ** 2 + (yy - cy) ** 2 < (r0 - 9 * sc) ** 2
+        lines = coaster.mask_to_mm(dark & inside, cx, cy, rpx, up=3, smooth=(1.6 if a.plate else 2.6) * sc, clean=False)   # strong blur: the render's lines have rough edges
+        fez = coaster.mask_to_mm(red & inside, cx, cy, rpx, up=3, smooth=0.8 * sc, clean=False)
         lines = unary_union([q for q in getattr(lines, "geoms", [lines]) if q.area > 0.4])
         thin = lines.difference(lines.buffer(-0.35, 8).buffer(0.35, 8))
         lines = lines.union(thin.buffer(0.2, 8))                                          # thin strokes -> ~0.7 mm
@@ -107,7 +119,7 @@ def main():
                              if q.area > 3.0 or (q.area > 1.0 and not q.intersects(near))])
         fez = fez.buffer(0.1, 8).buffer(-0.1, 8)
         lines = unary_union([lines, disc_ring]).difference(fez.buffer(0.01))
-        name, colour = ROWS[i // 3]
+        name, colour = ROWS[min(i // 3, 2)]
         if a.line_colour:
             name, colour = "white" if a.line_colour.upper() == "#FFFFFF" else "lines", a.line_colour
         z1 = ct.T - a.groove; z0 = z1 - 0.4                    # colour 0.4 mm at the bottom of an open groove
@@ -124,6 +136,8 @@ def main():
         flip = (lambda m: m) if a.engraved else coaster.mirror_x
         parts = [(n, flip(m), s) for n, m, s in [("clear_tpu", tpu, 1), (name, ink_l, 2), ("red_fez", ink_r, 3)]]
         cfg = dict(cfg0); cfg["filament_colour"] = [a.body, colour, RED]
+        if a.plate:
+            plate_objs.append((f"coaster_{i + 1}", parts, (80.0 + 105 * (i % 2), 85.0 + 105 * (i // 2))))
         f = out / f"coaster_dervish_{i + 1}_{name}{'_engraved' if a.engraved else ''}{a.tag}.3mf"
         write_bambu_3mf(f, parts, (175.0, 160.0), f.stem, json.dumps(cfg, indent=4))
         if a.stl:
@@ -133,6 +147,12 @@ def main():
         print(f"{i + 1} {name}: ring r {r0:.0f} px, lines {lines.area:.0f} mm2 (under 0.7: {t.area:.1f}), fez {fez.area:.0f} mm2, "
               f"watertight {all(m.is_watertight for _, m, _ in parts)} -> {f.name}")
         previews.append((lines, fez, colour))
+    if a.plate:
+        from threemf import write_bambu_3mf_multi
+        cfg = dict(cfg0); cfg["filament_colour"] = [a.body, colour, RED]
+        cfg["wipe_tower_x"], cfg["wipe_tower_y"] = ["262"], ["150"]
+        write_bambu_3mf_multi(Path(a.plate), plate_objs, json.dumps(cfg, indent=4))
+        print("plate ->", a.plate)
     if a.preview:
         import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
         from matplotlib.patches import Circle, PathPatch
@@ -144,9 +164,13 @@ def main():
             v = np.concatenate([np.asarray(r.coords) for r in rings])
             codes = np.concatenate([[MPath.MOVETO] + [MPath.LINETO] * (len(r.coords) - 2) + [MPath.CLOSEPOLY] for r in rings])
             return PathPatch(MPath(v, codes), fc=c, ec="none")
-        fig, axs = plt.subplots(3, 3, figsize=(12, 12), dpi=110); fig.patch.set_facecolor("#EDE6DA")
+        nc = 2 if len(previews) <= 4 else 3
+        fig, axs = plt.subplots(nc, nc, figsize=(12, 12), dpi=110); fig.patch.set_facecolor("#EDE6DA")
+        for ax in axs.ravel()[len(previews):]:
+            ax.axis("off")
+        bodyc = a.body if a.body.upper() != "#E8F1F5" else "#F7F4EE"
         for ax, (ln, fz, col) in zip(axs.ravel(), previews):
-            ax.add_patch(Circle((0, 0), 47.5, fc="#F7F4EE", ec="#C9C2B6", lw=1.5))
+            ax.add_patch(Circle((0, 0), 47.5, fc=bodyc, ec="#C9C2B6", lw=1.5))
             for g, c in ((ln, col), (fz, RED)):
                 for p in getattr(g, "geoms", [g]):
                     if p.geom_type == "Polygon":

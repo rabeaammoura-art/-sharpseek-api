@@ -5,6 +5,10 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-27 (cloud) — 4 single dervish pictures -> one plate, 5 mm black (PETG body)
+- Owner sent 4 separate coaster pictures (black lines, red / dark-red outlined fez; not in git) for ONE file in the black 5 mm style. `coaster_lineart.py PIC1..PIC4 OUT --plate FILE`: one coaster per picture (resized to 836 px, ring guess 0.42 W, scaled windows/blur), fez mask now any strong red (dark-red outlines), convex hull fills outline-only fezzes; 2 x 2 grid, tower x 262.
+- PETG body black + white lines + red fez, engraved 2.5 mm, 15 % infill, all nozzle 1: CLI 2h59m / 94 g for the 4 (~45 min each). Fine face details (eyes, beard) partly lost at this size. File sent in chat.
+
 ## 2026-11-27 (cloud) — dervish coasters: 5 mm black version
 - Owner: one 5 mm, black body, white lines, red fez, engraved 2.5 mm from the colour to the top. `coaster_lineart.py --engraved --thick 5 --groove 2.5 --body #1A1A1A --line-colour #FFFFFF --tag _black5` (also --only N): colour 2.1-2.5, open groove 2.5-5.0. All 9 built (owner did not say which), zip sent. #1 slices 2h14m / 44.7 g. Slot 1 = TPU in black (or swap the body to PETG/PLA black).
 - Two on one plate: TPU body 4h16m (2h08m each, almost no gain: time is the slow TPU, colour swaps only on 2 layers). PETG black body (normal 15 % infill, all on nozzle 1): 1h28m for two = 44 min each. `coaster_black5_x2_petg.3mf` sent.
