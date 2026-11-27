@@ -5,6 +5,9 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-27 (cloud) — where the mom's bookmark («بسم الله الرحمن الرحيم / أمي», purple + gold) was made
+- Not logged before. It was built in the cloud session "3D cost" started 2026-11-13 (session_01WCFcZ1MkCcfT3naBfYCLSn, ~16 Nov): `cad/out/bookmark_emb/` (verse bookmark, frame 50 x 182, Gemini frame prompts). Its files were in `cad/out` (git-ignored), so they are not in git. The owner printed it and used the photo in the launch post («فواصل المصاحف والكتب»).
+
 ## 2026-11-27 (cloud) — bookmark file is the base for all tatreez bookmarks (owner)
 - Owner decided: every embroidered bookmark uses this file / generator (`bookmark.py`, `bookmark_iqra.3mf`). Written into CLAUDE.md. Earlier advice on dual-colour silk (Red/Gold): no ironing, 2 walls, side light; a 4 x 4 cm test coupon was offered, not made.
 
