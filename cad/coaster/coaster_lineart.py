@@ -93,6 +93,9 @@ def main():
         fez = max(getattr(fez, "geoms", [fez]), key=lambda q: q.area).convex_hull      # a fez is a truncated cone: clean hull
         fez = chaikin(fez.buffer(-0.3, 16).buffer(0.3, 16).simplify(0.05), 2)
         lines = lines.difference(fez.buffer(0.35)).buffer(-0.2, 8).buffer(0.2, 8)      # no line-colour rim round the fez
+        near = fez.buffer(2.5)                                                            # owner mark: stray bits by the fez
+        lines = unary_union([q for q in getattr(lines, "geoms", [lines])
+                             if q.area > 3.0 or (q.area > 1.0 and not q.intersects(near))])
         fez = fez.buffer(0.1, 8).buffer(-0.1, 8)
         lines = unary_union([lines, disc_ring]).difference(fez.buffer(0.01))
         name, colour = ROWS[i // 3]
