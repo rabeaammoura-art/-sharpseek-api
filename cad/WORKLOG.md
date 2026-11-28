@@ -5,6 +5,11 @@ read what happened. Newest first. Keep it factual and short; this repo is public
 
 Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what was done, results, what is left.
 
+## 2026-11-28 (cloud) — big S block + raised name "sally": 3 mm LED groove in the name
+- Owner file (not in git): serif S 88 x 103 x 25 mm + cursive name 5 mm on top; name strokes only 3.7-5.6 mm (median 4.4), 2/3 of the name hangs outside the S at z=25 (overhang, needs support; was already in his file).
+- Owner chose 3 mm groove; marked gaps at the l loops and the y. `cad/name_led_groove.py`: pen-stroke chains from the name medial axis, smoothed; name grown 0.5 mm + 1.2 mm walls around the groove; groove depth 3.5 (floor 1.5).
+- `sally_S_led3.3mf` 90.5 x 103.3 x 30, one body; print_test only the old overhang; CLI with support PLA 1h39m / 45 g. Sent in chat.
+
 ## 2026-11-24 (cloud) — check of a downloaded LED-strip sign ("Sally", 5 mm strip)
 - Owner's downloaded 3MF (not in git): 174 x 111 x 10 mm, 2 mm back + 8 mm outline walls (~1.2-1.8 mm) = open channel for a 5 mm LED strip. Two separate bodies ("S" and "ally"), plain 3MF centred at 0,0 (Bambu CLI refused it; sliced as STL).
 - print_test 0 problems. CLI 0.20 mm: PLA 59 min / 38 g, PETG 1h00 / 37 g (GUI usually longer). Price sheet missing in this session.
