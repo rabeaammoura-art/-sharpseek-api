@@ -10,6 +10,85 @@ Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what wa
 - Owner chose 3 mm groove; marked gaps at the l loops and the y. `cad/name_led_groove.py`: pen-stroke chains from the name medial axis, smoothed; name grown 0.5 mm + 1.2 mm walls around the groove; groove depth 3.5 (floor 1.5).
 - `sally_S_led3.3mf` 90.5 x 103.3 x 30, one body; print_test only the old overhang; CLI with support PLA 1h39m / 45 g. Sent in chat.
 
+## 2026-11-27 (cloud) — where the mom's bookmark («بسم الله الرحمن الرحيم / أمي», purple + gold) was made
+- Not logged before. It was built in the cloud session "3D cost" started 2026-11-13 (session_01WCFcZ1MkCcfT3naBfYCLSn, ~16 Nov): `cad/out/bookmark_emb/` (verse bookmark, frame 50 x 182, Gemini frame prompts). Its files were in `cad/out` (git-ignored), so they are not in git. The owner printed it and used the photo in the launch post («فواصل المصاحف والكتب»).
+
+## 2026-11-27 (cloud) — bookmark file is the base for all tatreez bookmarks (owner)
+- Owner decided: every embroidered bookmark uses this file / generator (`bookmark.py`, `bookmark_iqra.3mf`). Written into CLAUDE.md. Earlier advice on dual-colour silk (Red/Gold): no ironing, 2 walls, side light; a 4 x 4 cm test coupon was offered, not made.
+
+## 2026-11-27 (cloud) — 4 single dervish pictures -> one plate, 5 mm black (PETG body)
+- Owner sent 4 separate coaster pictures (black lines, red / dark-red outlined fez; not in git) for ONE file in the black 5 mm style. `coaster_lineart.py PIC1..PIC4 OUT --plate FILE`: one coaster per picture (resized to 836 px, ring guess 0.42 W, scaled windows/blur), fez mask now any strong red (dark-red outlines), convex hull fills outline-only fezzes; 2 x 2 grid, tower x 262.
+- PETG body black + white lines + red fez, engraved 2.5 mm, 15 % infill, all nozzle 1: CLI 2h59m / 94 g for the 4 (~45 min each). Fine face details (eyes, beard) partly lost at this size. File sent in chat.
+
+## 2026-11-27 (cloud) — dervish coasters: 5 mm black version
+- Owner: one 5 mm, black body, white lines, red fez, engraved 2.5 mm from the colour to the top. `coaster_lineart.py --engraved --thick 5 --groove 2.5 --body #1A1A1A --line-colour #FFFFFF --tag _black5` (also --only N): colour 2.1-2.5, open groove 2.5-5.0. All 9 built (owner did not say which), zip sent. #1 slices 2h14m / 44.7 g. Slot 1 = TPU in black (or swap the body to PETG/PLA black).
+- Two on one plate: TPU body 4h16m (2h08m each, almost no gain: time is the slow TPU, colour swaps only on 2 layers). PETG black body (normal 15 % infill, all on nozzle 1): 1h28m for two = 44 min each. `coaster_black5_x2_petg.3mf` sent.
+- Told owner: 0.7-1 mm wide x 2.5 mm deep slots only show the white from straight above; at an angle the walls hide it (seen in the render).
+
+## 2026-11-27 (cloud) — dervish coasters: saw-tooth edges fixed
+- Owner: engraved walls showed saw-tooth / wavy edges (pixel burrs + rough line edges of the render). Fix in `coaster_lineart.py`: trace blur 2.6 px, close+open 0.3 mm, simplify 0.15 mm, Chaikin corner cutting (4 passes); fez = convex hull of the red blob (picture fez was shaded/occluded). Close-up render now smooth. Zip v2 sent; slices still ~1h45m, 0 crossed layers.
+- Owner marked a stray green bit beside fez #1 (my sent render was stale, made before the fez fix): line pieces < 3 mm2 near the fez and < 1 mm2 anywhere are dropped. Zip v3 sent.
+- Owner: groove 0.8 mm. `--groove` (default 0.8): colour 1.8-2.2, open groove 2.2-3.0. #1 slices 1h40m, 0 crossed layers. Zip sent. PLA instead of PETG for the colour is fine (just change slots 2/3; PLA softens ~55-60 C, PETG safer for hot drinks).
+
+## 2026-11-27 (cloud) — dervish coasters ENGRAVED (owner picked option 1 for a customer test)
+- `coaster_lineart.py --engraved`: face UP (not mirrored), TPU 0-2.2 | colour 2.2-2.6 | open groove 2.6-3.0 through the top (felt like the picture). Same 3 slots / clear settings. Slices: #1 1h44m, #8 1h42m, ~30 g, 0 crossed layers; all parts watertight in the 3MFs (STL round trip flags them, known). Zip of 9 sent.
+- Owner's own idea for later (option 3+): clear TPU coaster with ENGRAVED lines only + a full colour layer on the BACK -> one filament change per print, much faster. To build when asked.
+
+## 2026-11-27 (cloud) — 9 whirling-dervish line-art coasters (owner's 3 x 3 picture)
+- Owner's picture (render of 9 coasters, green / gold / grey line art + red fez; not in git). New `cad/coaster/coaster_lineart.py`: circle fit per coaster, lines = darker than the local surface (median 31 px, -28) inside the ring, fez = red pixels, ring redrawn clean (r 41.5, 1.4 mm), thin strokes -> ~0.7 mm, edges smoothed, line-colour rim round the fez removed. Our spec: Ø95 x 3, TPU 0.4 | inlay 0.6 | TPU 2.0, rounded, mirrored, Textured PEI, 3 slots (TPU + line colour + red), clear settings reused from one prepared file (ensure partial, purge 18).
+- Slices: #1, #5, #9 ~1h47m / 30 g each, 0 crossed layers. All parts watertight in the 3MFs (STL round trip flags 3 of them, known). 9 files sent as a zip in chat. Preview drawing fixed: polygons with holes drawn as one path.
+
+## 2026-11-26 (cloud) — owner's Studio: "none" not accepted; filament slots swapped on open
+- Owner's (older) Bambu Studio GUI replaced ensure_vertical_shell_thickness "none" with "enabled". Values in the newer CLI: none / partial / enabled. Script now writes "partial"; with 1/1 shells even "enabled" gave 0 crossed layers. `coaster_R_rose_black4_v2.3mf` sent.
+- His screenshot showed slots as PLA Basic / Generic PETG (AMS sync): slot 1 must be re-set to TPU 95A HF (right nozzle) and the TPU values re-entered by hand (240 C, flow 1.05, fan 30-40 %) since re-picking the preset resets them. Suggest updating Studio.
+
+## 2026-11-26 (cloud) — rose coaster: owner's exact rose (transparent PNG), buds black, 4 slots
+- Owner sent the exact rose to use (1254 px RGBA, transparent background, not in git). `rose_template` now composites transparency onto white (transparent pixels read as black before). `--buds-black`: buds to the black slot; empty colours are dropped from the file -> 4 slots (TPU, black, olive, brown).
+- print_test 0 problems, Textured PEI, ensure none, purge 32, 0 crossed layers, CLI 1h56m / 31.6 g. `coaster_R_rose_black4.3mf` sent. Tight centre lines merge into small dots at 17 mm.
+
+## 2026-11-26 (cloud) — rose coaster: black roses
+- Owner: roses black. `--rose-black`: open roses go to the letter's slot (black), clear petal lines kept, buds stay crimson. print_test 0 problems, 0 crossed layers, CLI 2h02m / 33 g. `coaster_R_rose_black.3mf` sent. Crimson is now only the 7 buds: if they go black too, the slot (and its colour swaps) can be dropped.
+
+## 2026-11-26 (cloud) — rose coaster: sharp 1254 px rose (owner), clear lines
+- The screenshot rose (185 px) printed jagged; owner sent a sharp 1254 px bold rose (thick even white lines, not in git). `rose_template` for big pictures: up=1, smooth 1.0, closing radius 3 % of the width, no sepal trim. Clear lines grown only to ~0.7 mm (+0.15 per side; +0.25 cut the petals into bits), crimson opening 0.2.
+- Flat true-colour previews (STL sections) instead of the shadowed render (owner asked what the grey shadows were: render lamp only). print_test 0 problems, Textured PEI, 0 crossed layers, CLI 2h02m / 33 g. `coaster_R_rose_v2.3mf` sent.
+
+## 2026-11-26 (cloud) — rose coaster v-final: bold stencil rose, CLEAR petal lines
+- Owner picked (on my advice) the bold "Rose Black And White Vector" stencil (fewer, thicker white lines; screenshot crop, not in git) and wants the white lines CLEAR, R black. `--rose-pic head.png --rose-head-only --clear-lines`: picture padded white (a shape touching the crop edge did not close -> garbage), sepals/stem stub under the bloom cut off (looked like drips).
+- print_test 0 problems, Textured PEI (owner), ensure none, purge 50, 0 crossed layers, CLI 2h02m / 33 g. `coaster_R_rose_clear.3mf` sent. Stock image licence not checked (owner told).
+
+## 2026-11-26 (cloud) — rose coaster with the stencil rose head (owner's pick)
+- Owner disliked the drawn spiral rose; marked the HEAD of a black rose stencil picture (300 px, not in git). `coaster_picture.py --rose-pic PIC [--rose-scale 1.7]`: head cut above the stem neck, all pieces kept, closed 6 px -> silhouette (crimson), white gaps -> black petal lines (thin ones grown to ~0.7 mm); each of the 4 roses replaced at 1.7x its size (~17 mm; at 13 mm the black swamped the petals); leaves/stems cleared 0.6 mm around.
+- print_test 0 problems, file settings: Textured PEI (owner), ensure none, purge 50; 0 crossed layers, CLI 2h01m / 33 g. One CLI run gave a bogus 64h55m / 2941 g again (known glitch, re-run fine). `coaster_R_roses_stencil.3mf` sent.
+
+## 2026-11-26 (cloud) — back to OUR rose coaster; clarity values now written into every file
+- Owner: stop fixing the other file, work on ours (`coaster_R_roses_black`). Found our 3MFs also carried ensure_vertical_shell_thickness = enabled (CLI prep default; our CLI checks used --set, the GUI reads the file). `clear_tpu_settings.py` now writes all clarity process values into the file (aligned rectilinear everywhere, 1/1 shells, thickness 0, ensure none, ironing). `coaster_R_roses_black_v3.3mf` sent: Textured PEI kept (owner), 0 crossed layers from its own settings, CLI 1h59m.
+- Older files sent before today have ensure = enabled inside: re-run them through clear_tpu_settings if reprinted.
+
+## 2026-11-26 (cloud) — owner's rose coaster: print photo diagnosis, v4
+- Owner: colours not clear vs our files. Measured: in his file 11 % of the black ink is < 0.7 mm (8 % < 0.5), ours 0 %. Printed photo (his v2): crossed grid visible (ensure_vertical_shell_thickness was on), fuzzy/lacy black edges and a hollow-looking R (thin strokes + Textured PEI frosting the 0.4 mm face), leaves came out black (olive slot probably mapped to a black spool).
+- v4 (chat only): thin ink parts thickened (+0.18 mm on the thin bits only, black thin share 11 -> 5 %), rounded TPU, ensure_vertical none, purge matrix 32, Textured PEI kept as asked; slices, 0 crossed layers, CLI 1h53m. Advised Smooth PEI as the biggest clarity gain.
+
+## 2026-11-26 (cloud) — owner's rose coaster file brought to our method (v3)
+- Compared his `coaster_rania_rose_black_v2.3mf` with our method: same layers 0.4/0.6/2.0, face down, clear settings; differences: sharp TPU edge, ensure_vertical_shell_thickness enabled, Textured PEI. Owner: keep Textured PEI, fix the rest.
+- v3 (chat only): TPU body rebuilt = `coaster_text.rounded_disc()` (r 0.6) minus his unchanged ink parts; ensure_vertical_shell_thickness none; purge matrix 32. Slices fine, 0 crossed layers, CLI 1h52m. The TPU mesh is watertight as written in the 3MF; an STL round trip (vertex merge) opens it, so print_test on STLs flags it.
+- Owner also asked if a black rose stencil picture (300 px) prints: yes at 55-60 mm tall (40 mm: 17 gaps < 0.7 mm); a bigger/SVG version would be cleaner. Waiting for what goes with it.
+
+## 2026-11-26 (cloud) — GUI error "Purge volumes matrix do not match to the correct size!"
+- Correction: the owner's screenshot was HIS other file `coaster_rania_rose_black_v2.3mf` (laurel + roses ring, 4 filaments, made elsewhere, not in git) with the same cause (16 entries, needs 32). New `clear_tpu_settings.py --purge-only`: changes only flush_volumes_matrix + flush_multiplier (checked: nothing else differs). Fixed file sent in chat, CLI slices it (1h53m).
+- Owner opened the 5-filament rose coaster in Studio: error. The 3MF had a 5x5 purge matrix; the H2D GUI wants one per nozzle (2 x n x n) and 2 flush multipliers. `clear_tpu_settings.py` now writes 2 n n entries, vector 2 n, multiplier x2. `coaster_R_roses_black_v2.3mf` sent (CLI still slices it: 1h59m). Owner's screenshot shows the Textured PEI plate selected: use the smooth plate for a glossy face.
+
+## 2026-11-26 (cloud) — rose coaster: black R + black rose spirals
+- Owner: spirals black (not clear) and the R black too. `coaster_picture.py --white --black`: spirals added to the letter's slot, colour #141414; ink outlines cleaned (buffer 0.01 + simplify) because the merged black shape was not a closed volume. print_test 0 problems, 0 crossed layers, CLI 1h57m / 30.7 g. `coaster_R_roses_black.3mf` sent in chat.
+
+## 2026-11-26 (cloud) — rose coaster: roses must look like damask roses (جوري)
+- Solid rose blobs rejected. Tracing the picture's dark swirl bands (~1 mm in a ~10 mm rose) ate the roses; arcs + spiral looked like smiley faces. Final: each open rose (4, R 4.6-5.2 mm) gets one drawn spiral (1.75 turns) cut as a 0.7 mm CLEAR line, ~1.2 mm crimson bands. Buds unchanged.
+- print_test 0 problems, 0 crossed layers, CLI 1h57m / 30.5 g. `coaster_R_roses_jouri.3mf` sent in chat.
+
+## 2026-11-26 (cloud) — R coaster with a rose wreath (owner's new flat picture)
+- Owner's picture on WHITE (no circle): purple serif R, crimson roses + buds, olive leaves, brown stems. `coaster_picture.py --white`: nearest-palette colour per pixel (rose swirls -> crimson, so roses print as solid shapes), whole design fitted inside r 43.5 mm (69 mm wide), stems thickened/smoothed like before. 5 slots: TPU + purple, crimson #B0123F, olive, brown.
+- print_test 0 problems, 0 crossed layers, CLI 1h56m / 30.5 g. `coaster_R_roses_final.3mf` sent in chat (picture not in git).
+
 ## 2026-11-24 (cloud) — check of a downloaded LED-strip sign ("Sally", 5 mm strip)
 - Owner's downloaded 3MF (not in git): 174 x 111 x 10 mm, 2 mm back + 8 mm outline walls (~1.2-1.8 mm) = open channel for a 5 mm LED strip. Two separate bodies ("S" and "ally"), plain 3MF centred at 0,0 (Bambu CLI refused it; sliced as STL).
 - print_test 0 problems. CLI 0.20 mm: PLA 59 min / 38 g, PETG 1h00 / 37 g (GUI usually longer). Price sheet missing in this session.

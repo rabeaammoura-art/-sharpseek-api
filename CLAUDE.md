@@ -29,6 +29,7 @@ The repo is **public** — never commit purchase prices, the price sheet, produc
 - **Before sending any model for printing:** run the skill `3d-print-test` (`cad/print_test.py`: islands, overhangs, thin features, bed fit). Then `/3d-cost` for time and money.
 
 ## Facts and preferences (decided with the owner)
+- **Tatreez bookmarks (owner 2026-11-27):** every embroidered bookmark starts from `cad/bookmark/bookmark.py` / `cad/print_files/bookmark/bookmark_iqra.3mf` (raised two-thread X stitches on an aida weave, 2 swappable colour parts, 50 x 170 mm, 0.16 layer, ~55 min). Stitched text = hand-drawn letters in `cad/bookmark/stitch_text.py`. Print tips: smooth plate, infill_direction 0, no ironing.
 - **Cost rule (owner agreed 2026-11-06):** for any design/file the owner brings, do the **cheap quick repair + check first** (merge vertices, fix normals, drop to z=0, `/3d-print-test`); rebuild from scratch only if that fails or the owner asks. Keep answers and tool rounds minimal.
 - **The printer (Bambu Lab H2D) arrived and is connected (2026-11-20: first print = heart TPU/PETG coaster).** Real print tests are now possible; designs made before that date are still untested until printed. Owner's Bambu Studio GUI times are the reference (CLI estimated 35 min where the GUI said 1h02m for the TPU + PETG coaster).
 - Priorities: **print time matters more than cost**; no glue; no thicker base; avoid loose separate pieces; the owner likes things shown as images.
