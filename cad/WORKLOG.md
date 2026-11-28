@@ -9,6 +9,7 @@ Entry format: `## YYYY-MM-DD (cloud|laptop) — title` then 2-5 bullets: what wa
 - Owner file (not in git): serif S 88 x 103 x 25 mm + cursive name 5 mm on top; name strokes only 3.7-5.6 mm (median 4.4), 2/3 of the name hangs outside the S at z=25 (overhang, needs support; was already in his file).
 - Owner chose 3 mm groove; marked gaps at the l loops and the y. `cad/name_led_groove.py`: pen-stroke chains from the name medial axis, smoothed; name grown 0.5 mm + 1.2 mm walls around the groove; groove depth 3.5 (floor 1.5).
 - `sally_S_led3.3mf` 90.5 x 103.3 x 30, one body; print_test only the old overhang; CLI with support PLA 1h39m / 45 g. Sent in chat.
+- Owner then split it himself (S 20 mm + 4 mm name pocket, plain 7 mm name; S was upside down = pocket roof overhang). Rebuilt: `S_body.stl` 69 x 103 x 20, pocket = grooved name x S + 0.25 mm (PETG name possible), face up; `name_led3.stl` 90.5 x 63 x 7, groove 3 x 3.5 from top. Both print_test 0, no support. CLI: S PLA 43 min / 27 g, name PETG 28 min / 10 g. `sally_S_split.3mf` (both) sent.
 
 ## 2026-11-27 (cloud) — where the mom's bookmark («بسم الله الرحمن الرحيم / أمي», purple + gold) was made
 - Not logged before. It was built in the cloud session "3D cost" started 2026-11-13 (session_01WCFcZ1MkCcfT3naBfYCLSn, ~16 Nov): `cad/out/bookmark_emb/` (verse bookmark, frame 50 x 182, Gemini frame prompts). Its files were in `cad/out` (git-ignored), so they are not in git. The owner printed it and used the photo in the launch post («فواصل المصاحف والكتب»).
